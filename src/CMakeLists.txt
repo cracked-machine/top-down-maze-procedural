@@ -1,4 +1,4 @@
-set(TARGET ProceduralMaze)
+set(TARGET TheShadesBelow)
 
 add_executable(${TARGET} 
     ${CMAKE_SOURCE_DIR}/src/main.cpp
@@ -99,7 +99,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/PathFinding/AStar.cpp
 )
 
-target_precompile_headers(ProceduralMaze PRIVATE
+target_precompile_headers(TheShadesBelow PRIVATE
 
     # STL
     <vector>

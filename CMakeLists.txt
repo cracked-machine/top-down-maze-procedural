@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(ProceduralMazeProject LANGUAGES CXX)
+project(TheShadesBelowProject LANGUAGES CXX)
 
 message(STATUS "Building for architecture: ${TARGET_TRIPLET}")
 message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")

@@ -92,7 +92,8 @@ void RenderMenuSystem::render_title()
     sf::Color txt_color{ 64, 96, 184 };
     sf::Color txt_outline_color{ 48, 48, 48 };
 
-    render_text( "Nekropolis", display_size.x / 20, { display_size.x * 0.25f, display_size.y * 0.25f }, Alignment::CENTER, 2.f, txt_outline_color );
+    render_text( "The Shades Below", display_size.x / 20, { display_size.x * 0.25f, display_size.y * 0.25f }, Alignment::CENTER, 2.f,
+                 txt_outline_color );
 
     render_text( "Press <Enter> key to start", display_size.x / 40, { display_size.x * 0.25f, display_size.y * 0.5f }, Alignment::CENTER, 3.f,
                  txt_color );

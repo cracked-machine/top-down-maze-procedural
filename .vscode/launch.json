@@ -20,7 +20,7 @@
     "request": "launch",
     // samba network share path to project and binary 
     "cwd": "X:\\cpp\\games\\temp\\build\\bin",
-    "program": "X:\\cpp\\games\\temp\\build\\bin\\ProceduralMaze.exe",
+    "program": "X:\\cpp\\games\\temp\\build\\bin\\TheShadesBelow.exe",
     "MIMode": "gdb",
     // local target (windows) install of gdb (w64devkit/msys)
     "miDebuggerPath": "C:\\msys64\\mingw64\\bin\\gdb.exe",

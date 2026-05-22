@@ -80,11 +80,11 @@ In theory you can get windows to create a crash dump, but trying to use this win
 After building the exe on a remote Linux build server, it is recommended to copy (install) the files onto the local windows workstation before launching the game. For performance reasons, it is not recommended to launch the game over a network/samba share. Using SCP can speed up this copy/install process:
 
 ```
-del /q "C:\Users\chris\Desktop\Resurrectionist\bin"
-mkdir "C:\Users\chris\Desktop\Resurrectionist\bin"
-scp -r 192.168.1.106:/home/chris/projects/cpp/games/top-down-maze-procedural\build-x86_64-w64-mingw32\bin C:\Users\chris\Desktop\Resurrectionist
+del /q "C:\Users\chris\Desktop\TheShadesBelow\bin"
+mkdir "C:\Users\chris\Desktop\TheShadesBelow\bin"
+scp -r 192.168.1.106:/home/chris/projects/cpp/games/TheShadesBelow\build-x86_64-w64-mingw32\bin C:\Users\chris\Desktop\TheShadesBelow
 
-start /wait /b /d "C:\Users\chris\Desktop\Resurrectionist\bin\" ProceduralMaze.exe
+start /wait /b /d "C:\Users\chris\Desktop\TheShadesBelow\bin\" TheShadesBelow.exe
 ```
 
 

@@ -1,6 +1,4 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://proceduralmaze.com/schemas/persistent-components.json",
   "title": "Persistent Components Configuration",
   "description": "Schema for procedural maze persistent component configurations",
   "type": "object",
