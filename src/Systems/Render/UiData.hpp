@@ -2,13 +2,13 @@
 #define SRC_SYSTEM_RENDER_UIDATA_HPP_
 
 #include <Sprites/SpriteMetaType.hpp>
+#include <Utils/JsonDeserializer.hpp>
 #include <nlohmann/json_fwd.hpp>
-#include <source_location>
 
 namespace Game::Render
 {
 
-class UiData
+class UiData : public Utils::JsonDeserializer
 {
 public:
   struct Outline
@@ -55,16 +55,17 @@ public:
   nlohmann::json load_json_file( const std::filesystem::path &json_file );
   void deserialize( const std::filesystem::path &scene_tiledata_path );
 
-  std::string get_string( const nlohmann::json &json_object, const std::string &field, std::source_location loc = std::source_location::current() );
-  float get_float( const nlohmann::json &json, const std::string &field, std::source_location loc = std::source_location::current() );
-  int get_int( const nlohmann::json &json, const std::string &field, std::source_location loc = std::source_location::current() );
-  sf::Color get_color( const nlohmann::json &json, const std::string &field, std::source_location loc = std::source_location::current() );
+  // std::string get_string( const nlohmann::json &json_object, const std::string &field, std::source_location loc = std::source_location::current()
+  // ); float get_float( const nlohmann::json &json, const std::string &field, std::source_location loc = std::source_location::current() ); int
+  // get_int( const nlohmann::json &json, const std::string &field, std::source_location loc = std::source_location::current() ); sf::Color get_color(
+  // const nlohmann::json &json, const std::string &field, std::source_location loc = std::source_location::current() );
 
-  int get_int_property( const nlohmann::json &json, const std::string &field, std::source_location loc = std::source_location::current() );
-  std::string get_string_property( const nlohmann::json &json, const std::string &field, std::source_location loc = std::source_location::current() );
-  sf::Color get_color_property( const nlohmann::json &json, const std::string &field, std::source_location loc = std::source_location::current() );
+  // int get_int_property( const nlohmann::json &json, const std::string &field, std::source_location loc = std::source_location::current() );
+  // std::string get_string_property( const nlohmann::json &json, const std::string &field, std::source_location loc = std::source_location::current()
+  // ); sf::Color get_color_property( const nlohmann::json &json, const std::string &field, std::source_location loc = std::source_location::current()
+  // );
 
-  sf::FloatRect get_float_rect( const nlohmann::json &json_object );
+  // sf::FloatRect get_float_rect( const nlohmann::json &json_object );
 
   std::vector<Outline> m_outlines;
   std::vector<Label> m_labels;

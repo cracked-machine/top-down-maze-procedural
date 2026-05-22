@@ -1,0 +1,41 @@
+#ifndef SRC_UTILS_JSONDESERIALIZER_HPP_
+#define SRC_UTILS_JSONDESERIALIZER_HPP_
+
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Rect.hpp>
+#include <filesystem>
+#include <nlohmann/json.hpp>
+#include <source_location>
+#include <string>
+
+namespace Game::Utils
+{
+
+class JsonDeserializer
+{
+public:
+  static nlohmann::json load_json_file( const std::filesystem::path &path );
+
+  static std::string get_string( const nlohmann::json &j, const std::string &field, std::source_location loc = std::source_location::current() );
+  static float get_float( const nlohmann::json &j, const std::string &field, std::source_location loc = std::source_location::current() );
+  static int get_int( const nlohmann::json &j, const std::string &field, std::source_location loc = std::source_location::current() );
+  static sf::Color get_color( const nlohmann::json &j, const std::string &field, std::source_location loc = std::source_location::current() );
+  static sf::FloatRect get_float_rect( const nlohmann::json &object );
+
+  static std::string get_string_property( const nlohmann::json &j, const std::string &field,
+                                          std::source_location loc = std::source_location::current() );
+  static int get_int_property( const nlohmann::json &j, const std::string &field, std::source_location loc = std::source_location::current() );
+  static sf::Color get_color_property( const nlohmann::json &j, const std::string &field,
+                                       std::source_location loc = std::source_location::current() );
+
+protected:
+  ~JsonDeserializer() = default;
+
+private:
+  static std::string make_loc_string( const std::source_location &loc );
+  static void check_contains( const nlohmann::json &j, const std::string &field, const std::source_location &loc );
+};
+
+} // namespace Game::Utils
+
+#endif // SRC_UTILS_JSONDESERIALIZER_HPP_

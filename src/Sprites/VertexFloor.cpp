@@ -8,7 +8,6 @@
 
 #include <SFML/Graphics/Color.hpp>
 #include <entt/entity/registry.hpp>
-#include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 #include <stdexcept>
 
