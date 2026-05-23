@@ -8,42 +8,6 @@
 
 namespace nlohmann
 {
-//! @brief Deserialize MainTileSet
-template <>
-struct adl_serializer<Game::Scene::SceneData::MainTileSet>
-{
-  static void from_json( const json &j, Game::Scene::SceneData::MainTileSet &ts )
-  {
-    if ( not j.contains( "tiles" ) ) throw std::runtime_error( "Missing JSON property 'tiles' in main tileset." );
-    for ( const auto &tile : j.at( "tiles" ) )
-    {
-      if ( not tile.contains( "id" ) ) { throw std::runtime_error( "Missing JSON property 'id' in main tileset" ); }
-      auto id = tile.at( "id" ).get<int>();
-
-      if ( not tile.contains( "type" ) ) { throw std::runtime_error( "Missing JSON property 'type' in main tileset" ); }
-      auto type = tile.at( "type" ).get<std::string>();
-
-      if ( type == "void" ) { ts.void_tile_id = id; }
-      else if ( type == "wall" ) { ts.wall_tile_id = id; }
-      else if ( type == "open" ) { ts.open_tile_id = id; }
-      else if ( type == "spawn" ) { ts.spawn_tile_id = id; }
-      else if ( type == "player" ) { ts.player_tile_id = id; }
-      else if ( type == "exit" ) { ts.exit_tile_id = id; }
-      else if ( type == "reserved" ) { ts.reserved_tile_id = id; }
-      else { SPDLOG_WARN( "Unknown 'type' found in main tileset: {}", type ); }
-    }
-    // 'ts.wall_tile_id' should default to zero so no check needed
-    if ( ts.wall_tile_id == 0 ) { throw std::runtime_error( "Missing JSON property 'type.wall' in main tileset" ); }
-    if ( ts.open_tile_id == 0 ) { throw std::runtime_error( "Missing JSON property 'type.open' in main tileset" ); }
-    if ( ts.spawn_tile_id == 0 ) { throw std::runtime_error( "Missing JSON property 'type.spawn' in main tileset" ); }
-    if ( ts.player_tile_id == 0 ) { throw std::runtime_error( "Missing JSON property 'type.player' in main tileset" ); }
-    if ( ts.exit_tile_id == 0 ) { throw std::runtime_error( "Missing JSON property 'type.exit' in main tileset" ); }
-    if ( ts.reserved_tile_id == 0 ) { throw std::runtime_error( "Missing JSON property 'type.reserved' in main tileset" ); }
-    if ( not j.contains( "tilewidth" ) ) throw std::runtime_error( "Missing JSON property 'tilewidth' in main tileset." );
-    if ( not j.contains( "tileheight" ) ) throw std::runtime_error( "Missing JSON property 'tileheight' in main tileset." );
-    ts.tile_size = sf::Vector2u( j.at( "tilewidth" ).get<uint32_t>(), j.at( "tileheight" ).get<uint32_t>() );
-  }
-};
 
 //! @brief Deserialize Tilemaps
 template <>
@@ -212,41 +176,54 @@ bool SceneData::deserialize_int_wall_tileset( const std::filesystem::path &scene
 bool SceneData::deserialize_ext_main_tileset( const std::filesystem::path &scene_tilemap_path, const nlohmann::json &tileset,
                                               SceneData::MainTileSet &main_tileset, int &main_ext_first_gid )
 {
-  bool result = false;
   std::filesystem::path main_tileset_path;
-  if ( tileset.contains( "source" ) and tileset.contains( "firstgid" ) )
-  {
-    std::filesystem::path source = tileset.at( "source" ).get<std::string>();
-    if ( source.filename() == "main.json" )
-    {
-      main_tileset_path = Constants::res_dir / "scenes" / source;
-      main_ext_first_gid = tileset.at( "firstgid" ).get<int>();
-    }
-    else
-    {
-      // We only expect one external tileset so just return early if others are found
-      return result;
-    }
-  }
-  else
-  {
-    // This might not be an embedded tileset, in which case just return early
-    return result;
-  }
+  if ( not tileset.contains( "source" ) or not tileset.contains( "firstgid" ) ) return false;
+
+  std::filesystem::path source = get_string( tileset, "source" );
+
+  // We only expect one external tileset so just return early if others are found
+  if ( source.filename() != "main.json" ) return false;
+
+  main_tileset_path = Constants::res_dir / "scenes" / source;
+  main_ext_first_gid = tileset.at( "firstgid" ).get<int>();
+
   if ( main_tileset_path.empty() ) { throw std::runtime_error( "Cannot find file 'main.json' from " + scene_tilemap_path.string() ); }
 
   // now deserialize the external main tileset json contents
   try
   {
     nlohmann::json main_tileset_json = load_json_file( main_tileset_path );
-    main_tileset = main_tileset_json.get<SceneData::MainTileSet>();
-    result = true;
+
+    if ( not main_tileset_json.contains( "tiles" ) ) throw std::runtime_error( "Missing JSON property 'tiles' in main tileset." );
+    for ( const auto &tile : main_tileset_json.at( "tiles" ) )
+    {
+      auto id = get_int( tile, "id" );
+      auto type = get_string( tile, "type" );
+
+      if ( type == "void" ) { main_tileset.void_tile_id = id; }
+      else if ( type == "wall" ) { main_tileset.wall_tile_id = id; }
+      else if ( type == "open" ) { main_tileset.open_tile_id = id; }
+      else if ( type == "spawn" ) { main_tileset.spawn_tile_id = id; }
+      else if ( type == "player" ) { main_tileset.player_tile_id = id; }
+      else if ( type == "exit" ) { main_tileset.exit_tile_id = id; }
+      else if ( type == "reserved" ) { main_tileset.reserved_tile_id = id; }
+      else { SPDLOG_WARN( "Unknown 'type' found in main tileset: {}", type ); }
+    }
+    // 'main_tileset.wall_tile_id' should default to zero so no check needed
+    if ( main_tileset.wall_tile_id == 0 ) { throw std::runtime_error( "Missing JSON property 'type.wall' in main tileset" ); }
+    if ( main_tileset.open_tile_id == 0 ) { throw std::runtime_error( "Missing JSON property 'type.open' in main tileset" ); }
+    if ( main_tileset.spawn_tile_id == 0 ) { throw std::runtime_error( "Missing JSON property 'type.spawn' in main tileset" ); }
+    if ( main_tileset.player_tile_id == 0 ) { throw std::runtime_error( "Missing JSON property 'type.player' in main tileset" ); }
+    if ( main_tileset.exit_tile_id == 0 ) { throw std::runtime_error( "Missing JSON property 'type.exit' in main tileset" ); }
+    if ( main_tileset.reserved_tile_id == 0 ) { throw std::runtime_error( "Missing JSON property 'type.reserved' in main tileset" ); }
+    main_tileset.tile_size = sf::Vector2u( get_int( main_tileset_json, "tilewidth" ), get_int( main_tileset_json, "tileheight" ) );
+
   } catch ( std::exception &e )
   {
     throw std::runtime_error( "Error in main tileset '" + main_tileset_path.string() + "': " + e.what() );
   }
 
-  return result;
+  return true;
 }
 
 void SceneData::deserialize_tilemap( const std::filesystem::path &scene_tilemap_path, const nlohmann::json &scene_tilemap_json,
