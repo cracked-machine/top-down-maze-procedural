@@ -60,14 +60,12 @@ int JsonDeserializer::get_int( const nlohmann::json &j, const std::string &field
   return j.at( field ).get<int>();
 }
 
-std::vector<int> JsonDeserializer::get_int_list( const nlohmann::json &j, std::source_location loc )
+std::vector<int> JsonDeserializer::get_int_list( const nlohmann::json &j, std::string field, std::source_location loc )
 {
   std::vector<int> results;
-  for ( const auto &value : j.at( "value" ) )
+  for ( const auto &value : j.at( field ) )
   {
-    if ( auto type = get_string( value, "type", loc ); type != "int" )
-      throw std::runtime_error( make_loc_string( loc ) + "JSON field 'type' is not a number, got: " + j.at( type ).type_name() );
-    results.push_back( get_int( value, "value" ) );
+    results.push_back( get_int( value, "value", loc ) );
   }
   return results;
 }
@@ -113,7 +111,7 @@ std::vector<int> JsonDeserializer::get_int_list_property( const nlohmann::json &
   if ( not j.contains( "properties" ) )
     throw std::runtime_error( make_loc_string( loc ) + "Missing JSON property 'properties' in object " + get_string( j, "name" ) );
   for ( const auto &prop : j.at( "properties" ) )
-    if ( get_string( prop, "name" ) == field ) return get_int_list( prop );
+    if ( get_string( prop, "name" ) == field ) return get_int_list( prop, "value" );
   throw std::runtime_error( make_loc_string( loc ) + "Missing JSON property field in object: " + field );
 }
 
