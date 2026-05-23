@@ -21,12 +21,18 @@ public:
   static int get_int( const nlohmann::json &j, const std::string &field, std::source_location loc = std::source_location::current() );
   static sf::Color get_color( const nlohmann::json &j, const std::string &field, std::source_location loc = std::source_location::current() );
   static sf::FloatRect get_float_rect( const nlohmann::json &object );
+  static std::vector<int> get_int_list( const nlohmann::json &j, std::source_location loc = std::source_location::current() );
 
   static std::string get_string_property( const nlohmann::json &j, const std::string &field,
                                           std::source_location loc = std::source_location::current() );
   static int get_int_property( const nlohmann::json &j, const std::string &field, std::source_location loc = std::source_location::current() );
   static sf::Color get_color_property( const nlohmann::json &j, const std::string &field,
                                        std::source_location loc = std::source_location::current() );
+
+  static std::vector<int> get_int_list_property( const nlohmann::json &j, const std::string &field,
+                                                 std::source_location loc = std::source_location::current() );
+
+  static std::filesystem::path get_abs_path( const std::filesystem::path &rel );
 
 protected:
   ~JsonDeserializer() = default;

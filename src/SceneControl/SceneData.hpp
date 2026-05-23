@@ -3,12 +3,13 @@
 
 #include <SFML/Graphics/Rect.hpp>
 #include <Sprites/SpriteMetaType.hpp>
+#include <Utils/JsonDeserializer.hpp>
 #include <nlohmann/json_fwd.hpp>
 
 namespace Game::Scene
 {
 
-class SceneData
+class SceneData : public Utils::JsonDeserializer
 {
 public:
   struct MainTileSet
@@ -75,19 +76,16 @@ public:
   std::pair<sf::Vector2u, sf::Vector2f> map_size() const;
 
 private:
-  nlohmann::json load_json_file( const std::filesystem::path &json_file );
-
   //! @brief Get the tilesets and tilelayers from the Tiled json file
   //! @param scene_tiledata_path
   void deserialize( const std::filesystem::path &scene_tiledata_path );
 
-  //! @brief Get the embedded floor tileset from the JSON object
-  //! @param scene_tilemap_path Used for meaningful logging
+  //! @brief Get the embedded floor tileset from the JSON objectp
   //! @param tileset The JSON input
   //! @param floor_tileset The output
   //! @return true
   //! @return false
-  bool deserialize_int_floor_tileset( const std::filesystem::path &scene_tilemap_path, const nlohmann::json &tileset, FloorTileSet &floor_tileset );
+  bool deserialize_int_floor_tileset( const nlohmann::json &json, FloorTileSet &tileset );
 
   //! @brief Get the embedded wall tileset from the JSON object
   //! @param tileset The JSON input

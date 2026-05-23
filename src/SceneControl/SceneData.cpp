@@ -45,45 +45,6 @@ struct adl_serializer<Game::Scene::SceneData::MainTileSet>
   }
 };
 
-//! @brief Deserialize FloorTileSet
-template <>
-struct adl_serializer<Game::Scene::SceneData::FloorTileSet>
-{
-  static void from_json( const json &j, Game::Scene::SceneData::FloorTileSet &ts )
-  {
-    if ( not j.contains( "image" ) ) throw std::runtime_error( "Missing JSON property: 'image' in floor tileset" );
-    std::string image = j.at( "image" ).get<std::string>();
-
-    // strip the relative dots and prepend with the resource dir
-    std::filesystem::path result;
-    for ( const auto &part : std::filesystem::path( image ) )
-    {
-      if ( part == ".." || part == "." ) continue;
-      result /= part;
-    }
-    ts.tileset_image = Game::Constants::res_dir / result;
-    if ( not j.contains( "properties" ) ) throw std::runtime_error( "Missing JSON property 'properties' in floor tileset" );
-    for ( const auto &property : j.at( "properties" ) )
-    {
-      if ( not property.contains( "name" ) ) { throw std::runtime_error( "Missing JSON property 'properties.name' in floor tileset" ); }
-      if ( property.at( "name" ).get<std::string>() != "pool" ) continue;
-
-      // confusingly the 'value' list contains 'value' objects
-      ts.tileset_pool.clear();
-      if ( not property.contains( "value" ) ) { throw std::runtime_error( "Missing JSON property 'properties.value' in floor tileset" ); }
-      for ( const auto &value_object : property.at( "value" ) )
-      {
-        if ( not value_object.contains( "value" ) ) { throw std::runtime_error( "Missing JSON property 'properties.value.value' in floor tileset" ); }
-        ts.tileset_pool.push_back( value_object.at( "value" ).get<int>() );
-      }
-    }
-    if ( ts.tileset_pool.empty() ) throw std::runtime_error( "Floor tileset 'pool' property is missing or empty" );
-    if ( not j.contains( "tilewidth" ) ) throw std::runtime_error( "Missing JSON property 'tilewidth' in floor tileset." );
-    if ( not j.contains( "tileheight" ) ) throw std::runtime_error( "Missing JSON property 'tileheight' in floor tileset." );
-    ts.tile_size = sf::Vector2u( j.at( "tilewidth" ).get<uint32_t>(), j.at( "tileheight" ).get<uint32_t>() );
-  }
-};
-
 //! @brief Deserialize Tilemaps
 template <>
 struct adl_serializer<Game::Scene::SceneData::Data>
@@ -174,30 +135,10 @@ namespace Game::Scene
 
 SceneData::SceneData( std::filesystem::path map_file ) { deserialize( map_file ); }
 
-nlohmann::json SceneData::load_json_file( const std::filesystem::path &path )
-{
-  if ( not std::filesystem::exists( path ) )
-  {
-    SPDLOG_ERROR( "JSON file does not exist: {}", path.string() );
-    throw std::runtime_error( "JSON file not found: " + path.string() );
-  }
-
-  std::ifstream fs( path );
-  if ( not fs.is_open() )
-  {
-    SPDLOG_ERROR( "Unable to open JSON file: {}", path.string() );
-    throw std::runtime_error( "Cannot open JSON file: " + path.string() );
-  }
-
-  nlohmann::json json;
-  fs >> json;
-  return json;
-}
-
-void SceneData::deserialize( const std::filesystem::path &scene_tiledata_path )
+void SceneData::deserialize( const std::filesystem::path &json_scene_file_path )
 {
   SceneData::Data scene_tilemap;
-  nlohmann::json scene_tilemap_json = load_json_file( scene_tiledata_path );
+  nlohmann::json scene_tilemap_json = load_json_file( json_scene_file_path );
 
   FloorTileSet floor_tileset;
   int wall_first_gid = 0;
@@ -214,21 +155,21 @@ void SceneData::deserialize( const std::filesystem::path &scene_tiledata_path )
   for ( const auto &tileset : scene_tilemap_json.at( "tilesets" ) )
   {
     // embedded tilesets
-    if ( not found_floor_tileset ) { found_floor_tileset = deserialize_int_floor_tileset( scene_tiledata_path, tileset, floor_tileset ); }
-    if ( not found_wall_tileset ) { found_wall_tileset = deserialize_int_wall_tileset( scene_tiledata_path, tileset, wall_first_gid ); }
+    if ( not found_floor_tileset ) { found_floor_tileset = deserialize_int_floor_tileset( tileset, floor_tileset ); }
+    if ( not found_wall_tileset ) { found_wall_tileset = deserialize_int_wall_tileset( json_scene_file_path, tileset, wall_first_gid ); }
 
     // external 'main' tileset metadata
     if ( not found_main_tileset )
     {
-      found_main_tileset = deserialize_ext_main_tileset( scene_tiledata_path, tileset, main_tileset, main_ext_first_gid );
+      found_main_tileset = deserialize_ext_main_tileset( json_scene_file_path, tileset, main_tileset, main_ext_first_gid );
     }
   }
-  if ( not found_floor_tileset ) { throw std::runtime_error( "JSON Error: missing floor tileset: " + scene_tiledata_path.string() ); }
-  if ( not found_main_tileset ) { throw std::runtime_error( "JSON Error: missing main tileset: " + scene_tiledata_path.string() ); }
-  if ( not found_wall_tileset ) { SPDLOG_WARN( "missing wall tileset: {}", scene_tiledata_path.string() ); } // optional tileset
+  if ( not found_floor_tileset ) { throw std::runtime_error( "JSON Error: missing floor tileset: " + json_scene_file_path.string() ); }
+  if ( not found_main_tileset ) { throw std::runtime_error( "JSON Error: missing main tileset: " + json_scene_file_path.string() ); }
+  if ( not found_wall_tileset ) { SPDLOG_WARN( "missing wall tileset: {}", json_scene_file_path.string() ); } // optional tileset
 
   // Now deserialize the overal tilemap file and populate it with the tilesets
-  deserialize_tilemap( scene_tiledata_path, scene_tilemap_json, scene_tilemap );
+  deserialize_tilemap( json_scene_file_path, scene_tilemap_json, scene_tilemap );
   scene_tilemap.wall_first_gid = wall_first_gid;
   scene_tilemap.floor_tileset = floor_tileset;
   scene_tilemap.main_first_gid = main_ext_first_gid;
@@ -240,22 +181,20 @@ void SceneData::deserialize( const std::filesystem::path &scene_tiledata_path )
   m_map_data = scene_tilemap;
 }
 
-bool SceneData::deserialize_int_floor_tileset( const std::filesystem::path &scene_tilemap_path, const nlohmann::json &tileset,
-                                               FloorTileSet &floor_tileset )
+bool SceneData::deserialize_int_floor_tileset( const nlohmann::json &json, FloorTileSet &tileset )
 {
-  bool result = false;
-  if ( tileset.contains( "name" ) and tileset.at( "name" ).get<std::string>() == "floor" )
-  {
-    try
-    {
-      floor_tileset = tileset.get<SceneData::FloorTileSet>();
-      result = true;
-    } catch ( std::exception &e )
-    {
-      throw std::runtime_error( "Error in floor tileset '" + scene_tilemap_path.string() + "': " + e.what() );
-    }
-  }
-  return result;
+  if ( json.contains( "name" ) and json.at( "name" ).get<std::string>() != "floor" ) return false;
+  if ( not json.contains( "image" ) ) return false;
+
+  std::string image = get_string( json, "image" );
+  tileset.tileset_image = get_abs_path( image );
+
+  tileset.tileset_pool.clear();
+  tileset.tileset_pool = get_int_list_property( json, "pool" );
+  if ( tileset.tileset_pool.empty() ) throw std::runtime_error( "Floor tileset 'pool' property is missing or empty" );
+  tileset.tile_size = sf::Vector2u( get_int( json, "tilewidth" ), get_int( json, "tileheight" ) );
+
+  return true;
 }
 
 bool SceneData::deserialize_int_wall_tileset( const std::filesystem::path &scene_tilemap_path, const nlohmann::json &tileset, int &wall_first_gid )

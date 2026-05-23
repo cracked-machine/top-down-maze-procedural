@@ -2,33 +2,12 @@
 #include <Systems/Render/UiData.hpp>
 
 #include <filesystem>
-#include <fstream>
 #include <nlohmann/json.hpp>
 
 namespace Game::Render
 {
 
 UiData::UiData( const std::filesystem::path &map_file ) { deserialize( map_file ); }
-
-nlohmann::json UiData::load_json_file( const std::filesystem::path &json_file )
-{
-  if ( not std::filesystem::exists( json_file ) )
-  {
-    SPDLOG_ERROR( "JSON file does not exist: {}", json_file.string() );
-    throw std::runtime_error( "JSON file not found: " + json_file.string() );
-  }
-
-  std::ifstream fs( json_file );
-  if ( not fs.is_open() )
-  {
-    SPDLOG_ERROR( "Unable to open JSON file: {}", json_file.string() );
-    throw std::runtime_error( "Cannot open JSON file: " + json_file.string() );
-  }
-
-  nlohmann::json json;
-  fs >> json;
-  return json;
-}
 
 void UiData::deserialize( const std::filesystem::path &scene_tiledata_path )
 {
