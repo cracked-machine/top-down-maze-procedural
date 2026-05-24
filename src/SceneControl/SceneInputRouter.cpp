@@ -37,7 +37,7 @@
 #include <SceneControl/SceneInputRouter.hpp>
 #include <Stats/BaseAction.hpp>
 #include <Systems/PersistSystem.hpp>
-#include <Systems/SystemStore.hpp>
+#include <Systems/Stores/SystemStore.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
 

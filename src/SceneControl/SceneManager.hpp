@@ -12,7 +12,7 @@
 #include <SceneControl/RegistryTransfer.hpp>
 #include <SceneControl/SceneStack.hpp>
 #include <Systems/BaseSystem.hpp>
-#include <Systems/SystemStore.hpp>
+#include <Systems/Stores/SystemStore.hpp>
 
 #include <Utils/Constants.hpp>
 #include <future>

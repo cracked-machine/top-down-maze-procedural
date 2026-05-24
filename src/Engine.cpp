@@ -13,7 +13,7 @@
 #include <SceneControl/Scenes/GraveyardScene.hpp>
 #include <SceneControl/Scenes/TitleScene.hpp>
 #include <Systems/BaseSystem.hpp>
-#include <Systems/SystemStore.hpp>
+#include <Systems/Stores/SystemStore.hpp>
 #include <Systems/Threats/HazardFieldSystem.hpp>
 #include <Systems/Threats/HazardFieldSystemImpl.hpp>
 #include <imgui-SFML.h>

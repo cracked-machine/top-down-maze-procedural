@@ -26,7 +26,7 @@
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
 #include <Systems/ShopSystem.hpp>
-#include <Systems/SystemStore.hpp>
+#include <Systems/Stores/SystemStore.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 
 namespace Game::Scene

@@ -48,7 +48,7 @@
 #include <Systems/ShaderSystem.hpp>
 #include <Systems/Stores/ItemStore.hpp>
 #include <Systems/Stores/NpcStore.hpp>
-#include <Systems/SystemStore.hpp>
+#include <Systems/Stores/SystemStore.hpp>
 #include <Systems/Threats/BombSystem.hpp>
 #include <Systems/Threats/HazardFieldSystemImpl.hpp>
 #include <Systems/Threats/WormholeSystem.hpp>

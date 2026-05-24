@@ -4,7 +4,7 @@
 #include <Persistent/ShopMinPrice.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Stores/ItemStore.hpp>
-#include <Systems/SystemStore.hpp>
+#include <Systems/Stores/SystemStore.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Components/Exit.hpp>

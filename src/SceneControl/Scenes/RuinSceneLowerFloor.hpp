@@ -7,7 +7,7 @@
 #include <SceneControl/Events/ProcessRuinSceneLowerInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
 #include <Sprites/VertexFloor.hpp>
-#include <Systems/SystemStore.hpp>
+#include <Systems/Stores/SystemStore.hpp>
 #include <Utils/Utils.hpp>
 
 #include <Sprites/SpriteMetaType.hpp>

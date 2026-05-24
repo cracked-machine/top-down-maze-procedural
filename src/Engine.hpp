@@ -15,7 +15,7 @@
 #include <Components/Font.hpp>
 #include <Factory/SpriteFactory.hpp>
 #include <SceneControl/SceneManager.hpp>
-#include <Systems/SystemStore.hpp>
+#include <Systems/Stores/SystemStore.hpp>
 
 #include <future>
 #include <memory>

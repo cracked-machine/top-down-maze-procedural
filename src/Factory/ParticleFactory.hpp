@@ -6,7 +6,7 @@
 #include <Particle/ParticleSpriteTest.hpp>
 #include <Particle/ShockWave.hpp>
 #include <Particle/Smoke.hpp>
-#include <Systems/SystemStore.hpp>
+#include <Systems/Stores/SystemStore.hpp>
 #include <Utils/Player.hpp>
 
 #include <entt/entity/fwd.hpp>
