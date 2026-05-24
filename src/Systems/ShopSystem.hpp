@@ -21,18 +21,13 @@ public:
     get_systems_event_queue().sink<Events::BuyShopItemEvent>().connect<&ShopSystem::on_buy_shop_item>( this );
   }
 
-  //! @brief Load the json configuration file
-  //! @param config_path
-  //! @return Cmp::ShopInventory::Config
-  void load_config( const std::filesystem::path &config_path );
-
   //! @brief Pick a random "sprite.item." sprite and price and insert in the inventory component
   //! @param shop_inventory_cmp The inventory component
   void add_shop_inventory_item( Cmp::ShopInventory &shop_inventory_cmp );
 
   //! @brief Create an inventory component in the registry.
   //! @param inventory_entt The entity that will own the component
-  void create_shop_inventory( entt::entity inventory_entt );
+  void create_shop_inventory();
 
   //! @brief Check for collisions with the exit
   void check_exit_collision();
@@ -53,13 +48,11 @@ public:
   //! @brief event handlers for resuming system clocks
   void on_resume() override {}
 
-  const Cmp::ShopInventory::Config &get_inventory_config() { return m_shop_inventory_config; }
+  // const Cmp::ShopInventory::Config &get_inventory_config() { return m_shop_inventory_config; }
 
 private:
   //! @brief Dispatcher reference for scene management events
   entt::dispatcher &m_scenemanager_event_dispatcher;
-
-  Cmp::ShopInventory::Config m_shop_inventory_config;
 };
 
 } // namespace Game::Sys

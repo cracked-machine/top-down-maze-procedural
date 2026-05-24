@@ -360,15 +360,15 @@ void RenderOverlaySystem::render_shop_inventory_overlay()
   {
     auto &[item, price] = slot;
 
-    sf::Text slot_idx_txt( m_font, std::to_string( i + 1 ), inventory_cmp.m_config.ui_fontsize );
-    slot_idx_txt.setFillColor( inventory_cmp.m_config.ui_fontcolor );
+    sf::Text slot_idx_txt( m_font, std::to_string( i + 1 ), 30 );
+    slot_idx_txt.setFillColor( sf::Color::Black );
 
     Sprites::SpriteMetaType sprite_mtype = Sys::ItemStore::instance().get_item( item ).sprite_type;
-    sf::Text slot_desc_txt( m_font, m_sprite_factory.get_display_name_by_type( sprite_mtype ), inventory_cmp.m_config.ui_fontsize );
-    slot_desc_txt.setFillColor( inventory_cmp.m_config.ui_fontcolor );
+    sf::Text slot_desc_txt( m_font, m_sprite_factory.get_display_name_by_type( sprite_mtype ), 30 );
+    slot_desc_txt.setFillColor( sf::Color::Black );
 
-    sf::Text slot_price_txt( m_font, std::to_string( price ), inventory_cmp.m_config.ui_fontsize );
-    slot_price_txt.setFillColor( inventory_cmp.m_config.ui_fontcolor );
+    sf::Text slot_price_txt( m_font, std::to_string( price ), 30 );
+    slot_price_txt.setFillColor( sf::Color::Black );
 
     for ( const auto &ui_label : m_shop_ui_data->m_labels )
     {

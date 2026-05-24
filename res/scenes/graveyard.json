@@ -108,7 +108,7 @@
          "name":"levelgen",
          "opacity":1,
          "type":"tilelayer",
-         "visible":true,
+         "visible":false,
          "width":99,
          "x":0,
          "y":0

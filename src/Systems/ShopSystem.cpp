@@ -1,142 +1,23 @@
 #include <Events/DropInventoryEvent.hpp>
+#include <Persistent/ShopMaxItems.hpp>
+#include <Persistent/ShopMaxPrice.hpp>
+#include <Persistent/ShopMinPrice.hpp>
+#include <Systems/PersistSystem.hpp>
 #include <Systems/Stores/ItemStore.hpp>
+#include <Systems/SystemStore.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
-#include <Audio/SoundBank.hpp>
 #include <Components/Exit.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerLastGraveyardPosition.hpp>
 #include <Components/Player/PlayerWealth.hpp>
-#include <Components/Position.hpp>
-#include <Components/RectBounds.hpp>
-#include <Components/Wall.hpp>
-#include <Constants.hpp>
-#include <Factory/MultiblockFactory.hpp>
+#include <Components/Shop/ShopInventory.hpp>
 #include <Factory/PlayerFactory.hpp>
-#include <Random.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
-#include <Shop/ShopInventory.hpp>
-#include <Sprites/SpriteSheet.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/ShopSystem.hpp>
-#include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>
-#include <Utils/Utils.hpp>
-
-#include <filesystem>
-#include <fstream>
-#include <stdexcept>
-
-#include <nlohmann/json.hpp>
-
-namespace nlohmann
-{
-//! @brief ADL hook used via nlohmann::basic_json::get (see ShopSystem::load_config below)
-template <>
-struct adl_serializer<Game::Cmp::ShopInventory::Config>
-{
-  static void from_json( const json &j, Game::Cmp::ShopInventory::Config &c )
-  {
-    // get the json object for "inventory_config"
-    if ( not j.contains( "inventory_config" ) ) throw std::runtime_error( "Missing 'inventory_config' from JSON scene config file" );
-    const auto &config = j.at( "inventory_config" );
-
-    //! @brief helper for error checking on JSON Single field types
-    auto get_field = [&config]<typename T>( const std::string &key, T &out )
-    {
-      if ( !config.contains( key ) ) throw std::runtime_error( "Missing '" + key + "' from JSON scene config file" );
-      try
-      {
-        out = config.at( key ).get<T>();
-      } catch ( const nlohmann::json::type_error &e )
-      {
-        throw std::runtime_error( "Error parsing '" + key + "': " + e.what() );
-      }
-    };
-
-    //! @brief helper for error checking on JSON x/y vector types
-    auto get_xy_field = [&config]<typename TVec>( const std::string &key, TVec &out )
-    {
-      using TScalar = decltype( out.x );
-      if ( !config.contains( key ) ) throw std::runtime_error( "Missing '" + key + "' from JSON scene config file" );
-      try
-      {
-        out.x = config.at( key ).at( "x" ).get<TScalar>();
-        out.y = config.at( key ).at( "y" ).get<TScalar>();
-      } catch ( const nlohmann::json::type_error &e )
-      {
-        throw std::runtime_error( "Error parsing '" + key + "': " + e.what() );
-      }
-    };
-
-    //! @brief helper for error checking on JSON r/g/b/a vector types
-    auto get_rgba_field = [&config]<typename TVec>( const std::string &key, TVec &out )
-    {
-      using TScalar = decltype( out.r );
-      if ( !config.contains( key ) ) throw std::runtime_error( "Missing '" + key + "' from JSON scene config file" );
-      try
-      {
-        out.r = config.at( key ).at( "r" ).get<TScalar>();
-        out.g = config.at( key ).at( "g" ).get<TScalar>();
-        out.b = config.at( key ).at( "b" ).get<TScalar>();
-        out.a = config.at( key ).at( "a" ).get<TScalar>();
-      } catch ( const nlohmann::json::type_error &e )
-      {
-        throw std::runtime_error( "Error parsing '" + key + "': " + e.what() );
-      }
-    };
-
-    get_field( "max_items", c.max_items );
-    if ( c.max_items > 5 ) { throw std::runtime_error( "Property 'inventory_config.max_items' is hard-clamped to 5." ); }
-    get_field( "min_price", c.min_price );
-    get_field( "max_price", c.max_price );
-    get_field( "ui_mainlinesize", c.ui_mainlinesize );
-    get_field( "ui_fontsize", c.ui_fontsize );
-    get_field( "ui_slotlinesize", c.ui_slotlinesize );
-
-    get_xy_field( "ui_position", c.ui_position );
-    get_xy_field( "ui_size", c.ui_size );
-
-    get_rgba_field( "ui_mainbgcolor", c.ui_mainbgcolor );
-    get_rgba_field( "ui_slotbgcolor", c.ui_slotbgcolor );
-    get_rgba_field( "ui_fontcolor", c.ui_fontcolor );
-    get_rgba_field( "ui_slotlinecolor", c.ui_slotlinecolor );
-    get_rgba_field( "ui_mainlinecolor", c.ui_mainlinecolor );
-  }
-};
-} // namespace nlohmann
 
 namespace Game::Sys
 {
-
-void ShopSystem::load_config( const std::filesystem::path &config_path )
-{
-  if ( not std::filesystem::exists( config_path ) )
-  {
-    SPDLOG_ERROR( "Config file does not exist: {}", config_path.string() );
-    throw std::runtime_error( "Config file not found: " + config_path.string() );
-  }
-
-  std::ifstream file( config_path );
-  if ( not file.is_open() )
-  {
-    SPDLOG_ERROR( "Unable to open config file: {}", config_path.string() );
-    throw std::runtime_error( "Cannot open config file: " + config_path.string() );
-  }
-
-  //! @brief Attempt deserialise using the Argument-dependent lookup (ADL) serializer above
-  try
-  {
-    nlohmann::json j;
-    file >> j;
-    m_shop_inventory_config = j.get<Cmp::ShopInventory::Config>();
-  } catch ( const ::nlohmann::json::parse_error &e )
-  {
-    SPDLOG_ERROR( "JSON parse error in {}: {}", config_path.string(), e.what() );
-    throw std::runtime_error( "Invalid JSON in config file" );
-  }
-}
 
 void ShopSystem::add_shop_inventory_item( Cmp::ShopInventory &shop_inventory_cmp )
 {
@@ -150,15 +31,20 @@ void ShopSystem::add_shop_inventory_item( Cmp::ShopInventory &shop_inventory_cmp
   shop_inventory_cmp.m_slots.emplace_back( item_types.at( selected_item ), price );
 }
 
-void ShopSystem::create_shop_inventory( entt::entity inventory_entt )
+void ShopSystem::create_shop_inventory()
 {
-  auto *inventory_cmp = reg().try_get<Cmp::ShopInventory>( inventory_entt );
-  if ( not inventory_cmp ) return;
+  Cmp::ShopInventory shop_inventory_cmp;
+  shop_inventory_cmp.m_config.max_items = Sys::PersistSystem::get<Cmp::Persist::ShopMaxItems>( m_reg ).get_value();
+  shop_inventory_cmp.m_config.min_price = Sys::PersistSystem::get<Cmp::Persist::ShopMinPrice>( m_reg ).get_value();
+  shop_inventory_cmp.m_config.max_price = Sys::PersistSystem::get<Cmp::Persist::ShopMaxPrice>( m_reg ).get_value();
 
-  for ( auto _ : std::views::iota( 0, inventory_cmp->m_config.max_items ) )
+  for ( auto _ : std::views::iota( 0, shop_inventory_cmp.m_config.max_items ) )
   {
-    add_shop_inventory_item( *inventory_cmp );
+    add_shop_inventory_item( shop_inventory_cmp );
   }
+
+  auto shop_inventory_entt = reg().create();
+  reg().emplace_or_replace<Cmp::ShopInventory>( shop_inventory_entt, shop_inventory_cmp );
 }
 
 void ShopSystem::check_exit_collision()

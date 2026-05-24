@@ -352,6 +352,30 @@
     "detail": "Player Shortcut Lerp Speed Modifier",
     "format": "%.3f seconds"
   },
+  "ShopMaxItems": {
+    "type": "int",
+    "value": 3,
+    "min_value": 3,
+    "max_value": 3,
+    "detail": "Shop inventory maximum size",
+    "format": "%d"
+  },
+  "ShopMinPrice": {
+    "type": "int",
+    "value": 5,
+    "min_value": 5,
+    "max_value": 5,
+    "detail": "Shop inventory min price",
+    "format": "%d"
+  },
+  "ShopMaxPrice": {
+    "type": "int",
+    "value": 20,
+    "min_value": 20,
+    "max_value": 20,
+    "detail": "Shop inventory max price",
+    "format": "%d"
+  },
   "WeaponDegradePerHit": {
     "type": "float",
     "value": 1.0,

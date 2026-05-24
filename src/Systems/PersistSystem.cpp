@@ -1,3 +1,4 @@
+#include <Persistent/ShopMaxItems.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #define JSON_NOEXCEPTION
@@ -51,6 +52,9 @@
 #include <Components/Persistent/PlayerMovementSpeed.hpp>
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
+#include <Components/Persistent/ShopMaxItems.hpp>
+#include <Components/Persistent/ShopMaxPrice.hpp>
+#include <Components/Persistent/ShopMinPrice.hpp>
 #include <Components/Persistent/SinkholeSeed.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
@@ -131,6 +135,10 @@ void PersistSystem::initialize_type_registry()
   register_type.operator()<PlayerLerpInterruptThreshold>("PlayerLerpInterruptThreshold");
   register_type.operator()<PlayerMovementSpeed>("PlayerMovementSpeed");
   register_type.operator()<PlayerShortcutLerpSpeedModifier>("PlayerShortcutLerpSpeedModifier");
+  register_type.operator()<PlayerStartPosition>("PlayerStartPosition");
+  register_type.operator()<ShopMaxItems>("ShopMaxItems");
+  register_type.operator()<ShopMinPrice>("ShopMinPrice");
+  register_type.operator()<ShopMaxPrice>("ShopMaxPrice");
   register_type.operator()<PlayerStartPosition>("PlayerStartPosition");
   register_type.operator()<WeaponDegradePerHit>("WeaponDegradePerHit");
   register_type.operator()<WormholeAnimFramerate>("WormholeAnimFramerate");
