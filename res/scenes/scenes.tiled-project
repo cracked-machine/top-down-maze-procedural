@@ -3,7 +3,7 @@
     "commands": [
     ],
     "compatibilityVersion": 1100,
-    "extensionsPath": "extensions",
+    "extensionsPath": ".",
     "folders": [
         ".",
         "../ui"
@@ -149,6 +149,26 @@
         {
             "color": "#ffa0a0a4",
             "drawFill": true,
+            "id": 18,
+            "members": [
+            ],
+            "name": "ui_label",
+            "type": "class",
+            "useAs": [
+                "property",
+                "map",
+                "layer",
+                "object",
+                "tile",
+                "tileset",
+                "wangcolor",
+                "wangset",
+                "project"
+            ]
+        },
+        {
+            "color": "#ffa0a0a4",
+            "drawFill": true,
             "id": 16,
             "members": [
             ],
@@ -193,26 +213,6 @@
             "members": [
             ],
             "name": "ui_text",
-            "type": "class",
-            "useAs": [
-                "property",
-                "map",
-                "layer",
-                "object",
-                "tile",
-                "tileset",
-                "wangcolor",
-                "wangset",
-                "project"
-            ]
-        },
-        {
-            "color": "#ffa0a0a4",
-            "drawFill": true,
-            "id": 18,
-            "members": [
-            ],
-            "name": "ui_label",
             "type": "class",
             "useAs": [
                 "property",

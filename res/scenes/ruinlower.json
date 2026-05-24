@@ -87,7 +87,7 @@
          "name":"wall",
          "opacity":1,
          "type":"tilelayer",
-         "visible":false,
+         "visible":true,
          "width":19,
          "x":0,
          "y":0
@@ -189,7 +189,7 @@
         {
          "columns":3,
          "firstgid":17,
-         "image":"..\/textures\/cryptwall.png",
+         "image":"..\/textures\/ruinwall.png",
          "imageheight":144,
          "imagewidth":48,
          "margin":0,

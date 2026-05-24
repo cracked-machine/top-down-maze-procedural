@@ -53,27 +53,27 @@ public:
 
   SceneData( const std::filesystem::path &map_file );
 
-  int void_tile_id() const { return m_map_data.main_tileset.void_tile_id + m_map_data.main_first_gid; }
-  int wall_tile_id() const { return m_map_data.main_tileset.wall_tile_id + m_map_data.main_first_gid; }
-  int open_tile_id() const { return m_map_data.main_tileset.open_tile_id + m_map_data.main_first_gid; }
-  int spawn_tile_id() const { return m_map_data.main_tileset.spawn_tile_id + m_map_data.main_first_gid; }
-  int player_tile_id() const { return m_map_data.main_tileset.player_tile_id + m_map_data.main_first_gid; }
-  int exit_tile_id() const { return m_map_data.main_tileset.exit_tile_id + m_map_data.main_first_gid; }
-  int reserved_tile_id() const { return m_map_data.main_tileset.reserved_tile_id + m_map_data.main_first_gid; }
+  [[nodiscard]] int void_tile_id() const { return m_map_data.main_tileset.void_tile_id + m_map_data.main_first_gid; }
+  [[nodiscard]] int wall_tile_id() const { return m_map_data.main_tileset.wall_tile_id + m_map_data.main_first_gid; }
+  [[nodiscard]] int open_tile_id() const { return m_map_data.main_tileset.open_tile_id + m_map_data.main_first_gid; }
+  [[nodiscard]] int spawn_tile_id() const { return m_map_data.main_tileset.spawn_tile_id + m_map_data.main_first_gid; }
+  [[nodiscard]] int player_tile_id() const { return m_map_data.main_tileset.player_tile_id + m_map_data.main_first_gid; }
+  [[nodiscard]] int exit_tile_id() const { return m_map_data.main_tileset.exit_tile_id + m_map_data.main_first_gid; }
+  [[nodiscard]] int reserved_tile_id() const { return m_map_data.main_tileset.reserved_tile_id + m_map_data.main_first_gid; }
 
-  std::multimap<Sprites::SpriteMetaType, sf::Vector2f> multiblock_objectlayer() const { return m_map_data.multiblock_objectlayer; }
-  std::vector<sf::FloatRect> solid_objectlayer() const { return m_map_data.solid_objectlayer; }
-  std::vector<int> levelgen_tilelayer() const { return m_map_data.levelgen_tilelayer; }
-  std::vector<int> wall_tilelayer() const { return m_map_data.wall_tilelayer; }
-  int wall_first_gid() const { return m_map_data.wall_first_gid; }
-  std::filesystem::path floor_tileset_image() const { return m_map_data.floor_tileset.tileset_image; }
-  std::vector<int> floor_tileset_pool() const { return m_map_data.floor_tileset.tileset_pool; }
-  std::pair<sf::Vector2u, sf::Vector2f> get_player_start_position() const;
+  [[nodiscard]] std::multimap<Sprites::SpriteMetaType, sf::Vector2f> multiblock_objectlayer() const { return m_map_data.multiblock_objectlayer; }
+  [[nodiscard]] std::vector<sf::FloatRect> solid_objectlayer() const { return m_map_data.solid_objectlayer; }
+  [[nodiscard]] std::vector<int> levelgen_tilelayer() const { return m_map_data.levelgen_tilelayer; }
+  [[nodiscard]] std::vector<int> wall_tilelayer() const { return m_map_data.wall_tilelayer; }
+  [[nodiscard]] int wall_first_gid() const { return m_map_data.wall_first_gid; }
+  [[nodiscard]] std::filesystem::path floor_tileset_image() const { return m_map_data.floor_tileset.tileset_image; }
+  [[nodiscard]] std::vector<int> floor_tileset_pool() const { return m_map_data.floor_tileset.tileset_pool; }
+  [[nodiscard]] std::pair<sf::Vector2u, sf::Vector2f> get_player_start_position() const;
 
   //! @brief  Get the map size as grid position and pixel position (x16)
   //!         For example, {50,70} and {800.0,1120.0}
   //! @return std::pair<sf::Vector2u, sf::Vector2f>
-  std::pair<sf::Vector2u, sf::Vector2f> map_size() const;
+  [[nodiscard]] std::pair<sf::Vector2u, sf::Vector2f> map_size() const;
 
 private:
   //! @brief Get the tilesets and tilelayers from the Tiled json file
