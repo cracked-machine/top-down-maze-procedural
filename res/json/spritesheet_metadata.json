@@ -32,8 +32,8 @@
       "spritesheet": {
         "displayname": "sprite.graveyard.wall.ext",
         "zorder": [0],
-        "texture_path": "res/textures/graveyard.png",
-        "sprite_indices": [8],
+        "texture_path": "res/textures/graveyardwall.png",
+        "sprite_indices": [0],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {

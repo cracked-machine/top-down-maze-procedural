@@ -30,7 +30,7 @@ public:
 
   //! @brief Generate game area using data from the SceneData object.
   //! @param scene_map
-  void gen_game_area( const Scene::SceneData &scene_map );
+  void gen_game_area( const Scene::SceneData &scene_data );
 
   //! @brief create "sprite.graveyard.wall.int" for the graveyard.
   void gen_graveyard_exterior_obstacles();

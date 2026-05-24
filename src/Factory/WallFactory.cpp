@@ -27,7 +27,6 @@ void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, const Sprite
       .enabled = true
   });
   // clang-format on 
-
   Cmp::ZOrderValue zorder_cmp( 0 );
   if ( ms.get_zorder( sprite_index ) != 0 ) { zorder_cmp.setZOrder( ms.get_zorder( sprite_index ) ); }
   else { zorder_cmp.setZOrder( pos.y + ms.get_sprite_size().y ); }

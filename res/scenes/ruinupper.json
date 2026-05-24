@@ -226,13 +226,14 @@
          "source":"Tilesets\/main.json"
         }, 
         {
+         "class":"wall",
          "columns":3,
          "firstgid":17,
          "image":"..\/textures\/ruinwall.png",
          "imageheight":144,
          "imagewidth":48,
          "margin":0,
-         "name":"wall",
+         "name":"sprite.ruin.wall.int",
          "spacing":0,
          "tilecount":27,
          "tileheight":16,

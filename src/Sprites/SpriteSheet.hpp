@@ -3,10 +3,9 @@
 
 #include <Sprites/SpriteMetaType.hpp>
 
+#include <cassert>
 #include <cstdint>
-#include <exception>
 #include <filesystem>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -65,53 +64,53 @@ public:
 
   //! @brief Get the grid size object
   //! @return SpriteSize
-  SpriteSize get_grid_size() const { return m_grid_size; }
+  [[nodiscard]] SpriteSize get_grid_size() const { return m_grid_size; }
 
   //! @brief Get the sprite count object
   //! @return std::size_t
-  std::size_t get_sprite_count() const { return m_va_list.size(); }
+  [[nodiscard]] std::size_t get_sprite_count() const { return m_va_list.size(); }
 
   //! @brief Get the sprites per frame object
   //! @return unsigned int
-  unsigned int get_sprites_per_frame() const { return m_sprites_per_frame; }
+  [[nodiscard]] unsigned int get_sprites_per_frame() const { return m_sprites_per_frame; }
 
   //! @brief Get the sprites per sequence object
   //! @return unsigned int
-  unsigned int get_sprites_per_sequence() const { return m_sprites_per_sequence; }
+  [[nodiscard]] unsigned int get_sprites_per_sequence() const { return m_sprites_per_sequence; }
 
   //! @brief Get the solid mask object
   //! @return const std::vector<bool>&
-  const std::vector<bool> &get_solid_mask() const { return m_solid_mask; }
+  [[nodiscard]] const std::vector<bool> &get_solid_mask() const { return m_solid_mask; }
 
   //! @brief Get the texture object
   //! @return const sf::Texture&
-  const sf::Texture &get_texture() const { return *m_tilemap_texture; }
+  [[nodiscard]] const sf::Texture &get_texture() const { return *m_tilemap_texture; }
 
   //! @brief Get the display name object
   //! @return std::string
-  std::string get_display_name() const { return m_display_name; }
+  [[nodiscard]] std::string get_display_name() const { return m_display_name; }
 
   //! @brief Get the zorder object
   //! @param idx
   //! @return float
-  float get_zorder( size_t idx ) const
+  [[nodiscard]] float get_zorder( size_t idx ) const
   {
-    try
+    assert( not m_zorder_list.empty() );
+    if ( idx >= m_zorder_list.size() )
     {
-      return m_zorder_list.at( idx );
-    } catch ( std::exception e )
-    {
-      throw std::runtime_error( std::string( m_sprite_type ) + " - " + e.what() );
+      SPDLOG_ERROR( "Could not find zorder for {} at index {}, defaulting to 0 index.", std::string( m_sprite_type ), std::to_string( idx ) );
+      return 0;
     }
+    return m_zorder_list.at( idx );
   }
 
   //! @brief Get the Sprite Size Pixels object
   //! @return sf::Vector2f
-  sf::Vector2f get_sprite_size() const { return m_va_list[0].getBounds().size; }
+  [[nodiscard]] sf::Vector2f get_sprite_size() const { return m_va_list[0].getBounds().size; }
 
   //! @brief Get the sprite type object
   //! @return SpriteMetaType
-  SpriteMetaType get_sprite_type() const { return m_sprite_type; }
+  [[nodiscard]] SpriteMetaType get_sprite_type() const { return m_sprite_type; }
 
   //! @brief Set the sprite type object
   //! @param type

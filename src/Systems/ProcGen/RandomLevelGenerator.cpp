@@ -68,55 +68,52 @@ RandomLevelGenerator::RandomLevelGenerator( entt::registry &reg, sf::RenderWindo
 PathFinding::SpatialHashGrid &RandomLevelGenerator::get_obstacle_sm() { return *m_obstacle_sm; }
 PathFinding::SpatialHashGrid &RandomLevelGenerator::get_void_sm() { return *m_void_sm; }
 
-void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_map )
+void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_data )
 {
-  auto [map_size_grid, map_size_pixel] = scene_map.map_size();
+  auto [map_size_grid, map_size_pixel] = scene_data.map_size();
   auto w = map_size_grid.x;
 
-  bool added_wall_already = false;
-  [[maybe_unused]] const Sprites::SpriteSheet &wall_ms = m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.wall.ext" );
-  for ( const auto [i, tile] : std::views::enumerate( scene_map.wall_tilelayer() ) )
+  [[maybe_unused]] const Sprites::SpriteSheet &wall_ms = m_sprite_factory.get_spritesheet_by_type( scene_data.wall_tileset().name );
+  for ( const auto [i, tile] : std::views::enumerate( scene_data.wall_tilelayer() ) )
   {
-    added_wall_already = true;
     auto row = i / w; // increments every 'w' tiles
     auto col = i % w; // wraps back to zero every 'w' tiles
     sf::Vector2f new_pos( static_cast<float>( col ) * Constants::kGridSizePxF.x, static_cast<float>( row ) * Constants::kGridSizePxF.y );
-    if ( tile >= scene_map.wall_first_gid() ) { Factory::add_wall_entity( reg(), new_pos, wall_ms, tile - scene_map.wall_first_gid() ); }
+    if ( tile >= scene_data.wall_tileset().first_gid )
+    {
+      // get the relative index using the offset from the json data
+      Factory::add_wall_entity( reg(), new_pos, wall_ms, tile - scene_data.wall_tileset().first_gid );
+    }
   }
 
-  for ( const auto &solid : scene_map.solid_objectlayer() )
+  for ( const auto &solid : scene_data.solid_objectlayer() )
   {
     Factory::add_solid_player( reg(), solid );
     Factory::add_solid_npc( reg(), solid );
   }
 
-  for ( const auto [i, tile] : std::views::enumerate( scene_map.levelgen_tilelayer() ) )
+  for ( const auto [i, tile] : std::views::enumerate( scene_data.levelgen_tilelayer() ) )
   {
     auto col = i % w; // wraps back to zero every 'w' tiles
     auto row = i / w; // increments every 'w' tiles
     sf::Vector2f new_pos( static_cast<float>( col ) * Constants::kGridSizePxF.x, static_cast<float>( row ) * Constants::kGridSizePxF.y );
-    if ( tile == scene_map.void_tile_id() )
+    if ( tile == scene_data.void_tile_id() )
     {
       Cmp::Position new_pos_cmp( new_pos, Constants::kGridSizePxF );
       auto entt = Factory::create_void_pos( reg(), new_pos_cmp );
       m_void_sm->insert( entt, new_pos_cmp );
     }
-    else if ( not added_wall_already and tile == scene_map.wall_tile_id() )
-    {
-      const Sprites::SpriteSheet &wall_ms = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.wall.ext" );
-      Factory::add_wall_entity( reg(), new_pos, wall_ms, 0 );
-    }
-    else if ( tile == scene_map.open_tile_id() ) { Factory::create_world_pos( reg(), new_pos ); }
-    else if ( tile == scene_map.spawn_tile_id() )
+    else if ( tile == scene_data.open_tile_id() ) { Factory::create_world_pos( reg(), new_pos ); }
+    else if ( tile == scene_data.spawn_tile_id() )
     {
       auto entity = Factory::create_world_pos( reg(), new_pos );
       Factory::add_spawn_area( reg(), entity, m_sprite_factory, new_pos.y - 16.0f );
     }
-    else if ( tile == scene_map.exit_tile_id() ) { Factory::create_crypt_exit( reg(), new_pos ); }
-    else if ( tile == scene_map.reserved_tile_id() ) { Factory::add_reservedposition( reg(), new_pos ); }
+    else if ( tile == scene_data.exit_tile_id() ) { Factory::create_crypt_exit( reg(), new_pos ); }
+    else if ( tile == scene_data.reserved_tile_id() ) { Factory::add_reservedposition( reg(), new_pos ); }
   }
 
-  for ( const auto &[ms_type, pos] : scene_map.multiblock_objectlayer() )
+  for ( const auto &[ms_type, pos] : scene_data.multiblock_objectlayer() )
   {
     const auto &ms = m_sprite_factory.get_spritesheet_by_type( ms_type );
     if ( ms_type == "sprite.well.fountain" )

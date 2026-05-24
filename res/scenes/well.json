@@ -224,13 +224,14 @@
          "tilewidth":16
         }, 
         {
+         "class":"wall",
          "columns":3,
          "firstgid":21,
          "image":"..\/textures\/wellwall.png",
          "imageheight":144,
          "imagewidth":48,
          "margin":0,
-         "name":"wall",
+         "name":"sprite.well.wall.int",
          "spacing":0,
          "tilecount":27,
          "tileheight":16,

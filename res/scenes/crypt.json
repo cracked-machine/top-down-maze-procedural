@@ -577,13 +577,14 @@
          "source":"Tilesets\/main.json"
         }, 
         {
+         "class":"wall",
          "columns":3,
          "firstgid":33,
          "image":"..\/textures\/cryptwall.png",
          "imageheight":144,
          "imagewidth":48,
          "margin":0,
-         "name":"wall",
+         "name":"sprite.crypt.wall.ext",
          "spacing":0,
          "tilecount":27,
          "tileheight":16,
