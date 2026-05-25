@@ -23,8 +23,11 @@
 #include <Inventory/FlashUIInventory.hpp>
 #include <Inventory/FlashUIRadius.hpp>
 #include <Inventory/FlashUIWealth.hpp>
+#include <Npc/NpcNoPathFinding.hpp>
 #include <PathFinding/AStar.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
+#include <Player/PlayerNoPath.hpp>
+#include <ReservedPosition.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -42,6 +45,8 @@
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/System/Vector2.hpp>
 
+#include <VoidPosition.hpp>
+#include <Wall.hpp>
 #include <iomanip>
 #include <ranges>
 #include <sstream>
@@ -518,7 +523,7 @@ void RenderOverlaySystem::render_ui_zorder_list( std::vector<ZOrder> &zorder_que
       "sprite.graveyard.detonated",
       "sprite.player.footsteps",
       "sprite.well.wall.int",
-      "sprite.ruin.wall.int", 
+      "sprite.ruin.wall.ext", 
       "sprite.crypt.wall.ext",
       "sprite.ruin.cobweb",
       "sprite.ruin.bookcase.left",
@@ -691,6 +696,62 @@ void RenderOverlaySystem::render_pathfinding_vector( const Cmp::Position &start_
       rectangle.setOutlineColor( color );
       rectangle.setOutlineThickness( 1.f );
       draw_world( rectangle );
+    }
+  }
+}
+
+void RenderOverlaySystem::render_ui_entity_inspect()
+{
+  if ( not m_dbg_ui_data ) { return; }
+
+  sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( m_window );
+  sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::get_world_view() );
+
+  // sf::FloatRect mouse_rect( mouse_world_pos, { 1.f, 1.f } );
+
+  float y_offset = 0.f;
+  constexpr unsigned int font_size = 18;
+  constexpr float line_height = 22.f;
+  for ( const auto &ui_label : m_dbg_ui_data->m_labels )
+  {
+    if ( ui_label.name != "inspect_list" ) { continue; }
+
+    auto position_view = reg().view<Cmp::Position>();
+    for ( auto [entity, pos_cmp] : position_view.each() )
+    {
+      if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), pos_cmp ) ) continue;
+      if ( not pos_cmp.contains( mouse_world_pos ) ) { continue; }
+
+      // Header: entity ID
+      auto draw_line = [&]( const std::string &str, sf::Color color = sf::Color::White )
+      {
+        sf::Text text( m_font, str, font_size );
+        text.setFillColor( color );
+        text.setOutlineColor( sf::Color::Black );
+        text.setOutlineThickness( 1.f );
+        text.setPosition( { ui_label.rect.position.x, ui_label.rect.position.y + y_offset } );
+        draw_screen( text );
+        y_offset += line_height;
+      };
+
+      draw_line( "--- Entity #" + std::to_string( entt::to_integral( entity ) ) + " ---", sf::Color::Yellow );
+
+      if ( auto *cmp = reg().try_get<Cmp::AnimData>( entity ) ) draw_line( "  AnimData: " + cmp->m_sprite_type );
+
+      // if ( auto *cmp = reg().try_get<Cmp::ZOrderValue>( entity ) ) draw_line( "  ZOrder: " + std::to_string( cmp->getZOrder() ) );
+
+      if ( reg().all_of<Cmp::ReservedPosition>( entity ) ) draw_line( "  ReservedPosition", sf::Color::Red );
+      if ( reg().all_of<Cmp::VoidPosition>( entity ) ) draw_line( "  Void", sf::Color::White );
+      if ( reg().all_of<Cmp::NpcNoPathFinding>( entity ) ) draw_line( "  NpcNoPathFinding", sf::Color::Green );
+      if ( reg().all_of<Cmp::PlayerNoPath>( entity ) ) draw_line( " PlayerNoPath", sf::Color::Green );
+
+      // if ( reg().try_get<Cmp::NPC>( entity ) ) draw_line( "  NPC", sf::Color::Magenta );
+
+      draw_line( "  Pos: [ " + std::to_string( static_cast<int>( pos_cmp.position.x ) ) + " , " +
+                 std::to_string( static_cast<int>( pos_cmp.position.y ) ) + " ]" );
+
+      draw_line( "  Size: [ " + std::to_string( static_cast<int>( pos_cmp.size.x ) ) + " , " + std::to_string( static_cast<int>( pos_cmp.size.y ) ) +
+                 " ]" );
     }
   }
 }

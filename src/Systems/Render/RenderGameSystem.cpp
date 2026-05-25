@@ -287,13 +287,14 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
 
   if ( m_show_debug_stats )
   {
-    if ( debug_tick )
+    // if ( debug_tick )
     {
       render_overlay_sys.render_ui_player_position();
       render_overlay_sys.render_ui_mouse_position();
       render_overlay_sys.render_ui_stats();
       render_overlay_sys.render_ui_zorder_list( m_zorder_queue_ );
       render_overlay_sys.render_ui_npc_list();
+      render_overlay_sys.render_ui_entity_inspect();
 
       m_debug_update_timer.restart();
     }
