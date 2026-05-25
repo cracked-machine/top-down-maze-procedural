@@ -48,16 +48,16 @@ void RuinSceneUpperFloor::on_init()
   m_persistent_sys.initialize_component_registry();
   m_persistent_sys.load_state();
 
-  m_scene_map_data = std::make_shared<SceneData>( "res/scenes/ruinupper.json" );
+  m_scene_data = std::make_shared<SceneData>( "res/scenes/ruinupper.json" );
 
   auto sys_cmp_entt = m_reg.create();
   m_reg.emplace<Cmp::System>( sys_cmp_entt );
 
   // initialise the persistent player start position from the scene data
-  auto [_, player_start_pos_px] = m_scene_map_data->get_player_start_position();
+  auto [_, player_start_pos_px] = m_scene_data->get_player_start_position();
   PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, player_start_pos_px );
 
-  auto [map_size_grid, map_size_pixel] = m_scene_map_data->map_size();
+  auto [map_size_grid, map_size_pixel] = m_scene_data->map_size();
 
   Factory::Shader::add_night_static( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
 
@@ -66,7 +66,7 @@ void RuinSceneUpperFloor::on_init()
   auto player_start_area = Cmp::RectBounds::scaled( player_start_pos, gridsize, 1.f, Cmp::RectBounds::ScaleAxis::XY );
   auto &random_level_sys = m_sys.find<Store::Type::LevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_scene_data( *m_scene_map_data );
+  random_level_sys.gen_scene_data( *m_scene_data );
 
   // add access hitbox just below horizontal centerpoint
   sf::Vector2f flooraccess_position( map_size_pixel.x - ( 3 * gridsize.x ), map_size_pixel.y - ( 3 * gridsize.y ) );
@@ -74,7 +74,7 @@ void RuinSceneUpperFloor::on_init()
   m_sys.find<Store::Type::RuinSystem>().spawn_floor_access( flooraccess_position, flooraccess_size, Cmp::RuinFloorAccess::Direction::TO_LOWER );
 
   Sprites::Containers::VertexFloor floortiles;
-  floortiles.create( random_level_sys.get_void_sm(), m_scene_map_data );
+  floortiles.create( random_level_sys.get_void_sm(), m_scene_data );
   auto floor_entity = m_reg.create();
   m_reg.emplace<Sprites::Containers::VertexFloor>( floor_entity, floortiles );
   m_reg.emplace<Cmp::ZOrderValue>( floor_entity, -16.f );
@@ -145,7 +145,7 @@ void RuinSceneUpperFloor::do_update( sf::Time dt )
   m_sys.find<Store::Type::PlayerSystem>().update( dt, PlayerSystem::FootStepSfx::NONE );
   m_sys.find<Store::Type::PlayerSystem>().disable_damage_cooldown();
 
-  auto [_, map_size_pixel] = m_scene_map_data->map_size();
+  auto [_, map_size_pixel] = m_scene_data->map_size();
   // bool player_curse_active = m_sys.find<Store::Type::RuinSystem>().check_activate_player_curse( map_size_pixel );
   // if ( player_curse_active ) { Factory::Shader::add_curse( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel ); }
 

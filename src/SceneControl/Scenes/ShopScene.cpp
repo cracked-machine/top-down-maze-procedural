@@ -38,14 +38,14 @@ void ShopScene::on_init()
   m_persistent_sys.initialize_component_registry();
   m_persistent_sys.load_state();
 
-  m_scene_map_data = std::make_shared<SceneData>( "res/scenes/shop.json" );
+  m_scene_data = std::make_shared<SceneData>( "res/scenes/shop.json" );
   m_sys.find<Sys::Store::Type::ShopSystem>().create_shop_inventory();
 
   auto sys_cmp_entt = m_reg.create();
   m_reg.emplace<Cmp::System>( sys_cmp_entt );
 
   // initialise the persistent player start position from the scene configuration (json) data
-  auto [_, player_start_pos_px] = m_scene_map_data->get_player_start_position();
+  auto [_, player_start_pos_px] = m_scene_data->get_player_start_position();
   Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, player_start_pos_px );
   SPDLOG_INFO( "player_start_pos_px: {},{}", player_start_pos_px.x, player_start_pos_px.y );
 
@@ -54,9 +54,9 @@ void ShopScene::on_init()
   auto player_start_area = Cmp::RectBounds::scaled( player_start_position, Constants::kGridSizePxF, 1.f, Cmp::RectBounds::ScaleAxis::XY );
   auto &random_level_sys = m_sys.find<Sys::Store::Type::LevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_scene_data( *m_scene_map_data );
+  random_level_sys.gen_scene_data( *m_scene_data );
 
-  m_floormap.create( random_level_sys.get_void_sm(), m_scene_map_data );
+  m_floormap.create( random_level_sys.get_void_sm(), m_scene_data );
   auto floor_entity = m_reg.create();
   m_reg.emplace<Sprites::Containers::VertexFloor>( floor_entity, m_floormap );
   m_reg.emplace<Cmp::ZOrderValue>( floor_entity, -16.f );
@@ -106,9 +106,9 @@ void ShopScene::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Sys::Store::Type::FootstepSystem>().update();
   m_sys.find<Sys::Store::Type::ShopSystem>().check_exit_collision();
 
-  if ( m_scene_map_data )
+  if ( m_scene_data )
   {
-    for ( const auto &[ms_type, pos] : m_scene_map_data->multiblock_objectlayer() )
+    for ( const auto &[ms_type, pos] : m_scene_data->multiblock_objectlayer() )
     {
       if ( ms_type != "npc.drknox" ) continue;
       if ( m_sys.find<Sys::Store::Type::ShopSystem>().check_shopkeeper_collision( pos ) and not is_overlay_open() ) { open_overlay(); }

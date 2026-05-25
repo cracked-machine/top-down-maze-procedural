@@ -79,8 +79,8 @@ void GraveyardScene::on_init()
   m_sys.find<Sys::Store::Type::NpcStore>().init_store();
 
   // create the level contents
-  m_scene_map_data = std::make_shared<SceneData>( "res/scenes/graveyard.json" );
-  auto [_, player_start_pos_px] = m_scene_map_data->get_player_start_position();
+  m_scene_data = std::make_shared<SceneData>( "res/scenes/graveyard.json" );
+  auto [_, player_start_pos_px] = m_scene_data->get_player_start_position();
   Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, player_start_pos_px );
   auto player_start_position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
   auto player_start_area = Cmp::RectBounds::scaled( player_start_position, Constants::kGridSizePxF, 5.f, Cmp::RectBounds::ScaleAxis::XY );
@@ -94,7 +94,7 @@ void GraveyardScene::on_init()
     level_depth_cmp.display_timer.restart();
   }
 
-  auto [map_size_grid, map_size_pixel] = m_scene_map_data->map_size();
+  auto [map_size_grid, map_size_pixel] = m_scene_data->map_size();
   SPDLOG_INFO( "m_scene_map_data {},{} {},{}", map_size_grid.x, map_size_grid.y, map_size_pixel.x, map_size_pixel.y );
 
   Factory::Shader::add_water( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
@@ -103,7 +103,7 @@ void GraveyardScene::on_init()
 
   auto &random_level_sys = m_sys.find<Sys::Store::Type::LevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_scene_data( *m_scene_map_data );
+  random_level_sys.gen_scene_data( *m_scene_data );
 
   random_level_sys.gen_graveyard_exterior_multiblocks();
   Factory::gen_loot_containers( m_reg, m_sprite_factory, map_size_grid );
@@ -122,7 +122,7 @@ void GraveyardScene::on_init()
 
   // create floor background
   Sprites::Containers::VertexFloor floortiles;
-  floortiles.create( random_level_sys.get_void_sm(), m_scene_map_data );
+  floortiles.create( random_level_sys.get_void_sm(), m_scene_data );
 
   m_sys.find<Sys::Store::Type::ExitSystem>().spawn_exit();
 
