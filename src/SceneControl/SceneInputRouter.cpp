@@ -395,6 +395,14 @@ void SceneInputRouter::ruin_scene_state_handler()
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::P ) { enqueue( Events::SceneManagerEvent::Type::PAUSE_GAME ); }
     }
+    if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
+    {
+      get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::SELECT ) );
+    }
+    else if ( not sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
+    {
+      get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DESELECT ) );
+    }
   }
 
   process_move_keys();

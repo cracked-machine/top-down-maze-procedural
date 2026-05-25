@@ -44,6 +44,7 @@
 #include <Random.hpp>
 #include <ReservedPosition.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
+#include <SelectedPosition.hpp>
 #include <Shaders/BaseShaderSprite.hpp>
 #include <Shaders/DarkModeShader.hpp>
 #include <Shaders/DrippingBloodShader.hpp>
@@ -287,17 +288,20 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
 
   if ( m_show_debug_stats )
   {
-    // if ( debug_tick )
-    {
-      render_overlay_sys.render_ui_player_position();
-      render_overlay_sys.render_ui_mouse_position();
-      render_overlay_sys.render_ui_stats();
-      render_overlay_sys.render_ui_zorder_list( m_zorder_queue_ );
-      render_overlay_sys.render_ui_npc_list();
-      render_overlay_sys.render_ui_entity_inspect();
 
-      m_debug_update_timer.restart();
+    render_overlay_sys.render_ui_player_position();
+    render_overlay_sys.render_ui_mouse_position();
+    render_overlay_sys.render_ui_stats();
+    render_overlay_sys.render_ui_zorder_list( m_zorder_queue_ );
+    render_overlay_sys.render_ui_npc_list();
+    render_overlay_sys.render_ui_entity_inspect();
+    for ( auto [selected_entt, selected_cmp, pos_cmp] : reg().view<Cmp::SelectedPosition, Cmp::Position>().each() )
+    {
+      if ( not Utils::is_visible_in_view( get_screen_view(), pos_cmp ) ) continue;
+      render_overlay_sys.render_square( pos_cmp.position, pos_cmp.size, sf::Color::Yellow );
     }
+
+    m_debug_update_timer.restart();
   }
 
   // restart once after all debug blocks

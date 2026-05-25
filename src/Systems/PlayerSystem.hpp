@@ -84,6 +84,10 @@ private:
   //! @brief If player is carry suitable weapon did the action event occur in NPC vicinity?
   void check_player_axe_npc_kill();
 
+  void move_obstacle( const sf::FloatRect &target_position );
+  void check_player_can_push( sf::Time dt );
+  void check_player_can_pull( sf::Time dt );
+
   //! @brief Fade the player alpha if they intiiated wormhole jump.
   void fade_player_on_wormhole_jump();
 
@@ -141,6 +145,9 @@ private:
   //! @brief Weak pointer to the pathfinding navmesh.
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
   PathFinding::SpatialHashGridWeakPtr m_open_navmesh;
+
+  //! @brief Prevent the player from moving when running
+  sf::Clock m_movement_suppress_clock{};
 };
 
 } // namespace Game::Sys

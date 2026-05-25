@@ -44,6 +44,7 @@
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
+#include <Moveable.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Persistent/PlayerMovementSpeed.hpp>
 #include <Player/TorchRadius.hpp>
@@ -65,6 +66,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <Wall.hpp>
 #include <spdlog/spdlog.h>
 
 namespace Game::Sys
@@ -93,6 +95,8 @@ void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
 
   if ( not m_post_death_timer.isRunning() )
   {
+    check_player_can_push( dt );
+    check_player_can_pull( dt );
     update_player_position( dt, Utils::getSystemCmp( reg() ).collisions_disabled );
     update_player_animation();
 
@@ -154,8 +158,85 @@ void PlayerSystem::enable_damage_cooldown()
   }
 }
 
+void PlayerSystem::move_obstacle( const sf::FloatRect &target_position )
+{
+  // check if player can move the obstacle
+  for ( auto [selected_entt, selected_cmp, moveable_cmp, selected_pos_cmp] :
+        reg().view<Cmp::SelectedPosition, Cmp::Moveable, Cmp::Position>().each() )
+  {
+    if ( not target_position.findIntersection( selected_pos_cmp ) ) continue;
+
+    auto player_direction = Utils::Player::get_direction( reg() );
+    auto player_grid_direction = Cmp::RectBounds::scaled( player_direction.componentWiseMul( Constants::kGridSizePxF ), target_position.size, 1 );
+    auto obstacle_dest_abs_pos = Cmp::RectBounds::scaled( selected_pos_cmp.position + player_grid_direction.position(), Constants::kGridSizePxF, 1 );
+
+    bool new_position_is_empty = true;
+    new_position_is_empty = not Utils::Collision::check_cmp<Cmp::Obstacle>( reg(), obstacle_dest_abs_pos ) and
+                            not Utils::Collision::check_cmp<Cmp::Wall>( reg(), obstacle_dest_abs_pos );
+
+    bool player_in_the_way = Utils::Collision::check_cmp<Cmp::PlayerCharacter>( reg(), obstacle_dest_abs_pos );
+    auto player_dest_abs_pos = Cmp::RectBounds::scaled( Utils::Player::get_position( reg() ).position + player_grid_direction.position(),
+                                                        Constants::kGridSizePxF, 1 );
+    if ( player_in_the_way )
+    {
+      // can we move player in the opposite direction if they are pulling?
+      if ( ( Utils::Collision::check_cmp<Cmp::Obstacle>( reg(), player_dest_abs_pos ) ) or
+           ( Utils::Collision::check_cmp<Cmp::Wall>( reg(), player_dest_abs_pos ) ) )
+      {
+        // if not then cancel the move
+        new_position_is_empty = false;
+      }
+    }
+
+    if ( new_position_is_empty )
+    {
+      if ( player_in_the_way )
+      {
+        // move the player out of the way
+        Utils::Player::get_position( reg() ).position = player_dest_abs_pos.position();
+        m_movement_suppress_clock.restart();
+      }
+      selected_pos_cmp.position += player_grid_direction.position();
+      reg().remove<Cmp::SelectedPosition>( selected_entt );
+      break;
+    }
+  }
+}
+
+void PlayerSystem::check_player_can_push( sf::Time dt )
+{
+
+  const Cmp::Direction raw_direction = Utils::Player::get_direction( reg() );
+  if ( raw_direction == sf::Vector2f( 0.f, 0.f ) ) return; // optimization
+  auto &player_movement_speed = Sys::PersistSystem::get<Cmp::Persist::PlayerMovementSpeed>( reg() );
+  const float step = player_movement_speed.get_value() * dt.asSeconds();
+  const Cmp::Direction direction = raw_direction.componentWiseMul( { step, step } );
+
+  const auto player_pos = Utils::Player::get_position( reg() );
+  const sf::FloatRect next_horizontal_move( { player_pos.position.x + direction.x, player_pos.position.y }, player_pos.size );
+  move_obstacle( next_horizontal_move );
+  const sf::FloatRect next_vertical_move( { player_pos.position.x, player_pos.position.y + direction.y }, player_pos.size );
+  move_obstacle( next_vertical_move );
+}
+void PlayerSystem::check_player_can_pull( sf::Time dt )
+{
+  const Cmp::Direction raw_direction = Utils::Player::get_direction( reg() );
+  if ( raw_direction == sf::Vector2f( 0.f, 0.f ) ) return; // optimization
+  auto &player_movement_speed = Sys::PersistSystem::get<Cmp::Persist::PlayerMovementSpeed>( reg() );
+  const float step = player_movement_speed.get_value() * dt.asSeconds();
+  const Cmp::Direction direction = raw_direction.componentWiseMul( { step, step } );
+
+  const auto player_pos = Utils::Player::get_position( reg() );
+  const sf::FloatRect prev_horizontal_move( { player_pos.position.x - direction.x, player_pos.position.y }, player_pos.size );
+  move_obstacle( prev_horizontal_move );
+  const sf::FloatRect prev_vertical_move( { player_pos.position.x, player_pos.position.y - direction.y }, player_pos.size );
+  move_obstacle( prev_vertical_move );
+}
+
 void PlayerSystem::update_player_position( sf::Time dt, bool collision_disabled )
 {
+  if ( m_movement_suppress_clock.getElapsedTime() < sf::milliseconds( 300 ) ) return;
+
   Cmp::Position &player_pos = Utils::Player::get_position( reg() );
 
   const Cmp::Direction raw_direction = Utils::Player::get_direction( reg() );
@@ -657,11 +738,13 @@ void PlayerSystem::pickup_world_item( entt::registry &reg, entt::entity world_it
 
 bool PlayerSystem::is_valid_move( const sf::FloatRect &target_position )
 {
+  bool result = false;
   auto search_bounds = Cmp::RectBounds::scaled( target_position.position, target_position.size, 1 );
-  using namespace Utils::Collision;
 
   auto is_active = []( const Cmp::PlayerNoPath &playernopath ) { return playernopath.active; };
-  return not check_cmp<Cmp::PlayerNoPath>( reg(), search_bounds, is_active );
+  result = not Utils::Collision::check_cmp<Cmp::PlayerNoPath>( reg(), search_bounds, is_active );
+
+  return result;
 }
 
 void PlayerSystem::on_drop_inventory_event( Game::Events::DropInventoryEvent ev )

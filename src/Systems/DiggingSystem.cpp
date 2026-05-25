@@ -6,6 +6,7 @@
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/LootContainer.hpp>
+#include <Components/Moveable.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
@@ -21,6 +22,7 @@
 #include <Components/ZOrderValue.hpp>
 #include <Events/CreateItemEvent.hpp>
 #include <Events/DropInventoryEvent.hpp>
+#include <Events/PlayerActionEvent.hpp>
 #include <Factory/BombFactory.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
@@ -63,14 +65,6 @@ void DiggingSystem::update( sf::Time dt )
   {
     SPDLOG_DEBUG( "Digging is on cooldown for {} more seconds!", ( digging_cooldown_amount - m_dig_cooldown_clock.getElapsedTime().asSeconds() ) );
     return;
-  }
-
-  // Cooldown has expired: Remove any existing SelectedPosition components from the registry
-  auto selected_position_view = reg().view<Cmp::SelectedPosition>();
-  for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
-  {
-    reg().remove<Cmp::SelectedPosition>( existing_sel_entity );
-    SPDLOG_DEBUG( "Removing previous Cmp::SelectedPosition {},{} from entity {}", sel_cmp.x, sel_cmp.y, static_cast<int>( existing_sel_entity ) );
   }
 
   static constexpr float kPlantCheckIntervalHz = 2.0f;
@@ -162,6 +156,38 @@ void DiggingSystem::check_player_smash_pot()
         Factory::destroy_loot_container( reg(), loot_entity );
       }
     }
+  }
+}
+
+void DiggingSystem::select_moveable_obstacle()
+{
+  SPDLOG_INFO( "check_player_move_obstacle 1" );
+  auto position_view = reg().view<Cmp::Position, Cmp::Obstacle, Cmp::Moveable>( entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
+  for ( auto [obst_entity, obst_pos_cmp, obst_cmp, move_cmp] : position_view.each() )
+  {
+    SPDLOG_INFO( "check_player_move_obstacle 2" );
+
+    auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
+    if ( mouse_position_bounds.findIntersection( obst_pos_cmp ) )
+    {
+      SPDLOG_INFO( "Found moveable entity at position: [{}, {}]!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
+      auto player_pos = Utils::Player::get_position( reg() );
+      auto player_hitbox_xaxis = Cmp::RectBounds::scaled( player_pos.position, Constants::kGridSizePxF, 1.5f, Cmp::RectBounds::ScaleAxis::X );
+      auto player_hitbox_yaxis = Cmp::RectBounds::scaled( player_pos.position, Constants::kGridSizePxF, 1.5f, Cmp::RectBounds::ScaleAxis::Y );
+      if ( ( not player_hitbox_xaxis.findIntersection( obst_pos_cmp ) ) and ( not player_hitbox_yaxis.findIntersection( obst_pos_cmp ) ) ) continue;
+
+      reg().emplace_or_replace<Cmp::SelectedPosition>( obst_entity, obst_pos_cmp.position );
+    }
+  }
+}
+
+void DiggingSystem::deselect_all_moveable_obstacles()
+{
+  auto selected_position_view = reg().view<Cmp::SelectedPosition>();
+  for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
+  {
+    reg().remove<Cmp::SelectedPosition>( existing_sel_entity );
+    SPDLOG_DEBUG( "Removing previous Cmp::SelectedPosition {},{} from entity {}", sel_cmp.x, sel_cmp.y, static_cast<int>( existing_sel_entity ) );
   }
 }
 
@@ -363,6 +389,8 @@ void DiggingSystem::on_player_action( const Events::PlayerActionEvent &event )
     check_player_dig_plant_collision();
     check_player_smash_pot();
   }
+  else if ( event.action == Events::PlayerActionEvent::GameActions::SELECT ) { select_moveable_obstacle(); }
+  else if ( event.action == Events::PlayerActionEvent::GameActions::DESELECT ) { deselect_all_moveable_obstacles(); }
 }
 
 } // namespace Game::Sys

@@ -33,6 +33,7 @@
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/WallFactory.hpp>
+#include <Moveable.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Ruin/RuinHexagramMultiBlock.hpp>
 #include <Ruin/RuinHexagramSegment.hpp>
@@ -190,6 +191,7 @@ void LevelGenerator::add_ruin_interior_obstacles()
       const Sprites::SpriteSheet &ms = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.wall.int" );
       auto [_, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.wall.int" } );
       Factory::create_obstacle( reg(), entity, pos_cmp, ms, rand_obst_tex_idx );
+      reg().emplace_or_replace<Cmp::Moveable>( entity );
       m_obstacle_sm->insert( entity, pos_cmp );
     }
   }

@@ -59,6 +59,8 @@ private:
   void check_player_dig_obstacle_collision();
   void check_player_dig_plant_collision();
   void check_player_smash_pot();
+  void select_moveable_obstacle();
+  void deselect_all_moveable_obstacles();
 
   sf::Time m_plantcheck_accumulator;
 

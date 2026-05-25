@@ -23,12 +23,14 @@
 #include <Inventory/FlashUIInventory.hpp>
 #include <Inventory/FlashUIRadius.hpp>
 #include <Inventory/FlashUIWealth.hpp>
+#include <Moveable.hpp>
 #include <Npc/NpcNoPathFinding.hpp>
 #include <PathFinding/AStar.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Player/PlayerNoPath.hpp>
 #include <ReservedPosition.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
+#include <SelectedPosition.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/ParticleSystem.hpp>
@@ -738,8 +740,10 @@ void RenderOverlaySystem::render_ui_entity_inspect()
       if ( auto *cmp = reg().try_get<Cmp::ZOrderValue>( entity ) ) draw_line( "  ZOrder: " + std::to_string( cmp->getZOrder() ) );
       if ( reg().all_of<Cmp::ReservedPosition>( entity ) ) draw_line( "  ReservedPosition", sf::Color::Red );
       if ( reg().all_of<Cmp::VoidPosition>( entity ) ) draw_line( "  Void", sf::Color::White );
-      if ( reg().all_of<Cmp::NpcNoPathFinding>( entity ) ) draw_line( "  NpcNoPathFinding", sf::Color::Green );
-      if ( reg().all_of<Cmp::PlayerNoPath>( entity ) ) draw_line( " PlayerNoPath", sf::Color::Green );
+      if ( reg().all_of<Cmp::NpcNoPathFinding>( entity ) ) draw_line( "  NpcNoPathFinding", sf::Color::Magenta );
+      if ( reg().all_of<Cmp::PlayerNoPath>( entity ) ) draw_line( " PlayerNoPath", sf::Color::Magenta );
+      if ( reg().all_of<Cmp::Moveable>( entity ) ) draw_line( " Moveable", sf::Color::Green );
+      if ( reg().all_of<Cmp::SelectedPosition>( entity ) ) draw_line( " Selected", sf::Color::Green );
 
       draw_line( "  Pos: [ " + std::to_string( static_cast<int>( pos_cmp.position.x ) ) + " , " +
                  std::to_string( static_cast<int>( pos_cmp.position.y ) ) + " ]" );

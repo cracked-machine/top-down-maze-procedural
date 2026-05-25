@@ -21,6 +21,7 @@
 #include <SceneControl/Scenes/RuinSceneLowerFloor.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/CryptSystem.hpp>
+#include <Systems/DiggingSystem.hpp>
 #include <Systems/FootstepSystem.hpp>
 #include <Systems/HolyWellSystem.hpp>
 #include <Systems/LootSystem.hpp>
@@ -68,6 +69,7 @@ void RuinSceneLowerFloor::on_init()
   level_gen.reset();
   level_gen.build_scene_from_data( *m_scene_data );
   level_gen.add_ruin_rune_markers();
+  level_gen.add_ruin_interior_obstacles();
 
   // add access hitbox just above horizontal centerpoint
   sf::Vector2f flooraccess_position( map_size_pixel.x - ( 3 * gridsize.x ), 2 * gridsize.y );
@@ -179,6 +181,7 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Store::Type::RuinSystem>().check_floor_access_collision( Cmp::RuinFloorAccess::Direction::TO_UPPER );
   m_sys.find<Store::Type::RuinSystem>().check_movement_slowdowns();
   m_sys.find<Store::Type::RuinSystem>().creaking_rope_update();
+  m_sys.find<Store::Type::DiggingSystem>().update( dt );
 
   m_sys.find<Store::Type::PlayerSystem>().update( dt, Sys::PlayerSystem::FootStepSfx::NONE );
 
