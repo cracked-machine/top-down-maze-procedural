@@ -9,8 +9,7 @@
 namespace Game::Sys::ProcGen
 {
 
-void CellAutomataSystem::iterate( unsigned int iterations, RandomLevelGenerator::SceneType scene_type,
-                                  PathFinding::SpatialHashGrid &levelgen_spatialgrid )
+void CellAutomataSystem::iterate( unsigned int iterations, LevelGenerator::SceneType scene_type, PathFinding::SpatialHashGrid &levelgen_spatialgrid )
 {
   const Sprites::SpriteSheet &ms = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.wall.int" );
 
@@ -27,12 +26,12 @@ void CellAutomataSystem::iterate( unsigned int iterations, RandomLevelGenerator:
 
       if ( neighbour_list.size() <= 2 )
       {
-        if ( scene_type == RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR )
+        if ( scene_type == LevelGenerator::SceneType::GRAVEYARD_EXTERIOR )
         {
           auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.wall.int" } );
           Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, idx );
         }
-        else if ( scene_type == RandomLevelGenerator::SceneType::CRYPT_INTERIOR )
+        else if ( scene_type == LevelGenerator::SceneType::CRYPT_INTERIOR )
         {
           auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.crypt.wall.int" } );
           Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, idx );
@@ -46,12 +45,12 @@ void CellAutomataSystem::iterate( unsigned int iterations, RandomLevelGenerator:
       else
       {
 
-        if ( scene_type == RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR )
+        if ( scene_type == LevelGenerator::SceneType::GRAVEYARD_EXTERIOR )
         {
           auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.wall.int" } );
           Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, idx );
         }
-        else if ( scene_type == RandomLevelGenerator::SceneType::CRYPT_INTERIOR )
+        else if ( scene_type == LevelGenerator::SceneType::CRYPT_INTERIOR )
         {
           auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.crypt.wall.int" } );
           Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, idx );

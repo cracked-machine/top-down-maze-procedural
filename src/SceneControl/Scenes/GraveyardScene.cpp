@@ -42,7 +42,7 @@
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/ProcGen/CellAutomataSystem.hpp>
-#include <Systems/ProcGen/RandomLevelGenerator.hpp>
+#include <Systems/ProcGen/LevelGenerator.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/ShaderSystem.hpp>
@@ -103,7 +103,7 @@ void GraveyardScene::on_init()
 
   auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_game_area( *m_scene_map_data );
+  random_level_sys.gen_scene_data( *m_scene_map_data );
 
   random_level_sys.gen_graveyard_exterior_multiblocks();
   Factory::gen_loot_containers( m_reg, m_sprite_factory, map_size_grid );
@@ -113,7 +113,7 @@ void GraveyardScene::on_init()
 
   // now use cellular automata on the exterior obstacles
   auto &cellauto_parser = m_sys.find<Sys::Store::Type::CellAutomataSystem>();
-  cellauto_parser.iterate( 5, Sys::ProcGen::RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR, random_level_sys.get_obstacle_sm() );
+  cellauto_parser.iterate( 5, Sys::ProcGen::LevelGenerator::SceneType::GRAVEYARD_EXTERIOR, random_level_sys.get_obstacle_sm() );
 
   // create navmeshes for pathfinding
   m_pathfinding_navmesh = Pathfinding::Factory::create_restricted_navmesh( m_reg );

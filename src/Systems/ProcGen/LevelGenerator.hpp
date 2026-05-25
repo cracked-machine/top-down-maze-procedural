@@ -19,18 +19,18 @@ namespace Game::Scene { class SceneData; }
 namespace Game::Sys::ProcGen
 {
 
-class RandomLevelGenerator : public BaseSystem
+class LevelGenerator : public BaseSystem
 {
 public:
   //! @brief Used by level gen / cell automata
   enum class SceneType { GRAVEYARD_EXTERIOR, CRYPT_INTERIOR, HOLYWELL_INTERIOR };
 
-  RandomLevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
-  ~RandomLevelGenerator() = default;
+  LevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  ~LevelGenerator() = default;
 
   //! @brief Generate game area using data from the SceneData object.
   //! @param scene_map
-  void gen_game_area( const Scene::SceneData &scene_data );
+  void gen_scene_data( const Scene::SceneData &scene_data );
 
   //! @brief create "sprite.graveyard.wall.int" for the graveyard.
   void gen_graveyard_exterior_obstacles();

@@ -52,23 +52,22 @@
 #include <ranges>
 #include <spdlog/spdlog.h>
 
-#include <Systems/ProcGen/RandomLevelGenerator.hpp>
+#include <Systems/ProcGen/LevelGenerator.hpp>
 
 namespace Game::Sys::ProcGen
 {
 
-RandomLevelGenerator::RandomLevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                                            Audio::SoundBank &sound_bank )
+LevelGenerator::LevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank ),
       m_obstacle_sm( std::make_unique<PathFinding::SpatialHashGrid>() ),
       m_void_sm( std::make_unique<PathFinding::SpatialHashGrid>() )
 {
 }
 
-PathFinding::SpatialHashGrid &RandomLevelGenerator::get_obstacle_sm() { return *m_obstacle_sm; }
-PathFinding::SpatialHashGrid &RandomLevelGenerator::get_void_sm() { return *m_void_sm; }
+PathFinding::SpatialHashGrid &LevelGenerator::get_obstacle_sm() { return *m_obstacle_sm; }
+PathFinding::SpatialHashGrid &LevelGenerator::get_void_sm() { return *m_void_sm; }
 
-void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_data )
+void LevelGenerator::gen_scene_data( const Scene::SceneData &scene_data )
 {
   auto [map_size_grid, map_size_pixel] = scene_data.map_size();
   auto w = map_size_grid.x;
@@ -163,7 +162,7 @@ void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_data )
   }
 }
 
-void RandomLevelGenerator::gen_graveyard_exterior_obstacles()
+void LevelGenerator::gen_graveyard_exterior_obstacles()
 {
   auto position_view = reg().view<Cmp::Position>( entt::exclude<Cmp::PlayerCharacter, Cmp::ReservedPosition> );
   for ( auto [entity, pos_cmp] : position_view.each() )
@@ -179,7 +178,7 @@ void RandomLevelGenerator::gen_graveyard_exterior_obstacles()
   }
 }
 
-void RandomLevelGenerator::gen_graveyard_exterior_multiblocks()
+void LevelGenerator::gen_graveyard_exterior_multiblocks()
 {
   auto grave_num_multiplier = Sys::PersistSystem::get<Cmp::Persist::GraveNumMultiplier>( reg() );
   auto max_num_altars = Sys::PersistSystem::get<Cmp::Persist::MaxNumAltars>( reg() );
@@ -230,7 +229,7 @@ void RandomLevelGenerator::gen_graveyard_exterior_multiblocks()
   }
 }
 
-void RandomLevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::SpriteSheet &ms, size_t ms_index, unsigned long seed )
+void LevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::SpriteSheet &ms, size_t ms_index, unsigned long seed )
 {
   auto [random_entity, random_origin_position] = find_spawn_location( ms, seed );
   if ( random_entity == entt::null )
@@ -269,7 +268,7 @@ void RandomLevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::
   }
 }
 
-std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location( const Sprites::SpriteSheet &ms, unsigned long seed )
+std::pair<entt::entity, Cmp::Position> LevelGenerator::find_spawn_location( const Sprites::SpriteSheet &ms, unsigned long seed )
 {
   constexpr int kMaxAttempts = 1000;
   int attempts = 0;
@@ -365,7 +364,7 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
   return { entt::null, Cmp::Position{ { 0.f, 0.f }, { 0.f, 0.f } } };
 }
 
-std::vector<entt::entity> RandomLevelGenerator::gen_random_plants( sf::Vector2u map_grid_size )
+std::vector<entt::entity> LevelGenerator::gen_random_plants( sf::Vector2u map_grid_size )
 {
   std::vector<entt::entity> assigned_entts;
 
@@ -394,7 +393,7 @@ std::vector<entt::entity> RandomLevelGenerator::gen_random_plants( sf::Vector2u 
   return assigned_entts;
 }
 
-void RandomLevelGenerator::reset()
+void LevelGenerator::reset()
 {
   m_obstacle_sm = std::make_unique<PathFinding::SpatialHashGrid>();
   m_void_sm = std::make_unique<PathFinding::SpatialHashGrid>();

@@ -27,7 +27,7 @@
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/PlayerSystem.hpp>
-#include <Systems/ProcGen/RandomLevelGenerator.hpp>
+#include <Systems/ProcGen/LevelGenerator.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
 #include <Systems/Stores/SystemStore.hpp>
@@ -68,7 +68,7 @@ void RuinSceneLowerFloor::on_init()
   auto player_start_area = Cmp::RectBounds::scaled( player_start_position, gridsize, 1.f, Cmp::RectBounds::ScaleAxis::XY );
   auto &random_level_sys = m_sys.find<SystemStoreType::RandomLevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_game_area( *m_scene_map_data );
+  random_level_sys.gen_scene_data( *m_scene_map_data );
 
   // add access hitbox just above horizontal centerpoint
   sf::Vector2f flooraccess_position( map_size_pixel.x - ( 3 * gridsize.x ), 2 * gridsize.y );

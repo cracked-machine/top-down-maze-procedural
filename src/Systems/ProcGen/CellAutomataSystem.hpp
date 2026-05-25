@@ -2,7 +2,7 @@
 #define SRC_SYSTEMS_PROCGEN_CELLAUTOMATASYSTEM_HPP_
 
 #include <Systems/BaseSystem.hpp>
-#include <Systems/ProcGen/RandomLevelGenerator.hpp>
+#include <Systems/ProcGen/LevelGenerator.hpp>
 
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -29,7 +29,7 @@ public:
   //! @brief event handlers for resuming system clocks
   void on_resume() override {}
 
-  void iterate( unsigned int iterations, RandomLevelGenerator::SceneType scene_type, PathFinding::SpatialHashGrid &levelgen_spatialgrid );
+  void iterate( unsigned int iterations, LevelGenerator::SceneType scene_type, PathFinding::SpatialHashGrid &levelgen_spatialgrid );
 };
 
 } // namespace Game::Sys::ProcGen
