@@ -79,7 +79,7 @@ public:
     PassageSystem,
     PersistSystem,
     PlayerSystem,
-    RandomLevelGenerator,
+    LevelGenerator,
     RenderGameSystem,
     RenderMenuSystem,
     RenderOverlaySystem,
@@ -145,7 +145,7 @@ template<> struct Store::SystemTraits<Store::Type::ParticleSystem>         { usi
 template<> struct Store::SystemTraits<Store::Type::PassageSystem>          { using type = Game::Sys::PassageSystem; };
 template<> struct Store::SystemTraits<Store::Type::PersistSystem>          { using type = PersistSystem; };
 template<> struct Store::SystemTraits<Store::Type::PlayerSystem>           { using type = PlayerSystem; };
-template<> struct Store::SystemTraits<Store::Type::RandomLevelGenerator>   { using type = ProcGen::LevelGenerator; };
+template<> struct Store::SystemTraits<Store::Type::LevelGenerator>         { using type = ProcGen::LevelGenerator; };
 template<> struct Store::SystemTraits<Store::Type::RenderGameSystem>       { using type = RenderGameSystem; };
 template<> struct Store::SystemTraits<Store::Type::RenderOverlaySystem>    { using type = RenderOverlaySystem; };
 template<> struct Store::SystemTraits<Store::Type::RenderMenuSystem>       { using type = RenderMenuSystem; };

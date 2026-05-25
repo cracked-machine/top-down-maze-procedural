@@ -59,7 +59,7 @@ void CryptScene::on_init()
   // create the empty game area
   auto player_start_position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
   auto player_start_area = Cmp::RectBounds::scaled( player_start_position, Constants::kGridSizePxF, 3.f, Cmp::RectBounds::ScaleAxis::XY );
-  auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
+  auto &random_level_sys = m_sys.find<Sys::Store::Type::LevelGenerator>();
   random_level_sys.reset();
   random_level_sys.gen_scene_data( *m_scene_map_data );
   m_sys.find<Sys::Store::Type::PassageSystem>().init_scene_data( m_scene_map_data );

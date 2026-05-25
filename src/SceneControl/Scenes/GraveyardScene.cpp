@@ -101,7 +101,7 @@ void GraveyardScene::on_init()
   // Factory::Shader::add_mist( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
   Factory::Shader::add_night_static( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
 
-  auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
+  auto &random_level_sys = m_sys.find<Sys::Store::Type::LevelGenerator>();
   random_level_sys.reset();
   random_level_sys.gen_scene_data( *m_scene_map_data );
 
