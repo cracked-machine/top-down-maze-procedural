@@ -38,7 +38,7 @@ void create_bookcase( entt::registry &reg, sf::Vector2f spawn_position, const Sp
             .frame_index_offset = static_cast<size_t>(sprite_index),
             .enabled = true
       });
-      // clang-format on 
+      // clang-format on
       reg.emplace_or_replace<Cmp::ZOrderValue>( existing_entt, -5.f );
       reg.emplace_or_replace<Cmp::RuinBookcase>( existing_entt );
       reg.emplace_or_replace<Cmp::NpcNoPathFinding>( existing_entt );
@@ -58,7 +58,7 @@ void create_cobweb( entt::registry &reg, sf::Vector2f spawn_position, const Spri
         .frame_index_offset = static_cast<size_t>(sprite_index),
         .enabled = true
   });
-  // clang-format on 
+  // clang-format on
   reg.emplace_or_replace<Cmp::ZOrderValue>( cobweb_entt, spawn_position.y );
   reg.emplace_or_replace<Cmp::RuinCobweb>( cobweb_entt, 100 );
 }
@@ -85,7 +85,7 @@ void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, con
           .frame_index_offset = static_cast<size_t>(sprite_index),
           .enabled = true
     });
-    // clang-format on 
+    // clang-format on
     reg.emplace_or_replace<Cmp::ZOrderValue>( shadowhand_entt, hand_ms.get_zorder( 0 ) ); // above everythign
     reg.emplace_or_replace<Cmp::AbsoluteAlpha>( shadowhand_entt, 200 );
     reg.emplace_or_replace<Cmp::NPC>( shadowhand_entt, npc_shadowhand_cmp );

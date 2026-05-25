@@ -318,7 +318,6 @@ void RuinSystem::add_lowerfloor_cobwebs( int max_attempts, sf::FloatRect scene_d
   {
     if ( Utils::Collision::check_cmp<Cmp::RuinBookcase>( reg(), pos ) ) { return true; }
     if ( Utils::Collision::check_cmp<Cmp::RuinStairsLowerMultiBlock>( reg(), pos ) ) { return true; }
-    if ( Utils::Collision::check_cmp<Cmp::Wall>( reg(), pos, []( const Cmp::Wall &wall ) { return wall.blocking; } ) ) { return true; }
     if ( Utils::Collision::check_cmp<Cmp::RuinCobweb>( reg(), pos ) ) { return true; }
     if ( Utils::Collision::check_cmp<Cmp::Exit>( reg(), pos ) ) { return true; }
 

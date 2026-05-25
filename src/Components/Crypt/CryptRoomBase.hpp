@@ -74,7 +74,7 @@ public:
                                               false,
                                               CryptPassageDirection::SOUTH );
     }
-    // clang-format on   
+    // clang-format on  
     
   }
 

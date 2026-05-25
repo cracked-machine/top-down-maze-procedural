@@ -65,7 +65,7 @@ void ExitSystem::spawn_exit( std::optional<sf::Vector2u> spawn_position )
           .frame_index_offset = 1,
           .enabled = true
     });
-    // clang-format on    
+    // clang-format on   
     reg().emplace_or_replace<Cmp::ZOrderValue>( entity, spawn_pos_px.position.y );
     reg().emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
 
@@ -87,7 +87,7 @@ void ExitSystem::spawn_exit( std::optional<sf::Vector2u> spawn_position )
           .frame_index_offset = 0,
           .enabled = true
     });
-    // clang-format on    
+    // clang-format on   
     reg().emplace_or_replace<Cmp::ZOrderValue>( rand_entity, rand_pos_cmp.position.y );
     reg().emplace_or_replace<Cmp::NpcNoPathFinding>( rand_entity );
     SPDLOG_INFO( "Exit spawned at position ({}, {})", rand_pos_cmp.position.x, rand_pos_cmp.position.y );
@@ -122,7 +122,7 @@ void ExitSystem::check_player_can_unlock_exit()
               .frame_index_offset = 1,
               .enabled = true
         });
-        // clang-format on    
+        // clang-format on   
         reg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y - 16.f );
         reg().remove<Cmp::PlayerNoPath>( entity );
         if ( m_sound_bank.get_effect( "secret" ).getStatus() == sf::Sound::Status::Stopped ) m_sound_bank.get_effect( "secret" ).play();

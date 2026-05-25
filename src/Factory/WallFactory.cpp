@@ -14,11 +14,11 @@
 namespace Game::Factory
 {
 
-void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, const Sprites::SpriteSheet &ms, std::size_t sprite_index, SolidWall solid_wall )
+void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, const Sprites::SpriteSheet &ms, std::size_t sprite_index )
 {
   auto entity = reg.create();
   reg.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSizePxF );
-  reg.emplace_or_replace<Cmp::Wall>( entity, static_cast<bool>( solid_wall ) );
+  reg.emplace_or_replace<Cmp::Wall>( entity );
   reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
   // clang-format off
   reg.emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 
@@ -26,25 +26,11 @@ void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, const Sprite
       .frame_index_offset = static_cast<size_t>(sprite_index),
       .enabled = true
   });
-  // clang-format on 
+  // clang-format on
   Cmp::ZOrderValue zorder_cmp( 0 );
   if ( ms.get_zorder( sprite_index ) != 0 ) { zorder_cmp.setZOrder( ms.get_zorder( sprite_index ) ); }
   else { zorder_cmp.setZOrder( pos.y + ms.get_sprite_size().y ); }
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder_cmp );
-}
-
-void add_nopathfinding( entt::registry &reg, const sf::Vector2f &pos )
-{
-  auto entity = reg.create();
-  reg.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSizePxF );
-  reg.emplace_or_replace<Cmp::PlayerNoPath>( entity );
-}
-
-void add_nonpcpathfinding( entt::registry &reg, const sf::Vector2f &pos )
-{
-  auto entity = reg.create();
-  reg.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSizePxF );
-  reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
 }
 
 void add_reservedposition( entt::registry &reg, const sf::Vector2f &pos )
@@ -54,22 +40,30 @@ void add_reservedposition( entt::registry &reg, const sf::Vector2f &pos )
   reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
 }
 
-entt::entity add_solid_player( entt::registry &reg, sf::FloatRect rect )
+void add_solid_player( entt::registry &reg, sf::FloatRect rect )
 {
-  auto entt = reg.create();
-  reg.emplace_or_replace<Cmp::PlayerNoPath>( entt );
-  reg.emplace_or_replace<Cmp::ReservedPosition>( entt );
-  reg.emplace_or_replace<Cmp::Position>( entt, rect.position, rect.size );
-  return entt;
+  // Mark any existing world position entities overlapping this rect as reserved
+  for ( auto [entt, pos_cmp] : reg.view<Cmp::Position>().each() )
+  {
+    if ( pos_cmp.findIntersection( rect ) )
+    {
+      reg.emplace_or_replace<Cmp::ReservedPosition>( entt );
+      reg.emplace_or_replace<Cmp::PlayerNoPath>( entt );
+    }
+  }
 }
 
-entt::entity add_solid_npc( entt::registry &reg, sf::FloatRect rect )
+void add_solid_npc( entt::registry &reg, sf::FloatRect rect )
 {
-  auto entt = reg.create();
-  reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entt );
-  reg.emplace_or_replace<Cmp::ReservedPosition>( entt );
-  reg.emplace_or_replace<Cmp::Position>( entt, rect.position, rect.size );
-  return entt;
+  // Mark any existing world position entities overlapping this rect as reserved
+  for ( auto [entt, pos_cmp] : reg.view<Cmp::Position>().each() )
+  {
+    if ( pos_cmp.findIntersection( rect ) )
+    {
+      reg.emplace_or_replace<Cmp::ReservedPosition>( entt );
+      reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entt );
+    }
+  }
 }
 
 } // namespace Game::Factory

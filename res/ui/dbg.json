@@ -126,6 +126,30 @@
                  "width":0,
                  "x":50,
                  "y":450
+                }, 
+                {
+                 "height":0,
+                 "id":6,
+                 "name":"inspect_list",
+                 "opacity":1,
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"align",
+                         "type":"string",
+                         "value":"left"
+                        }, 
+                        {
+                         "name":"font_size",
+                         "type":"int",
+                         "value":15
+                        }],
+                 "rotation":0,
+                 "type":"ui_label",
+                 "visible":true,
+                 "width":0,
+                 "x":450,
+                 "y":450
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -134,7 +158,7 @@
          "y":0
         }],
  "nextlayerid":3,
- "nextobjectid":6,
+ "nextobjectid":7,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.1",

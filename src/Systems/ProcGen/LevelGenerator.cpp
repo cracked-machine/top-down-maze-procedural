@@ -48,6 +48,7 @@
 #include <Utils/Utils.hpp>
 
 #include <SFML/System/Vector2.hpp>
+#include <ZOrderValue.hpp>
 #include <memory>
 #include <ranges>
 #include <spdlog/spdlog.h>
@@ -67,7 +68,7 @@ LevelGenerator::LevelGenerator( entt::registry &reg, sf::RenderWindow &window, S
 PathFinding::SpatialHashGrid &LevelGenerator::get_obstacle_sm() { return *m_obstacle_sm; }
 PathFinding::SpatialHashGrid &LevelGenerator::get_void_sm() { return *m_void_sm; }
 
-void LevelGenerator::gen_scene_data( const Scene::SceneData &scene_data )
+void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
 {
   auto [map_size_grid, map_size_pixel] = scene_data.map_size();
   auto w = map_size_grid.x;
@@ -83,12 +84,6 @@ void LevelGenerator::gen_scene_data( const Scene::SceneData &scene_data )
       // get the relative index using the offset from the json data
       Factory::add_wall_entity( reg(), new_pos, wall_ms, tile - scene_data.wall_tileset().first_gid );
     }
-  }
-
-  for ( const auto &solid : scene_data.solid_objectlayer() )
-  {
-    Factory::add_solid_player( reg(), solid );
-    Factory::add_solid_npc( reg(), solid );
   }
 
   for ( const auto [i, tile] : std::views::enumerate( scene_data.levelgen_tilelayer() ) )
@@ -110,6 +105,12 @@ void LevelGenerator::gen_scene_data( const Scene::SceneData &scene_data )
     }
     else if ( tile == scene_data.exit_tile_id() ) { Factory::create_crypt_exit( reg(), new_pos ); }
     else if ( tile == scene_data.reserved_tile_id() ) { Factory::add_reservedposition( reg(), new_pos ); }
+  }
+
+  for ( const auto &solid : scene_data.solid_objectlayer() )
+  {
+    Factory::add_solid_player( reg(), solid );
+    Factory::add_solid_npc( reg(), solid );
   }
 
   for ( const auto &[ms_type, pos] : scene_data.multiblock_objectlayer() )
@@ -175,6 +176,43 @@ void LevelGenerator::gen_graveyard_exterior_obstacles()
       Factory::create_obstacle( reg(), entity, pos_cmp, ms, rand_obst_tex_idx );
       m_obstacle_sm->insert( entity, pos_cmp );
     }
+  }
+}
+
+void LevelGenerator::add_ruin_interior_obstacles()
+{
+  auto position_view = reg().view<Cmp::Position>( entt::exclude<Cmp::PlayerCharacter, Cmp::ReservedPosition> );
+  for ( auto [entity, pos_cmp] : position_view.each() )
+  {
+
+    if ( Cmp::RandomInt{ 0, 1 }.gen() == 1 )
+    {
+      const Sprites::SpriteSheet &ms = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.wall.int" );
+      auto [_, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.wall.int" } );
+      Factory::create_obstacle( reg(), entity, pos_cmp, ms, rand_obst_tex_idx );
+      m_obstacle_sm->insert( entity, pos_cmp );
+    }
+  }
+}
+
+void LevelGenerator::add_ruin_rune_markers()
+{
+  for ( auto _ : std::views::iota( 0, 5 ) )
+  {
+    auto [rnd_entt, rnd_pos] = Utils::Rnd::get_random_position( reg(), {}, Utils::Rnd::ExcludePack<Cmp::ReservedPosition>{} );
+    auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.playerspawn" } );
+
+    auto rune_entt = reg().create();
+    reg().emplace_or_replace<Cmp::ReservedPosition>( rune_entt );
+    reg().emplace_or_replace<Cmp::Position>( rune_entt, rnd_pos );
+    reg().emplace_or_replace<Cmp::ZOrderValue>( rune_entt, 20.f );
+    // clang-format off
+    reg().emplace_or_replace<Cmp::AnimData>( rune_entt, Cmp::AnimData::Config{ 
+          .sprite_type = "sprite.graveyard.playerspawn", 
+          .frame_index_offset = idx,
+          .enabled = true
+    });
+    // clang-format on
   }
 }
 

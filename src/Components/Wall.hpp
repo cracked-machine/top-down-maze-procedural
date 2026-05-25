@@ -7,7 +7,7 @@ namespace Game::Cmp
 // Wall concept
 struct Wall
 {
-  [[maybe_unused]] bool blocking = true;
+  bool active = true;
 };
 
 } // namespace Game::Cmp

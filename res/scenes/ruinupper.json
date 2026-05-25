@@ -233,7 +233,7 @@
          "imageheight":144,
          "imagewidth":48,
          "margin":0,
-         "name":"sprite.ruin.wall.int",
+         "name":"sprite.ruin.wall.ext",
          "spacing":0,
          "tilecount":27,
          "tileheight":16,

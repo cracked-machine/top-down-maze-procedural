@@ -49,7 +49,7 @@ void HolyWellScene::on_init()
   auto player_start_area = Cmp::RectBounds::scaled( player_start_position, Constants::kGridSizePxF, 1.f, Cmp::RectBounds::ScaleAxis::XY );
   auto &random_level_sys = m_sys.find<Sys::Store::Type::LevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_scene_data( *m_scene_data );
+  random_level_sys.build_scene_from_data( *m_scene_data );
 
   Sprites::Containers::VertexFloor floortiles;
   floortiles.create( random_level_sys.get_void_sm(), m_scene_data );

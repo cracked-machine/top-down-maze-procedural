@@ -1516,9 +1516,9 @@
       }
     },
 
-    "sprite.ruin.wall.int": {
+    "sprite.ruin.wall.ext": {
       "spritesheet": {
-        "displayname": "sprite.ruin.wall.int",
+        "displayname": "sprite.ruin.wall.ext",
         "zorder": [
           0, 0, 0, 
           0, -10, 0, 
@@ -1540,6 +1540,22 @@
         }
       }
     },
+
+    "sprite.ruin.wall.int": {
+      "spritesheet": {
+        "displayname": "sprite.ruin.wall.int",
+        "zorder": [0],
+        "texture_path": "res/textures/ruin.png",
+        "sprite_indices": [30],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+
     "sprite.ruin.stairs.down": {
       "spritesheet": {
         "displayname": "sprite.ruin.stairs.down",

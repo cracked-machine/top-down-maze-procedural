@@ -57,7 +57,7 @@
          "name":"solid",
          "objects":[
                 {
-                 "height":16,
+                 "height":32,
                  "id":1,
                  "name":"solid",
                  "opacity":1,

@@ -707,8 +707,6 @@ void RenderOverlaySystem::render_ui_entity_inspect()
   sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( m_window );
   sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::get_world_view() );
 
-  // sf::FloatRect mouse_rect( mouse_world_pos, { 1.f, 1.f } );
-
   float y_offset = 0.f;
   constexpr unsigned int font_size = 18;
   constexpr float line_height = 22.f;
@@ -737,15 +735,11 @@ void RenderOverlaySystem::render_ui_entity_inspect()
       draw_line( "--- Entity #" + std::to_string( entt::to_integral( entity ) ) + " ---", sf::Color::Yellow );
 
       if ( auto *cmp = reg().try_get<Cmp::AnimData>( entity ) ) draw_line( "  AnimData: " + cmp->m_sprite_type );
-
-      // if ( auto *cmp = reg().try_get<Cmp::ZOrderValue>( entity ) ) draw_line( "  ZOrder: " + std::to_string( cmp->getZOrder() ) );
-
+      if ( auto *cmp = reg().try_get<Cmp::ZOrderValue>( entity ) ) draw_line( "  ZOrder: " + std::to_string( cmp->getZOrder() ) );
       if ( reg().all_of<Cmp::ReservedPosition>( entity ) ) draw_line( "  ReservedPosition", sf::Color::Red );
       if ( reg().all_of<Cmp::VoidPosition>( entity ) ) draw_line( "  Void", sf::Color::White );
       if ( reg().all_of<Cmp::NpcNoPathFinding>( entity ) ) draw_line( "  NpcNoPathFinding", sf::Color::Green );
       if ( reg().all_of<Cmp::PlayerNoPath>( entity ) ) draw_line( " PlayerNoPath", sf::Color::Green );
-
-      // if ( reg().try_get<Cmp::NPC>( entity ) ) draw_line( "  NPC", sf::Color::Magenta );
 
       draw_line( "  Pos: [ " + std::to_string( static_cast<int>( pos_cmp.position.x ) ) + " , " +
                  std::to_string( static_cast<int>( pos_cmp.position.y ) ) + " ]" );

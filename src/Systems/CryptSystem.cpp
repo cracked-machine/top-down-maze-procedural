@@ -287,7 +287,7 @@ void CryptSystem::check_objective_activation( Events::PlayerActionEvent::GameAct
                 .sprite_type = ms.get_sprite_type(),
                 .enabled = true
           });
-          // clang-format on 
+          // clang-format on
         }
       }
     }
@@ -321,7 +321,7 @@ void CryptSystem::check_lever_activation()
             .frame_index_offset = static_cast<size_t>(enabled_lever_sprite_idx),
             .enabled = true
       });
-      // clang-format on 
+      // clang-format on
 
       m_sound_bank.get_effect( "crypt_lever_open" ).play();
       SPDLOG_DEBUG( "Lever enabled at {},{} - Count:{}", lever_pos_cmp.position.x, lever_pos_cmp.position.y, m_enabled_levers );
@@ -837,7 +837,7 @@ void CryptSystem::do_lava_pit_animation()
             .enabled = true,
             .anim_type = Cmp::AnimType::ONESHOTRESET
       });
-      // clang-format on       
+      // clang-format on      
       reg().emplace_or_replace<Cmp::ZOrderValue>( lava_anim_entt, lava_cell_cmp->position.y + 64.f );
     }
     m_lava_effect_cooldown_timer.restart();

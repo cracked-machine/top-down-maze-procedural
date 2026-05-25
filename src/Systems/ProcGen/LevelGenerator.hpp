@@ -30,10 +30,15 @@ public:
 
   //! @brief Generate game area using data from the SceneData object.
   //! @param scene_map
-  void gen_scene_data( const Scene::SceneData &scene_data );
+  void build_scene_from_data( const Scene::SceneData &scene_data );
 
   //! @brief create "sprite.graveyard.wall.int" for the graveyard.
   void gen_graveyard_exterior_obstacles();
+
+  //! @brief
+  void add_ruin_interior_obstacles();
+
+  void add_ruin_rune_markers();
 
   //! @brief create multiblock sprites (i.e. graves, altars, crypts) for the graveyard scene.
   void gen_graveyard_exterior_multiblocks();

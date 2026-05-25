@@ -78,13 +78,15 @@ void GraveyardScene::on_init()
   m_sys.find<Sys::Store::Type::ItemStore>().init_store();
   m_sys.find<Sys::Store::Type::NpcStore>().init_store();
 
-  // create the level contents
   m_scene_data = std::make_shared<SceneData>( "res/scenes/graveyard.json" );
+
+  // player start position
   auto [_, player_start_pos_px] = m_scene_data->get_player_start_position();
   Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, player_start_pos_px );
   auto player_start_position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
   auto player_start_area = Cmp::RectBounds::scaled( player_start_position, Constants::kGridSizePxF, 5.f, Cmp::RectBounds::ScaleAxis::XY );
 
+  // create the player, optionally increment the level counter
   auto player_view = m_reg.view<Cmp::PlayerCharacter>();
   if ( player_view.size() == 0 ) { Factory::create_player( m_reg ); }
   else
@@ -101,19 +103,17 @@ void GraveyardScene::on_init()
   // Factory::Shader::add_mist( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
   Factory::Shader::add_night_static( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
 
-  auto &random_level_sys = m_sys.find<Sys::Store::Type::LevelGenerator>();
-  random_level_sys.reset();
-  random_level_sys.gen_scene_data( *m_scene_data );
-
-  random_level_sys.gen_graveyard_exterior_multiblocks();
+  // create the level contents
+  auto &level_gen = m_sys.find<Sys::Store::Type::LevelGenerator>();
+  level_gen.reset();
+  level_gen.build_scene_from_data( *m_scene_data );
+  level_gen.gen_graveyard_exterior_multiblocks();
   Factory::gen_loot_containers( m_reg, m_sprite_factory, map_size_grid );
   Factory::gen_npc_containers( m_reg, m_sprite_factory, map_size_grid );
-  random_level_sys.gen_random_plants( map_size_grid );
-  random_level_sys.gen_graveyard_exterior_obstacles();
-
-  // now use cellular automata on the exterior obstacles
+  level_gen.gen_random_plants( map_size_grid );
+  level_gen.gen_graveyard_exterior_obstacles();
   auto &cellauto_parser = m_sys.find<Sys::Store::Type::CellAutomataSystem>();
-  cellauto_parser.iterate( 5, Sys::ProcGen::LevelGenerator::SceneType::GRAVEYARD_EXTERIOR, random_level_sys.get_obstacle_sm() );
+  cellauto_parser.iterate( 5, Sys::ProcGen::LevelGenerator::SceneType::GRAVEYARD_EXTERIOR, level_gen.get_obstacle_sm() );
 
   // create navmeshes for pathfinding
   m_pathfinding_navmesh = Pathfinding::Factory::create_restricted_navmesh( m_reg );
@@ -122,7 +122,7 @@ void GraveyardScene::on_init()
 
   // create floor background
   Sprites::Containers::VertexFloor floortiles;
-  floortiles.create( random_level_sys.get_void_sm(), m_scene_data );
+  floortiles.create( level_gen.get_void_sm(), m_scene_data );
 
   m_sys.find<Sys::Store::Type::ExitSystem>().spawn_exit();
 

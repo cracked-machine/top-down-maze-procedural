@@ -32,7 +32,7 @@ entt::entity create_plant_obstacle( entt::registry &reg, Cmp::Position pos_cmp, 
         .sprite_type = ms.get_sprite_type(), 
         .enabled = true
   });
-  // clang-format on 
+  // clang-format on
   reg.emplace_or_replace<Cmp::Armable>( plant_entt );
 
   Cmp::ZOrderValue zorder( 0 );

@@ -64,11 +64,10 @@ void RuinSceneLowerFloor::on_init()
   Factory::Shader::add_night_static( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
 
   // generate the empty game area
-  sf::Vector2f player_start_position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
-  auto player_start_area = Cmp::RectBounds::scaled( player_start_position, gridsize, 1.f, Cmp::RectBounds::ScaleAxis::XY );
-  auto &random_level_sys = m_sys.find<SystemStoreType::LevelGenerator>();
-  random_level_sys.reset();
-  random_level_sys.gen_scene_data( *m_scene_data );
+  auto &level_gen = m_sys.find<SystemStoreType::LevelGenerator>();
+  level_gen.reset();
+  level_gen.build_scene_from_data( *m_scene_data );
+  level_gen.add_ruin_rune_markers();
 
   // add access hitbox just above horizontal centerpoint
   sf::Vector2f flooraccess_position( map_size_pixel.x - ( 3 * gridsize.x ), 2 * gridsize.y );
@@ -76,18 +75,18 @@ void RuinSceneLowerFloor::on_init()
   m_sys.find<SystemStoreType::RuinSystem>().spawn_floor_access( flooraccess_position, flooraccess_size, Cmp::RuinFloorAccess::Direction::TO_UPPER );
 
   Sprites::Containers::VertexFloor floortiles;
-  floortiles.create( random_level_sys.get_void_sm(), m_scene_data );
+  floortiles.create( level_gen.get_void_sm(), m_scene_data );
   auto floor_entity = m_reg.create();
   m_reg.emplace<Sprites::Containers::VertexFloor>( floor_entity, floortiles );
   m_reg.emplace<Cmp::ZOrderValue>( floor_entity, -16.f );
 
-  sf::Vector2f bc_area_position( 0, 0 );
-  sf::Vector2f bc_area_size( map_size_pixel.x - 48, map_size_pixel.y - 16 );
-  m_sys.find<SystemStoreType::RuinSystem>().gen_lowerfloor_bookcases( sf::FloatRect( bc_area_position, bc_area_size ) );
+  // sf::Vector2f bc_area_position( 0, 0 );
+  // sf::Vector2f bc_area_size( map_size_pixel.x - 48, map_size_pixel.y - 16 );
+  // m_sys.find<SystemStoreType::RuinSystem>().gen_lowerfloor_bookcases( sf::FloatRect( bc_area_position, bc_area_size ) );
 
-  sf::Vector2f cobweb_area_position( 0, 0 );
-  sf::Vector2f cobweb_area_size( map_size_pixel.x - 48, map_size_pixel.y - 32 );
-  m_sys.find<SystemStoreType::RuinSystem>().add_lowerfloor_cobwebs( 200, sf::FloatRect( cobweb_area_position, cobweb_area_size ) );
+  // sf::Vector2f cobweb_area_position( 0, 0 );
+  // sf::Vector2f cobweb_area_size( map_size_pixel.x - 48, map_size_pixel.y - 32 );
+  // m_sys.find<SystemStoreType::RuinSystem>().add_lowerfloor_cobwebs( 200, sf::FloatRect( cobweb_area_position, cobweb_area_size ) );
 
   m_sys.find<Sys::Store::Type::RuinSystem>().reset_player_curse();
 
