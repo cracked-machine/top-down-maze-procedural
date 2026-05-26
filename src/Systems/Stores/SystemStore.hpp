@@ -29,7 +29,7 @@ class AltarSystem;
 class BombSystem;
 class CorruptionHazardSystem;
 class CryptSystem;
-class DiggingSystem;
+class ActionSystem;
 class ExitSystem;
 class FootstepSystem;
 class GraveSystem;
@@ -63,7 +63,7 @@ public:
     CellAutomataSystem,
     CorruptionHazardSystem,
     CryptSystem,
-    DiggingSystem,
+    ActionSystem,
     ExitSystem,
     FootstepSystem,
     GraveSystem,
@@ -129,7 +129,7 @@ template<> struct Store::SystemTraits<Store::Type::BombSystem>             { usi
 template<> struct Store::SystemTraits<Store::Type::CellAutomataSystem>     { using type = ProcGen::CellAutomataSystem; };
 template<> struct Store::SystemTraits<Store::Type::CorruptionHazardSystem> { using type = CorruptionHazardSystem; };
 template<> struct Store::SystemTraits<Store::Type::CryptSystem>            { using type = Game::Sys::CryptSystem; };
-template<> struct Store::SystemTraits<Store::Type::DiggingSystem>          { using type = DiggingSystem; };
+template<> struct Store::SystemTraits<Store::Type::ActionSystem>          { using type = ActionSystem; };
 template<> struct Store::SystemTraits<Store::Type::ExitSystem>             { using type = ExitSystem; };
 template<> struct Store::SystemTraits<Store::Type::FootstepSystem>         { using type = FootstepSystem; };
 template<> struct Store::SystemTraits<Store::Type::GraveSystem>            { using type = GraveSystem; };

@@ -31,7 +31,7 @@
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Player/PlayerNoPath.hpp>
 #include <Sprites/SpriteSheet.hpp>
-#include <Systems/DiggingSystem.hpp>
+#include <Systems/ActionSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -47,16 +47,16 @@
 namespace Game::Sys
 {
 
-DiggingSystem::DiggingSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+ActionSystem::ActionSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in
   // the constructor
-  std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&DiggingSystem::on_player_action>( this );
-  SPDLOG_DEBUG( "DiggingSystem initialized" );
+  std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&ActionSystem::on_player_action>( this );
+  SPDLOG_DEBUG( "ActionSystem initialized" );
 }
 
-void DiggingSystem::update( sf::Time dt )
+void ActionSystem::update( sf::Time dt )
 {
 
   // abort if still in cooldown
@@ -86,7 +86,7 @@ void DiggingSystem::update( sf::Time dt )
   }
 }
 
-void DiggingSystem::check_player_smash_pot()
+void ActionSystem::check_player_smash_pot()
 {
 
   auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
@@ -159,7 +159,7 @@ void DiggingSystem::check_player_smash_pot()
   }
 }
 
-void DiggingSystem::select_moveable_obstacle()
+void ActionSystem::select_moveable_obstacle()
 {
   SPDLOG_INFO( "check_player_move_obstacle 1" );
   auto position_view = reg().view<Cmp::Position, Cmp::Obstacle, Cmp::Moveable>( entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
@@ -181,7 +181,7 @@ void DiggingSystem::select_moveable_obstacle()
   }
 }
 
-void DiggingSystem::deselect_all_moveable_obstacles()
+void ActionSystem::deselect_all_moveable_obstacles()
 {
   auto selected_position_view = reg().view<Cmp::SelectedPosition>();
   for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
@@ -191,7 +191,7 @@ void DiggingSystem::deselect_all_moveable_obstacles()
   }
 }
 
-void DiggingSystem::check_player_dig_obstacle_collision()
+void ActionSystem::check_player_dig_obstacle_collision()
 {
   auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
 
@@ -277,7 +277,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
   }
 }
 
-void DiggingSystem::check_player_dig_plant_collision()
+void ActionSystem::check_player_dig_plant_collision()
 {
   auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
   if ( inventory_slot_type != "sprite.item.shovel" and inventory_slot_type != "sprite.item.axe" ) { return; }
@@ -380,7 +380,7 @@ void DiggingSystem::check_player_dig_plant_collision()
   }
 }
 
-void DiggingSystem::on_player_action( const Events::PlayerActionEvent &event )
+void ActionSystem::on_player_action( const Events::PlayerActionEvent &event )
 {
   if ( event.action == Events::PlayerActionEvent::GameActions::DIG )
   {

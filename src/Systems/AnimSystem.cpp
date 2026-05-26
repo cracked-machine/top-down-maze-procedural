@@ -88,7 +88,7 @@ void AnimSystem::update( sf::Time dt )
 
   //       update_single_sequence( loot_con_anim_cmp, globalDeltaTime, pot_sprite_metadata, frame_rate );
 
-  //       // one shot animation then deactivate, this is then destroyed by `DiggingSystem::check_player_smash_pot`
+  //       // one shot animation then deactivate, this is then destroyed by `ActionSystem::check_player_smash_pot`
   //       if ( loot_con_anim_cmp.m_current_frame == pot_sprite_metadata.get_sprites_per_sequence() - 1 )
   //       {
   //         SPDLOG_DEBUG( "Deactivating pot animation: {}", static_cast<int>( loot_con_entt ) );

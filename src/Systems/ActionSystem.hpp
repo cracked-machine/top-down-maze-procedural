@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_DIGGINGSYSTEM_HPP__
-#define SRC_SYSTEMS_DIGGINGSYSTEM_HPP__
+#ifndef SRC_SYSTEMS_ActionSystem_HPP__
+#define SRC_SYSTEMS_ActionSystem_HPP__
 
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Events/PlayerActionEvent.hpp>
@@ -20,14 +20,11 @@ class SpatialHashGrid;
 namespace Game::Sys
 {
 
-// DiggingSystem handles player digging actions within the maze.
-// This system is mainly event-driven, responding to player dig actions.
-// However, there is also a periodic update to clear previous dig selections,
-// if the cooldown has expired.
-class DiggingSystem : public BaseSystem
+// ActionSystem handles player actions within the game. This system is mainly event-driven, responding to Events::PlayerActionEvent.
+class ActionSystem : public BaseSystem
 {
 public:
-  DiggingSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  ActionSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief init the weak pointer for the pathfinding navmesh
   //! @param pathfinding_navmesh
@@ -79,4 +76,4 @@ private:
 };
 } // namespace Game::Sys
 
-#endif // SRC_SYSTEMS_DIGGINGSYSTEM_HPP__
+#endif // SRC_SYSTEMS_ActionSystem_HPP__

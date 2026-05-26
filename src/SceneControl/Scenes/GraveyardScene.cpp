@@ -27,11 +27,11 @@
 #include <Shaders/FloodWaterShader.hpp>
 #include <Shaders/MistShader.hpp>
 #include <Shaders/NightStaticShader.hpp>
+#include <Systems/ActionSystem.hpp>
 #include <Systems/AltarSystem.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/CryptSystem.hpp>
-#include <Systems/DiggingSystem.hpp>
 #include <Systems/ExitSystem.hpp>
 #include <Systems/FootstepSystem.hpp>
 #include <Systems/GraveSystem.hpp>
@@ -229,7 +229,7 @@ void GraveyardScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::NpcSystem>().update( dt );
   m_sys.find<Sys::Store::Type::NpcSystem>().spawn_wisp();
   m_sys.find<Sys::Store::Type::WormholeSystem>().check_player_wormhole_collision();
-  m_sys.find<Sys::Store::Type::DiggingSystem>().update( dt );
+  m_sys.find<Sys::Store::Type::ActionSystem>().update( dt );
   m_sys.find<Sys::Store::Type::FootstepSystem>().update();
 
   if ( m_scene_exit_cooldown.getElapsedTime() >= m_scene_exit_cooldown_time )
@@ -259,7 +259,7 @@ void GraveyardScene::reinit_navmesh()
 {
   m_sys.find<Sys::Store::Type::NpcSystem>().init( m_pathfinding_navmesh, m_open_navmesh );
   m_sys.find<Sys::Store::Type::BombSystem>().init( m_pathfinding_navmesh );
-  m_sys.find<Sys::Store::Type::DiggingSystem>().init( m_pathfinding_navmesh );
+  m_sys.find<Sys::Store::Type::ActionSystem>().init( m_pathfinding_navmesh );
   m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh, m_open_navmesh );
   m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
 }
