@@ -26,6 +26,7 @@
 #include <Components/Wall.hpp>
 #include <Constants.hpp>
 #include <Events/CreateItemEvent.hpp>
+#include <Exit.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/NpcFactory.hpp>
@@ -34,7 +35,9 @@
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/WallFactory.hpp>
 #include <Moveable.hpp>
+#include <Optimizations.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
+#include <Persistent/MaxRuinCellAutoIterations.hpp>
 #include <Ruin/RuinHexagramMultiBlock.hpp>
 #include <Ruin/RuinHexagramSegment.hpp>
 #include <Ruin/RuinStairsBalustradeMultiBlock.hpp>
@@ -44,6 +47,7 @@
 #include <Sprites/SpriteSheet.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
+#include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
@@ -112,6 +116,7 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
   {
     Factory::add_solid_player( reg(), solid );
     Factory::add_solid_npc( reg(), solid );
+    Factory::add_no_move_dest( reg(), solid );
   }
 
   for ( const auto &[ms_type, pos] : scene_data.multiblock_objectlayer() )
@@ -182,7 +187,7 @@ void LevelGenerator::gen_graveyard_exterior_obstacles()
 
 void LevelGenerator::add_ruin_interior_obstacles()
 {
-  auto position_view = reg().view<Cmp::Position>( entt::exclude<Cmp::PlayerCharacter, Cmp::ReservedPosition> );
+  auto position_view = reg().view<Cmp::Position>( entt::exclude<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Exit> );
   for ( auto [entity, pos_cmp] : position_view.each() )
   {
 
@@ -215,6 +220,14 @@ void LevelGenerator::add_ruin_rune_markers()
           .enabled = true
     });
     // clang-format on
+
+    SPDLOG_INFO( "Added rune to {},{}", rnd_pos.x(), rnd_pos.y() );
+
+    // set the existing entt to reserved as well
+    for ( auto [world_entt, world_pos_cmp] : reg().view<Cmp::Position>().each() )
+    {
+      if ( world_pos_cmp.findIntersection( rnd_pos ) ) reg().emplace_or_replace<Cmp::ReservedPosition>( rnd_entt );
+    }
   }
 }
 

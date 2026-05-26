@@ -19,7 +19,7 @@
          "name":"levelgen",
          "opacity":1,
          "type":"tilelayer",
-         "visible":true,
+         "visible":false,
          "width":19,
          "x":0,
          "y":0
@@ -44,7 +44,7 @@
                 }],
          "opacity":1,
          "type":"objectgroup",
-         "visible":false,
+         "visible":true,
          "x":0,
          "y":0
         }, 
@@ -65,7 +65,7 @@
          "name":"player",
          "opacity":1,
          "type":"tilelayer",
-         "visible":false,
+         "visible":true,
          "width":19,
          "x":0,
          "y":0
@@ -87,7 +87,7 @@
          "name":"wall",
          "opacity":1,
          "type":"tilelayer",
-         "visible":false,
+         "visible":true,
          "width":19,
          "x":0,
          "y":0
@@ -177,7 +177,7 @@
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":240,
+                 "width":288,
                  "x":0,
                  "y":16
                 }],

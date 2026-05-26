@@ -1,5 +1,6 @@
 #include <Components/ReservedPosition.hpp>
 #include <Factory/ObstacleFactory.hpp>
+#include <Moveable.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 
 #include <Systems/ProcGen/CellAutomataSystem.hpp>
@@ -36,6 +37,12 @@ void CellAutomataSystem::iterate( unsigned int iterations, LevelGenerator::Scene
           auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.crypt.wall.int" } );
           Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, idx );
         }
+        else if ( scene_type == LevelGenerator::SceneType::RUIN_INTERIOR )
+        {
+          auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.wall.int" } );
+          Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, idx );
+          reg().emplace_or_replace<Cmp::Moveable>( pos_entt );
+        }
       }
       else if ( neighbour_list.size() > 2 and neighbour_list.size() < 5 )
       {
@@ -54,6 +61,12 @@ void CellAutomataSystem::iterate( unsigned int iterations, LevelGenerator::Scene
         {
           auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.crypt.wall.int" } );
           Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, idx );
+        }
+        else if ( scene_type == LevelGenerator::SceneType::RUIN_INTERIOR )
+        {
+          auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.wall.int" } );
+          Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, idx );
+          reg().emplace_or_replace<Cmp::Moveable>( pos_entt );
         }
       }
     }

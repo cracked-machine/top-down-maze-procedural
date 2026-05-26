@@ -23,7 +23,7 @@ class LevelGenerator : public BaseSystem
 {
 public:
   //! @brief Used by level gen / cell automata
-  enum class SceneType { GRAVEYARD_EXTERIOR, CRYPT_INTERIOR, HOLYWELL_INTERIOR };
+  enum class SceneType { GRAVEYARD_EXTERIOR, CRYPT_INTERIOR, HOLYWELL_INTERIOR, RUIN_INTERIOR };
 
   LevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
   ~LevelGenerator() = default;

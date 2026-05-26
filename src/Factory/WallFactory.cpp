@@ -7,6 +7,7 @@
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/WallFactory.hpp>
+#include <NoMoveDest.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Utils/Constants.hpp>
 #include <entt/entity/registry.hpp>
@@ -62,6 +63,19 @@ void add_solid_npc( entt::registry &reg, sf::FloatRect rect )
     {
       reg.emplace_or_replace<Cmp::ReservedPosition>( entt );
       reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entt );
+    }
+  }
+}
+
+void add_no_move_dest( entt::registry &reg, sf::FloatRect rect )
+{
+  // Mark any existing world position entities overlapping this rect as reserved
+  for ( auto [entt, pos_cmp] : reg.view<Cmp::Position>().each() )
+  {
+    if ( pos_cmp.findIntersection( rect ) )
+    {
+      reg.emplace_or_replace<Cmp::ReservedPosition>( entt );
+      reg.emplace_or_replace<Cmp::NoMoveDest>( entt );
     }
   }
 }

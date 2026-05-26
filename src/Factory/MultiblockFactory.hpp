@@ -62,6 +62,7 @@ void create_multiblock( entt::registry &reg, entt::entity entity, Cmp::Position 
   // clang-format on
   reg.emplace_or_replace<MULTIBLOCK>( entity, pos.position, large_obst_grid_size.componentWiseMul( Constants::kGridSizePx ) );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, pos.position.y );
+  reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
 
   auto uuid = Cmp::UUID::generate();
   reg.emplace_or_replace<Cmp::UUID>( entity, uuid );

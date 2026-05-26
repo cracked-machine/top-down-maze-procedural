@@ -16,6 +16,7 @@
 #include <Factory/RuinFactory.hpp>
 #include <Factory/ShaderFactory.hpp>
 #include <Factory/WallFactory.hpp>
+#include <Persistent/MaxRuinCellAutoIterations.hpp>
 #include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <SceneControl/Scenes/RuinSceneLowerFloor.hpp>
@@ -28,6 +29,7 @@
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/PlayerSystem.hpp>
+#include <Systems/ProcGen/CellAutomataSystem.hpp>
 #include <Systems/ProcGen/LevelGenerator.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
@@ -70,6 +72,9 @@ void RuinSceneLowerFloor::on_init()
   level_gen.build_scene_from_data( *m_scene_data );
   level_gen.add_ruin_rune_markers();
   level_gen.add_ruin_interior_obstacles();
+  auto &cellauto_parser = m_sys.find<Sys::Store::Type::CellAutomataSystem>();
+  auto max_iterations = Sys::PersistSystem::get<Cmp::Persist::MaxRuinCellAutoIterations>( m_reg );
+  cellauto_parser.iterate( max_iterations.get_value(), Sys::ProcGen::LevelGenerator::SceneType::RUIN_INTERIOR, level_gen.get_obstacle_sm() );
 
   // add access hitbox just above horizontal centerpoint
   sf::Vector2f flooraccess_position( map_size_pixel.x - ( 3 * gridsize.x ), 2 * gridsize.y );

@@ -1573,7 +1573,7 @@
     "sprite.ruin.stairs.up": {
       "spritesheet": {
         "displayname": "sprite.ruin.stairs.up",
-        "zorder": [-10],
+        "zorder": [100],
         "texture_path": "res/textures/ruin.png",
         "sprite_indices": [50],
         "sprites_per_sequence": 1,

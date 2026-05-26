@@ -19,6 +19,7 @@
 #include <Components/RectBounds.hpp>
 #include <Components/Shop/ShopInventory.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Exit.hpp>
 #include <Inventory/FlashUICadaver.hpp>
 #include <Inventory/FlashUIInventory.hpp>
 #include <Inventory/FlashUIRadius.hpp>
@@ -744,6 +745,7 @@ void RenderOverlaySystem::render_ui_entity_inspect()
       if ( reg().all_of<Cmp::PlayerNoPath>( entity ) ) draw_line( " PlayerNoPath", sf::Color::Magenta );
       if ( reg().all_of<Cmp::Moveable>( entity ) ) draw_line( " Moveable", sf::Color::Green );
       if ( reg().all_of<Cmp::SelectedPosition>( entity ) ) draw_line( " Selected", sf::Color::Green );
+      if ( reg().all_of<Cmp::Exit>( entity ) ) draw_line( " Exit", sf::Color::Green );
 
       draw_line( "  Pos: [ " + std::to_string( static_cast<int>( pos_cmp.position.x ) ) + " , " +
                  std::to_string( static_cast<int>( pos_cmp.position.y ) ) + " ]" );

@@ -18,6 +18,7 @@ void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, const Sprite
 void add_reservedposition( entt::registry &reg, const sf::Vector2f &pos );
 void add_solid_player( entt::registry &reg, sf::FloatRect rect );
 void add_solid_npc( entt::registry &reg, sf::FloatRect rect );
+void add_no_move_dest( entt::registry &reg, sf::FloatRect rect );
 } // namespace Game::Factory
 
 #endif // SRC_FACTORY_WALLFACTORY_HPP_

@@ -1,3 +1,5 @@
+#include <Persistent/MaxRuinCellAutoIterations.hpp>
+#include <Persistent/PostPullMovementDelay.hpp>
 #include <Persistent/ShopMaxItems.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
@@ -127,6 +129,7 @@ void PersistSystem::initialize_type_registry()
   register_type.operator()<NpcSkeleGraveyardSpawnCount>("NpcSkeleGraveyardSpawnCount");
   register_type.operator()<NpcWitchAnimFramerate>("NpcWitchAnimFramerate");
   register_type.operator()<NpcWispAnimFramerate>("NpcWispAnimFramerate");
+  register_type.operator()<MaxRuinCellAutoIterations>("MaxRuinCellAutoIterations");
   register_type.operator()<PcDamageDelay>("PcDamageDelay");
   register_type.operator()<PlayerAnimFramerate>("PlayerAnimFramerate");
   register_type.operator()<PlayerDiagonalLerpSpeedModifier>("PlayerDiagonalLerpSpeedModifier");
@@ -136,6 +139,7 @@ void PersistSystem::initialize_type_registry()
   register_type.operator()<PlayerMovementSpeed>("PlayerMovementSpeed");
   register_type.operator()<PlayerShortcutLerpSpeedModifier>("PlayerShortcutLerpSpeedModifier");
   register_type.operator()<PlayerStartPosition>("PlayerStartPosition");
+  register_type.operator()<PostPullMovementDelay>("PostPullMovementDelay");
   register_type.operator()<ShopMaxItems>("ShopMaxItems");
   register_type.operator()<ShopMinPrice>("ShopMinPrice");
   register_type.operator()<ShopMaxPrice>("ShopMaxPrice");

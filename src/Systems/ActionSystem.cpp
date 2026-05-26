@@ -161,16 +161,14 @@ void ActionSystem::check_player_smash_pot()
 
 void ActionSystem::select_moveable_obstacle()
 {
-  SPDLOG_INFO( "check_player_move_obstacle 1" );
   auto position_view = reg().view<Cmp::Position, Cmp::Obstacle, Cmp::Moveable>( entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
   for ( auto [obst_entity, obst_pos_cmp, obst_cmp, move_cmp] : position_view.each() )
   {
-    SPDLOG_INFO( "check_player_move_obstacle 2" );
 
     auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
     if ( mouse_position_bounds.findIntersection( obst_pos_cmp ) )
     {
-      SPDLOG_INFO( "Found moveable entity at position: [{}, {}]!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
+      SPDLOG_DEBUG( "Found moveable entity at position: [{}, {}]!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
       auto player_pos = Utils::Player::get_position( reg() );
       auto player_hitbox_xaxis = Cmp::RectBounds::scaled( player_pos.position, Constants::kGridSizePxF, 1.5f, Cmp::RectBounds::ScaleAxis::X );
       auto player_hitbox_yaxis = Cmp::RectBounds::scaled( player_pos.position, Constants::kGridSizePxF, 1.5f, Cmp::RectBounds::ScaleAxis::Y );

@@ -295,6 +295,14 @@
     "detail": "NPC Animation Wisp Framerate",
     "format": "%.2f"
   },
+  "MaxRuinCellAutoIterations": {
+    "type": "int",
+    "value": 100,
+    "min_value": 50,
+    "max_value": 300,
+    "detail": "Procgen iterations in Ruin Scene",
+    "format": "%d"
+  },
   "PlayerAnimFramerate": {
     "type": "float",
     "value": 0.1,
@@ -352,6 +360,15 @@
     "detail": "Player Shortcut Lerp Speed Modifier",
     "format": "%.3f seconds"
   },
+  "PostPullMovementDelay": {
+    "type": "float",
+    "value": 0.5,
+    "min_value": 0.1,
+    "max_value": 3.0,
+    "detail": "Movement delay after pulling ruin obstacle",
+    "format": "%.1f seconds"
+  },
+  
   "ShopMaxItems": {
     "type": "int",
     "value": 3,

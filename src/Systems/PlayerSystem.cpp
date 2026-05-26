@@ -45,8 +45,10 @@
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
 #include <Moveable.hpp>
+#include <NoMoveDest.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Persistent/PlayerMovementSpeed.hpp>
+#include <Persistent/PostPullMovementDelay.hpp>
 #include <Player/TorchRadius.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Systems/ParticleSystem.hpp>
@@ -166,22 +168,26 @@ void PlayerSystem::move_obstacle( const sf::FloatRect &target_position )
   {
     if ( not target_position.findIntersection( selected_pos_cmp ) ) continue;
 
+    // normalized direction
     auto player_direction = Utils::Player::get_direction( reg() );
-    auto player_grid_direction = Cmp::RectBounds::scaled( player_direction.componentWiseMul( Constants::kGridSizePxF ), target_position.size, 1 );
-    auto obstacle_dest_abs_pos = Cmp::RectBounds::scaled( selected_pos_cmp.position + player_grid_direction.position(), Constants::kGridSizePxF, 1 );
+    // velocity vector
+    auto player_velocity = Cmp::RectBounds::scaled( player_direction.componentWiseMul( Constants::kGridSizePxF ), target_position.size, 1 );
+    // where we want the player to end up after the move (used for pull only)
+    auto player_dest_position = Cmp::RectBounds::scaled( Utils::Player::get_position( reg() ).position + player_velocity.position(),
+                                                         Constants::kGridSizePxF, 1 );
+    // where we want the obstacle to end up after the move (push and pull)
+    auto obstacle_dest_position = Cmp::RectBounds::scaled( selected_pos_cmp.position + player_velocity.position(), Constants::kGridSizePxF, 1 );
 
     bool new_position_is_empty = true;
-    new_position_is_empty = not Utils::Collision::check_cmp<Cmp::Obstacle>( reg(), obstacle_dest_abs_pos ) and
-                            not Utils::Collision::check_cmp<Cmp::Wall>( reg(), obstacle_dest_abs_pos );
+    new_position_is_empty = not Utils::Collision::check_cmp<Cmp::Obstacle>( reg(), obstacle_dest_position ) and
+                            not Utils::Collision::check_cmp<Cmp::NoMoveDest>( reg(), obstacle_dest_position );
 
-    bool player_in_the_way = Utils::Collision::check_cmp<Cmp::PlayerCharacter>( reg(), obstacle_dest_abs_pos );
-    auto player_dest_abs_pos = Cmp::RectBounds::scaled( Utils::Player::get_position( reg() ).position + player_grid_direction.position(),
-                                                        Constants::kGridSizePxF, 1 );
+    // can we move player in the opposite direction if they are pulling?
+    bool player_in_the_way = Utils::Collision::check_cmp<Cmp::PlayerCharacter>( reg(), obstacle_dest_position );
     if ( player_in_the_way )
     {
-      // can we move player in the opposite direction if they are pulling?
-      if ( ( Utils::Collision::check_cmp<Cmp::Obstacle>( reg(), player_dest_abs_pos ) ) or
-           ( Utils::Collision::check_cmp<Cmp::Wall>( reg(), player_dest_abs_pos ) ) )
+      if ( ( Utils::Collision::check_cmp<Cmp::Obstacle>( reg(), player_dest_position ) ) or
+           ( Utils::Collision::check_cmp<Cmp::NoMoveDest>( reg(), player_dest_position ) ) )
       {
         // if not then cancel the move
         new_position_is_empty = false;
@@ -190,14 +196,14 @@ void PlayerSystem::move_obstacle( const sf::FloatRect &target_position )
 
     if ( new_position_is_empty )
     {
-      if ( player_in_the_way )
-      {
-        // move the player out of the way
-        Utils::Player::get_position( reg() ).position = player_dest_abs_pos.position();
-        m_movement_suppress_clock.restart();
-      }
-      selected_pos_cmp.position += player_grid_direction.position();
+      // if ( player_in_the_way )
+      // {
+      // move the player out of the way
+      Utils::Player::get_position( reg() ).position = player_dest_position.position();
+      // }
+      selected_pos_cmp.position += player_velocity.position();
       reg().remove<Cmp::SelectedPosition>( selected_entt );
+      m_movement_suppress_clock.restart();
       break;
     }
   }
@@ -205,6 +211,8 @@ void PlayerSystem::move_obstacle( const sf::FloatRect &target_position )
 
 void PlayerSystem::check_player_can_push( sf::Time dt )
 {
+  auto movement_delay = Sys::PersistSystem::get<Cmp::Persist::PostPullMovementDelay>( reg() );
+  if ( m_movement_suppress_clock.getElapsedTime().asSeconds() < movement_delay.get_value() ) return;
 
   const Cmp::Direction raw_direction = Utils::Player::get_direction( reg() );
   if ( raw_direction == sf::Vector2f( 0.f, 0.f ) ) return; // optimization
@@ -220,6 +228,9 @@ void PlayerSystem::check_player_can_push( sf::Time dt )
 }
 void PlayerSystem::check_player_can_pull( sf::Time dt )
 {
+  auto movement_delay = Sys::PersistSystem::get<Cmp::Persist::PostPullMovementDelay>( reg() );
+  if ( m_movement_suppress_clock.getElapsedTime().asSeconds() < movement_delay.get_value() ) return;
+
   const Cmp::Direction raw_direction = Utils::Player::get_direction( reg() );
   if ( raw_direction == sf::Vector2f( 0.f, 0.f ) ) return; // optimization
   auto &player_movement_speed = Sys::PersistSystem::get<Cmp::Persist::PlayerMovementSpeed>( reg() );
@@ -235,7 +246,8 @@ void PlayerSystem::check_player_can_pull( sf::Time dt )
 
 void PlayerSystem::update_player_position( sf::Time dt, bool collision_disabled )
 {
-  if ( m_movement_suppress_clock.getElapsedTime() < sf::milliseconds( 300 ) ) return;
+  auto movement_delay = Sys::PersistSystem::get<Cmp::Persist::PostPullMovementDelay>( reg() );
+  if ( m_movement_suppress_clock.getElapsedTime().asSeconds() < movement_delay.get_value() ) return;
 
   Cmp::Position &player_pos = Utils::Player::get_position( reg() );
 
@@ -307,6 +319,10 @@ void PlayerSystem::update_player_position( sf::Time dt, bool collision_disabled 
 
 void PlayerSystem::update_player_animation()
 {
+
+  auto movement_delay = Sys::PersistSystem::get<Cmp::Persist::PostPullMovementDelay>( reg() );
+  if ( m_movement_suppress_clock.getElapsedTime().asSeconds() < movement_delay.get_value() ) return;
+
   const Cmp::Direction direction_cmp = Utils::Player::get_direction( reg() );
   Cmp::AnimData &anim_cmp = Utils::Player::get_sprite_anim( reg() );
 

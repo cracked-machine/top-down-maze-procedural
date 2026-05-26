@@ -42,6 +42,7 @@
 #include <Components/Persistent/WormholeSeed.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
 #include <Persistent/LightningDamage.hpp>
+#include <Persistent/MaxRuinCellAutoIterations.hpp>
 #include <Persistent/NpcLerpSpeedGhost.hpp>
 #include <Persistent/NpcLerpSpeedPriest.hpp>
 #include <Persistent/NpcLerpSpeedSkele.hpp>
@@ -49,6 +50,7 @@
 #include <Persistent/NpcWispAnimFramerate.hpp>
 #include <Persistent/NpcWitchAnimFramerate.hpp>
 #include <Persistent/PlayerMovementSpeed.hpp>
+#include <Persistent/PostPullMovementDelay.hpp>
 #include <Player/PlayerCadaverCount.hpp>
 #include <Player/PlayerWealth.hpp>
 #include <Shaders/BaseShaderSprite.hpp>
@@ -195,6 +197,7 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
     Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::CameraSmoothSpeed>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::PlayerLerpInterruptThreshold>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::PostPullMovementDelay>( reg() ).render_widget();
 
     // Bomb Settings
     ImGui::SeparatorText( "Bomb Settings" );
@@ -261,6 +264,7 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
     Sys::PersistSystem::get<Cmp::Persist::GraveNumMultiplier>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::ExitKeyRequirement>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::MaxNumCrypts>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::MaxRuinCellAutoIterations>( reg() ).render_widget();
   } catch ( const std::exception &e )
   {
     ImGui::TextColored( ImVec4( 1.0f, 0.0f, 0.0f, 1.0f ), "Error rendering settings: %s", e.what() );

@@ -22,6 +22,7 @@
 #include <Factory/MultiblockFactory.hpp>
 #include <Player.hpp>
 #include <Player/PlayerNoPath.hpp>
+#include <ReservedPosition.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Random.hpp>
@@ -37,6 +38,7 @@ entt::entity create_crypt_exit( entt::registry &reg, sf::Vector2f spawn_pos_px )
   reg.emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ .sprite_type = "sprite.crypt.exit" } );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, spawn_pos_px.y );
   reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
+  reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
   reg.emplace_or_replace<Cmp::Exit>( entity );
   return entity;
 }
