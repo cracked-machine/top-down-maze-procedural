@@ -1,7 +1,4 @@
-#include <Persistent/MaxRuinCellAutoIterations.hpp>
-#include <Persistent/PostPullMovementDelay.hpp>
-#include <Persistent/ShopMaxItems.hpp>
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
+
 
 #define JSON_NOEXCEPTION
 #include <fstream>
@@ -24,6 +21,10 @@
 #include <Components/Persistent/ExitKeyRequirement.hpp>
 #include <Components/Persistent/FuseDelay.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
+#include <Components/Persistent/GraveyardProcGenBirthThreshold.hpp>
+#include <Components/Persistent/GraveyardProcGenInitChance.hpp>
+#include <Components/Persistent/GraveyardProcGenMaxIterations.hpp>
+#include <Components/Persistent/GraveyardProcGenSurvivalThreshold.hpp>
 #include <Components/Persistent/HealthBonus.hpp>
 #include <Components/Persistent/LightningDamage.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
@@ -54,6 +55,11 @@
 #include <Components/Persistent/PlayerMovementSpeed.hpp>
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
+#include <Components/Persistent/PostPullMovementDelay.hpp>
+#include <Components/Persistent/RuinProcGenBirthThreshold.hpp>
+#include <Components/Persistent/RuinProcGenInitChance.hpp>
+#include <Components/Persistent/RuinProcGenMaxIterations.hpp>
+#include <Components/Persistent/RuinProcGenSurvivalThreshold.hpp>
 #include <Components/Persistent/ShopMaxItems.hpp>
 #include <Components/Persistent/ShopMaxPrice.hpp>
 #include <Components/Persistent/ShopMinPrice.hpp>
@@ -108,6 +114,10 @@ void PersistSystem::initialize_type_registry()
   register_type.operator()<ExitKeyRequirement>("ExitKeyRequirement");
   register_type.operator()<FuseDelay>("FuseDelay");
   register_type.operator()<GraveNumMultiplier>("GraveNumMultiplier");
+  register_type.operator()<GraveyardProcGenInitChance>("GraveyardProcGenInitChance");
+  register_type.operator()<GraveyardProcGenMaxIterations>("GraveyardProcGenMaxIterations");
+  register_type.operator()<GraveyardProcGenBirthThreshold>("GraveyardProcGenBirthThreshold");
+  register_type.operator()<GraveyardProcGenSurvivalThreshold>("GraveyardProcGenSurvivalThreshold");
   register_type.operator()<HealthBonus>("HealthBonus");
   register_type.operator()<LightningDamage>("LightningDamage");
   register_type.operator()<MaxNumAltars>("MaxNumAltars");
@@ -129,7 +139,6 @@ void PersistSystem::initialize_type_registry()
   register_type.operator()<NpcSkeleGraveyardSpawnCount>("NpcSkeleGraveyardSpawnCount");
   register_type.operator()<NpcWitchAnimFramerate>("NpcWitchAnimFramerate");
   register_type.operator()<NpcWispAnimFramerate>("NpcWispAnimFramerate");
-  register_type.operator()<MaxRuinCellAutoIterations>("MaxRuinCellAutoIterations");
   register_type.operator()<PcDamageDelay>("PcDamageDelay");
   register_type.operator()<PlayerAnimFramerate>("PlayerAnimFramerate");
   register_type.operator()<PlayerDiagonalLerpSpeedModifier>("PlayerDiagonalLerpSpeedModifier");
@@ -140,6 +149,10 @@ void PersistSystem::initialize_type_registry()
   register_type.operator()<PlayerShortcutLerpSpeedModifier>("PlayerShortcutLerpSpeedModifier");
   register_type.operator()<PlayerStartPosition>("PlayerStartPosition");
   register_type.operator()<PostPullMovementDelay>("PostPullMovementDelay");
+  register_type.operator()<RuinProcGenInitChance>("RuinProcGenInitChance");
+  register_type.operator()<RuinProcGenMaxIterations>("RuinProcGenMaxIterations");
+  register_type.operator()<RuinProcGenBirthThreshold>("RuinProcGenBirthThreshold");
+  register_type.operator()<RuinProcGenSurvivalThreshold>("RuinProcGenSurvivalThreshold");
   register_type.operator()<ShopMaxItems>("ShopMaxItems");
   register_type.operator()<ShopMinPrice>("ShopMinPrice");
   register_type.operator()<ShopMaxPrice>("ShopMaxPrice");

@@ -29,7 +29,8 @@ public:
   //! @brief event handlers for resuming system clocks
   void on_resume() override {}
 
-  void iterate( unsigned int iterations, LevelGenerator::SceneType scene_type, PathFinding::SpatialHashGrid &levelgen_spatialgrid );
+  void iterate( uint16_t iterations, uint8_t birth_threshold, uint8_t survival_threshold, LevelGenerator::SceneType scene_type,
+                PathFinding::SpatialHashGrid &levelgen_spatialgrid );
 };
 
 } // namespace Game::Sys::ProcGen

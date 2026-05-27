@@ -16,7 +16,10 @@
 #include <Factory/RuinFactory.hpp>
 #include <Factory/ShaderFactory.hpp>
 #include <Factory/WallFactory.hpp>
-#include <Persistent/MaxRuinCellAutoIterations.hpp>
+#include <Persistent/RuinProcGenBirthThreshold.hpp>
+#include <Persistent/RuinProcGenInitChance.hpp>
+#include <Persistent/RuinProcGenMaxIterations.hpp>
+#include <Persistent/RuinProcGenSurvivalThreshold.hpp>
 #include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <SceneControl/Scenes/RuinSceneLowerFloor.hpp>
@@ -71,10 +74,16 @@ void RuinSceneLowerFloor::on_init()
   level_gen.reset();
   level_gen.build_scene_from_data( *m_scene_data );
   level_gen.add_ruin_rune_markers();
-  level_gen.add_ruin_interior_obstacles();
+
+  auto init_chance = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenInitChance>( m_reg );
+  level_gen.add_ruin_interior_obstacles( init_chance.get_value() );
+
   auto &cellauto_parser = m_sys.find<Sys::Store::Type::CellAutomataSystem>();
-  auto max_iterations = Sys::PersistSystem::get<Cmp::Persist::MaxRuinCellAutoIterations>( m_reg );
-  cellauto_parser.iterate( max_iterations.get_value(), Sys::ProcGen::LevelGenerator::SceneType::RUIN_INTERIOR, level_gen.get_obstacle_sm() );
+  auto max_iterations = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenMaxIterations>( m_reg );
+  auto birth_threshold = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenBirthThreshold>( m_reg );
+  auto survival_threshold = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenSurvivalThreshold>( m_reg );
+  cellauto_parser.iterate( max_iterations.get_value(), birth_threshold.get_value(), survival_threshold.get_value(),
+                           Sys::ProcGen::LevelGenerator::SceneType::RUIN_INTERIOR, level_gen.get_obstacle_sm() );
 
   // add access hitbox just above horizontal centerpoint
   sf::Vector2f flooraccess_position( map_size_pixel.x - ( 3 * gridsize.x ), 2 * gridsize.y );

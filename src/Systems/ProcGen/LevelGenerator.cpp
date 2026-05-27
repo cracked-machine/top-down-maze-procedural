@@ -37,7 +37,7 @@
 #include <Moveable.hpp>
 #include <Optimizations.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
-#include <Persistent/MaxRuinCellAutoIterations.hpp>
+#include <Random.hpp>
 #include <Ruin/RuinHexagramMultiBlock.hpp>
 #include <Ruin/RuinHexagramSegment.hpp>
 #include <Ruin/RuinStairsBalustradeMultiBlock.hpp>
@@ -169,13 +169,13 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
   }
 }
 
-void LevelGenerator::gen_graveyard_exterior_obstacles()
+void LevelGenerator::gen_graveyard_exterior_obstacles( float init_chance )
 {
   auto position_view = reg().view<Cmp::Position>( entt::exclude<Cmp::PlayerCharacter, Cmp::ReservedPosition> );
   for ( auto [entity, pos_cmp] : position_view.each() )
   {
 
-    if ( Cmp::RandomInt{ 0, 1 }.gen() == 1 )
+    if ( Cmp::RandomFloat{ 0.f, 1.f }.gen() < init_chance )
     {
       const Sprites::SpriteSheet &ms = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.wall.int" );
       auto [_, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.wall.int" } );
@@ -185,13 +185,12 @@ void LevelGenerator::gen_graveyard_exterior_obstacles()
   }
 }
 
-void LevelGenerator::add_ruin_interior_obstacles()
+void LevelGenerator::add_ruin_interior_obstacles( float init_chance )
 {
   auto position_view = reg().view<Cmp::Position>( entt::exclude<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Exit> );
   for ( auto [entity, pos_cmp] : position_view.each() )
   {
-
-    if ( Cmp::RandomInt{ 0, 1 }.gen() == 1 )
+    if ( Cmp::RandomFloat{ 0.f, 1.f }.gen() < init_chance )
     {
       const Sprites::SpriteSheet &ms = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.wall.int" );
       auto [_, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.wall.int" } );

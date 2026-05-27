@@ -126,6 +126,38 @@
     "detail": "Grave Number Multiplier",
     "format": "%d"
   },
+  "GraveyardProcGenInitChance": {
+    "type": "float",
+    "value": 0.5,
+    "min_value": 0,
+    "max_value": 1.0,
+    "detail": "GraveyardProcGenInitChance",
+    "format": "%.1f"
+  },  
+  "GraveyardProcGenMaxIterations": {
+    "type": "int",
+    "value": 5,
+    "min_value": 1,
+    "max_value": 100,
+    "detail": "GraveyardProcGenMaxIterations",
+    "format": "%d"
+  },
+  "GraveyardProcGenBirthThreshold": {
+    "type": "int",
+    "value": 2,
+    "min_value": 0,
+    "max_value": 10,
+    "detail": "GraveyardProcGenBirthThreshold",
+    "format": "%d"
+  },
+  "GraveyardProcGenSurvivalThreshold": {
+    "type": "int",
+    "value": 5,
+    "min_value": 0,
+    "max_value": 10,
+    "detail": "GraveyardProcGenSurvivalThreshold",
+    "format": "%d"
+  },
   "HealthBonus": {
     "type": "int",
     "value": 25,
@@ -295,14 +327,6 @@
     "detail": "NPC Animation Wisp Framerate",
     "format": "%.2f"
   },
-  "MaxRuinCellAutoIterations": {
-    "type": "int",
-    "value": 100,
-    "min_value": 50,
-    "max_value": 300,
-    "detail": "Procgen iterations in Ruin Scene",
-    "format": "%d"
-  },
   "PlayerAnimFramerate": {
     "type": "float",
     "value": 0.1,
@@ -368,7 +392,38 @@
     "detail": "Movement delay after pulling ruin obstacle",
     "format": "%.1f seconds"
   },
-  
+  "RuinProcGenInitChance": {
+    "type": "float",
+    "value": 0.5,
+    "min_value": 0,
+    "max_value": 1.0,
+    "detail": "RuinProcGenInitChance",
+    "format": "%.1f"
+  },  
+  "RuinProcGenMaxIterations": {
+    "type": "int",
+    "value": 10,
+    "min_value": 1,
+    "max_value": 100,
+    "detail": "RuinProcGenMaxIterations",
+    "format": "%d"
+  },
+  "RuinProcGenSurvivalThreshold": {
+    "type": "int",
+    "value": 5,
+    "min_value": 0,
+    "max_value": 10,
+    "detail": "RuinProcGenSurvivalThreshold",
+    "format": "%d"
+  },
+  "RuinProcGenBirthThreshold": {
+    "type": "int",
+    "value": 2,
+    "min_value": 0,
+    "max_value": 10,
+    "detail": "RuinProcGenBirthThreshold",
+    "format": "%d"
+  },
   "ShopMaxItems": {
     "type": "int",
     "value": 3,

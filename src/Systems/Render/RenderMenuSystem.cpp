@@ -41,8 +41,11 @@
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
 #include <Components/Persistent/WormholeSeed.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
+#include <Persistent/GraveyardProcGenBirthThreshold.hpp>
+#include <Persistent/GraveyardProcGenInitChance.hpp>
+#include <Persistent/GraveyardProcGenMaxIterations.hpp>
+#include <Persistent/GraveyardProcGenSurvivalThreshold.hpp>
 #include <Persistent/LightningDamage.hpp>
-#include <Persistent/MaxRuinCellAutoIterations.hpp>
 #include <Persistent/NpcLerpSpeedGhost.hpp>
 #include <Persistent/NpcLerpSpeedPriest.hpp>
 #include <Persistent/NpcLerpSpeedSkele.hpp>
@@ -51,6 +54,9 @@
 #include <Persistent/NpcWitchAnimFramerate.hpp>
 #include <Persistent/PlayerMovementSpeed.hpp>
 #include <Persistent/PostPullMovementDelay.hpp>
+#include <Persistent/RuinProcGenBirthThreshold.hpp>
+#include <Persistent/RuinProcGenInitChance.hpp>
+#include <Persistent/RuinProcGenSurvivalThreshold.hpp>
 #include <Player/PlayerCadaverCount.hpp>
 #include <Player/PlayerWealth.hpp>
 #include <Shaders/BaseShaderSprite.hpp>
@@ -264,7 +270,14 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
     Sys::PersistSystem::get<Cmp::Persist::GraveNumMultiplier>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::ExitKeyRequirement>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::MaxNumCrypts>( reg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::MaxRuinCellAutoIterations>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::RuinProcGenInitChance>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::RuinProcGenInitChance>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::RuinProcGenBirthThreshold>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::RuinProcGenSurvivalThreshold>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenInitChance>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenMaxIterations>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenBirthThreshold>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenSurvivalThreshold>( reg() ).render_widget();
   } catch ( const std::exception &e )
   {
     ImGui::TextColored( ImVec4( 1.0f, 0.0f, 0.0f, 1.0f ), "Error rendering settings: %s", e.what() );

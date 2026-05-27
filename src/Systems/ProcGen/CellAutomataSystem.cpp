@@ -1,6 +1,7 @@
 #include <Components/ReservedPosition.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <Moveable.hpp>
+#include <Obstacle.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 
 #include <Systems/ProcGen/CellAutomataSystem.hpp>
@@ -10,7 +11,8 @@
 namespace Game::Sys::ProcGen
 {
 
-void CellAutomataSystem::iterate( unsigned int iterations, LevelGenerator::SceneType scene_type, PathFinding::SpatialHashGrid &levelgen_spatialgrid )
+void CellAutomataSystem::iterate( uint16_t iterations, uint8_t birth_threshold, uint8_t survival_threshold, LevelGenerator::SceneType scene_type,
+                                  PathFinding::SpatialHashGrid &levelgen_spatialgrid )
 {
   const Sprites::SpriteSheet &ms = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.wall.int" );
 
@@ -25,16 +27,18 @@ void CellAutomataSystem::iterate( unsigned int iterations, LevelGenerator::Scene
       std::vector<entt::entity> neighbour_list = levelgen_spatialgrid.neighbours( pos_cmp );
       SPDLOG_DEBUG( "#{} at {},{} has {} nieghbours", static_cast<uint32_t>( pos_entt ), pos_cmp.x(), pos_cmp.y(), neighbour_list.size() );
 
-      if ( neighbour_list.size() <= 2 )
+      // 1. If the cell is dead and has at least birth-threshold alive neighbors, it becomes alive.
+      // 2. If the cell is alive and has at least survival-threshold alive neighbors, it stays alive.
+      // 3. Otherwise, the cell is dead.
+      const bool is_alive = reg().any_of<Cmp::Obstacle>( pos_entt );
+      const bool should_be_alive = ( not is_alive && neighbour_list.size() >= birth_threshold ) ||
+                                   ( is_alive && neighbour_list.size() >= survival_threshold );
+
+      if ( should_be_alive )
       {
         if ( scene_type == LevelGenerator::SceneType::GRAVEYARD_EXTERIOR )
         {
           auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.wall.int" } );
-          Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, idx );
-        }
-        else if ( scene_type == LevelGenerator::SceneType::CRYPT_INTERIOR )
-        {
-          auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.crypt.wall.int" } );
           Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, idx );
         }
         else if ( scene_type == LevelGenerator::SceneType::RUIN_INTERIOR )
@@ -43,31 +47,11 @@ void CellAutomataSystem::iterate( unsigned int iterations, LevelGenerator::Scene
           Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, idx );
           reg().emplace_or_replace<Cmp::Moveable>( pos_entt );
         }
-      }
-      else if ( neighbour_list.size() > 2 and neighbour_list.size() < 5 )
-      {
-        //
-        Factory::remove_obstacle( reg(), pos_entt );
       }
       else
       {
-
-        if ( scene_type == LevelGenerator::SceneType::GRAVEYARD_EXTERIOR )
-        {
-          auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.wall.int" } );
-          Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, idx );
-        }
-        else if ( scene_type == LevelGenerator::SceneType::CRYPT_INTERIOR )
-        {
-          auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.crypt.wall.int" } );
-          Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, idx );
-        }
-        else if ( scene_type == LevelGenerator::SceneType::RUIN_INTERIOR )
-        {
-          auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.wall.int" } );
-          Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, idx );
-          reg().emplace_or_replace<Cmp::Moveable>( pos_entt );
-        }
+        //
+        Factory::remove_obstacle( reg(), pos_entt );
       }
     }
     SPDLOG_INFO( "Iteration #{} took {}ms", i, iteration_timer.restart().asMilliseconds() );

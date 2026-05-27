@@ -23,7 +23,7 @@ class LevelGenerator : public BaseSystem
 {
 public:
   //! @brief Used by level gen / cell automata
-  enum class SceneType { GRAVEYARD_EXTERIOR, CRYPT_INTERIOR, HOLYWELL_INTERIOR, RUIN_INTERIOR };
+  enum class SceneType { GRAVEYARD_EXTERIOR, RUIN_INTERIOR };
 
   LevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
   ~LevelGenerator() = default;
@@ -33,10 +33,10 @@ public:
   void build_scene_from_data( const Scene::SceneData &scene_data );
 
   //! @brief create "sprite.graveyard.wall.int" for the graveyard.
-  void gen_graveyard_exterior_obstacles();
+  void gen_graveyard_exterior_obstacles( float init_chance );
 
   //! @brief
-  void add_ruin_interior_obstacles();
+  void add_ruin_interior_obstacles( float init_chance );
 
   void add_ruin_rune_markers();
 
