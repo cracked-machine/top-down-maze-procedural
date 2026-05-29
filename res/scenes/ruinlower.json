@@ -41,6 +41,19 @@
                  "width":0,
                  "x":240,
                  "y":32
+                }, 
+                {
+                 "height":0,
+                 "id":11,
+                 "name":"sprite.ruin.stairs.gate",
+                 "opacity":1,
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":224,
+                 "y":128
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -65,7 +78,7 @@
          "name":"player",
          "opacity":1,
          "type":"tilelayer",
-         "visible":true,
+         "visible":false,
          "width":19,
          "x":0,
          "y":0
@@ -87,7 +100,7 @@
          "name":"wall",
          "opacity":1,
          "type":"tilelayer",
-         "visible":true,
+         "visible":false,
          "width":19,
          "x":0,
          "y":0
@@ -183,12 +196,12 @@
                 }],
          "opacity":1,
          "type":"objectgroup",
-         "visible":true,
+         "visible":false,
          "x":0,
          "y":0
         }],
  "nextlayerid":6,
- "nextobjectid":11,
+ "nextobjectid":12,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.1",

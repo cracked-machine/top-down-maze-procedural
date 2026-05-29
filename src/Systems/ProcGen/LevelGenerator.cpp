@@ -10,10 +10,12 @@
 #include <Components/Crypt/CryptRoomOpen.hpp>
 #include <Components/Crypt/CryptRoomStart.hpp>
 #include <Components/Crypt/CryptSegment.hpp>
+#include <Components/Exit.hpp>
 #include <Components/Grave/GraveMultiBlock.hpp>
 #include <Components/Grave/GraveSegment.hpp>
 #include <Components/HolyWell/HolyWellMultiBlock.hpp>
 #include <Components/HolyWell/HolyWellSegment.hpp>
+#include <Components/Moveable.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/Persistent/MaxNumCrypts.hpp>
@@ -21,12 +23,16 @@
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
+#include <Components/Ruin/RuinHexagramMultiBlock.hpp>
+#include <Components/Ruin/RuinHexagramSegment.hpp>
 #include <Components/Ruin/RuinSegment.hpp>
+#include <Components/Ruin/RuinStairsBalustradeMultiBlock.hpp>
+#include <Components/Ruin/RuinStairsLowerMultiBlock.hpp>
+#include <Components/Ruin/RuinStairsUpperMultiBlock.hpp>
+#include <Components/Ruin/RuneMarking.hpp>
 #include <Components/SpawnArea.hpp>
 #include <Components/Wall.hpp>
-#include <Constants.hpp>
 #include <Events/CreateItemEvent.hpp>
-#include <Exit.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/NpcFactory.hpp>
@@ -34,20 +40,16 @@
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/WallFactory.hpp>
-#include <Moveable.hpp>
-#include <Optimizations.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
-#include <Random.hpp>
-#include <Ruin/RuinHexagramMultiBlock.hpp>
-#include <Ruin/RuinHexagramSegment.hpp>
-#include <Ruin/RuinStairsBalustradeMultiBlock.hpp>
-#include <Ruin/RuinStairsLowerMultiBlock.hpp>
-#include <Ruin/RuinStairsUpperMultiBlock.hpp>
+#include <Ruin/RuinGateSegment.hpp>
+#include <Ruin/RuinStairsGateMultiBlock.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Utils/Constants.hpp>
+#include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
@@ -148,6 +150,10 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
     {
       Factory::add_multiblock_with_segments<Cmp::RuinStairsBalustradeMultiBlock, Cmp::RuinStairsSegment>( reg(), pos, ms );
     }
+    else if ( ms_type == "sprite.ruin.stairs.gate" )
+    {
+      Factory::add_multiblock_with_segments<Cmp::RuinStairsGateMultiBlock, Cmp::RuinGateSegment>( reg(), pos, ms );
+    }
     else if ( ms_type == "sprite.ruin.hex" )
     {
       Factory::add_multiblock_with_segments<Cmp::RuinHexagramMultiBlock, Cmp::RuinHexagramSegment>( m_reg, pos, ms );
@@ -206,12 +212,14 @@ void LevelGenerator::add_ruin_rune_markers()
   for ( auto _ : std::views::iota( 0, 5 ) )
   {
     auto [rnd_entt, rnd_pos] = Utils::Rnd::get_random_position( reg(), {}, Utils::Rnd::ExcludePack<Cmp::ReservedPosition>{} );
-    auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.playerspawn" } );
+    auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.ruin.runemarking.inactive" } );
 
     auto rune_entt = reg().create();
     reg().emplace_or_replace<Cmp::ReservedPosition>( rune_entt );
     reg().emplace_or_replace<Cmp::Position>( rune_entt, rnd_pos );
-    reg().emplace_or_replace<Cmp::ZOrderValue>( rune_entt, 20.f );
+    float zorder = m_sprite_factory.get_spritesheet_by_type( "sprite.ruin.runemarking.inactive" ).get_zorder( 0 );
+    reg().emplace_or_replace<Cmp::ZOrderValue>( rune_entt, zorder );
+    reg().emplace_or_replace<Cmp::RuneMarking>( rune_entt );
     // clang-format off
     reg().emplace_or_replace<Cmp::AnimData>( rune_entt, Cmp::AnimData::Config{ 
           .sprite_type = "sprite.graveyard.playerspawn", 

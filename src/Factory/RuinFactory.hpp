@@ -16,7 +16,8 @@ namespace Game::Factory
 
 // void create_staircase( entt::registry &reg, sf::Vector2f spawn_position, const Sprites::SpriteSheet &stairs_ms );
 void create_bookcase( entt::registry &reg, sf::Vector2f spawn_position, const Sprites::SpriteSheet &bookcase_ms, int sprite_index );
-void create_cobweb( entt::registry &reg, sf::Vector2f spawn_position, const Sprites::SpriteSheet &cobweb_ms, int sprite_index );
+void create_cobweb( entt::registry &reg, entt::entity selected_entt, sf::Vector2f spawn_position, const Sprites::SpriteSheet &cobweb_ms,
+                    int sprite_index );
 
 //! @brief Create a shadow hand entt if none exists
 //! @param reg

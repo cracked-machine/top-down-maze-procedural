@@ -50,6 +50,8 @@
 #include <Persistent/PlayerMovementSpeed.hpp>
 #include <Persistent/PostPullMovementDelay.hpp>
 #include <Player/TorchRadius.hpp>
+#include <Ruin/RuinCobweb.hpp>
+#include <Ruin/RuneMarking.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -194,15 +196,44 @@ void PlayerSystem::move_obstacle( const sf::FloatRect &target_position )
       }
     }
 
+    // move the player and the obstacle
     if ( new_position_is_empty )
     {
-      // if ( player_in_the_way )
-      // {
-      // move the player out of the way
       Utils::Player::get_position( reg() ).position = player_dest_position.position();
-      // }
       selected_pos_cmp.position += player_velocity.position();
       reg().remove<Cmp::SelectedPosition>( selected_entt );
+
+      // if we moved obstacle into cobweb it is now stuck :'(
+      for ( auto [cobweb_entt, cobweb_cmp, cobweb_pos_cmp] : reg().view<Cmp::RuinCobweb, Cmp::Position>().each() )
+      {
+        if ( selected_pos_cmp.findIntersection( cobweb_pos_cmp ) ) { reg().remove<Cmp::Moveable>( selected_entt ); }
+      }
+
+      // if we moved obstacle onto rune marking then set it as activated.
+      auto rune_view = reg().view<Cmp::RuneMarking, Cmp::Position, Cmp::ZOrderValue, Cmp::AnimData>();
+      for ( auto [rune_entt, rune_cmp, rune_pos_cmp, rune_zorder_cmp, rune_anim_cmp] : rune_view.each() )
+      {
+        // Check if ANY obstacle (not just the moved one) is on this rune
+        bool any_obstacle_on_rune = false;
+        auto obstacle_view = reg().view<Cmp::Obstacle, Cmp::Position>();
+        for ( auto [obs_entt, obstacle_cmp, obstacle_pos_cmp] : obstacle_view.each() )
+        {
+          if ( obstacle_pos_cmp.findIntersection( rune_pos_cmp ) )
+          {
+            any_obstacle_on_rune = true;
+            break;
+          }
+        }
+
+        if ( any_obstacle_on_rune != rune_cmp.active )
+        {
+          const std::string sprite_type = any_obstacle_on_rune ? "sprite.ruin.runemarking.active" : "sprite.ruin.runemarking.inactive";
+          float zorder = m_sprite_factory.get_spritesheet_by_type( sprite_type ).get_zorder( 0 );
+          rune_zorder_cmp.setZOrder( zorder );
+          rune_anim_cmp.m_sprite_type = sprite_type;
+          rune_cmp.active = any_obstacle_on_rune;
+        }
+      }
       m_movement_suppress_clock.restart();
       break;
     }
@@ -255,7 +286,8 @@ void PlayerSystem::update_player_position( sf::Time dt, bool collision_disabled 
   if ( raw_direction == sf::Vector2f( 0.f, 0.f ) ) return; // optimization
 
   auto &player_movement_speed = Sys::PersistSystem::get<Cmp::Persist::PlayerMovementSpeed>( reg() );
-  const float step = player_movement_speed.get_value() * dt.asSeconds();
+  float penalised_movement_speed = player_movement_speed.get_value() * Utils::Player::get_speed_penalty( reg() );
+  const float step = penalised_movement_speed * dt.asSeconds();
   const Cmp::Direction direction = raw_direction.componentWiseMul( { step, step } );
 
   const sf::FloatRect next_horizontal_move( { player_pos.position.x + direction.x, player_pos.position.y }, player_pos.size );

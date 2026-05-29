@@ -48,19 +48,21 @@ void create_bookcase( entt::registry &reg, sf::Vector2f spawn_position, const Sp
   }
 }
 
-void create_cobweb( entt::registry &reg, sf::Vector2f spawn_position, const Sprites::SpriteSheet &cobweb_ms, int sprite_index )
+void create_cobweb( entt::registry &reg, entt::entity selected_entt, sf::Vector2f spawn_position, const Sprites::SpriteSheet &cobweb_ms,
+                    int sprite_index )
 {
-  auto cobweb_entt = reg.create();
-  reg.emplace_or_replace<Cmp::Position>( cobweb_entt, spawn_position, cobweb_ms.get_sprite_size() );
+  // auto cobweb_entt = reg.create();
+  reg.emplace_or_replace<Cmp::Position>( selected_entt, spawn_position, cobweb_ms.get_sprite_size() );
   // clang-format off
-  reg.emplace_or_replace<Cmp::AnimData>( cobweb_entt, Cmp::AnimData::Config{ 
+  reg.emplace_or_replace<Cmp::AnimData>( selected_entt, Cmp::AnimData::Config{ 
         .sprite_type = cobweb_ms.get_sprite_type(), 
         .frame_index_offset = static_cast<size_t>(sprite_index),
         .enabled = true
   });
   // clang-format on
-  reg.emplace_or_replace<Cmp::ZOrderValue>( cobweb_entt, spawn_position.y );
-  reg.emplace_or_replace<Cmp::RuinCobweb>( cobweb_entt, 100 );
+  reg.emplace_or_replace<Cmp::ReservedPosition>( selected_entt );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( selected_entt, spawn_position.y );
+  reg.emplace_or_replace<Cmp::RuinCobweb>( selected_entt, 100 );
 }
 
 void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, const Sprites::SpriteSheet &hand_ms, int sprite_index )

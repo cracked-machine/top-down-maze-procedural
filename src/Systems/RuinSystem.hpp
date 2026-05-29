@@ -54,6 +54,7 @@ public:
   void check_movement_slowdowns();
   void reset_player_curse();
   void check_exit_collision();
+  void check_puzzle_status();
 
   //! @brief Create a witch entt if none exist
   //! @param reg

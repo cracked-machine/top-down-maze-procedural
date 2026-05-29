@@ -26,6 +26,10 @@
 #include <Factory/NpcFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/RuinFactory.hpp>
+#include <Player/PlayerNoPath.hpp>
+#include <Ruin/RuinGateSegment.hpp>
+#include <Ruin/RuinStairsGateMultiBlock.hpp>
+#include <Ruin/RuneMarking.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Stats/BaseAction.hpp>
@@ -113,6 +117,49 @@ void RuinSystem::check_exit_collision()
 
     m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::EXIT_RUIN );
     reset_player_curse();
+  }
+}
+
+void RuinSystem::check_puzzle_status()
+{
+  size_t active_run_count = 0;
+  auto rune_view = reg().view<Cmp::RuneMarking>();
+  auto rune_view_size = rune_view->size();
+  for ( auto [rune_entt, rune_cmp] : rune_view.each() )
+  {
+    if ( rune_cmp.active ) active_run_count++;
+  }
+
+  if ( active_run_count == rune_view_size )
+  {
+    // disable the gate
+    for ( auto [gate_entt, gate_cmp, gate_zorder_cmp] : reg().view<Cmp::RuinStairsGateMultiBlock, Cmp::ZOrderValue>().each() )
+    {
+      gate_zorder_cmp.setZOrder( -1000.f );
+      reg().remove<Cmp::NpcNoPathFinding>( gate_entt );
+      reg().remove<Cmp::PlayerNoPath>( gate_entt );
+    }
+    for ( auto [gate_entt, gate_cmp] : reg().view<Cmp::RuinGateSegment>().each() )
+    {
+      reg().remove<Cmp::NpcNoPathFinding>( gate_entt );
+      reg().remove<Cmp::PlayerNoPath>( gate_entt );
+    }
+  }
+  else
+  {
+    // enable the gate
+    for ( auto [gate_entt, gate_cmp, gate_zorder_cmp] : reg().view<Cmp::RuinStairsGateMultiBlock, Cmp::ZOrderValue>().each() )
+    {
+      const auto &gate_sprite_sheet = m_sprite_factory.get_spritesheet_by_type( "sprite.ruin.stairs.gate" );
+      gate_zorder_cmp.setZOrder( gate_sprite_sheet.get_zorder( 0 ) );
+      reg().emplace_or_replace<Cmp::NpcNoPathFinding>( gate_entt );
+      reg().emplace_or_replace<Cmp::PlayerNoPath>( gate_entt );
+    }
+    for ( auto [gate_entt, gate_cmp] : reg().view<Cmp::RuinGateSegment>().each() )
+    {
+      reg().emplace_or_replace<Cmp::NpcNoPathFinding>( gate_entt );
+      reg().emplace_or_replace<Cmp::PlayerNoPath>( gate_entt );
+    }
   }
 }
 
@@ -330,12 +377,12 @@ void RuinSystem::add_lowerfloor_cobwebs( int max_attempts, sf::FloatRect scene_d
   int max_cobwebs = max_attempts;
   for ( auto _ : std::views::iota( 0, max_cobwebs ) )
   {
-    auto [rnd_entt, rnd_pos] = Utils::Rnd::get_random_position( reg(), {}, Utils::Rnd::ExcludePack<Cmp::RuinBookcase>{} );
+    auto [rnd_entt, rnd_pos] = Utils::Rnd::get_random_position( reg(), {}, Utils::Rnd::ExcludePack<Cmp::ReservedPosition>{} );
     if ( rnd_entt == entt::null ) continue;
 
     if ( has_collision( Cmp::RectBounds::scaled( { rnd_pos.position }, gridsize, 1 ) ) ) continue;
     auto [ms, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.ruin.cobweb" } );
-    Factory::create_cobweb( reg(), rnd_pos.position, m_sprite_factory.get_spritesheet_by_type( ms ), idx );
+    Factory::create_cobweb( reg(), rnd_entt, rnd_pos.position, m_sprite_factory.get_spritesheet_by_type( ms ), idx );
   }
 }
 
