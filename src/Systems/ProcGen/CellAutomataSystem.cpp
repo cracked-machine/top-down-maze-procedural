@@ -4,6 +4,7 @@
 #include <Obstacle.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 
+#include <Player/PlayerCharacter.hpp>
 #include <Systems/ProcGen/CellAutomataSystem.hpp>
 
 #include <spdlog/spdlog.h>
@@ -50,8 +51,8 @@ void CellAutomataSystem::iterate( uint16_t iterations, uint8_t birth_threshold, 
       }
       else
       {
-        //
-        Factory::remove_obstacle( reg(), pos_entt );
+        // make sure we dont delete the player character by accident
+        if ( not reg().any_of<Cmp::PlayerCharacter>( pos_entt ) ) { Factory::remove_obstacle( reg(), pos_entt ); }
       }
     }
     SPDLOG_INFO( "Iteration #{} took {}ms", i, iteration_timer.restart().asMilliseconds() );
