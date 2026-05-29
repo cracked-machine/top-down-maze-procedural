@@ -6,11 +6,11 @@
 namespace Game::Cmp::Persist
 {
 
-class RuinProcGenMaxIterations : public BasePersistent<uint8_t>
+class RuinProcGenMaxIterations : public BasePersistent<uint16_t>
 {
 public:
-  RuinProcGenMaxIterations( uint8_t value = 0.f, uint8_t min_value = 0.f, uint8_t max_value = 0.f )
-      : BasePersistent<uint8_t>( value, min_value, max_value )
+  RuinProcGenMaxIterations( uint16_t value = 0.f, uint16_t min_value = 0.f, uint16_t max_value = 0.f )
+      : BasePersistent<uint16_t>( value, min_value, max_value )
   {
   }
   [[nodiscard]] std::string class_name() const override { return "RuinProcGenMaxIterations"; }

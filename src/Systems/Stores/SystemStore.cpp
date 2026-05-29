@@ -1,6 +1,4 @@
 
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
-
 #include <SceneControl/SceneInputRouter.hpp>
 #include <Systems/ActionSystem.hpp>
 #include <Systems/AltarSystem.hpp>
@@ -16,6 +14,7 @@
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/ProcGen/CellAutomataSystem.hpp>
+#include <Systems/ProcGen/DLASystem.hpp>
 #include <Systems/ProcGen/LevelGenerator.hpp>
 #include <Systems/ProcGen/PassageSystem.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
@@ -41,13 +40,14 @@ Store::Store( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, 
               entt::dispatcher &scenemanager_event_dispatcher )
 {
   // clang-format off
+  m_sysmap.emplace( Type::ActionSystem, std::make_unique<ActionSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::AltarSystem, std::make_unique<AltarSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::AnimSystem, std::make_unique<AnimSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::BombSystem, std::make_unique<BombSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::CellAutomataSystem, std::make_unique<ProcGen::CellAutomataSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::DiffusionLtdAggrSystem, std::make_unique<ProcGen::DLASystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::CorruptionHazardSystem, std::make_unique<CorruptionHazardSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::CryptSystem, std::make_unique<Game::Sys::CryptSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
-    m_sysmap.emplace( Type::ActionSystem, std::make_unique<ActionSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::ExitSystem, std::make_unique<ExitSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
     m_sysmap.emplace( Type::FootstepSystem, std::make_unique<FootstepSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::GraveSystem, std::make_unique<GraveSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );

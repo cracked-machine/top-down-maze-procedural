@@ -21,6 +21,7 @@
 #include <Persistent/GraveyardProcGenInitChance.hpp>
 #include <Persistent/GraveyardProcGenMaxIterations.hpp>
 #include <Persistent/GraveyardProcGenSurvivalThreshold.hpp>
+#include <Persistent/RuinProcGenMaxIterations.hpp>
 #include <Player/PlayerCharacter.hpp>
 #include <Player/PlayerLevelDepth.hpp>
 #include <ReservedPosition.hpp>
@@ -46,6 +47,7 @@
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/ProcGen/CellAutomataSystem.hpp>
+#include <Systems/ProcGen/DLASystem.hpp>
 #include <Systems/ProcGen/LevelGenerator.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -125,6 +127,11 @@ void GraveyardScene::on_init()
   auto survival_threshold = Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenSurvivalThreshold>( m_reg );
   cellauto_parser.iterate( max_iterations.get_value(), birth_threshold.get_value(), survival_threshold.get_value(),
                            Sys::ProcGen::LevelGenerator::SceneType::GRAVEYARD_EXTERIOR, level_gen.get_obstacle_sm() );
+
+  // auto max_iterations = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenMaxIterations>( m_reg );
+  // auto &dla_sys = m_sys.find<Sys::Store::Type::DiffusionLtdAggrSystem>();
+  // dla_sys.iterate( sf::FloatRect( { 0.f, 0.f }, map_size_pixel ), max_iterations.get_value(), level_gen.get_obstacle_sm(),
+  //                  Sys::ProcGen::DLASystem::SpawnShape::Ellipse );
 
   // create navmeshes for pathfinding
   m_pathfinding_navmesh = Pathfinding::Factory::create_restricted_navmesh( m_reg );

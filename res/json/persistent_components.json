@@ -394,7 +394,7 @@
   },
   "RuinProcGenInitChance": {
     "type": "float",
-    "value": 0.5,
+    "value": 1.0,
     "min_value": 0,
     "max_value": 1.0,
     "detail": "RuinProcGenInitChance",
@@ -402,9 +402,9 @@
   },  
   "RuinProcGenMaxIterations": {
     "type": "int",
-    "value": 10,
+    "value": 120,
     "min_value": 1,
-    "max_value": 100,
+    "max_value": 1000,
     "detail": "RuinProcGenMaxIterations",
     "format": "%d"
   },

@@ -56,6 +56,7 @@
 #include <Persistent/PostPullMovementDelay.hpp>
 #include <Persistent/RuinProcGenBirthThreshold.hpp>
 #include <Persistent/RuinProcGenInitChance.hpp>
+#include <Persistent/RuinProcGenMaxIterations.hpp>
 #include <Persistent/RuinProcGenSurvivalThreshold.hpp>
 #include <Player/PlayerCadaverCount.hpp>
 #include <Player/PlayerWealth.hpp>
@@ -271,7 +272,7 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
     Sys::PersistSystem::get<Cmp::Persist::ExitKeyRequirement>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::MaxNumCrypts>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::RuinProcGenInitChance>( reg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::RuinProcGenInitChance>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::RuinProcGenMaxIterations>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::RuinProcGenBirthThreshold>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::RuinProcGenSurvivalThreshold>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenInitChance>( reg() ).render_widget();

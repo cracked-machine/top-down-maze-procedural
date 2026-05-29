@@ -33,6 +33,7 @@
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/ProcGen/CellAutomataSystem.hpp>
+#include <Systems/ProcGen/DLASystem.hpp>
 #include <Systems/ProcGen/LevelGenerator.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
@@ -78,12 +79,17 @@ void RuinSceneLowerFloor::on_init()
   auto init_chance = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenInitChance>( m_reg );
   level_gen.add_ruin_interior_obstacles( init_chance.get_value() );
 
-  auto &cellauto_parser = m_sys.find<Sys::Store::Type::CellAutomataSystem>();
+  // auto &cellauto_parser = m_sys.find<Sys::Store::Type::CellAutomataSystem>();
+  // auto max_iterations = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenMaxIterations>( m_reg );
+  // auto birth_threshold = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenBirthThreshold>( m_reg );
+  // auto survival_threshold = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenSurvivalThreshold>( m_reg );
+  // cellauto_parser.iterate( max_iterations.get_value(), birth_threshold.get_value(), survival_threshold.get_value(),
+  //                          Sys::ProcGen::LevelGenerator::SceneType::RUIN_INTERIOR, level_gen.get_obstacle_sm() );
+
   auto max_iterations = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenMaxIterations>( m_reg );
-  auto birth_threshold = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenBirthThreshold>( m_reg );
-  auto survival_threshold = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenSurvivalThreshold>( m_reg );
-  cellauto_parser.iterate( max_iterations.get_value(), birth_threshold.get_value(), survival_threshold.get_value(),
-                           Sys::ProcGen::LevelGenerator::SceneType::RUIN_INTERIOR, level_gen.get_obstacle_sm() );
+  auto &dla_sys = m_sys.find<Sys::Store::Type::DiffusionLtdAggrSystem>();
+  dla_sys.iterate( sf::FloatRect( { 0.f, 0.f }, map_size_pixel ), sf::Vector2f{ 224.f, 144.f }, max_iterations.get_value(),
+                   level_gen.get_obstacle_sm() );
 
   // add access hitbox just above horizontal centerpoint
   sf::Vector2f flooraccess_position( map_size_pixel.x - ( 3 * gridsize.x ), 2 * gridsize.y );

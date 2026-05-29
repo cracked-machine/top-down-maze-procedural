@@ -16,7 +16,7 @@
 namespace Game::Sprites { class SpriteFactory; }
 namespace Game::Audio { class SoundBank; }
 namespace sf { class RenderWindow; }
-namespace Game::Sys::ProcGen { class CellAutomataSystem; class LevelGenerator; }
+namespace Game::Sys::ProcGen { class CellAutomataSystem; class DLASystem; class LevelGenerator; }
 // clang-format on
 
 namespace Game::Sys
@@ -63,6 +63,7 @@ public:
     CellAutomataSystem,
     CorruptionHazardSystem,
     CryptSystem,
+    DiffusionLtdAggrSystem,
     ActionSystem,
     ExitSystem,
     FootstepSystem,
@@ -123,13 +124,14 @@ private:
 
 // Explicit template specializations for SystemTraits
 // clang-format off
+template<> struct Store::SystemTraits<Store::Type::ActionSystem>           { using type = ActionSystem; };
 template<> struct Store::SystemTraits<Store::Type::AltarSystem>            { using type = AltarSystem; };
 template<> struct Store::SystemTraits<Store::Type::AnimSystem>             { using type = AnimSystem; };
 template<> struct Store::SystemTraits<Store::Type::BombSystem>             { using type = BombSystem; };
 template<> struct Store::SystemTraits<Store::Type::CellAutomataSystem>     { using type = ProcGen::CellAutomataSystem; };
 template<> struct Store::SystemTraits<Store::Type::CorruptionHazardSystem> { using type = CorruptionHazardSystem; };
 template<> struct Store::SystemTraits<Store::Type::CryptSystem>            { using type = Game::Sys::CryptSystem; };
-template<> struct Store::SystemTraits<Store::Type::ActionSystem>          { using type = ActionSystem; };
+template<> struct Store::SystemTraits<Store::Type::DiffusionLtdAggrSystem> { using type = ProcGen::DLASystem; };
 template<> struct Store::SystemTraits<Store::Type::ExitSystem>             { using type = ExitSystem; };
 template<> struct Store::SystemTraits<Store::Type::FootstepSystem>         { using type = FootstepSystem; };
 template<> struct Store::SystemTraits<Store::Type::GraveSystem>            { using type = GraveSystem; };

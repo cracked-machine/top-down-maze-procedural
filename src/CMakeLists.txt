@@ -24,6 +24,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Sprites/CircleSegment.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/ProcGen/LevelGenerator.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/ProcGen/CellAutomataSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/ProcGen/DLASystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/ProcGen/PassageSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/ProcGen/PassageAlgorithms.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Render/RenderSystem.cpp
