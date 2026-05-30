@@ -16,6 +16,7 @@
 #include <Factory/RuinFactory.hpp>
 #include <Factory/ShaderFactory.hpp>
 #include <Factory/WallFactory.hpp>
+#include <Persistent/RuinMaxCobwebs.hpp>
 #include <Persistent/RuinProcGenBirthThreshold.hpp>
 #include <Persistent/RuinProcGenInitChance.hpp>
 #include <Persistent/RuinProcGenMaxIterations.hpp>
@@ -75,7 +76,8 @@ void RuinSceneLowerFloor::on_init()
   level_gen.reset();
   level_gen.build_scene_from_data( *m_scene_data );
   level_gen.add_ruin_rune_markers();
-  m_sys.find<SystemStoreType::RuinSystem>().add_lowerfloor_cobwebs( 5, sf::FloatRect( { 0.f, 0.f }, map_size_pixel ) );
+  auto max_cobwebs = Sys::PersistSystem::get<Cmp::Persist::RuinMaxCobwebs>( m_reg );
+  m_sys.find<SystemStoreType::RuinSystem>().add_lowerfloor_cobwebs( max_cobwebs.get_value(), sf::FloatRect( { 0.f, 0.f }, map_size_pixel ) );
 
   auto init_chance = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenInitChance>( m_reg );
   level_gen.add_ruin_interior_obstacles( init_chance.get_value() );

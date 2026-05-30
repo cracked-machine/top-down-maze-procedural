@@ -392,6 +392,14 @@
     "detail": "Movement delay after pulling ruin obstacle",
     "format": "%.1f seconds"
   },
+  "RuinMaxCobwebs": {
+    "type": "int",
+    "value": 25,
+    "min_value": 1,
+    "max_value": 50,
+    "detail": "RuinMaxCobwebs",
+    "format": "%d"
+  },
   "RuinProcGenInitChance": {
     "type": "float",
     "value": 1.0,

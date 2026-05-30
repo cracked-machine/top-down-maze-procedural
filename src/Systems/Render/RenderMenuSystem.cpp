@@ -54,6 +54,7 @@
 #include <Persistent/NpcWitchAnimFramerate.hpp>
 #include <Persistent/PlayerMovementSpeed.hpp>
 #include <Persistent/PostPullMovementDelay.hpp>
+#include <Persistent/RuinMaxCobwebs.hpp>
 #include <Persistent/RuinProcGenBirthThreshold.hpp>
 #include <Persistent/RuinProcGenInitChance.hpp>
 #include <Persistent/RuinProcGenMaxIterations.hpp>
@@ -223,6 +224,7 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
     Sys::PersistSystem::get<Cmp::Persist::WormholeSeed>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::CorruptionSeed>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::SinkholeSeed>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::RuinMaxCobwebs>( reg() ).render_widget();
 
     // Loot Settings
     ImGui::SeparatorText( "Loot Settings" );

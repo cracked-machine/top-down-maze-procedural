@@ -359,9 +359,9 @@ void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
   used_cols.insert( colpick );
 }
 
-void RuinSystem::add_lowerfloor_cobwebs( int max_attempts, sf::FloatRect scene_dimensions )
+void RuinSystem::add_lowerfloor_cobwebs( int num_cobwebs, sf::FloatRect scene_dimensions )
 {
-  auto has_collision = [&]( Cmp::RectBounds pos )
+  auto has_collision = [&]( const Cmp::RectBounds &pos )
   {
     if ( Utils::Collision::check_cmp<Cmp::RuinBookcase>( reg(), pos ) ) { return true; }
     if ( Utils::Collision::check_cmp<Cmp::RuinStairsLowerMultiBlock>( reg(), pos ) ) { return true; }
@@ -374,7 +374,7 @@ void RuinSystem::add_lowerfloor_cobwebs( int max_attempts, sf::FloatRect scene_d
   };
 
   constexpr auto &gridsize = Constants::kGridSizePxF;
-  int max_cobwebs = max_attempts;
+  int max_cobwebs = num_cobwebs;
   for ( auto _ : std::views::iota( 0, max_cobwebs ) )
   {
     auto [rnd_entt, rnd_pos] = Utils::Rnd::get_random_position( reg(), {}, Utils::Rnd::ExcludePack<Cmp::ReservedPosition>{} );

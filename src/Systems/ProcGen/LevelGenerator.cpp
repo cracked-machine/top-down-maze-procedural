@@ -198,8 +198,8 @@ void LevelGenerator::add_ruin_interior_obstacles( float init_chance )
   {
     if ( Cmp::RandomFloat{ 0.f, 1.f }.gen() < init_chance )
     {
-      const Sprites::SpriteSheet &ms = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.wall.int" );
-      auto [_, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.wall.int" } );
+      const Sprites::SpriteSheet &ms = m_sprite_factory.get_spritesheet_by_type( "sprite.ruin.wall.int" );
+      auto [_, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.ruin.wall.int" } );
       Factory::create_obstacle( reg(), entity, pos_cmp, ms, rand_obst_tex_idx );
       reg().emplace_or_replace<Cmp::Moveable>( entity );
       m_obstacle_sm->insert( entity, pos_cmp );
