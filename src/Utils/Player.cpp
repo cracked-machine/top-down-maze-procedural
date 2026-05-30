@@ -15,6 +15,7 @@
 #include <Components/ZOrderValue.hpp>
 #include <Direction.hpp>
 #include <Inventory/PlayerInventorySlot.hpp>
+#include <LastDirection.hpp>
 #include <Player/PlayerCadaverCount.hpp>
 #include <Player/PlayerLevelDepth.hpp>
 #include <Player/TorchRadius.hpp>
@@ -60,6 +61,20 @@ Cmp::Direction &get_direction( entt::registry &reg )
     return dir_cmp;
   }
   throw std::runtime_error( "Player entt has no component: Cmp::Direction" );
+}
+
+//! @brief Get the player last direction object
+//! @throws runtime_error if player has no Cmp::LastDirection
+//! @param reg
+//! @return Cmp::LastDirection&
+Cmp::LastDirection &get_last_direction( entt::registry &reg )
+{
+  auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::LastDirection>();
+  for ( auto [entt, player_cmp, dir_cmp] : player_view.each() )
+  {
+    return dir_cmp;
+  }
+  throw std::runtime_error( "Player entt has no component: Cmp::LastDirection" );
 }
 
 //! @brief Get the player sprite anim object

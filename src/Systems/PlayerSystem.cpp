@@ -44,6 +44,7 @@
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
+#include <LastDirection.hpp>
 #include <Moveable.hpp>
 #include <NoMoveDest.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
@@ -106,6 +107,7 @@ void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
 
     Utils::Player::get_zorder( reg() ).setZOrder( Utils::Player::get_position( reg() ).position.y );
     Utils::Player::get_direction( reg() ) == sf::Vector2f( 0.f, 0.f ) ? stop_footsteps_sound() : play_footsteps_sound( footstep_sfx );
+    SPDLOG_INFO( "LastDirection: {},{}", Utils::Player::get_last_direction( reg() ).x, Utils::Player::get_last_direction( reg() ).y );
   }
 
   check_player_mortality();
@@ -367,6 +369,14 @@ void PlayerSystem::update_player_animation()
     else if ( direction_cmp.x == -1 ) { anim_cmp.m_sprite_type = "sprite.player.walk.west"; }
     else if ( direction_cmp.y == -1 ) { anim_cmp.m_sprite_type = "sprite.player.walk.north"; }
     else if ( direction_cmp.y == 1 ) { anim_cmp.m_sprite_type = "sprite.player.walk.south"; }
+
+    if ( direction_cmp.x != 0.f || direction_cmp.y != 0.f )
+    {
+      auto &last_dir = Utils::Player::get_last_direction( reg() );
+      // Store as cardinal direction (one axis only)
+      if ( std::abs( direction_cmp.x ) >= std::abs( direction_cmp.y ) ) { last_dir = sf::Vector2f{ direction_cmp.x > 0.f ? 1.f : -1.f, 0.f }; }
+      else { last_dir = sf::Vector2f{ 0.f, direction_cmp.y > 0.f ? 1.f : -1.f }; }
+    }
   }
 }
 

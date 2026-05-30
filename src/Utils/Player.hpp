@@ -18,6 +18,7 @@ class PlayerLastGraveyardPosition;
 class ZOrderValue;
 class PlayerCurse;
 class Direction;
+class LastDirection;
 class PlayerCadaverCount;
 class PlayerLevelDepth;
 class PlayerInventorySlot;
@@ -30,6 +31,7 @@ namespace Game::Utils::Player
 entt::entity get_entity( entt::registry &reg );
 Cmp::Position &get_position( entt::registry &reg );
 Cmp::Direction &get_direction( entt::registry &reg );
+Cmp::LastDirection &get_last_direction( entt::registry &reg );
 Cmp::AnimData &get_sprite_anim( entt::registry &reg );
 int get_ruin_location( entt::registry &reg ); // Returns enum as int to avoid include
 Cmp::PlayerLastGraveyardPosition *get_last_graveyard_pos( entt::registry &reg );

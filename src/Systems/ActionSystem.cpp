@@ -20,6 +20,8 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/SelectedPosition.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Constants.hpp>
+#include <Direction.hpp>
 #include <Events/CreateItemEvent.hpp>
 #include <Events/DropInventoryEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
@@ -28,6 +30,7 @@
 #include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
+#include <LastDirection.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Player/PlayerNoPath.hpp>
 #include <Sprites/SpriteSheet.hpp>
@@ -164,16 +167,16 @@ void ActionSystem::select_moveable_obstacle()
   auto position_view = reg().view<Cmp::Position, Cmp::Obstacle, Cmp::Moveable>( entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
   for ( auto [obst_entity, obst_pos_cmp, obst_cmp, move_cmp] : position_view.each() )
   {
+    // project one grdi position in the direction that the player is currently facing to find the obstacle selection
+    auto player_pos = Utils::Player::get_position( reg() );
+    auto player_last_direction = Utils::Player::get_last_direction( reg() );
+    Cmp::Position selected_position( { player_pos.getCenter().x + ( player_last_direction.x * Constants::kGridSizePxF.x ),
+                                       player_pos.getCenter().y + ( player_last_direction.y * Constants::kGridSizePxF.y ) },
+                                     { 1.f, 1.f } );
 
-    auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
-    if ( mouse_position_bounds.findIntersection( obst_pos_cmp ) )
+    if ( selected_position.findIntersection( obst_pos_cmp ) )
     {
-      SPDLOG_DEBUG( "Found moveable entity at position: [{}, {}]!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
-      auto player_pos = Utils::Player::get_position( reg() );
-      auto player_hitbox_xaxis = Cmp::RectBounds::scaled( player_pos.position, Constants::kGridSizePxF, 1.5f, Cmp::RectBounds::ScaleAxis::X );
-      auto player_hitbox_yaxis = Cmp::RectBounds::scaled( player_pos.position, Constants::kGridSizePxF, 1.5f, Cmp::RectBounds::ScaleAxis::Y );
-      if ( ( not player_hitbox_xaxis.findIntersection( obst_pos_cmp ) ) and ( not player_hitbox_yaxis.findIntersection( obst_pos_cmp ) ) ) continue;
-
+      SPDLOG_INFO( "Found moveable entity at position: [{}, {}]!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
       reg().emplace_or_replace<Cmp::SelectedPosition>( obst_entity, obst_pos_cmp.position );
     }
   }

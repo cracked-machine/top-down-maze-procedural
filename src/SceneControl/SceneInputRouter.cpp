@@ -390,18 +390,18 @@ void SceneInputRouter::ruin_scene_state_handler()
         if ( Utils::Player::get_mortality( reg() ).state != Cmp::PlayerMortality::State::ALIVE ) continue;
         enqueue( Events::SceneManagerEvent::Type::QUIT_GAME );
       }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Space )
+      {
+        get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DESELECT ) );
+      }
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::P ) { enqueue( Events::SceneManagerEvent::Type::PAUSE_GAME ); }
-    }
-    if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
-    {
-      get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::SELECT ) );
-    }
-    else if ( not sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
-    {
-      get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DESELECT ) );
+      else if ( keyPressed->scancode == sf::Keyboard::Scancode::Space )
+      {
+        get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::SELECT ) );
+      }
     }
   }
 
@@ -477,10 +477,10 @@ void SceneInputRouter::process_move_keys()
   {
     direction.x = 0;
     direction.y = 0;
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::W ) ) { direction.y = -1; } // move player up
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::A ) ) { direction.x = -1; } // move player left
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) ) { direction.x = 1; }  // move player right
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) ) { direction.y = 1; }  // move player down
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::W ) ) { direction.y = -1.0f; } // move player up
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::A ) ) { direction.x = -1.0f; } // move player left
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) ) { direction.x = 1.0f; }  // move player right
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) ) { direction.y = 1.0f; }  // move player down
   }
 }
 

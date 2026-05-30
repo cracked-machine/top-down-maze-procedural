@@ -34,6 +34,7 @@
 #include <Components/UUID.hpp>
 #include <Components/VoidPosition.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <LastDirection.hpp>
 #include <Player/PlayerLevelDepth.hpp>
 #include <Player/TorchRadius.hpp>
 #include <SceneControl/RegistryTransfer.hpp>
@@ -216,6 +217,7 @@ void RegistryTransfer::init_missing_cmp_storages( entt::registry &registry )
   registry.storage<Cmp::AbsoluteAlpha>();
   registry.storage<Cmp::AbsoluteRotation>();
   registry.storage<Cmp::Direction>();
+  registry.storage<Cmp::LastDirection>();
   registry.storage<Cmp::Position>();
   registry.storage<Cmp::PlayerCharacter>();
   registry.storage<Cmp::PlayerLevelDepth>();

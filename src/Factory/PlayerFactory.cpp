@@ -8,6 +8,7 @@
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
+#include <Components/LastDirection.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Persistent/BlastRadius.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
@@ -68,6 +69,7 @@ void create_player( entt::registry &reg )
                                             Cmp::Stats::Infamy{ 0 } );
 
   reg.emplace_or_replace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
+  reg.emplace_or_replace<Cmp::LastDirection>( entity, sf::Vector2f{ 0, 0 } );
 
   // clang-format off
   reg.emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 

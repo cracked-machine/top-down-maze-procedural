@@ -39,6 +39,7 @@
 #include <Components/Wall.hpp>
 #include <Components/Wormhole/WormholeMultiBlock.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <LastDirection.hpp>
 #include <LightningStrike.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Random.hpp>
