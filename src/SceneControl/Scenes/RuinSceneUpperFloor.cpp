@@ -146,11 +146,11 @@ void RuinSceneUpperFloor::do_update( sf::Time dt )
   m_sys.find<Store::Type::PlayerSystem>().disable_damage_cooldown();
 
   auto [_, map_size_pixel] = m_scene_data->map_size();
-  // bool player_curse_active = m_sys.find<Store::Type::RuinSystem>().check_activate_player_curse( map_size_pixel );
+  [[maybe_unused]] bool player_curse_active = m_sys.find<Store::Type::RuinSystem>().check_activate_player_curse( map_size_pixel );
   // if ( player_curse_active ) { Factory::Shader::add_curse( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel ); }
 
   m_sys.find<Store::Type::RuinSystem>().update_shadow_hand_pos( map_size_pixel );
-  // m_sys.find<Store::Type::RuinSystem>().check_player_shadow_hand_collision( dt );
+  m_sys.find<Store::Type::RuinSystem>().check_player_shadow_hand_collision( dt );
 
   m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );
   auto &overlay_sys = m_sys.find<Store::Type::RenderOverlaySystem>();
