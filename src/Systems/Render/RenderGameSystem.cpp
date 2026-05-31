@@ -289,10 +289,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
 
   if ( m_show_debug_stats )
   {
-
-    render_overlay_sys.render_ui_player_position();
-    render_overlay_sys.render_ui_mouse_position();
-    render_overlay_sys.render_ui_stats();
+    render_overlay_sys.render_ui_misc_stats();
     render_overlay_sys.render_ui_zorder_list( m_zorder_queue_ );
     render_overlay_sys.render_ui_npc_list();
     render_overlay_sys.render_ui_entity_inspect();
@@ -301,7 +298,6 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
       if ( not Utils::is_visible_in_view( get_screen_view(), pos_cmp ) ) continue;
       render_overlay_sys.render_square( pos_cmp.position, pos_cmp.size, sf::Color::Yellow );
     }
-
     m_debug_update_timer.restart();
   }
 

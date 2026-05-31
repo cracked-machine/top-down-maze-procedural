@@ -47,9 +47,7 @@ public:
   void render_level_depth();
   void render_shop_inventory_overlay();
 
-  void render_ui_player_position();
-  void render_ui_mouse_position();
-  void render_ui_stats();
+  void render_ui_misc_stats();
   void render_ui_zorder_list( std::vector<ZOrder> &zorder_queue );
   void render_ui_npc_list();
 
@@ -124,37 +122,6 @@ public:
         draw_world( rectangle );
       }
     }
-  }
-
-  //! @brief
-  //! @tparam Component
-  //! @param text_color
-  //! @param precision
-  template <typename Component>
-  void render_zorder_value( sf::Color text_color = sf::Color::White, int precision = 1 )
-  {
-    sf::View previous_view = m_window.getView();
-    m_window.setView( RenderSystem::s_world_view );
-
-    auto requested_view = reg().view<Component>();
-    for ( auto [entity, requested_cmp] : requested_view.each() )
-    {
-      if ( reg().all_of<Cmp::Position, Cmp::ZOrderValue>( entity ) )
-      {
-        auto &pos_cmp = reg().get<Cmp::Position>( entity );
-        auto zorder_cmp = reg().get<Cmp::ZOrderValue>( entity );
-        std::stringstream ss;
-        ss << std::fixed << std::setprecision( precision ) << zorder_cmp.getZOrder();
-        sf::Text m_z_text{ m_font, ss.str(), 7 };
-        m_z_text.setFillColor( text_color );
-        m_z_text.setPosition( { pos_cmp.position.x, pos_cmp.position.y } );
-        m_z_text.setOutlineColor( sf::Color::Black );
-        m_z_text.setOutlineThickness( 0.5f );
-        m_window.draw( m_z_text );
-      }
-    }
-
-    m_window.setView( previous_view );
   }
 
   //! @brief event handlers for pausing system clocks

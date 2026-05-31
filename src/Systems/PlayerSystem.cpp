@@ -107,7 +107,6 @@ void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
 
     Utils::Player::get_zorder( reg() ).setZOrder( Utils::Player::get_position( reg() ).position.y );
     Utils::Player::get_direction( reg() ) == sf::Vector2f( 0.f, 0.f ) ? stop_footsteps_sound() : play_footsteps_sound( footstep_sfx );
-    SPDLOG_INFO( "LastDirection: {},{}", Utils::Player::get_last_direction( reg() ).x, Utils::Player::get_last_direction( reg() ).y );
   }
 
   check_player_mortality();
@@ -370,6 +369,7 @@ void PlayerSystem::update_player_animation()
     else if ( direction_cmp.y == -1 ) { anim_cmp.m_sprite_type = "sprite.player.walk.north"; }
     else if ( direction_cmp.y == 1 ) { anim_cmp.m_sprite_type = "sprite.player.walk.south"; }
 
+    // store the direction
     if ( direction_cmp.x != 0.f || direction_cmp.y != 0.f )
     {
       auto &last_dir = Utils::Player::get_last_direction( reg() );

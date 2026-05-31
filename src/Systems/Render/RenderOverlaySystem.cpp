@@ -24,6 +24,7 @@
 #include <Inventory/FlashUIInventory.hpp>
 #include <Inventory/FlashUIRadius.hpp>
 #include <Inventory/FlashUIWealth.hpp>
+#include <LastDirection.hpp>
 #include <Moveable.hpp>
 #include <Npc/NpcNoPathFinding.hpp>
 #include <PathFinding/AStar.hpp>
@@ -407,104 +408,48 @@ void RenderOverlaySystem::render_shop_inventory_overlay()
   }
 }
 
-void RenderOverlaySystem::render_ui_player_position()
+void RenderOverlaySystem::render_ui_misc_stats()
 {
-  if ( not m_dbg_ui_data )
-  {
-    SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw player position overlay" );
-    return;
-  }
-  auto player_pos = Utils::Player::get_position( reg() );
+  if ( not m_dbg_ui_data ) { return; }
 
-  for ( const auto &ui_label : m_dbg_ui_data->m_labels )
-  {
-    if ( ui_label.name != "player_position" ) { continue; }
-    sf::Text text( m_font, "Player Pos:", ui_label.font_size );
-    text.setString( "Player Position: [ " + std::to_string( static_cast<int>( player_pos.x() ) ) + " , " +
-                    std::to_string( static_cast<int>( player_pos.y() ) ) + " ]" );
-    text.setPosition( ui_label.rect.position );
-    text.setFillColor( sf::Color::White );
-    text.setOutlineColor( sf::Color::Black );
-    text.setOutlineThickness( 2.f );
-    draw_screen( text );
-  }
-}
-
-void RenderOverlaySystem::render_ui_mouse_position()
-{
-
-  if ( not m_dbg_ui_data )
-  {
-    SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw mouse position overlay" );
-    return;
-  }
-
-  sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( m_window );
-  sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::get_world_view() );
-
-  for ( const auto &ui_label : m_dbg_ui_data->m_labels )
-  {
-    if ( ui_label.name != "mouse_position" ) { continue; }
-
-    sf::Text text( m_font, "Mouse Pos:", ui_label.font_size );
-    text.setString( "Mouse Position: [ " + std::to_string( static_cast<int>( mouse_world_pos.x ) ) + " , " +
-                    std::to_string( static_cast<int>( mouse_world_pos.y ) ) + " ]" );
-
-    text.setPosition( ui_label.rect.position );
-    text.setFillColor( sf::Color::White );
-    text.setOutlineColor( sf::Color::Black );
-    text.setOutlineThickness( 2.f );
-    draw_screen( text );
-  }
-}
-
-void RenderOverlaySystem::render_ui_stats()
-{
-  if ( not m_dbg_ui_data )
-  {
-    SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw entity stats overlay" );
-    return;
-  }
-
+  float y_offset = 0.f;
+  constexpr unsigned int font_size = 18;
+  constexpr float line_height = 22.f;
   for ( const auto &ui_label : m_dbg_ui_data->m_labels )
   {
     if ( ui_label.name != "entity_stats" ) { continue; }
-    auto entity_count = reg().view<entt::entity>().size();
-    auto npc_count = reg().view<Cmp::NPC>().size();
-    auto position_count = reg().view<Cmp::Position>().size();
-    auto corruption_count = reg().view<Cmp::CorruptionCell>().size();
-    auto sinkhole_count = reg().view<Cmp::SinkholeCell>().size();
-    auto crypt_passage_block_count = reg().view<Cmp::CryptPassageBlock>().size();
 
-    auto obst_view = reg().view<Cmp::Obstacle>();
-    auto obstacle_count = obst_view.size();
+    //! @brief Draw a text line in the UI
+    auto draw_line = [&]( const std::string &str, sf::Color color = sf::Color::White )
+    {
+      sf::Text text( m_font, str, font_size );
+      text.setFillColor( color );
+      text.setOutlineColor( sf::Color::Black );
+      text.setOutlineThickness( 1.f );
+      text.setPosition( { ui_label.rect.position.x, ui_label.rect.position.y + y_offset } );
+      draw_screen( text );
+      y_offset += line_height;
+    };
 
-    // clang-format off
-    sf::Text text1(m_font, "", ui_label.font_size);
-    text1.setString( 
-      "E: " + std::to_string( entity_count ) + 
-      "   P: " + std::to_string( position_count ) +
-      "   O: " + std::to_string( obstacle_count ));
+    draw_line( "--- Stats ---", sf::Color::Yellow );
 
-    sf::Text text2(m_font, "", ui_label.font_size);
-    text2.setString( 
-      "CPB: " + std::to_string(crypt_passage_block_count) +
-      "   N: " + std::to_string( npc_count ) +
-      "   C: " + std::to_string( corruption_count ) + 
-      "   S: " + std::to_string( sinkhole_count ) );
-    // clang-format on
+    draw_line( " Player position - [" + std::to_string( Utils::Player::get_position( reg() ).x() ) + " , " +
+               std::to_string( Utils::Player::get_position( reg() ).y() ) + "]" );
 
-    text1.setPosition( ui_label.rect.position );
-    text1.setFillColor( sf::Color::White );
-    text1.setOutlineColor( sf::Color::Black );
-    text1.setOutlineThickness( 2.f );
-    draw_screen( text1 );
+    sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( m_window );
+    sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::get_world_view() );
+    draw_line( " Mouse position - [" + std::to_string( mouse_world_pos.x ) + " , " + std::to_string( mouse_world_pos.y ) + "]" );
 
-    text2.setPosition( { ui_label.rect.position.x, ui_label.rect.position.y + 40 } );
-    text2.setFillColor( sf::Color::White );
-    text2.setOutlineColor( sf::Color::Black );
-    text2.setOutlineThickness( 2.f );
-    draw_screen( text2 );
+    draw_line( " Player current direction - [" + std::to_string( Utils::Player::get_direction( reg() ).x ) + " , " +
+               std::to_string( Utils::Player::get_direction( reg() ).y ) + "]" );
+    draw_line( " Player last direction - [" + std::to_string( Utils::Player::get_last_direction( reg() ).x ) + " , " +
+               std::to_string( Utils::Player::get_last_direction( reg() ).y ) + "]" );
+
+    draw_line( " Entities - " + std::to_string( reg().view<entt::entity>().size() ) );
+    draw_line( " NPCs - " + std::to_string( reg().view<Cmp::NPC>().size() ) );
+    draw_line( " Corruption - " + std::to_string( reg().view<Cmp::CorruptionCell>().size() ) );
+    draw_line( " Sinkhole - " + std::to_string( reg().view<Cmp::CorruptionCell>().size() ) );
+    draw_line( " CryptPassageBlocks - " + std::to_string( reg().view<Cmp::CryptPassageBlock>().size() ) );
   }
 }
 
@@ -519,15 +464,18 @@ void RenderOverlaySystem::render_ui_zorder_list( std::vector<ZOrder> &zorder_que
 
   // clang-format off
   std::set<Sprites::SpriteMetaType> exclusions = {
-      "sprite.graveyard.wall.int", 
-      "sprite.graveyard.playerspawn", 
-      "sprite.skeleton",      
-      "sprite.ghost",         
-      "sprite.graveyard.detonated",
-      "sprite.player.footsteps",
+      "sprite.graveyard.wall.int",
+      "sprite.ruin.wall.int",
       "sprite.well.wall.int",
+      "sprite.shop.wall.int",
       "sprite.ruin.wall.ext", 
       "sprite.crypt.wall.ext",
+      "sprite.graveyard.playerspawn", 
+      "sprite.skeleton",      
+      "sprite.ghost",
+      "sprite.wisp",
+      "sprite.graveyard.detonated",
+      "sprite.player.footsteps",
       "sprite.ruin.cobweb",
       "sprite.ruin.bookcase.left",
       "sprite.ruin.bookcase.mid",
@@ -535,13 +483,32 @@ void RenderOverlaySystem::render_ui_zorder_list( std::vector<ZOrder> &zorder_que
   };
   // clang-format on
 
+  float y_offset = 0.f;
+  constexpr unsigned int font_size = 18;
+  constexpr float line_height = 22.f;
+
   for ( const auto &ui_label : m_dbg_ui_data->m_labels )
   {
     if ( ui_label.name != "zorder_list" ) { continue; }
 
-    float count = 0;
+    //! @brief Draw a text line in the UI
+    auto draw_line = [&]( const std::string &str, sf::Color color = sf::Color::White )
+    {
+      sf::Text text( m_font, str, font_size );
+      text.setFillColor( color );
+      text.setOutlineColor( sf::Color::Black );
+      text.setOutlineThickness( 1.f );
+      text.setPosition( { ui_label.rect.position.x, ui_label.rect.position.y + y_offset } );
+      draw_screen( text );
+      y_offset += line_height;
+    };
+
+    draw_line( "--- Z Order List ---", sf::Color::Yellow );
+
+    // float count = 0;
     for ( const auto &zorder_entry : zorder_queue )
     {
+
       std::string name;
       auto *sprite_anim_cmp = reg().try_get<Cmp::AnimData>( zorder_entry.e );
       if ( sprite_anim_cmp )
@@ -558,18 +525,11 @@ void RenderOverlaySystem::render_ui_zorder_list( std::vector<ZOrder> &zorder_que
       }
 
       if ( name.empty() ) continue;
-
-      std::stringstream ss;
-      ss << "z: " << std::fixed << std::setprecision( 1 ) << zorder_entry.z << " | ";
-      ss << "e: " << static_cast<uint32_t>( zorder_entry.e ) << " | ";
-      ss << name << " | ";
-      sf::Text m_z_text( m_font, ss.str(), ui_label.font_size );
-      m_z_text.setFillColor( sf::Color::White );
-      m_z_text.setPosition( { ui_label.rect.position.x, ui_label.rect.position.y + count } );
-      m_z_text.setOutlineColor( sf::Color::Black );
-      m_z_text.setOutlineThickness( 0.5f );
-      draw_screen( m_z_text );
-      count += ui_label.font_size; // Move down for the next entry
+      // clang-format off
+      draw_line(" Z:" + std::to_string(static_cast<int>(zorder_entry.z)) + 
+                " E:" + std::to_string(static_cast<uint32_t>( zorder_entry.e )) +
+                " - " + name);
+      // clang-format on
     }
   }
 }
@@ -581,48 +541,38 @@ void RenderOverlaySystem::render_ui_npc_list()
     SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw zorder list overlay" );
     return;
   }
+
+  float y_offset = 0.f;
+  constexpr unsigned int font_size = 18;
+  constexpr float line_height = 22.f;
+
   for ( const auto &ui_label : m_dbg_ui_data->m_labels )
   {
     if ( ui_label.name != "npc_list" ) { continue; }
 
+    //! @brief Draw a text line in the UI
+    auto draw_line = [&]( const std::string &str, sf::Color color = sf::Color::White )
+    {
+      sf::Text text( m_font, str, font_size );
+      text.setFillColor( color );
+      text.setOutlineColor( sf::Color::Black );
+      text.setOutlineThickness( 1.f );
+      text.setPosition( { ui_label.rect.position.x, ui_label.rect.position.y + y_offset } );
+      draw_screen( text );
+      y_offset += line_height;
+    };
+
+    draw_line( "--- NPCs ---", sf::Color::Yellow );
+
     auto npc_view = reg().view<Cmp::NPC, Cmp::Position, Cmp::AnimData>();
-    m_npc_list_text.clear();
     for ( auto [npc_entity, npc_cmp, npc_pos_cmp, npc_anim_cmp] : npc_view.each() )
     {
-      sf::Text npc_text( m_font, "", ui_label.font_size );
-
-      // Pad the type name to consistent width
-      std::string type_str = npc_anim_cmp.m_sprite_type;
-      int padding = 20;
-      type_str.resize( padding, ' ' ); // Pad to 20 characters
-
-      // Format entity ID with padding
-      padding = 10;
-      std::string entity_id = std::to_string( entt::to_integral( npc_entity ) );
-      entity_id.insert( 0, padding - std::min( padding, (int)entity_id.length() ),
-                        ' ' ); // Right-align in padding chars
-
-      std::stringstream ss;
       // clang-format off
-      ss << type_str
-         << ": # " << entity_id
-         << " - [ x: " << std::setw(4) << std::right << static_cast<int>( npc_pos_cmp.position.x )
-         << " , y: " << std::setw(4) << std::right << static_cast<int>( npc_pos_cmp.position.y ) << " ]";
+      draw_line( " " + std::to_string( entt::to_integral( npc_entity ) ) +
+                 ": [" + std::to_string( static_cast<int>( npc_pos_cmp.position.x ) ) + 
+                 "," + std::to_string( static_cast<int>( npc_pos_cmp.position.x ) ) + "] - " + 
+                 npc_anim_cmp.m_sprite_type);
       // clang-format on
-      npc_text.setString( ss.str() );
-      npc_text.setFillColor( sf::Color::White );
-      npc_text.setOutlineColor( sf::Color::Black );
-      npc_text.setOutlineThickness( 1.f );
-      m_npc_list_text.emplace( entt::to_integral( npc_entity ), std::move( npc_text ) );
-    }
-
-    // Render in sorted order (map automatically sorts by key)
-    int count = 0;
-    for ( auto &[key, npc_text] : m_npc_list_text )
-    {
-      npc_text.setPosition( ui_label.rect.position + sf::Vector2f{ 0, count * 20.f } );
-      draw_screen( npc_text );
-      ++count;
     }
   }
 }
