@@ -31,7 +31,7 @@ void Smoke::simulate( sf::Time dt )
 {
   m_elapsed += dt.asSeconds();
 
-  const float amplitude = 20.f;
+  const float amplitude = 1.f;
   const sf::Color smoke_color{ 0, 0, 0 };
   constexpr float k_smoke_density = 0.5f; // 10% of particles visible in smoke phase
 

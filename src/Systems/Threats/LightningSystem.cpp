@@ -1,6 +1,7 @@
 #include <Audio/SoundBank.hpp>
 #include <Events/LightningEvent.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
+#include <Factory/ParticleFactory.hpp>
 #include <LightningStrike.hpp>
 #include <Persistent/LightningDamage.hpp>
 #include <Player.hpp>
@@ -10,10 +11,12 @@
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Vertex.hpp>
 #include <Stats/BaseAction.hpp>
+#include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/LightningSystem.hpp>
+#include <UUID.hpp>
 #include <Utils/Maths.hpp>
 
 namespace Game::Sys
@@ -34,6 +37,8 @@ void LightningSystem::update( sf::Time dt )
   if ( trigger_lightning and not lightning_strike_exists() )
   {
     create_lightning_strike( dt );
+    auto uuid = Cmp::UUID::generate();
+    Particle::Factory::add_smoke( reg(), "particle.smoke.player", uuid, Utils::Player::get_position( reg() ).getCenter(), 50000 );
     trigger_lightning = false;
 
     int lightning_dmg = Sys::PersistSystem::get<Cmp::Persist::LightningDamage>( reg() ).get_value();
@@ -47,6 +52,7 @@ void LightningSystem::update( sf::Time dt )
   }
 
   delete_expired_lightning_strikes();
+  delete_expired_smoke_particle_sprites();
 }
 
 bool LightningSystem::lightning_strike_exists()
@@ -97,6 +103,19 @@ void LightningSystem::delete_expired_lightning_strikes()
   {
     reg().destroy( entt );
     SPDLOG_INFO( "Destroyed lightning strike {}", static_cast<uint32_t>( entt ) );
+  }
+}
+
+void LightningSystem::delete_expired_smoke_particle_sprites()
+{
+  // remove the smoke particle sprite once it has stopped
+  for ( auto [smoke_entt, smoke_ps_cmp] : reg().view<Sys::ParticleSpriteOwner>().each() )
+  {
+    if ( not smoke_ps_cmp.sprite->get_tag().contains( "particle.smoke.player" ) ) continue;
+    smoke_ps_cmp.sprite->set_emitter_position( { Utils::Player::get_position( reg() ).x() + 8.f, Utils::Player::get_position( reg() ).y() } );
+    if ( smoke_ps_cmp.sprite->is_active() ) continue;
+    if ( not reg().valid( smoke_entt ) ) continue;
+    reg().destroy( smoke_entt );
   }
 }
 

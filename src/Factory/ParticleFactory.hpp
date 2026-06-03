@@ -15,10 +15,9 @@ namespace Game::Particle::Factory
 {
 
 void add_test( entt::registry &reg, Sys::ParticleSystem &psys, const std::string &tag );
-void add_flame( [[maybe_unused]] entt::registry &reg, Sys::ParticleSystem &psys, const std::string &tag, Cmp::UUID &uuid_cmp, sf::Vector2f pos );
 void add_flame( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp, sf::Vector2f pos, float zorder );
 void add_flame_for_player_inventory_slot( entt::registry &reg );
-void add_smoke( entt::registry &reg, Sys::ParticleSystem &psys, const std::string &tag );
+void add_smoke( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp, sf::Vector2f pos, float zorder );
 void add_shockwave( entt::registry &reg, Sys::ParticleSystem &psys, const std::string &tag );
 
 } // namespace Game::Particle::Factory
