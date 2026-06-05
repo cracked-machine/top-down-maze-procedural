@@ -77,13 +77,13 @@ void add_smoke( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp
 
 void add_shockwave( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp, sf::Vector2f pos, float zorder )
 {
+  // don't set the angle here, the particles are assigned an angle in the ShockWave() constructor
   auto ps = Cmp::Particle::ShockWave( 1000 );
   ps.set_tag( tag );
   ps.set_generations( 1 );
   ps.set_emitter_position( pos );
   ps.set_lifetime_ms( std::uniform_int_distribution<int>( 0, sf::seconds( 1 ).asMilliseconds() ) );
   ps.set_speed( Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveSpeed>( reg ).get_value() );
-  ps.set_angle( std::uniform_real_distribution( 1.f, 360.f ) );
 
   auto entt = reg.create();
   reg.emplace_or_replace<Sys::ParticleSpriteOwner>( entt, Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::ShockWave>( ps ) ) );

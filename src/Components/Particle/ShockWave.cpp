@@ -21,7 +21,14 @@ void ShockWaveParticle::emit()
 } // namespace detail
 
 ShockWave::ShockWave( size_t count )
-    : ParticleSpriteBase( count ) {};
+    : ParticleSpriteBase( count )
+{
+  for ( size_t i = 0; i < count; ++i )
+  {
+    const float angle = 360.f * ( static_cast<float>( i ) / static_cast<float>( count ) );
+    m_particles_list[i].set_angle( std::uniform_real_distribution( angle, angle ) );
+  }
+};
 
 void ShockWave::simulate( sf::Time dt )
 {
@@ -66,17 +73,22 @@ void ShockWave::draw( sf::RenderTarget &target, sf::RenderStates states ) const
     // map world -> screen
     const auto pos = m_world_to_screen( p.m_vertex.position );
 
-    const auto col = p.m_vertex.color;
+    const auto colour = p.m_vertex.color;
 
-    // Triangle fan from center — one triangle per pentagon edge
+    // unit circle divided into wedges
+    constexpr float kAngleStep = 2.f * std::numbers::pi_v<float> / static_cast<float>( kSides );
+
     for ( int i = 0; i < kSides; ++i )
     {
-      const float a0 = ( -std::numbers::pi_v<float> / 2.f ) + ( ( 2.f * std::numbers::pi_v<float> * i ) / kSides );
-      const float a1 = ( -std::numbers::pi_v<float> / 2.f ) + ( ( 2.f * std::numbers::pi_v<float> * ( i + 1 ) ) / kSides );
+      // the two outside facing (polar) angles for the current wedge
+      const float a0 = kAngleStep * static_cast<float>( i );
+      const float a1 = kAngleStep * static_cast<float>( i + 1 );
 
-      verts.push_back( { pos, col } );
-      verts.push_back( { { pos.x + ( kSize * std::cos( a0 ) ), pos.y + ( kSize * std::sin( a0 ) ) }, col } );
-      verts.push_back( { { pos.x + ( kSize * std::cos( a1 ) ), pos.y + ( kSize * std::sin( a1 ) ) }, col } );
+      // the centre position is always the middle of the polygon
+      verts.push_back( { pos, colour } );
+      // get the vertex positions by converting the polar coords to cartesian coords (euler's formula).
+      verts.push_back( { pos + sf::Vector2f( kSize, sf::radians( a0 ) ), colour } );
+      verts.push_back( { pos + sf::Vector2f( kSize, sf::radians( a1 ) ), colour } );
     }
   }
 

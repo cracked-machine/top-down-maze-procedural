@@ -544,6 +544,7 @@ void NpcSystem::update_shockwaves( sf::Time dt )
   // emit shockwaves from each NPC
   for ( auto [npc_entt, npc_cmp, anim_cmp, npc_pos_cmp, npc_uuid_cmp] : reg().view<Cmp::NPC, Cmp::AnimData, Cmp::Position, Cmp::UUID>().each() )
   {
+    if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), npc_pos_cmp ) ) continue;
     if ( anim_cmp.m_sprite_type == "sprite.priest" )
     {
       // cooldown is handled in Factory function via Cmp::NpcShockwaveTimer per NPC
