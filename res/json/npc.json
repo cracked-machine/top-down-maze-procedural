@@ -1,6 +1,8 @@
 {
   "npc.skeleton": {
     "sprites": ["sprite.skeleton.walk.south", "sprite.skeleton.walk.north", "sprite.skeleton.walk.east", "sprite.skeleton.walk.west"],
+    "lerpspeed": 0.8,
+    "framerate": 0.1,
     "actions": [
       { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
@@ -14,6 +16,8 @@
   },
   "npc.ghost": {
     "sprites": ["sprite.ghost.walk.south", "sprite.ghost.walk.north", "sprite.ghost.walk.east", "sprite.ghost.walk.west"],
+    "lerpspeed": 0.4,
+    "framerate": 2.0,    
     "actions": [
       { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
@@ -27,6 +31,8 @@
   },
   "npc.priest": {
     "sprites": ["sprite.priest"],
+    "lerpspeed": 1.0,
+    "framerate": 0.1,    
     "actions": [
       { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
@@ -40,6 +46,8 @@
   },
   "npc.witch": {
     "sprites": ["sprite.witch"],
+    "lerpspeed": 1.5,
+    "framerate": 0.6,    
     "actions": [
       { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
@@ -53,6 +61,8 @@
   },
   "npc.shadowhand": {
     "sprites": ["sprite.shadowhand"],
+    "lerpspeed": 0.0,
+    "framerate": 0.0,    
     "actions": [
       { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
@@ -66,6 +76,8 @@
   },
   "npc.drknox": {
     "sprites": ["sprite.drknox"],
+    "lerpspeed": 0.0,
+    "framerate": 0.0,    
     "actions": [
       { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
@@ -79,6 +91,8 @@
   },
   "npc.wisp": {
     "sprites": [ "sprite.wisp.east",  "sprite.wisp.west"],
+    "lerpspeed": 1.5,
+    "framerate": 0.4,    
     "actions": [
       { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},

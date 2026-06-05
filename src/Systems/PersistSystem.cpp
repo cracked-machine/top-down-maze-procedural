@@ -33,20 +33,12 @@
 #include <Components/Persistent/MusicVolume.hpp>
 #include <Components/Persistent/NpcActivateScale.hpp>
 #include <Components/Persistent/NpcDeathAnimFramerate.hpp>
-#include <Components/Persistent/NpcGhostAnimFramerate.hpp>
-#include <Components/Persistent/NpcLerpSpeedGhost.hpp>
-#include <Components/Persistent/NpcLerpSpeedPriest.hpp>
-#include <Components/Persistent/NpcLerpSpeedSkele.hpp>
-#include <Components/Persistent/NpcLerpSpeedWitch.hpp>
 #include <Components/Persistent/NpcPushBack.hpp>
 #include <Components/Persistent/NpcShockwaveFreq.hpp>
 #include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
 #include <Components/Persistent/NpcShockwaveResolution.hpp>
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
-#include <Components/Persistent/NpcSkeleAnimFramerate.hpp>
 #include <Components/Persistent/NpcSkeleGraveyardSpawnCount.hpp>
-#include <Components/Persistent/NpcWispAnimFramerate.hpp>
-#include <Components/Persistent/NpcWitchAnimFramerate.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerAnimFramerate.hpp>
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
@@ -126,20 +118,12 @@ void PersistSystem::initialize_type_registry()
   register_type.operator()<MusicVolume>("MusicVolume");
   register_type.operator()<NpcActivateScale>("NpcActivateScale");
   register_type.operator()<NpcDeathAnimFramerate>("NpcDeathAnimFramerate");
-  register_type.operator()<NpcGhostAnimFramerate>("NpcGhostAnimFramerate");
-  register_type.operator()<NpcLerpSpeedSkele>("NpcLerpSpeedSkele");
-  register_type.operator()<NpcLerpSpeedGhost>("NpcLerpSpeedGhost");
-  register_type.operator()<NpcLerpSpeedWitch>("NpcLerpSpeedWitch");
-  register_type.operator()<NpcLerpSpeedPriest>("NpcLerpSpeedPriest");
   register_type.operator()<NpcPushBack>("NpcPushBack");
   register_type.operator()<NpcShockwaveFreq>("NpcShockwaveFreq");
   register_type.operator()<NpcShockwaveMaxRadius>("NpcShockwaveMaxRadius");
   register_type.operator()<NpcShockwaveResolution>("NpcShockwaveResolution");
   register_type.operator()<NpcShockwaveSpeed>("NpcShockwaveSpeed");
-  register_type.operator()<NpcSkeleAnimFramerate>("NpcSkeleAnimFramerate");
   register_type.operator()<NpcSkeleGraveyardSpawnCount>("NpcSkeleGraveyardSpawnCount");
-  register_type.operator()<NpcWitchAnimFramerate>("NpcWitchAnimFramerate");
-  register_type.operator()<NpcWispAnimFramerate>("NpcWispAnimFramerate");
   register_type.operator()<PcDamageDelay>("PcDamageDelay");
   register_type.operator()<PlayerAnimFramerate>("PlayerAnimFramerate");
   register_type.operator()<PlayerDiagonalLerpSpeedModifier>("PlayerDiagonalLerpSpeedModifier");

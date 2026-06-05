@@ -16,51 +16,43 @@
 #include <Components/Persistent/ExitKeyRequirement.hpp>
 #include <Components/Persistent/FuseDelay.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
+#include <Components/Persistent/GraveyardProcGenBirthThreshold.hpp>
+#include <Components/Persistent/GraveyardProcGenInitChance.hpp>
+#include <Components/Persistent/GraveyardProcGenMaxIterations.hpp>
+#include <Components/Persistent/GraveyardProcGenSurvivalThreshold.hpp>
 #include <Components/Persistent/HealthBonus.hpp>
+#include <Components/Persistent/LightningDamage.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/Persistent/MaxNumCrypts.hpp>
 #include <Components/Persistent/MusicVolume.hpp>
 #include <Components/Persistent/NpcActivateScale.hpp>
 #include <Components/Persistent/NpcDeathAnimFramerate.hpp>
-#include <Components/Persistent/NpcGhostAnimFramerate.hpp>
 #include <Components/Persistent/NpcPushBack.hpp>
 #include <Components/Persistent/NpcShockwaveFreq.hpp>
 #include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
 #include <Components/Persistent/NpcShockwaveResolution.hpp>
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
-#include <Components/Persistent/NpcSkeleAnimFramerate.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerAnimFramerate.hpp>
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerFootstepAddDelay.hpp>
 #include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
 #include <Components/Persistent/PlayerLerpInterruptThreshold.hpp>
+#include <Components/Persistent/PlayerMovementSpeed.hpp>
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
+#include <Components/Persistent/PostPullMovementDelay.hpp>
+#include <Components/Persistent/RuinMaxCobwebs.hpp>
+#include <Components/Persistent/RuinProcGenBirthThreshold.hpp>
+#include <Components/Persistent/RuinProcGenInitChance.hpp>
+#include <Components/Persistent/RuinProcGenMaxIterations.hpp>
+#include <Components/Persistent/RuinProcGenSurvivalThreshold.hpp>
 #include <Components/Persistent/SinkholeSeed.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
 #include <Components/Persistent/WormholeSeed.hpp>
+#include <Components/Player/PlayerCadaverCount.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
-#include <Persistent/GraveyardProcGenBirthThreshold.hpp>
-#include <Persistent/GraveyardProcGenInitChance.hpp>
-#include <Persistent/GraveyardProcGenMaxIterations.hpp>
-#include <Persistent/GraveyardProcGenSurvivalThreshold.hpp>
-#include <Persistent/LightningDamage.hpp>
-#include <Persistent/NpcLerpSpeedGhost.hpp>
-#include <Persistent/NpcLerpSpeedPriest.hpp>
-#include <Persistent/NpcLerpSpeedSkele.hpp>
-#include <Persistent/NpcLerpSpeedWitch.hpp>
-#include <Persistent/NpcWispAnimFramerate.hpp>
-#include <Persistent/NpcWitchAnimFramerate.hpp>
-#include <Persistent/PlayerMovementSpeed.hpp>
-#include <Persistent/PostPullMovementDelay.hpp>
-#include <Persistent/RuinMaxCobwebs.hpp>
-#include <Persistent/RuinProcGenBirthThreshold.hpp>
-#include <Persistent/RuinProcGenInitChance.hpp>
-#include <Persistent/RuinProcGenMaxIterations.hpp>
-#include <Persistent/RuinProcGenSurvivalThreshold.hpp>
-#include <Player/PlayerCadaverCount.hpp>
-#include <Player/PlayerWealth.hpp>
+#include <Components/Player/PlayerWealth.hpp>
 #include <Shaders/BaseShaderSprite.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
@@ -235,10 +227,6 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
     // NPC Settings
     ImGui::SeparatorText( "NPC Settings" );
 
-    Sys::PersistSystem::get<Cmp::Persist::NpcSkeleAnimFramerate>( reg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::NpcWitchAnimFramerate>( reg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::NpcWispAnimFramerate>( reg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::NpcGhostAnimFramerate>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::CryptNpcSpawnCount>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveResolution>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveSpeed>( reg() ).render_widget();
@@ -255,10 +243,6 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
 
     Sys::PersistSystem::get<Cmp::Persist::NpcDeathAnimFramerate>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::NpcActivateScale>( reg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedSkele>( reg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedGhost>( reg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedWitch>( reg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedPriest>( reg() ).render_widget();
 
     // Audio
     ImGui::SeparatorText( "Audio" );

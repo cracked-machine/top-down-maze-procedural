@@ -1,8 +1,9 @@
-#include <Armed.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Armable.hpp>
+#include <Components/Armed.hpp>
 #include <Components/DeathPosition.hpp>
 #include <Components/Direction.hpp>
+#include <Components/LerpPosition.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcContainer.hpp>
 #include <Components/Npc/NpcFriendly.hpp>
@@ -13,20 +14,11 @@
 #include <Components/Persistent/NpcShockwaveResolution.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/ReservedPosition.hpp>
+#include <Components/UUID.hpp>
 #include <Factory/Factory.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ParticleFactory.hpp>
-#include <LerpPosition.hpp>
-#include <Persistent/NpcGhostAnimFramerate.hpp>
-#include <Persistent/NpcLerpSpeedGhost.hpp>
-#include <Persistent/NpcLerpSpeedPriest.hpp>
-#include <Persistent/NpcLerpSpeedSkele.hpp>
-#include <Persistent/NpcLerpSpeedWitch.hpp>
-#include <Persistent/NpcSkeleAnimFramerate.hpp>
-#include <Persistent/NpcWispAnimFramerate.hpp>
-#include <Persistent/NpcWitchAnimFramerate.hpp>
-#include <Player.hpp>
 #include <SpatialHashGrid.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Stats/DestroyAction.hpp>
@@ -34,8 +26,9 @@
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Stores/NpcStore.hpp>
-#include <UUID.hpp>
+#include <Utils/Player.hpp>
 #include <Utils/Random.hpp>
+
 #include <entt/entity/entity.hpp>
 #include <spdlog/spdlog.h>
 
@@ -121,17 +114,15 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
     auto npc_cmp = Sys::NpcStore::instance().get_item( npc_type );
     reg.emplace_or_replace<Cmp::NPC>( new_pos_entity, npc_cmp );
 
-    auto framerate = Sys::PersistSystem::get<Cmp::Persist::NpcGhostAnimFramerate>( reg ).get_value();
     // clang-format off
     reg.emplace_or_replace<Cmp::AnimData>( new_pos_entity, Cmp::AnimData::Config{ 
           .sprite_type = npc_cmp.sprite_type_list.front(), 
-          .framerate = framerate,
+          .framerate = npc_cmp.m_frame_rate,
           .enabled = true
     });
     // clang-format on
 
-    float lerpspeed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedGhost>( reg ).get_value();
-    reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, lerpspeed );
+    reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
 
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
@@ -141,17 +132,15 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
     auto npc_cmp = Sys::NpcStore::instance().get_item( "npc.skeleton" );
     reg.emplace_or_replace<Cmp::NPC>( new_pos_entity, npc_cmp );
 
-    auto framerate = Sys::PersistSystem::get<Cmp::Persist::NpcSkeleAnimFramerate>( reg ).get_value();
     // clang-format off
     reg.emplace_or_replace<Cmp::AnimData>( new_pos_entity, Cmp::AnimData::Config{ 
           .sprite_type = npc_cmp.sprite_type_list.front(), 
-          .framerate = framerate,
+          .framerate = npc_cmp.m_frame_rate,
           .enabled = true
     });
     // clang-format on
 
-    float lerpspeed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedSkele>( reg ).get_value();
-    reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, lerpspeed );
+    reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
 
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
@@ -166,12 +155,12 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
     // clang-format off
     reg.emplace_or_replace<Cmp::AnimData>( new_pos_entity, Cmp::AnimData::Config{ 
           .sprite_type = npc_cmp.sprite_type_list.front(), 
+          .framerate = npc_cmp.m_frame_rate,
           .enabled = true
     });
     // clang-format on
 
-    float lerpspeed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedPriest>( reg ).get_value();
-    reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, lerpspeed );
+    reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
 
     reg.emplace_or_replace<Cmp::NpcShockwaveTimer>( new_pos_entity );
     Factory::create_shockwave( reg, new_pos_entity );
@@ -184,17 +173,15 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
     auto npc_cmp = Sys::NpcStore::instance().get_item( npc_type );
     reg.emplace_or_replace<Cmp::NPC>( new_pos_entity, npc_cmp );
 
-    auto framerate = Sys::PersistSystem::get<Cmp::Persist::NpcWitchAnimFramerate>( reg ).get_value();
     // clang-format off
     reg.emplace_or_replace<Cmp::AnimData>( new_pos_entity, Cmp::AnimData::Config{ 
           .sprite_type = npc_cmp.sprite_type_list.front(), 
-          .framerate = framerate,
+          .framerate = npc_cmp.m_frame_rate,
           .enabled = true
     });
     // clang-format on
 
-    float lerpspeed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedWitch>( reg ).get_value();
-    reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, lerpspeed );
+    reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
 
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
@@ -204,18 +191,15 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
     auto npc_cmp = Sys::NpcStore::instance().get_item( npc_type );
     reg.emplace_or_replace<Cmp::NPC>( new_pos_entity, npc_cmp );
 
-    auto framerate = Sys::PersistSystem::get<Cmp::Persist::NpcWispAnimFramerate>( reg ).get_value();
-
     // clang-format off
     reg.emplace_or_replace<Cmp::AnimData>( new_pos_entity, Cmp::AnimData::Config{ 
           .sprite_type = npc_cmp.sprite_type_list.front(), 
-          .framerate = framerate,
+          .framerate = npc_cmp.m_frame_rate,
           .enabled = true
     });
     // clang-format on 
 
-    float lerpspeed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedWitch>( reg ).get_value();
-    reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, lerpspeed );
+    reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
     reg.emplace_or_replace<Cmp::Direction>( new_pos_entity, sf::Vector2f{ 1, 1 } );
     reg.emplace_or_replace<Cmp::NpcFriendly>( new_pos_entity );
 
@@ -228,6 +212,7 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
     // clang-format off
     reg.emplace_or_replace<Cmp::AnimData>( new_pos_entity, Cmp::AnimData::Config{ 
           .sprite_type = npc_cmp.sprite_type_list.front(), 
+          .framerate = npc_cmp.m_frame_rate,
           .enabled = false
     });
     // clang-format on

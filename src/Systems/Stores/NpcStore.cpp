@@ -33,7 +33,10 @@ void NpcStore::init_store()
       mtype_list.push_back( sprite_json.get<std::string>() );
     }
 
-    Cmp::NPC npc( mtype_list );
+    auto lerp_speed = item_value.at( "lerpspeed" );
+    auto frame_rate = item_value.at( "framerate" );
+
+    Cmp::NPC npc( mtype_list, lerp_speed, frame_rate );
     for ( const auto &action_entry : item_value.at( "actions" ) )
     {
       for ( const auto &[action_key, action_value] : action_entry.items() )
