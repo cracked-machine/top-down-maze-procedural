@@ -1,6 +1,3 @@
-
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
-
 #include <Components/Altar/AltarSacrifice.hpp>
 #include <Components/Altar/AltarSegment.hpp>
 #include <Components/AnimData.hpp>
@@ -27,6 +24,7 @@
 #include <Components/ZOrderValue.hpp>
 #include <Factory/SpriteFactory.hpp>
 #include <Persistent/NpcWitchAnimFramerate.hpp>
+#include <Player.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
@@ -46,6 +44,8 @@ void AnimSystem::update( sf::Time dt )
   for ( auto [anim_entt, anim_cmp, pos_cmp] : anim_view.each() )
   {
     if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), pos_cmp ) ) continue;
+    // don't accumulate dt if the player is not moving - fixes initial rapid framerate bug
+    if ( anim_cmp.m_sprite_type.contains( "sprite.player" ) and ( Utils::Player::get_direction( reg() ) == sf::Vector2f( 0, 0 ) ) ) continue;
     if ( anim_cmp.m_enabled )
     {
       const auto &ms = m_sprite_factory.get_spritesheet_by_type( anim_cmp.m_sprite_type );

@@ -74,6 +74,7 @@ void create_player( entt::registry &reg )
   // clang-format off
   reg.emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 
         .sprite_type = "sprite.player.walk.south", 
+        .current_frame = 1,  // middle cell of three frames: standing still
         .enabled = true
   });
   // clang-format on
