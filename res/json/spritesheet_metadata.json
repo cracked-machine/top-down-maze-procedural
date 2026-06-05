@@ -1607,7 +1607,7 @@
     "sprite.ruin.stairs.down": {
       "spritesheet": {
         "displayname": "sprite.ruin.stairs.down",
-        "zorder": [-10],
+        "zorder": [-5],
         "texture_path": "res/textures/ruin.png",
         "sprite_indices": [53],
         "sprites_per_sequence": 1,
@@ -1621,14 +1621,14 @@
     "sprite.ruin.stairs.up": {
       "spritesheet": {
         "displayname": "sprite.ruin.stairs.up",
-        "zorder": [100],
+        "zorder": [-5],
         "texture_path": "res/textures/ruin.png",
         "sprite_indices": [50],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
           "width": 3,
-          "height": 8
+          "height": 9
         }
       }
     },
@@ -1650,7 +1650,7 @@
       "spritesheet": {
         "displayname": "sprite.ruin.stairs.gate",
         "solid_mask": [true, true],
-        "zorder": [1000],
+        "zorder": [120],
         "texture_path": "res/textures/ruin.png",
         "sprite_indices": [36, 46],
         "sprites_per_sequence": 1,
