@@ -28,11 +28,11 @@ public:
   virtual void do_emit() = 0;
   virtual size_t generations() = 0;
 
-  virtual void set_speed_dist( std::uniform_real_distribution<float> speed_dist ) = 0;
-  virtual void set_angle_dist( std::uniform_real_distribution<float> angle_dist ) = 0;
-  virtual void set_phase_dist( std::uniform_real_distribution<float> phase_dist ) = 0;
-  virtual void set_freq_dist( std::uniform_real_distribution<float> freq_dist ) = 0;
-  virtual void set_lifetime_dist( std::uniform_int_distribution<int> lifetime_dist ) = 0;
+  virtual void set_speed( std::uniform_real_distribution<float> speed ) = 0;
+  virtual void set_angle( std::uniform_real_distribution<float> angle ) = 0;
+  virtual void set_phase( std::uniform_real_distribution<float> phase ) = 0;
+  virtual void set_freq( std::uniform_real_distribution<float> freq ) = 0;
+  virtual void set_lifetime( std::uniform_int_distribution<int> lifetime ) = 0;
   virtual void set_emitter_position( sf::Vector2f emitter_position ) = 0;
 
 private:
@@ -50,7 +50,7 @@ struct ParticleBase : public Cmp::Particle::IParticle
       m_vertex.position = m_emitter_position;
       static std::random_device rd;
       static std::mt19937 rng( rd() );
-      m_lifetime = sf::milliseconds( m_lifetime_dist( rng ) );
+      m_lifetime = sf::milliseconds( m_lifetime_range( rng ) );
       emit();
       m_generation++;
     }
@@ -59,12 +59,12 @@ struct ParticleBase : public Cmp::Particle::IParticle
 
   //! @brief Disables IParticle::emit if false
   bool m_particle_active{ true };
-  void set_speed_dist( std::uniform_real_distribution<float> speed_dist ) override { m_speed_dist = speed_dist; }
-  void set_angle_dist( std::uniform_real_distribution<float> angle_dist ) override { m_angle_dist = angle_dist; }
-  void set_phase_dist( std::uniform_real_distribution<float> phase_dist ) override { m_phase_dist = phase_dist; }
-  void set_freq_dist( std::uniform_real_distribution<float> freq_dist ) override { m_freq_dist = freq_dist; }
+  void set_speed( std::uniform_real_distribution<float> speed ) override { m_speed_range = speed; }
+  void set_angle( std::uniform_real_distribution<float> angle ) override { m_angle_range = angle; }
+  void set_phase( std::uniform_real_distribution<float> phase ) override { m_phase_range = phase; }
+  void set_freq( std::uniform_real_distribution<float> freq ) override { m_freq_range = freq; }
   void set_emitter_position( sf::Vector2f emitter_position ) override { m_emitter_position = emitter_position; }
-  void set_lifetime_dist( std::uniform_int_distribution<int> lifetime_dist ) override { m_lifetime_dist = lifetime_dist; }
+  void set_lifetime( std::uniform_int_distribution<int> lifetime ) override { m_lifetime_range = lifetime; }
 
   sf::Vertex m_vertex;
   sf::Vector2f m_velocity;
@@ -75,11 +75,11 @@ struct ParticleBase : public Cmp::Particle::IParticle
   size_t m_generation{ 0 };
 
 protected:
-  std::uniform_real_distribution<float> m_speed_dist;
-  std::uniform_real_distribution<float> m_angle_dist;
-  std::uniform_real_distribution<float> m_phase_dist;
-  std::uniform_real_distribution<float> m_freq_dist;
-  std::uniform_int_distribution<int> m_lifetime_dist;
+  std::uniform_real_distribution<float> m_speed_range;
+  std::uniform_real_distribution<float> m_angle_range;
+  std::uniform_real_distribution<float> m_phase_range;
+  std::uniform_real_distribution<float> m_freq_range;
+  std::uniform_int_distribution<int> m_lifetime_range;
 
 private:
   //! @brief Run when the particle is enabled and expired. Derived class of ParticleBase must implement it.
@@ -230,12 +230,12 @@ public:
     m_particles_list = std::vector<TParticle>( m_max_particles );
     for ( auto &p : m_particles_list )
     {
-      p.set_speed_dist( m_speed_dist );
-      p.set_angle_dist( m_angle_dist );
-      p.set_phase_dist( m_phase_dist );
-      p.set_freq_dist( m_freq_dist );
+      p.set_speed( m_cached_speed_range );
+      p.set_angle( m_cached_angle_range );
+      p.set_phase( m_cached_phase_range );
+      p.set_freq( m_cached_freq_range );
       p.set_emitter_position( m_emitter_position );
-      p.set_lifetime_dist( m_lifetime_dist );
+      p.set_lifetime( m_cached_lifetime_range );
       p.m_particle_active = true;
     }
     m_sprite_active = true;
@@ -287,6 +287,7 @@ public:
     SPDLOG_DEBUG( "Drawing {} particles", m_particles.size() );
 
     constexpr float kSize = 2.f;
+    constexpr float kSides = 4.f;
     for ( const auto &p : m_particles_list )
     {
 
@@ -295,14 +296,16 @@ public:
 
       const auto col = p.m_vertex.color;
 
-      // triangle 1
-      verts.push_back( { { pos.x - kSize, pos.y - kSize }, col } );
-      verts.push_back( { { pos.x + kSize, pos.y - kSize }, col } );
-      verts.push_back( { { pos.x + kSize, pos.y + kSize }, col } );
-      // triangle 2
-      verts.push_back( { { pos.x - kSize, pos.y - kSize }, col } );
-      verts.push_back( { { pos.x + kSize, pos.y + kSize }, col } );
-      verts.push_back( { { pos.x - kSize, pos.y + kSize }, col } );
+      // Triangle fan from center — one triangle per polygon edge
+      for ( int i = 0; i < kSides; ++i )
+      {
+        const float a0 = ( -std::numbers::pi_v<float> / 2.f ) + ( ( 2.f * std::numbers::pi_v<float> * i ) / kSides );
+        const float a1 = ( -std::numbers::pi_v<float> / 2.f ) + ( ( 2.f * std::numbers::pi_v<float> * ( i + 1 ) ) / kSides );
+
+        verts.push_back( { pos, col } );
+        verts.push_back( { { pos.x + ( kSize * std::cos( a0 ) ), pos.y + ( kSize * std::sin( a0 ) ) }, col } );
+        verts.push_back( { { pos.x + ( kSize * std::cos( a1 ) ), pos.y + ( kSize * std::sin( a1 ) ) }, col } );
+      }
     }
 
     target.draw( verts.data(), verts.size(), sf::PrimitiveType::Triangles, states );
@@ -325,73 +328,73 @@ public:
 
   void set_speed( std::uniform_real_distribution<float> speed_dist ) override
   {
-    m_speed_dist = speed_dist;
+    m_cached_speed_range = speed_dist;
     for ( auto &p : m_particles_list )
     {
-      p.set_speed_dist( m_speed_dist );
+      p.set_speed( m_cached_speed_range );
     }
   }
 
   void set_speed( float speed ) override
   {
-    m_speed_dist = std::uniform_real_distribution<float>( speed, speed );
+    m_cached_speed_range = std::uniform_real_distribution<float>( speed, speed );
     for ( auto &p : m_particles_list )
     {
-      p.set_speed_dist( m_speed_dist );
+      p.set_speed( m_cached_speed_range );
     }
   }
 
   void set_angle( std::uniform_real_distribution<float> angle_dist ) override
   {
-    m_angle_dist = angle_dist;
+    m_cached_angle_range = angle_dist;
     for ( auto &p : m_particles_list )
     {
-      p.set_angle_dist( m_angle_dist );
+      p.set_angle( m_cached_angle_range );
     }
   }
 
   void set_angle( float angle ) override
   {
-    m_angle_dist = std::uniform_real_distribution<float>( angle, angle );
+    m_cached_angle_range = std::uniform_real_distribution<float>( angle, angle );
     for ( auto &p : m_particles_list )
     {
-      p.set_angle_dist( m_angle_dist );
+      p.set_angle( m_cached_angle_range );
     }
   }
 
   void set_phase( std::uniform_real_distribution<float> phase_dist ) override
   {
-    m_phase_dist = phase_dist;
+    m_cached_phase_range = phase_dist;
     for ( auto &p : m_particles_list )
     {
-      p.set_phase_dist( m_phase_dist );
+      p.set_phase( m_cached_phase_range );
     }
   }
 
   void set_phase( float phase ) override
   {
-    m_phase_dist = std::uniform_real_distribution<float>( phase, phase );
+    m_cached_phase_range = std::uniform_real_distribution<float>( phase, phase );
     for ( auto &p : m_particles_list )
     {
-      p.set_phase_dist( m_phase_dist );
+      p.set_phase( m_cached_phase_range );
     }
   }
 
   void set_freq( std::uniform_real_distribution<float> freq_dist ) override
   {
-    m_freq_dist = freq_dist;
+    m_cached_freq_range = freq_dist;
     for ( auto &p : m_particles_list )
     {
-      p.set_freq_dist( m_freq_dist );
+      p.set_freq( m_cached_freq_range );
     }
   }
 
   void set_freq( float freq ) override
   {
-    m_freq_dist = std::uniform_real_distribution<float>( freq, freq );
+    m_cached_freq_range = std::uniform_real_distribution<float>( freq, freq );
     for ( auto &p : m_particles_list )
     {
-      p.set_freq_dist( m_freq_dist );
+      p.set_freq( m_cached_freq_range );
     }
   }
 
@@ -410,24 +413,24 @@ public:
 
   void set_lifetime_ms( std::uniform_int_distribution<int> lifetime_dist ) override
   {
-    m_lifetime_dist = lifetime_dist;
+    m_cached_lifetime_range = lifetime_dist;
     m_max_lifetime = sf::milliseconds( lifetime_dist.max() );
     static std::random_device rd;
     static std::mt19937 rng( rd() );
-    m_lifetime = sf::milliseconds( m_lifetime_dist( rng ) );
+    m_lifetime = sf::milliseconds( m_cached_lifetime_range( rng ) );
     for ( auto &p : m_particles_list )
     {
-      p.set_lifetime_dist( lifetime_dist );
+      p.set_lifetime( lifetime_dist );
     }
   }
   void set_lifetime_ms( sf::Time lifetime ) override
   {
     m_lifetime = lifetime;
     m_max_lifetime = lifetime;
-    m_lifetime_dist = std::uniform_int_distribution<int>( lifetime.asMilliseconds(), lifetime.asMilliseconds() );
+    m_cached_lifetime_range = std::uniform_int_distribution<int>( lifetime.asMilliseconds(), lifetime.asMilliseconds() );
     for ( auto &p : m_particles_list )
     {
-      p.set_lifetime_dist( m_lifetime_dist );
+      p.set_lifetime( m_cached_lifetime_range );
     }
   }
 
@@ -444,14 +447,32 @@ protected:
 
 private:
   size_t m_max_generations{ 0 };
-  std::uniform_real_distribution<float> m_speed_dist{ 0.f, 1.f };
-  std::uniform_real_distribution<float> m_angle_dist{ 0.f, 360.f };
-  std::uniform_real_distribution<float> m_phase_dist{ 0.f, 1.f };
-  std::uniform_real_distribution<float> m_freq_dist{ 0.f, 1.f };
-  std::uniform_int_distribution<int> m_lifetime_dist{ 0, 1 };
+
+  //! @brief Particle velocity range
+  //! @note  Cache the init value so we can reset it later
+  std::uniform_real_distribution<float> m_cached_speed_range{ 0.f, 1.f };
+
+  //! @brief Particle angle range
+  //! @note  Cache the init value so we can reset it later
+  std::uniform_real_distribution<float> m_cached_angle_range{ 0.f, 360.f };
+
+  //! @brief Particle phase range
+  //! @note  Cache the init value so we can reset it later
+  std::uniform_real_distribution<float> m_cached_phase_range{ 0.f, 1.f };
+
+  //! @brief Particle frequency range
+  //! @note  Cache the init value so we can reset it later
+  std::uniform_real_distribution<float> m_cached_freq_range{ 0.f, 1.f };
+
+  //! @brief Particle lifetime range
+  //! @note  Cache the init value so we can reset it later
+  std::uniform_int_distribution<int> m_cached_lifetime_range{ 0, 1 };
+
+  //! @brief convenience identifier for searching the registry
   std::string m_tag;
   //! @brief The emitter position
   sf::Vector2f m_emitter_position{ 0, 0 };
+  //! @brief Support world vs screen rendering
   ViewType m_view_type{ ViewType::WORLD };
 };
 } // namespace Game::Cmp::Particle

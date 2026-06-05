@@ -373,7 +373,6 @@ void PlayerSystem::update_player_animation()
     if ( direction_cmp.x != 0.f || direction_cmp.y != 0.f )
     {
       auto &last_dir = Utils::Player::get_last_direction( reg() );
-      // Store as cardinal direction (one axis only)
       if ( std::abs( direction_cmp.x ) >= std::abs( direction_cmp.y ) ) { last_dir = sf::Vector2f{ direction_cmp.x > 0.f ? 1.f : -1.f, 0.f }; }
       else { last_dir = sf::Vector2f{ 0.f, direction_cmp.y > 0.f ? 1.f : -1.f }; }
     }

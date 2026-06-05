@@ -17,10 +17,10 @@ void SmokeParticle::emit()
 
   m_wave_time = 0.f;
 
-  m_phase = m_phase_dist( rng );
-  m_frequency = m_freq_dist( rng );
+  m_phase = m_phase_range( rng );
+  m_frequency = m_freq_range( rng );
 
-  m_velocity = sf::Vector2f( 0.f, -m_speed_dist( rng ) );
+  m_velocity = sf::Vector2f( 0.f, -m_speed_range( rng ) );
 };
 } // namespace detail
 

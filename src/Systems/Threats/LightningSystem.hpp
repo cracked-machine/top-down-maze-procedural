@@ -59,9 +59,6 @@ private:
 
   //! @brief If the Cmp::LightningStrike timer has expired then delete the entity
   void delete_expired_lightning_strikes();
-
-  //! @brief Remove the smoke particle sprite once it has stopped
-  void delete_expired_smoke_particle_sprites();
 };
 
 } // namespace Game::Sys

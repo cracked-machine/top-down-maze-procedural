@@ -12,6 +12,7 @@
 #include <Factory/ShaderFactory.hpp>
 #include <Inventory/PlayerInventorySlot.hpp>
 #include <Inventory/WorldItem.hpp>
+#include <Player/PlayerNoPath.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Systems/AnimSystem.hpp>
@@ -127,9 +128,16 @@ void CryptScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::FootstepSystem>().update();
   m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision();
   m_sys.find<Sys::Store::Type::CryptSystem>().update();
-  m_sys.find<Sys::Store::Type::ShockwaveSystem>().checkShockwavePlayerCollision();
+  m_sys.find<Sys::Store::Type::ShockwaveSystem>().check_shockwave_player_collision();
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
   m_sys.find<Sys::Store::Type::PassageSystem>().update( dt );
+
+  // Block shockwave particles from travelling through any entity that has Cmp::PlayerNoPath component
+  // Don't use Cmp::NpcNoPathFinding because it blocks over lavapits.
+  for ( auto [ob_entt, ob_cmp, pos_cmp] : m_reg.view<Cmp::PlayerNoPath, Cmp::Position>().each() )
+  {
+    m_sys.find<Sys::Store::Type::ParticleSystem>().check_collsion( pos_cmp );
+  }
   m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();

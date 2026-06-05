@@ -36,7 +36,7 @@ entt::entity destroy_npc( entt::registry &registry, entt::entity npc_entity );
 entt::entity create_npc_explosion( entt::registry &registry, Cmp::Position npc_position_cmp );
 void remove_npc_explosion( entt::registry &registry, entt::entity entity );
 
-void create_shockwave( entt::registry &registry, entt::entity npc_entt );
+bool create_shockwave( entt::registry &registry, entt::entity npc_entt );
 
 // Iterate and generate npc containers
 std::vector<entt::entity> gen_npc_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size );

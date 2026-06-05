@@ -6,6 +6,7 @@
 namespace Game::Cmp
 {
 
+//! @brief Wrapper component for Sprites::Shockwave
 class NpcShockwave
 {
 public:

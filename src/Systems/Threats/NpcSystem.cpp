@@ -20,12 +20,14 @@
 #include <Components/RectBounds.hpp>
 #include <Components/SpawnArea.hpp>
 #include <Components/System.hpp>
+#include <Components/UUID.hpp>
 #include <Components/Wall.hpp>
 #include <Components/Wormhole/WormholeJump.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Crypt/CryptObjectiveSegment.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/NpcFactory.hpp>
+#include <Factory/ParticleFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
 #include <Grave/GraveSegment.hpp>
 #include <Npc/NpcFriendly.hpp>
@@ -100,7 +102,7 @@ void NpcSystem::update( sf::Time dt )
     check_timed_collision( dt );
   }
 
-  update_shockwaves();
+  update_shockwaves( dt );
 }
 
 void NpcSystem::check_bones_reanimation()
@@ -537,51 +539,51 @@ void NpcSystem::find_pushback_position( const Cmp::Direction &npc_direction )
   player_pos.position = new_position;
 }
 
-void NpcSystem::update_shockwaves()
+void NpcSystem::update_shockwaves( sf::Time dt )
 {
   // emit shockwaves from each NPC
-  for ( auto npc_entt : reg().view<Cmp::NPC>() )
+  for ( auto [npc_entt, npc_cmp, anim_cmp, npc_pos_cmp, npc_uuid_cmp] : reg().view<Cmp::NPC, Cmp::AnimData, Cmp::Position, Cmp::UUID>().each() )
   {
-    auto *npc_sprite_anim = reg().try_get<Cmp::AnimData>( npc_entt );
-    if ( npc_sprite_anim && npc_sprite_anim->m_sprite_type == "sprite.priest" )
+    if ( anim_cmp.m_sprite_type == "sprite.priest" )
     {
       // cooldown is handled in Factory function via Cmp::NpcShockwaveTimer per NPC
-      Factory::create_shockwave( reg(), npc_entt );
+      auto created_shockwave = Factory::create_shockwave( reg(), npc_entt );
+      if ( created_shockwave )
+      {
+        Particle::Factory::add_shockwave( reg(), "particle.shockwave.priest", npc_uuid_cmp, npc_pos_cmp.getCenter(), 50000 );
+      }
+
+      // update the shockwave position so that it follows NPC
+      Particle::Factory::update_position( reg(), npc_uuid_cmp, npc_pos_cmp.getCenter() );
     }
   }
-
-  auto shockwave_increments = 1;
 
   // Invert the interval - larger values = faster updates, smaller values = slower updates
   auto speed_value = Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveSpeed>( reg() ).get_value();
-  sf::Time shockwave_update_interval{ sf::milliseconds( static_cast<int>( 1000.0f / speed_value ) ) };
-
   auto max_radius = Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveMaxRadius>( reg() );
 
-  if ( shockwave_update_clock.getElapsedTime() > shockwave_update_interval )
+  for ( auto entt : reg().view<Cmp::NpcShockwave>() )
   {
-    for ( auto entt : reg().view<Cmp::NpcShockwave>() )
-    {
-      auto &sw_cmp = reg().get<Cmp::NpcShockwave>( entt );
-      float current_radius = sw_cmp.sprite.getRadius();
+    auto &sw_cmp = reg().get<Cmp::NpcShockwave>( entt );
+    float current_radius = sw_cmp.sprite.get_radius();
 
-      // Exponential scaling - shockwave accelerates as it grows
-      // This creates a natural acceleration that maintains the visual impression of constant speed as the circumference grows.
-      float normalized_radius = current_radius / max_radius.get_value();
-      float speed_multiplier = 1.0f + ( normalized_radius * normalized_radius ); // Quadratic acceleration
+    // Exponential scaling - shockwave accelerates as it grows
+    // This creates a natural acceleration that maintains the visual impression of constant speed as the circumference grows.
+    float normalized_radius = current_radius / max_radius.get_value();
+    float speed_multiplier = 1.0f + ( normalized_radius * normalized_radius ); // Quadratic acceleration
+    float new_radius = current_radius + ( speed_value * speed_multiplier * dt.asSeconds() );
+    sw_cmp.sprite.set_radius( new_radius );
 
-      float new_radius = current_radius + ( shockwave_increments * speed_multiplier );
-      sw_cmp.sprite.setRadius( new_radius );
+    check_shockwave_obstacle_collision( entt, sw_cmp );
 
-      checkShockwaveObstacleCollision( entt, sw_cmp );
-
-      if ( new_radius > max_radius.get_value() ) { reg().destroy( entt ); }
-    }
-    shockwave_update_clock.restart();
+    if ( new_radius > max_radius.get_value() ) { reg().destroy( entt ); }
   }
+  shockwave_update_clock.restart();
+
+  // Particle::Factory::delete_expired_particle_sprites( reg(), "particle.shockwave.priest" );
 }
 
-void NpcSystem::checkShockwaveObstacleCollision( [[maybe_unused]] entt::entity shockwave_entity, Cmp::NpcShockwave &shockwave )
+void NpcSystem::check_shockwave_obstacle_collision( [[maybe_unused]] entt::entity shockwave_entity, Cmp::NpcShockwave &shockwave )
 {
   auto obstacle_view = reg().view<Cmp::Obstacle, Cmp::Position, Cmp::AnimData>();
 
@@ -598,8 +600,8 @@ void NpcSystem::checkShockwaveObstacleCollision( [[maybe_unused]] entt::entity s
                     shockwave.sprite.getPosition().y, shockwave.sprite.getRadius() );
 
       // Calculate distance from circle center to rectangle
-      sf::Vector2f circle_center = shockwave.sprite.getPosition();
-      float circle_radius = shockwave.sprite.getRadius();
+      sf::Vector2f circle_center = shockwave.sprite.get_position();
+      float circle_radius = shockwave.sprite.get_radius();
 
       // Find closest point on rectangle to circle center
       sf::Vector2f closest_point;
@@ -611,12 +613,12 @@ void NpcSystem::checkShockwaveObstacleCollision( [[maybe_unused]] entt::entity s
       float distance = std::sqrt( ( diff.x * diff.x ) + ( diff.y * diff.y ) );
 
       // Check if circle intersects with rectangle (accounting for outline thickness)
-      float effective_radius = circle_radius + ( shockwave.sprite.getOutlineThickness() / 2.0f );
+      float effective_radius = circle_radius + ( shockwave.sprite.get_outline_thickness() / 2.0f );
 
       if ( distance <= effective_radius )
       {
         SPDLOG_DEBUG( "Shockwave INTERSECTS with obstacle (distance: {}, effective_radius: {})", distance, effective_radius );
-        Sys::ShockwaveSystem::removeIntersectingSegments( obstacle_rect, shockwave );
+        Sys::ShockwaveSystem::remove_intersecting_segments( obstacle_rect, shockwave );
       }
       else { SPDLOG_DEBUG( "Shockwave does NOT intersect with obstacle (distance: {}, effective_radius: {})", distance, effective_radius ); }
     }

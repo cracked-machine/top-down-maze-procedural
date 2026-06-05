@@ -60,14 +60,14 @@ void destroy_npc_container( entt::registry &registry, entt::entity npc_container
   registry.remove<Cmp::ZOrderValue>( npc_container_entity );
 }
 
-void create_shockwave( entt::registry &registry, entt::entity npc_entt )
+bool create_shockwave( entt::registry &registry, entt::entity npc_entt )
 {
   // get the shockwave timer for the NPC
-  auto shockwave_timer = registry.try_get<Cmp::NpcShockwaveTimer>( npc_entt );
+  auto *shockwave_timer = registry.try_get<Cmp::NpcShockwaveTimer>( npc_entt );
   if ( not shockwave_timer )
   {
     SPDLOG_DEBUG( "Unable to get Cmp::NpcShockwaveTimer from NPC entity" );
-    return;
+    return false;
   }
 
   // check cooldown on this NPC shockwave timer
@@ -79,14 +79,16 @@ void create_shockwave( entt::registry &registry, entt::entity npc_entt )
     if ( not npc_pos )
     {
       SPDLOG_WARN( "Unable to get position from NPC entity" );
-      return;
+      return false;
     }
     auto npc_sw_entt = registry.create();
     int circle_resolution = Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveResolution>( registry ).get_value();
     registry.emplace_or_replace<Cmp::NpcShockwave>( npc_sw_entt, npc_pos->getCenter(), circle_resolution );
 
     shockwave_timer->restart(); // make sure we restart the timer
+    return true;
   }
+  return false;
 }
 
 entt::entity create_npc( entt::registry &reg, entt::entity position_entity, const std::string &npc_type )
@@ -105,6 +107,7 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
   reg.emplace_or_replace<Cmp::Armable>( new_pos_entity );
   reg.emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
   reg.emplace_or_replace<Cmp::Direction>( new_pos_entity, sf::Vector2f{ 0, 0 } );
+  reg.emplace_or_replace<Cmp::UUID>( new_pos_entity, Cmp::UUID::generate() );
 
   SPDLOG_DEBUG( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), npc_type, pos_cmp->position.x,
                 pos_cmp->position.y );

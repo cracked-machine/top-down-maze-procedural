@@ -8,7 +8,7 @@
 namespace Game::Sprites
 {
 
-sf::FloatRect CircleSegment::getBounds( sf::Vector2f center, float radius, float outline_thickness ) const
+sf::FloatRect CircleSegment::get_bounds( sf::Vector2f center, float radius, float outline_thickness ) const
 {
   // Calculate the bounding box for this angular segment
   float inner_radius = radius - ( outline_thickness / 2.0f );
@@ -38,7 +38,7 @@ sf::FloatRect CircleSegment::getBounds( sf::Vector2f center, float radius, float
     max_y = std::max( { max_y, inner_point.y, outer_point.y } );
   }
 
-  return sf::FloatRect( { min_x, min_y }, { max_x - min_x, max_y - min_y } );
+  return { { min_x, min_y }, { max_x - min_x, max_y - min_y } };
 }
 
 void CircleSegment::draw( sf::RenderTarget &target, sf::RenderStates states, sf::Vector2f center, float radius, float outline_thickness,
@@ -50,7 +50,7 @@ void CircleSegment::draw( sf::RenderTarget &target, sf::RenderStates states, sf:
   if ( vertices_dirty || cached_radius != radius || cached_outline_thickness != outline_thickness || cached_position != center ||
        cached_color != color )
   {
-    generateVertices( center, radius, outline_thickness, color, points_per_segment );
+    generate_vertices( center, radius, outline_thickness, color, points_per_segment );
   }
 
   // Draw the cached vertices
@@ -69,7 +69,7 @@ void CircleSegment::draw( sf::RenderTarget &target, sf::RenderStates states, sf:
   }
 }
 
-void CircleSegment::generateVertices( sf::Vector2f center, float radius, float outline_thickness, sf::Color color, int points_per_segment ) const
+void CircleSegment::generate_vertices( sf::Vector2f center, float radius, float outline_thickness, sf::Color color, int points_per_segment ) const
 {
   cached_vertices.clear();
 

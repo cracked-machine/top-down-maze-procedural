@@ -1,3 +1,4 @@
+#include <Constants.hpp>
 #include <Sprites/Shockwave.hpp>
 #include <cmath>
 #include <numbers>
@@ -7,22 +8,22 @@ namespace Game::Sprites
 
 Shockwave::Shockwave( sf::Vector2f pos, int points_per_segment )
     : m_position( pos ),
-      m_radius( Constants::kGridSizePxF.x ),
-      m_outline_color( sf::Color{ 254, 64, 64, 128 } ),
-      m_outline_thickness( 6.f ),
+      m_radius( 0 ),
+      m_outline_color( sf::Color{ 254, 254, 254, 16 } ),
+      m_outline_thickness( Constants::kGridSizePxF.x ),
       m_points_per_segment( points_per_segment )
 {
   // Initialize with full circle
   m_segments.emplace_back( 0.0f, 2 * std::numbers::pi, true );
 }
 
-bool Shockwave::intersectsWithPoint( sf::Vector2f point ) const
+bool Shockwave::intersects_with_point( sf::Vector2f point ) const
 {
-  float distance = std::sqrt( std::pow( point.x - m_position.x, 2 ) + std::pow( point.y - m_position.y, 2 ) );
+  double distance = std::sqrt( std::pow( point.x - m_position.x, 2 ) + std::pow( point.y - m_position.y, 2 ) );
   return std::abs( distance - m_radius ) <= m_outline_thickness;
 }
 
-bool Shockwave::intersectsWithRect( const sf::FloatRect &rect ) const
+bool Shockwave::intersects_with_rect( const sf::FloatRect &rect ) const
 {
   // Check corners and edges of rectangle against circle outline
   sf::Vector2f corners[4] = { { rect.position.x, rect.position.y },                             // top left
@@ -33,7 +34,7 @@ bool Shockwave::intersectsWithRect( const sf::FloatRect &rect ) const
   // Check corners
   for ( const auto &corner : corners )
   {
-    if ( intersectsWithPoint( corner ) ) return true;
+    if ( intersects_with_point( corner ) ) return true;
   }
 
   // Check if circle center is inside rectangle (circle intersects with rect)
@@ -55,21 +56,21 @@ bool Shockwave::intersectsWithRect( const sf::FloatRect &rect ) const
   return false;
 }
 
-Shockwave::CircleSegments Shockwave::getVisibleSegments() const
+Shockwave::CircleSegments Shockwave::get_visible_segments() const
 {
   CircleSegments visible_segments;
   for ( const auto &segment : m_segments )
   {
-    if ( segment.isVisible() ) { visible_segments.push_back( segment ); }
+    if ( segment.is_visible() ) { visible_segments.push_back( segment ); }
   }
   return visible_segments;
 }
 
-void Shockwave::invalidateAllSegments()
+void Shockwave::invalidate_all_segments()
 {
   for ( auto &segment : m_segments )
   {
-    segment.invalidateCache();
+    segment.invalidate_cache();
   }
 }
 

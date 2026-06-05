@@ -1,21 +1,19 @@
-#include "ShockwaveSystem.hpp"
 #include <Audio/SoundBank.hpp>
 #include <Components/Npc/NpcShockwave.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerMortality.hpp>
+#include <Components/System.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Sprites/Shockwave.hpp>
-#include <Stats/CollisionAction.hpp>
 #include <Stats/ProjectileAction.hpp>
-#include <System.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Stores/NpcStore.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
-#include <typeindex>
+
+#include <Systems/Threats/ShockwaveSystem.hpp>
 
 namespace Game::Sys
 {
@@ -26,20 +24,21 @@ ShockwaveSystem::ShockwaveSystem( entt::registry &reg, sf::RenderWindow &window,
 {
 }
 
-Sprites::Shockwave::CircleSegments ShockwaveSystem::splitSegmentByObstacle( const Sprites::CircleSegment &segment, const sf::FloatRect &obstacle_rect,
-                                                                            sf::Vector2f shockwave_position, float radius, const int samples )
+Sprites::Shockwave::CircleSegments ShockwaveSystem::split_segment_by_obstacle( const Sprites::CircleSegment &segment,
+                                                                               const sf::FloatRect &obstacle_rect, sf::Vector2f shockwave_position,
+                                                                               float radius, const int samples )
 {
   Sprites::Shockwave::CircleSegments result;
 
   // Sample points along the segment to find intersections
   std::vector<bool> intersections( samples, false );
 
-  float angle_range = segment.getEndAngle() - segment.getStartAngle();
+  float angle_range = segment.get_end_angle() - segment.get_start_angle();
 
   for ( int i = 0; i < samples; ++i )
   {
-    float t = static_cast<float>( i ) / ( samples - 1 );
-    float angle = segment.getStartAngle() + t * angle_range;
+    float t = static_cast<float>( i ) / static_cast<float>( samples - 1 );
+    float angle = segment.get_start_angle() + ( t * angle_range );
 
     sf::Vector2f point = shockwave_position + sf::Vector2f( std::cos( angle ) * radius, std::sin( angle ) * radius );
     intersections[i] = obstacle_rect.contains( point );
@@ -56,8 +55,8 @@ Sprites::Shockwave::CircleSegments ShockwaveSystem::splitSegmentByObstacle( cons
     else if ( intersections[i] && start_idx != -1 )
     {
       // End of non-intersecting segment
-      float start_angle = segment.getStartAngle() + ( static_cast<float>( start_idx ) / ( samples - 1 ) ) * angle_range;
-      float end_angle = segment.getStartAngle() + ( static_cast<float>( i - 1 ) / ( samples - 1 ) ) * angle_range;
+      float start_angle = segment.get_start_angle() + ( ( static_cast<float>( start_idx ) / static_cast<float>( samples - 1 ) ) * angle_range );
+      float end_angle = segment.get_start_angle() + ( ( static_cast<float>( i - 1 ) / static_cast<float>( samples - 1 ) ) * angle_range );
 
       if ( end_angle > start_angle ) { result.emplace_back( start_angle, end_angle, true ); }
       start_idx = -1;
@@ -67,86 +66,50 @@ Sprites::Shockwave::CircleSegments ShockwaveSystem::splitSegmentByObstacle( cons
   // Handle case where segment ends with non-intersecting part
   if ( start_idx != -1 )
   {
-    float start_angle = segment.getStartAngle() + ( static_cast<float>( start_idx ) / ( samples - 1 ) ) * angle_range;
-    result.emplace_back( start_angle, segment.getEndAngle(), true );
+    float start_angle = segment.get_start_angle() + ( ( static_cast<float>( start_idx ) / static_cast<float>( samples - 1 ) ) * angle_range );
+    result.emplace_back( start_angle, segment.get_end_angle(), true );
   }
 
   return result;
 }
 
-bool ShockwaveSystem::pointIntersectsVisibleSegments( const Cmp::NpcShockwave &shockwave, sf::Vector2f point )
+bool ShockwaveSystem::intersects_with_visible_segments( const Cmp::NpcShockwave &shockwave, const sf::FloatRect &player_pos )
 {
-  sf::Vector2f position = shockwave.sprite.getPosition();
-  float radius = shockwave.sprite.getRadius();
-  float outline_thickness = shockwave.sprite.getOutlineThickness();
+  sf::Vector2f position = shockwave.sprite.get_position();
+  float radius = shockwave.sprite.get_radius();
+  float outline_thickness = shockwave.sprite.get_outline_thickness();
+  int points_per_segment = shockwave.sprite.get_points_per_segment();
 
-  float distance = std::sqrt( std::pow( point.x - position.x, 2 ) + std::pow( point.y - position.y, 2 ) );
-
-  // Check if point is at the right distance from center
-  if ( std::abs( distance - radius ) > outline_thickness / 2.0f ) { return false; }
-
-  // Calculate angle of the point relative to center
-  float point_angle = std::atan2( point.y - position.y, point.x - position.x );
-  point_angle = Utils::Maths::normalizeAngle( point_angle );
-
-  // Check if this angle falls within any visible segment
-  for ( const auto &segment : shockwave.sprite.getVisibleSegments() )
+  for ( const auto &segment : shockwave.sprite.get_visible_segments() )
   {
-    float start_angle = Utils::Maths::normalizeAngle( segment.getStartAngle() );
-    float end_angle = Utils::Maths::normalizeAngle( segment.getEndAngle() );
-
-    // Handle wrap-around case
-    if ( start_angle <= end_angle )
-    {
-      if ( point_angle >= start_angle && point_angle <= end_angle ) { return true; }
-    }
-    else
-    {
-      // Segment wraps around 0
-      if ( point_angle >= start_angle || point_angle <= end_angle ) { return true; }
-    }
-  }
-
-  return false;
-}
-
-bool ShockwaveSystem::intersectsWithVisibleSegments( entt::registry &reg, const Cmp::NpcShockwave &shockwave, const sf::FloatRect &rect )
-{
-  sf::Vector2f position = shockwave.sprite.getPosition();
-  float radius = shockwave.sprite.getRadius();
-  float outline_thickness = shockwave.sprite.getOutlineThickness();
-  int points_per_segment = shockwave.sprite.getPointsPerSegment();
-
-  for ( const auto &segment : shockwave.sprite.getVisibleSegments() )
-  {
-    float angle_range = segment.getEndAngle() - segment.getStartAngle();
+    float angle_range = segment.get_end_angle() - segment.get_start_angle();
 
     for ( int i = 0; i < points_per_segment; ++i )
     {
-      float t = static_cast<float>( i ) / ( points_per_segment - 1 );
-      float angle = segment.getStartAngle() + t * angle_range;
+      float t = static_cast<float>( i ) / static_cast<float>( points_per_segment - 1 );
+      float angle = segment.get_start_angle() + ( t * angle_range );
 
       // Check both inner and outer radius points to account for thickness
-      float inner_radius = radius - outline_thickness / 2.0f;
-      float outer_radius = radius + outline_thickness / 2.0f;
+      float inner_radius = radius - ( outline_thickness / 2.0f );
+      float outer_radius = radius + ( outline_thickness / 2.0f );
 
       sf::Vector2f inner_point = position + sf::Vector2f( std::cos( angle ) * inner_radius, std::sin( angle ) * inner_radius );
       sf::Vector2f outer_point = position + sf::Vector2f( std::cos( angle ) * outer_radius, std::sin( angle ) * outer_radius );
 
-      if ( rect.contains( inner_point ) || rect.contains( outer_point ) )
+      if ( player_pos.contains( inner_point ) || player_pos.contains( outer_point ) )
       {
         // do shockwave/player knockback
         sf::Vector2f shockwave_direction( std::cos( angle ), std::sin( angle ) );
         shockwave_direction = shockwave_direction.normalized();
 
-        auto &player_pos_cmp = Utils::Player::get_position( reg );
+        auto &player_pos_cmp = Utils::Player::get_position( reg() );
         auto new_position = Utils::snap_to_grid( player_pos_cmp.position + ( shockwave_direction.componentWiseMul( Constants::kGridSizePxF ) ) );
         SPDLOG_DEBUG( "Player position was {},{} - Knockback direction is {}, {} - New Position should be {},{}", player_pos_cmp.position.x,
                       player_pos_cmp.position.y, normalised_direction.x, normalised_direction.y, new_position.x, new_position.y );
 
         // make sure player isnt knocked into an obstacle
         bool is_valid = true;
-        for ( auto [obstacle_entt, obstacle_cmp, obstacle_pos_cmp] : reg.view<Cmp::Obstacle, Cmp::Position>().each() )
+        for ( auto [obstacle_entt, obstacle_cmp, obstacle_pos_cmp] : reg().view<Cmp::Obstacle, Cmp::Position>().each() )
         {
           if ( sf::FloatRect( new_position, Constants::kGridSizePxF ).findIntersection( obstacle_pos_cmp ) ) is_valid = false;
         }
@@ -160,24 +123,24 @@ bool ShockwaveSystem::intersectsWithVisibleSegments( entt::registry &reg, const 
   return false;
 }
 
-// Remove segments that intersect with the given rectangle
-void ShockwaveSystem::removeIntersectingSegments( const sf::FloatRect &obstacle_rect, Cmp::NpcShockwave &shockwave )
+void ShockwaveSystem::remove_intersecting_segments( const sf::FloatRect &rect, Cmp::NpcShockwave &shockwave )
 {
   Sprites::Shockwave::CircleSegments new_segments;
 
-  for ( const auto &segment : shockwave.sprite.getSegments() )
+  for ( const auto &segment : shockwave.sprite.get_segments() )
   {
-    if ( not segment.isVisible() ) continue;
+    if ( not segment.is_visible() ) continue;
 
-    Sprites::Shockwave::CircleSegments non_intersecting = Sys::ShockwaveSystem::splitSegmentByObstacle(
-        segment, obstacle_rect, shockwave.sprite.getPosition(), shockwave.sprite.getRadius(), shockwave.sprite.getPointsPerSegment() );
+    // Instead of deleting segments, rebuild the segment list without the intersecting segments
+    Sprites::Shockwave::CircleSegments non_intersecting = Sys::ShockwaveSystem::split_segment_by_obstacle(
+        segment, rect, shockwave.sprite.get_position(), shockwave.sprite.get_radius(), shockwave.sprite.get_points_per_segment() );
     new_segments.insert( new_segments.end(), non_intersecting.begin(), non_intersecting.end() );
   }
 
-  shockwave.sprite.setSegments( std::move( new_segments ) );
+  shockwave.sprite.set_segments( std::move( new_segments ) );
 }
 
-void ShockwaveSystem::checkShockwavePlayerCollision()
+void ShockwaveSystem::check_shockwave_player_collision()
 {
   if ( Utils::getSystemCmp( reg() ).collisions_disabled ) return;
 
@@ -196,13 +159,13 @@ void ShockwaveSystem::checkShockwavePlayerCollision()
       // dont spam death events if the player is already dead
       if ( player_mort_cmp.state == Cmp::PlayerMortality::State::DEAD ) continue;
       if ( player_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value() ) continue;
-      if ( Sys::ShockwaveSystem::intersectsWithVisibleSegments( reg(), shockwave, player_pos ) )
+      if ( intersects_with_visible_segments( shockwave, player_pos ) )
       {
         player_stats_cmp.apply_modifiers( priest_projectile_action.action );
         m_sound_bank.get_effect( "damage_player" ).play();
         player_cmp.m_damage_cooldown_timer.restart();
         SPDLOG_INFO( "Player (health:{}) INTERSECTS with Shockwave (position: {},{} - effective_radius: {})", player_stats_cmp.health(),
-                     shockwave.sprite.getPosition().x, shockwave.sprite.getPosition().y, shockwave.sprite.getRadius() );
+                     shockwave.sprite.get_position().x, shockwave.sprite.get_position().y, shockwave.sprite.get_radius() );
 
         // trigger death animation
         if ( player_stats_cmp.health() <= 0 )

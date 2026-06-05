@@ -7,6 +7,8 @@
 namespace Game::Sprites
 {
 
+//! @brief This represent the shockwave as a collection of sprite circle segments.
+//         As the shockwave hits obstacles it will split into segments.
 class Shockwave
 {
 public:
@@ -20,83 +22,83 @@ public:
 
   //! @brief Get the Points Per Segment object
   //! @return int
-  int getPointsPerSegment() const { return m_points_per_segment; }
+  [[nodiscard]] int get_points_per_segment() const { return m_points_per_segment; }
 
   //! @brief Set the Position object
   //! @param pos
-  void setPosition( sf::Vector2f pos )
+  void set_position( sf::Vector2f pos )
   {
     m_position = pos;
-    invalidateAllSegments();
+    invalidate_all_segments();
   }
 
   //! @brief Get the Position object
   //! @return sf::Vector2f
-  sf::Vector2f getPosition() const { return m_position; }
+  sf::Vector2f get_position() const { return m_position; }
 
   //! @brief Set the Radius object
   //! @param radius
-  void setRadius( float radius )
+  void set_radius( float radius )
   {
     m_radius = radius;
-    invalidateAllSegments();
+    invalidate_all_segments();
   }
 
   //! @brief Get the Radius object
   //! @return float
-  float getRadius() const { return m_radius; }
+  [[nodiscard]] float get_radius() const { return m_radius; }
 
   //! @brief Set the Outline Color object
   //! @param color
-  void setOutlineColor( sf::Color color )
+  void set_outline_color( sf::Color color )
   {
     m_outline_color = color;
-    invalidateAllSegments();
+    invalidate_all_segments();
   }
 
   //! @brief Get the Outline Color object
   //! @return sf::Color
-  sf::Color getOutlineColor() const { return m_outline_color; }
+  [[nodiscard]] sf::Color get_outline_color() const { return m_outline_color; }
 
   //! @brief Set the Outline Thickness object
   //! @param thickness
-  void setOutlineThickness( float thickness )
+  void set_outline_thickness( float thickness )
   {
     m_outline_thickness = thickness;
-    invalidateAllSegments();
+    invalidate_all_segments();
   }
 
   //! @brief Get the Segments object
   //! @return const CircleSegments&
-  const CircleSegments &getSegments() const { return m_segments; }
+  [[nodiscard]] const CircleSegments &get_segments() const { return m_segments; }
 
   //! @brief Set the Segments object
   //! @param segments
-  void setSegments( CircleSegments &&segments )
+  void set_segments( CircleSegments &&segments )
   {
     m_segments = std::move( segments );
-    invalidateAllSegments();
+    invalidate_all_segments();
   }
 
   //! @brief Get the Outline Thickness object
   //! @return float
-  float getOutlineThickness() const { return m_outline_thickness; }
+  [[nodiscard]] float get_outline_thickness() const { return m_outline_thickness; }
 
   //! @brief Check if a point intersects with the circle outline
   //! @param point
   //! @return true
   //! @return false
-  bool intersectsWithPoint( sf::Vector2f point ) const;
+  [[nodiscard]] bool intersects_with_point( sf::Vector2f point ) const;
 
   //! @brief Check if a rectangle intersects with any part of the circle outline
   //! @param rect
   //! @return true
   //! @return false
-  bool intersectsWithRect( const sf::FloatRect &rect ) const;
+  [[nodiscard]] bool intersects_with_rect( const sf::FloatRect &rect ) const;
 
   //! @brief Get a list of all visible segments (for debugging or other purposes)
   //! @return CircleSegments
-  CircleSegments getVisibleSegments() const;
+  [[nodiscard]] CircleSegments get_visible_segments() const;
 
 private:
   sf::Vector2f m_position;
@@ -107,7 +109,7 @@ private:
   int m_points_per_segment;
 
   //! @brief Invalidate all segment caches
-  void invalidateAllSegments();
+  void invalidate_all_segments();
 };
 
 } // namespace Game::Sprites

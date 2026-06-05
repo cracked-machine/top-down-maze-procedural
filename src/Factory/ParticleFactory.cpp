@@ -1,5 +1,8 @@
 #include <Factory/ParticleFactory.hpp>
 #include <Inventory/PlayerInventorySlot.hpp>
+#include <Particle/ShockWave.hpp>
+#include <Persistent/NpcShockwaveSpeed.hpp>
+#include <Systems/PersistSystem.hpp>
 #include <entt/entity/fwd.hpp>
 
 namespace Game::Particle::Factory
@@ -72,16 +75,53 @@ void add_smoke( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp
   SPDLOG_INFO( "Created smoke ParticleSprite {}", static_cast<uint32_t>( entt ) );
 }
 
-void add_shockwave( entt::registry &reg, Sys::ParticleSystem &psys, const std::string &tag )
+void add_shockwave( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp, sf::Vector2f pos, float zorder )
 {
-  auto psprite = Cmp::Particle::ShockWave( 1000 );
-  psprite.set_tag( tag );
-  psprite.set_generations( 1 );
-  psprite.set_emitter_position( Utils::Player::get_position( reg ).getCenter() );
-  psprite.set_lifetime_ms( std::uniform_int_distribution<int>( 0, sf::seconds( 1 ).asMilliseconds() ) );
-  psprite.set_speed( 100.f );
-  psprite.set_angle( std::uniform_real_distribution<float>( 1.f, 360.f ) );
-  psys.add( std::make_pair( psprite, Cmp::ZOrderValue( 10000.f ) ) );
+  auto ps = Cmp::Particle::ShockWave( 1000 );
+  ps.set_tag( tag );
+  ps.set_generations( 1 );
+  ps.set_emitter_position( pos );
+  ps.set_lifetime_ms( std::uniform_int_distribution<int>( 0, sf::seconds( 1 ).asMilliseconds() ) );
+  ps.set_speed( Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveSpeed>( reg ).get_value() );
+  ps.set_angle( std::uniform_real_distribution( 1.f, 360.f ) );
+
+  auto entt = reg.create();
+  reg.emplace_or_replace<Sys::ParticleSpriteOwner>( entt, Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::ShockWave>( ps ) ) );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
+  reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
+  SPDLOG_INFO( "Created shockwave ParticleSprite {}", static_cast<uint32_t>( entt ) );
+}
+
+void delete_expired_particle_sprites( entt::registry &reg, const std::string &search_pattern )
+{
+  // remove the particle sprite once it has stopped
+  for ( auto [ps_entt, ps_cmp] : reg.view<Sys::ParticleSpriteOwner>().each() )
+  {
+    if ( not ps_cmp.sprite->get_tag().contains( search_pattern ) ) continue;
+    if ( ps_cmp.sprite->is_active() ) continue;
+    if ( not reg.valid( ps_entt ) ) continue;
+    reg.destroy( ps_entt );
+  }
+}
+
+void update_position( entt::registry &reg, const std::string &search_pattern, sf::Vector2f pos )
+{
+  // update the position so that it follows player
+  for ( auto [smoke_entt, smoke_ps_cmp] : reg.view<Sys::ParticleSpriteOwner>().each() )
+  {
+    if ( not smoke_ps_cmp.sprite->get_tag().contains( search_pattern ) ) continue;
+    smoke_ps_cmp.sprite->set_emitter_position( pos );
+  }
+}
+
+void update_position( entt::registry &reg, Cmp::UUID uuid_cmp, sf::Vector2f pos )
+{
+  // update the position so that it follows player
+  for ( auto [smoke_entt, smoke_ps_cmp, ps_uuid_cmp] : reg.view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+  {
+    if ( ps_uuid_cmp != uuid_cmp ) continue;
+    smoke_ps_cmp.sprite->set_emitter_position( pos );
+  }
 }
 
 } // namespace Game::Particle::Factory

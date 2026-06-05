@@ -25,7 +25,7 @@ public:
   //! @param radius
   //! @param outline_thickness
   //! @return sf::FloatRect
-  sf::FloatRect getBounds( sf::Vector2f center, float radius, float outline_thickness ) const;
+  sf::FloatRect get_bounds( sf::Vector2f center, float radius, float outline_thickness ) const;
 
   //! @brief SFML draw function
   //! @param target
@@ -39,20 +39,20 @@ public:
              int points_per_segment ) const;
 
   //! @brief Mark the cache as invalid to force segment vertices regen
-  void invalidateCache() const { vertices_dirty = true; }
+  void invalidate_cache() const { vertices_dirty = true; }
 
   //! @brief Check if segment is visable
   //! @return true
   //! @return false
-  bool isVisible() const { return visible; }
+  bool is_visible() const { return visible; }
 
   //! @brief Get the segment Start Angle
   //! @return float
-  float getStartAngle() const { return start_angle; }
+  float get_start_angle() const { return start_angle; }
 
   //! @brief Get the segment End Angle
   //! @return float
-  float getEndAngle() const { return end_angle; }
+  float get_end_angle() const { return end_angle; }
 
 private:
   float start_angle;
@@ -67,7 +67,7 @@ private:
   mutable sf::Vector2f cached_position = { -1.0f, -1.0f };
   mutable sf::Color cached_color = sf::Color::Transparent;
 
-  void generateVertices( sf::Vector2f center, float radius, float outline_thickness, sf::Color color, int points_per_segment ) const;
+  void generate_vertices( sf::Vector2f center, float radius, float outline_thickness, sf::Color color, int points_per_segment ) const;
 };
 
 } // namespace Game::Sprites

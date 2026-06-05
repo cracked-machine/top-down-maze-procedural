@@ -407,15 +407,15 @@ void RenderGameSystem::render_shockwaves()
 {
   for ( auto [npc_sh_entt, npc_sw_cmp] : reg().view<Cmp::NpcShockwave>().each() )
   {
-    for ( const auto &segment : npc_sw_cmp.sprite.getVisibleSegments() )
+    for ( const auto &segment : npc_sw_cmp.sprite.get_visible_segments() )
     {
-      sf::FloatRect segment_bounds = segment.getBounds( npc_sw_cmp.sprite.getPosition(), npc_sw_cmp.sprite.getRadius(),
-                                                        npc_sw_cmp.sprite.getOutlineThickness() );
+      sf::FloatRect segment_bounds = segment.get_bounds( npc_sw_cmp.sprite.get_position(), npc_sw_cmp.sprite.get_radius(),
+                                                         npc_sw_cmp.sprite.get_outline_thickness() );
 
       if ( Utils::is_visible_in_view( RenderSystem::get_world_view(), segment_bounds ) )
       {
-        segment.draw( m_window, sf::RenderStates::Default, npc_sw_cmp.sprite.getPosition(), npc_sw_cmp.sprite.getRadius(),
-                      npc_sw_cmp.sprite.getOutlineThickness(), npc_sw_cmp.sprite.getOutlineColor(), npc_sw_cmp.sprite.getPointsPerSegment() );
+        segment.draw( m_window, sf::RenderStates::Default, npc_sw_cmp.sprite.get_position(), npc_sw_cmp.sprite.get_radius(),
+                      npc_sw_cmp.sprite.get_outline_thickness(), npc_sw_cmp.sprite.get_outline_color(), npc_sw_cmp.sprite.get_points_per_segment() );
       }
     }
   }

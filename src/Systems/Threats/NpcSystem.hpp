@@ -90,10 +90,10 @@ private:
 
   void update_animation();
 
-  void update_shockwaves();
+  void update_shockwaves( sf::Time dt );
   sf::Clock shockwave_update_clock;
 
-  void checkShockwaveObstacleCollision( entt::entity shockwave_entity, Cmp::NpcShockwave &shockwave );
+  void check_shockwave_obstacle_collision( entt::entity shockwave_entity, Cmp::NpcShockwave &shockwave );
 
   sf::Time m_scan_accumulator;
   sf::Time m_animation_accumulator;

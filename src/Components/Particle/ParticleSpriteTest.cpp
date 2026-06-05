@@ -14,8 +14,8 @@ void ParticleTest::emit()
   static std::random_device rd;
   static std::mt19937 rng( rd() );
 
-  const sf::Angle angle = sf::degrees( m_angle_dist( rng ) );
-  const float speed = m_speed_dist( rng );
+  const sf::Angle angle = sf::degrees( m_angle_range( rng ) );
+  const float speed = m_speed_range( rng );
   m_velocity = sf::Vector2f( speed, angle );
 };
 } // namespace detail

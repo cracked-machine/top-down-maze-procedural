@@ -162,6 +162,8 @@ void GraveyardScene::on_init()
   // Particle::Factory::add_flame( m_reg, particle_system, "player.candle", sf::Vector2f{ 900.0, 900.0 } );
   // Particle::Factory::add_smoke( m_reg, particle_system, "GraveyardParticleTest" );
   // Particle::Factory::add_shockwave( m_reg, particle_system, "GraveyardParticleTest" );
+  // auto uuid = Cmp::UUID::generate();
+  // Particle::Factory::add_shockwave( m_reg, "GraveyardParticleTest", uuid, Utils::Player::get_position( m_reg ).getCenter(), 50000 );
 
   // add flame particle sprites for any candle items in the new game world. Use the Candle item UUID to initialise the ParticleSprite.
   for ( auto [candle_entt, candle_cmp, candle_pos, uuid_cmp] : m_reg.view<Cmp::WorldItem, Cmp::Position, Cmp::UUID>().each() )

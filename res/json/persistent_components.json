@@ -249,7 +249,7 @@
   },
   "NpcShockwaveSpeed": {
     "type":"int",
-    "value": 500,
+    "value": 100,
     "min_value": 1,
     "max_value": 1000,
     "detail": "NPC Shockwave Speed",

@@ -52,7 +52,11 @@ void LightningSystem::update( sf::Time dt )
   }
 
   delete_expired_lightning_strikes();
-  delete_expired_smoke_particle_sprites();
+  Particle::Factory::delete_expired_particle_sprites( reg(), "particle.smoke.player" );
+
+  // update the position so that it follows player
+  sf::Vector2f new_pos( Utils::Player::get_position( reg() ).x() + 8.f, Utils::Player::get_position( reg() ).y() );
+  Particle::Factory::update_position( reg(), "particle.smoke.player", new_pos );
 }
 
 bool LightningSystem::lightning_strike_exists()
@@ -103,19 +107,6 @@ void LightningSystem::delete_expired_lightning_strikes()
   {
     reg().destroy( entt );
     SPDLOG_INFO( "Destroyed lightning strike {}", static_cast<uint32_t>( entt ) );
-  }
-}
-
-void LightningSystem::delete_expired_smoke_particle_sprites()
-{
-  // remove the smoke particle sprite once it has stopped
-  for ( auto [smoke_entt, smoke_ps_cmp] : reg().view<Sys::ParticleSpriteOwner>().each() )
-  {
-    if ( not smoke_ps_cmp.sprite->get_tag().contains( "particle.smoke.player" ) ) continue;
-    smoke_ps_cmp.sprite->set_emitter_position( { Utils::Player::get_position( reg() ).x() + 8.f, Utils::Player::get_position( reg() ).y() } );
-    if ( smoke_ps_cmp.sprite->is_active() ) continue;
-    if ( not reg().valid( smoke_entt ) ) continue;
-    reg().destroy( smoke_entt );
   }
 }
 
