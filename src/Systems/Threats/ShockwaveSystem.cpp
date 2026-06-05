@@ -30,43 +30,32 @@ Sprites::Shockwave::CircleSegments ShockwaveSystem::split_segment_by_obstacle( c
 {
   Sprites::Shockwave::CircleSegments result;
 
-  // Sample points along the segment to find intersections
-  std::vector<bool> intersections( samples, false );
-
   float angle_range = segment.get_end_angle() - segment.get_start_angle();
+  const float inv_s = 1.0f / static_cast<float>( samples - 1 );
 
-  for ( int i = 0; i < samples; ++i )
-  {
-    float t = static_cast<float>( i ) / static_cast<float>( samples - 1 );
-    float angle = segment.get_start_angle() + ( t * angle_range );
-
-    sf::Vector2f point = shockwave_position + sf::Vector2f( std::cos( angle ) * radius, std::sin( angle ) * radius );
-    intersections[i] = obstacle_rect.contains( point );
-  }
-
-  // Find continuous non-intersecting ranges
   int start_idx = -1;
   for ( int i = 0; i < samples; ++i )
   {
-    if ( !intersections[i] && start_idx == -1 )
-    {
-      start_idx = i; // Start of non-intersecting segment
-    }
-    else if ( intersections[i] && start_idx != -1 )
-    {
-      // End of non-intersecting segment
-      float start_angle = segment.get_start_angle() + ( ( static_cast<float>( start_idx ) / static_cast<float>( samples - 1 ) ) * angle_range );
-      float end_angle = segment.get_start_angle() + ( ( static_cast<float>( i - 1 ) / static_cast<float>( samples - 1 ) ) * angle_range );
+    float angle = segment.get_start_angle() + ( static_cast<float>( i ) * inv_s * angle_range );
+    sf::Vector2f point = shockwave_position + sf::Vector2f( std::cos( angle ) * radius, std::sin( angle ) * radius );
+    bool inside = obstacle_rect.contains( point );
 
+    if ( !inside && start_idx == -1 )
+    {
+      start_idx = i;
+    }
+    else if ( inside && start_idx != -1 )
+    {
+      float start_angle = segment.get_start_angle() + ( static_cast<float>( start_idx ) * inv_s * angle_range );
+      float end_angle = segment.get_start_angle() + ( static_cast<float>( i - 1 ) * inv_s * angle_range );
       if ( end_angle > start_angle ) { result.emplace_back( start_angle, end_angle, true ); }
       start_idx = -1;
     }
   }
 
-  // Handle case where segment ends with non-intersecting part
   if ( start_idx != -1 )
   {
-    float start_angle = segment.get_start_angle() + ( ( static_cast<float>( start_idx ) / static_cast<float>( samples - 1 ) ) * angle_range );
+    float start_angle = segment.get_start_angle() + ( static_cast<float>( start_idx ) * inv_s * angle_range );
     result.emplace_back( start_angle, segment.get_end_angle(), true );
   }
 
@@ -84,23 +73,24 @@ bool ShockwaveSystem::intersects_with_visible_segments( const Cmp::NpcShockwave 
   {
     float angle_range = segment.get_end_angle() - segment.get_start_angle();
 
+    // Check both inner and outer radius points to account for thickness
+    float inner_radius = radius - ( outline_thickness / 2.0f );
+    float outer_radius = radius + ( outline_thickness / 2.0f );
+
     for ( int i = 0; i < points_per_segment; ++i )
     {
       float t = static_cast<float>( i ) / static_cast<float>( points_per_segment - 1 );
       float angle = segment.get_start_angle() + ( t * angle_range );
 
-      // Check both inner and outer radius points to account for thickness
-      float inner_radius = radius - ( outline_thickness / 2.0f );
-      float outer_radius = radius + ( outline_thickness / 2.0f );
-
-      sf::Vector2f inner_point = position + sf::Vector2f( std::cos( angle ) * inner_radius, std::sin( angle ) * inner_radius );
-      sf::Vector2f outer_point = position + sf::Vector2f( std::cos( angle ) * outer_radius, std::sin( angle ) * outer_radius );
+      auto cos_angle = std::cos( angle );
+      auto sin_angle = std::sin( angle );
+      sf::Vector2f inner_point = position + sf::Vector2f( cos_angle * inner_radius, sin_angle * inner_radius );
+      sf::Vector2f outer_point = position + sf::Vector2f( cos_angle * outer_radius, sin_angle * outer_radius );
 
       if ( player_pos.contains( inner_point ) || player_pos.contains( outer_point ) )
       {
         // do shockwave/player knockback
-        sf::Vector2f shockwave_direction( std::cos( angle ), std::sin( angle ) );
-        shockwave_direction = shockwave_direction.normalized();
+        sf::Vector2f shockwave_direction( cos_angle, sin_angle );
 
         auto &player_pos_cmp = Utils::Player::get_position( reg() );
         auto new_position = Utils::snap_to_grid( player_pos_cmp.position + ( shockwave_direction.componentWiseMul( Constants::kGridSizePxF ) ) );
@@ -147,12 +137,12 @@ void ShockwaveSystem::check_shockwave_player_collision()
   // we need the projectile_action modifiers for this NPC type.
   auto priest_npc_cmp = Sys::NpcStore::instance().get_item( "npc.priest" );
   auto priest_projectile_action = priest_npc_cmp.actions.at( std::type_index( typeid( Cmp::ProjectileAction ) ) );
+  auto &pc_damage_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( reg() );
+  auto player_view = reg().view<Cmp::PlayerCharacter, Cmp::Position, Cmp::PlayerStats, Cmp::PlayerMortality>();
 
   for ( auto entt : reg().view<Cmp::NpcShockwave>() )
   {
     Cmp::NpcShockwave &shockwave = reg().get<Cmp::NpcShockwave>( entt );
-    auto &pc_damage_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( reg() );
-    auto player_view = reg().view<Cmp::PlayerCharacter, Cmp::Position, Cmp::PlayerStats, Cmp::PlayerMortality>();
 
     for ( auto [player_entity, player_cmp, player_pos, player_stats_cmp, player_mort_cmp] : player_view.each() )
     {
