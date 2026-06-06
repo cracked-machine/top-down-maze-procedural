@@ -41,6 +41,7 @@
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/WallFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
+#include <PlantObstacle.hpp>
 #include <Ruin/RuinGateSegment.hpp>
 #include <Ruin/RuinStairsGateMultiBlock.hpp>
 #include <SceneControl/SceneData.hpp>
@@ -175,7 +176,7 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
   }
 }
 
-void LevelGenerator::gen_graveyard_exterior_obstacles( float init_chance )
+void LevelGenerator::add_graveyard_exterior_obstacles( float init_chance )
 {
   auto position_view = reg().view<Cmp::Position>( entt::exclude<Cmp::PlayerCharacter, Cmp::ReservedPosition> );
   for ( auto [entity, pos_cmp] : position_view.each() )
@@ -183,11 +184,30 @@ void LevelGenerator::gen_graveyard_exterior_obstacles( float init_chance )
 
     if ( Cmp::RandomFloat{ 0.f, 1.f }.gen() < init_chance )
     {
-      const Sprites::SpriteSheet &ms = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.wall.int" );
-      auto [_, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.wall.int" } );
-      Factory::create_obstacle( reg(), entity, pos_cmp, ms, rand_obst_tex_idx );
+      Factory::add_obstacle( reg(), entity );
       m_obstacle_sm->insert( entity, pos_cmp );
     }
+  }
+}
+
+void LevelGenerator::decorate_graveyard_exterior_obstacles()
+{
+  auto obstacle_view = reg().view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::PlayerCharacter, Cmp::ReservedPosition> );
+  for ( auto [obstacle_entt, obstacle_cmp, obstacle_pos_cmp] : obstacle_view.each() )
+  {
+    auto uuid = Cmp::UUID::generate();
+    const Sprites::SpriteSheet &ss_main = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.wall.int.main" );
+    const Sprites::SpriteSheet &ss_cap = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.wall.int.cap" );
+    auto [_, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.wall.int.main" } );
+
+    Factory::decorate_obstacle( reg(), obstacle_entt, obstacle_pos_cmp, ss_main, rand_obst_tex_idx );
+    reg().emplace_or_replace<Cmp::UUID>( obstacle_entt, uuid );
+
+    auto cap_entt = reg().create();
+    Cmp::Position cap_position( { obstacle_pos_cmp.x(), obstacle_pos_cmp.y() - obstacle_pos_cmp.size.y }, obstacle_pos_cmp.size );
+    reg().emplace_or_replace<Cmp::Position>( cap_entt, cap_position );
+    Factory::decorate_obstacle( reg(), cap_entt, cap_position, ss_cap, rand_obst_tex_idx, obstacle_pos_cmp.y(), false );
+    reg().emplace_or_replace<Cmp::UUID>( cap_entt, uuid );
   }
 }
 
@@ -198,12 +218,23 @@ void LevelGenerator::add_ruin_interior_obstacles( float init_chance )
   {
     if ( Cmp::RandomFloat{ 0.f, 1.f }.gen() < init_chance )
     {
-      const Sprites::SpriteSheet &ms = m_sprite_factory.get_spritesheet_by_type( "sprite.ruin.wall.int" );
-      auto [_, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.ruin.wall.int" } );
-      Factory::create_obstacle( reg(), entity, pos_cmp, ms, rand_obst_tex_idx );
+      Factory::add_obstacle( reg(), entity );
       reg().emplace_or_replace<Cmp::Moveable>( entity );
       m_obstacle_sm->insert( entity, pos_cmp );
     }
+  }
+}
+
+void LevelGenerator::decorate_ruin_interior_obstacles()
+{
+  auto obstacle_view = reg().view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::PlayerCharacter, Cmp::ReservedPosition> );
+  for ( auto [obstacle_entt, obstacle_cmp, obstacle_pos_cmp] : obstacle_view.each() )
+  {
+    const Sprites::SpriteSheet &ms = m_sprite_factory.get_spritesheet_by_type( "sprite.ruin.wall.int" );
+    auto [_, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.ruin.wall.int" } );
+    Factory::decorate_obstacle( reg(), obstacle_entt, obstacle_pos_cmp, ms, rand_obst_tex_idx );
+    reg().emplace_or_replace<Cmp::UUID>( obstacle_entt, Cmp::UUID::generate() );
+    reg().emplace_or_replace<Cmp::Moveable>( obstacle_entt );
   }
 }
 

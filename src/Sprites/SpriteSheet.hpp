@@ -98,7 +98,7 @@ public:
     assert( not m_zorder_list.empty() );
     if ( idx >= m_zorder_list.size() )
     {
-      SPDLOG_ERROR( "Could not find zorder for {} at index {}, defaulting to 0 index.", std::string( m_sprite_type ), std::to_string( idx ) );
+      SPDLOG_DEBUG( "Could not find zorder for {} at index {}, defaulting to 0 index.", std::string( m_sprite_type ), std::to_string( idx ) );
       return 0;
     }
     return m_zorder_list.at( idx );

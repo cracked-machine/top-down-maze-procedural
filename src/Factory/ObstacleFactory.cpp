@@ -12,8 +12,10 @@
 #include <Player/PlayerCharacter.hpp>
 #include <Player/PlayerNoPath.hpp>
 #include <Sprites/SpriteSheet.hpp>
+#include <UUID.hpp>
 #include <VoidPosition.hpp>
 #include <entt/entity/fwd.hpp>
+#include <spdlog/spdlog.h>
 #include <stdexcept>
 
 namespace Game::Factory
@@ -33,29 +35,37 @@ entt::entity create_void_pos( entt::registry &registry, const Cmp::Position &pos
   return entity;
 }
 
-void create_obstacle( entt::registry &reg, entt::entity entity, Cmp::Position pos_cmp, const Sprites::SpriteSheet &ms, std::size_t sprite_tile_idx )
+void add_obstacle( entt::registry &reg, entt::entity entity )
+{
+  if ( reg.any_of<Cmp::PlayerCharacter, Cmp::ReservedPosition>( entity ) ) { return; }
+  if ( reg.all_of<Cmp::DestroyedObstacle>( entity ) ) { reg.remove<Cmp::DestroyedObstacle>( entity ); }
+  reg.emplace_or_replace<Cmp::Obstacle>( entity );
+  reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
+  reg.emplace_or_replace<Cmp::PlayerNoPath>( entity );
+  reg.emplace_or_replace<Cmp::Armable>( entity );
+}
+
+void decorate_obstacle( entt::registry &reg, entt::entity entity, Cmp::Position pos_cmp, const Sprites::SpriteSheet &ms, std::size_t sprite_tile_idx,
+                        float zorder, bool blocking )
 {
   if ( sprite_tile_idx > ms.get_sprite_count() - 1 )
   {
     throw std::runtime_error( "Unable to get index " + std::to_string( sprite_tile_idx ) + " in " + ms.get_sprite_type() +
                               " ( size: " + std::to_string( ms.get_sprite_count() ) + " )" );
   }
-  Cmp::ZOrderValue zorder( 0 );
+  Cmp::ZOrderValue zorder_cmp( 0 );
 
-  for ( auto [plant_entt, plant_cmp, plant_pos_cmp] : reg.view<Cmp::PlantObstacle, Cmp::Position>().each() )
-  {
-    if ( pos_cmp.findIntersection( plant_pos_cmp ) ) return;
-  }
-
-  if ( ms.get_zorder( sprite_tile_idx ) != 0 ) { zorder.setZOrder( ms.get_zorder( sprite_tile_idx ) ); }
-  else { zorder.setZOrder( pos_cmp.position.y ); }
+  // Use the non-zero function arg, or the non-zero json value, or fallback to the sprite y-axis
+  if ( zorder != 0 ) { zorder_cmp.setZOrder( zorder ); }
+  else if ( ms.get_zorder( sprite_tile_idx ) != 0 ) { zorder_cmp.setZOrder( ms.get_zorder( sprite_tile_idx ) ); }
+  else { zorder_cmp.setZOrder( pos_cmp.position.y ); }
 
   if ( reg.any_of<Cmp::PlayerCharacter, Cmp::ReservedPosition>( entity ) ) { return; }
   if ( reg.all_of<Cmp::DestroyedObstacle>( entity ) ) { reg.remove<Cmp::DestroyedObstacle>( entity ); }
   reg.emplace_or_replace<Cmp::Obstacle>( entity );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
   reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
-  reg.emplace_or_replace<Cmp::PlayerNoPath>( entity );
+  if ( blocking ) { reg.emplace_or_replace<Cmp::PlayerNoPath>( entity ); }
   reg.emplace_or_replace<Cmp::AbsoluteAlpha>( entity, 255 );
   // clang-format off
   reg.emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 
@@ -65,18 +75,48 @@ void create_obstacle( entt::registry &reg, entt::entity entity, Cmp::Position po
   });
   // clang-format on
   reg.emplace_or_replace<Cmp::Armable>( entity );
+
+  SPDLOG_DEBUG( "Added obstacle {} at [{},{}] Z: {}", ms.get_display_name(), pos_cmp.x(), pos_cmp.y(), zorder_cmp.getZOrder() );
 }
 
-void remove_obstacle( entt::registry &reg, entt::entity entt )
+void remove_obstacle( entt::registry &reg, entt::entity search_entt )
 {
-  if ( reg.all_of<Cmp::Obstacle>( entt ) ) { reg.remove<Cmp::Obstacle>( entt ); }
-  if ( reg.all_of<Cmp::ZOrderValue>( entt ) ) { reg.remove<Cmp::ZOrderValue>( entt ); }
-  if ( reg.all_of<Cmp::NpcNoPathFinding>( entt ) ) { reg.remove<Cmp::NpcNoPathFinding>( entt ); }
-  if ( reg.all_of<Cmp::PlayerNoPath>( entt ) ) { reg.remove<Cmp::PlayerNoPath>( entt ); }
-  if ( reg.all_of<Cmp::AbsoluteAlpha>( entt ) ) { reg.remove<Cmp::AbsoluteAlpha>( entt ); }
-  if ( reg.all_of<Cmp::AnimData>( entt ) ) { reg.remove<Cmp::AnimData>( entt ); }
+  Cmp::UUID search_uuid_cmp;
+  auto *search_uuid_cmp_ptr = reg.try_get<Cmp::UUID>( search_entt );
+  if ( search_uuid_cmp_ptr ) { search_uuid_cmp = *search_uuid_cmp_ptr; }
 
-  reg.emplace_or_replace<Cmp::Armable>( entt );
+  reg.remove<Cmp::Obstacle>( search_entt );
+  reg.remove<Cmp::ZOrderValue>( search_entt );
+  reg.remove<Cmp::NpcNoPathFinding>( search_entt );
+  reg.remove<Cmp::PlayerNoPath>( search_entt );
+  reg.remove<Cmp::AbsoluteAlpha>( search_entt );
+  reg.remove<Cmp::AnimData>( search_entt );
+  reg.remove<Cmp::UUID>( search_entt );
+  SPDLOG_DEBUG( "Removing obstacle {} - {}", static_cast<uint32_t>( search_entt ), search_uuid_cmp.str() );
+
+  // don't search for all zeroes UUID
+  if ( search_uuid_cmp.empty() )
+  {
+    SPDLOG_DEBUG( "This obstacle does not have a matching cap obstacle" );
+    return;
+  }
+
+  // search_uuid_cmp (local copy) is used here, not the now-deleted component
+  for ( auto [obstacle_entt, obstacle_cmp, obstacle_uuid_cmp] : reg.view<Cmp::Obstacle, Cmp::UUID>().each() )
+  {
+    if ( obstacle_uuid_cmp != search_uuid_cmp ) continue;
+    SPDLOG_DEBUG( "Removing matching obstacle {} - {}", static_cast<uint32_t>( obstacle_entt ), search_uuid_cmp.str() );
+    reg.remove<Cmp::Obstacle>( obstacle_entt );
+    reg.remove<Cmp::ZOrderValue>( obstacle_entt );
+    reg.remove<Cmp::NpcNoPathFinding>( obstacle_entt );
+    reg.remove<Cmp::PlayerNoPath>( obstacle_entt );
+    reg.remove<Cmp::AbsoluteAlpha>( obstacle_entt );
+    reg.remove<Cmp::AnimData>( obstacle_entt );
+    reg.remove<Cmp::UUID>( obstacle_entt );
+
+    reg.emplace_or_replace<Cmp::Armable>( obstacle_entt );
+    break;
+  }
 }
 
 } // namespace Game::Factory

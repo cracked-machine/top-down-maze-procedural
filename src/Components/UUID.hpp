@@ -1,6 +1,7 @@
 #ifndef SRC_CMPS_UUID_HPP_
 #define SRC_CMPS_UUID_HPP_
 
+#include <algorithm>
 #include <random>
 namespace Game::Cmp
 {
@@ -40,6 +41,12 @@ struct UUID
 
   //! @brief spaceship operator overload automatically generates ==, !=, <, >, <=, and >=
   bool operator<=>( const UUID & ) const = default;
+
+  //! @brief Returns true if all bytes are zero (default-constructed, no UUID assigned)
+  [[nodiscard]] bool empty() const
+  {
+    return std::ranges::all_of( data, []( uint8_t b ) { return b == 0; } );
+  }
 };
 
 } // namespace Game::Cmp

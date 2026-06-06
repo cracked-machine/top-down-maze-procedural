@@ -8,6 +8,7 @@
 #include <Components/ZOrderValue.hpp>
 #include <Factory/WallFactory.hpp>
 #include <NoMoveDest.hpp>
+#include <Player/PlayerCharacter.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Utils/Constants.hpp>
 #include <entt/entity/registry.hpp>
@@ -43,8 +44,9 @@ void add_reservedposition( entt::registry &reg, const sf::Vector2f &pos )
 
 void add_solid_player( entt::registry &reg, sf::FloatRect rect )
 {
-  // Mark any existing world position entities overlapping this rect as reserved
-  for ( auto [entt, pos_cmp] : reg.view<Cmp::Position>().each() )
+  // Mark any existing world position entities overlapping this rect as reserved.
+  // Don't mark player position as Cmp::PlayerNoPath or they won't be able to move!
+  for ( auto [entt, pos_cmp] : reg.view<Cmp::Position>( entt::exclude<Cmp::PlayerCharacter> ).each() )
   {
     if ( pos_cmp.findIntersection( rect ) )
     {

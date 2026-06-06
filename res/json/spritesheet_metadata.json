@@ -14,12 +14,26 @@
         }
       }
     },
-    "sprite.graveyard.wall.int": {
+    "sprite.graveyard.wall.int.main": {
       "spritesheet": {
-        "displayname": "sprite.graveyard.wall.int",
+        "displayname": "sprite.graveyard.wall.int.main",
         "zorder": [0,0,0,0,0,0,0,0,0],
         "texture_path": "res/textures/graveyard.png",
-        "sprite_indices": [0,1,2,3,4,5,6,7],
+        "sprite_indices": [40,41,42,43,44,45,46,47],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "sprite.graveyard.wall.int.cap": {
+      "spritesheet": {
+        "displayname": "sprite.graveyard.wall.int.cap",
+        "zorder": [0,0,0,0,0,0,0,0,0],
+        "texture_path": "res/textures/graveyard.png",
+        "sprite_indices": [30,31,32,33,34,35,36,37],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -31,7 +45,7 @@
     "sprite.graveyard.wall.ext": {
       "spritesheet": {
         "displayname": "sprite.graveyard.wall.ext",
-        "zorder": [0],
+        "zorder": [10000],
         "texture_path": "res/textures/graveyardwall.png",
         "sprite_indices": [0],
         "sprites_per_sequence": 1,

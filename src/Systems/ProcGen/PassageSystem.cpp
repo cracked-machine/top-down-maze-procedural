@@ -18,6 +18,7 @@
 #include <Systems/BaseSystem.hpp>
 #include <Systems/Events/PassageEvent.hpp>
 #include <Systems/ProcGen/PassageSystem.hpp>
+#include <UUID.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Player.hpp>
 
@@ -499,7 +500,9 @@ void PassageSystem::fill_all_passages()
       if ( reg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
 
       const Sprites::SpriteSheet &ms = m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.wall.int" );
-      Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, 0 );
+      Factory::add_obstacle( reg(), pos_entt );
+      Factory::decorate_obstacle( reg(), pos_entt, pos_cmp, ms, 0 );
+      reg().emplace_or_replace<Cmp::UUID>( pos_entt, Cmp::UUID::generate() );
 
       if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
       {

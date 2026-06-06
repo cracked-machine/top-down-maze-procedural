@@ -433,12 +433,13 @@ void RenderOverlaySystem::render_ui_misc_stats()
 
     draw_line( "--- Stats ---", sf::Color::Yellow );
 
-    draw_line( " Player position - [" + std::to_string( Utils::Player::get_position( reg() ).x() ) + " , " +
-               std::to_string( Utils::Player::get_position( reg() ).y() ) + "]" );
+    draw_line( " Player position - [" + std::to_string( static_cast<int>( Utils::Player::get_position( reg() ).x() ) ) + " , " +
+               std::to_string( static_cast<int>( Utils::Player::get_position( reg() ).y() ) ) + "]" );
 
     sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( m_window );
     sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::get_world_view() );
-    draw_line( " Mouse position - [" + std::to_string( mouse_world_pos.x ) + " , " + std::to_string( mouse_world_pos.y ) + "]" );
+    draw_line( " Mouse position - [" + std::to_string( static_cast<int>( mouse_world_pos.x ) ) + " , " +
+               std::to_string( static_cast<int>( mouse_world_pos.y ) ) + "]" );
 
     draw_line( " Player current direction - [" + std::to_string( Utils::Player::get_direction( reg() ).x ) + " , " +
                std::to_string( Utils::Player::get_direction( reg() ).y ) + "]" );
@@ -464,7 +465,8 @@ void RenderOverlaySystem::render_ui_zorder_list( std::vector<ZOrder> &zorder_que
 
   // clang-format off
   std::set<Sprites::SpriteMetaType> exclusions = {
-      "sprite.graveyard.wall.int",
+      "sprite.graveyard.wall.int.main",
+      "sprite.graveyard.wall.int.cap",
       "sprite.ruin.wall.int",
       "sprite.well.wall.int",
       "sprite.shop.wall.int",
@@ -687,21 +689,24 @@ void RenderOverlaySystem::render_ui_entity_inspect()
 
       draw_line( "--- Entity #" + std::to_string( entt::to_integral( entity ) ) + " ---", sf::Color::Yellow );
 
-      if ( auto *cmp = reg().try_get<Cmp::AnimData>( entity ) ) draw_line( "  AnimData: " + cmp->m_sprite_type );
-      if ( auto *cmp = reg().try_get<Cmp::ZOrderValue>( entity ) ) draw_line( "  ZOrder: " + std::to_string( cmp->getZOrder() ) );
-      if ( reg().all_of<Cmp::ReservedPosition>( entity ) ) draw_line( "  ReservedPosition", sf::Color::Red );
+      if ( auto *cmp = reg().try_get<Cmp::AnimData>( entity ) ) draw_line( " " + cmp->m_sprite_type );
       if ( reg().all_of<Cmp::VoidPosition>( entity ) ) draw_line( "  Void", sf::Color::White );
-      if ( reg().all_of<Cmp::NpcNoPathFinding>( entity ) ) draw_line( "  NpcNoPathFinding", sf::Color::Magenta );
-      if ( reg().all_of<Cmp::PlayerNoPath>( entity ) ) draw_line( " PlayerNoPath", sf::Color::Magenta );
+      if ( reg().all_of<Cmp::ReservedPosition>( entity ) ) draw_line( "  ReservedPosition", sf::Color::Red );
+      if ( reg().all_of<Cmp::NpcNoPathFinding>( entity ) ) draw_line( "  NpcNoPathFinding", sf::Color::Red );
+      if ( reg().all_of<Cmp::PlayerNoPath>( entity ) ) draw_line( " PlayerNoPath", sf::Color::Red );
       if ( reg().all_of<Cmp::Moveable>( entity ) ) draw_line( " Moveable", sf::Color::Green );
       if ( reg().all_of<Cmp::SelectedPosition>( entity ) ) draw_line( " Selected", sf::Color::Green );
       if ( reg().all_of<Cmp::Exit>( entity ) ) draw_line( " Exit", sf::Color::Green );
+      if ( reg().all_of<Cmp::Obstacle>( entity ) ) draw_line( " Obstacle", sf::Color::Green );
+
+      if ( auto *cmp = reg().try_get<Cmp::UUID>( entity ) ) draw_line( " " + cmp->str(), sf::Color::Yellow );
 
       draw_line( "  Pos: [ " + std::to_string( static_cast<int>( pos_cmp.position.x ) ) + " , " +
                  std::to_string( static_cast<int>( pos_cmp.position.y ) ) + " ]" );
 
       draw_line( "  Size: [ " + std::to_string( static_cast<int>( pos_cmp.size.x ) ) + " , " + std::to_string( static_cast<int>( pos_cmp.size.y ) ) +
                  " ]" );
+      if ( auto *cmp = reg().try_get<Cmp::ZOrderValue>( entity ) ) draw_line( "  ZOrder: " + std::to_string( cmp->getZOrder() ) );
     }
   }
 }

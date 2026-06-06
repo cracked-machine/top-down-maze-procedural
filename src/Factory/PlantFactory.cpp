@@ -10,6 +10,7 @@
 #include <Factory/PlantFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
 #include <Player/PlayerNoPath.hpp>
+#include <Position.hpp>
 #include <SpatialHashGrid.hpp>
 #include <Utils.hpp>
 #include <Utils/Random.hpp>
@@ -19,6 +20,13 @@ namespace Game::Factory
 
 entt::entity create_plant_obstacle( entt::registry &reg, Cmp::Position pos_cmp, const Sprites::SpriteSheet &ms )
 {
+  // make sure we mark all position entities as reserved to prevent procgen reusing this spot.
+  for ( auto [existing_pos_entt, existing_pos_cmp] : reg.view<Cmp::Position>().each() )
+  {
+    if ( not pos_cmp.findIntersection( existing_pos_cmp ) ) continue;
+    reg.emplace_or_replace<Cmp::ReservedPosition>( existing_pos_entt );
+  }
+
   auto plant_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( plant_entt, pos_cmp.position, pos_cmp.size );
   reg.emplace_or_replace<Cmp::PlantObstacle>( plant_entt );

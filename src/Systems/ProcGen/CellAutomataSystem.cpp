@@ -15,7 +15,6 @@ namespace Game::Sys::ProcGen
 void CellAutomataSystem::iterate( uint16_t iterations, uint8_t birth_threshold, uint8_t survival_threshold, LevelGenerator::SceneType scene_type,
                                   PathFinding::SpatialHashGrid &levelgen_spatialgrid )
 {
-  const Sprites::SpriteSheet &ms = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.wall.int" );
 
   sf::Clock iteration_timer;
   for ( unsigned int i = 0; i < iterations; i++ )
@@ -37,15 +36,10 @@ void CellAutomataSystem::iterate( uint16_t iterations, uint8_t birth_threshold, 
 
       if ( should_be_alive )
       {
-        if ( scene_type == LevelGenerator::SceneType::GRAVEYARD_EXTERIOR )
-        {
-          auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.wall.int" } );
-          Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, idx );
-        }
+        if ( scene_type == LevelGenerator::SceneType::GRAVEYARD_EXTERIOR ) { Factory::add_obstacle( reg(), pos_entt ); }
         else if ( scene_type == LevelGenerator::SceneType::RUIN_INTERIOR )
         {
-          auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.wall.int" } );
-          Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, idx );
+          Factory::add_obstacle( reg(), pos_entt );
           reg().emplace_or_replace<Cmp::Moveable>( pos_entt );
         }
       }

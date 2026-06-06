@@ -31,6 +31,7 @@
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
 #include <LastDirection.hpp>
+#include <Optimizations.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Player/PlayerNoPath.hpp>
 #include <Sprites/SpriteSheet.hpp>
@@ -39,6 +40,7 @@
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Stores/ItemStore.hpp>
+#include <UUID.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
@@ -210,12 +212,14 @@ void ActionSystem::check_player_dig_obstacle_collision()
   }
 
   // Iterate through all entities with Position and Obstacle components
-  auto position_view = reg().view<Cmp::Position, Cmp::Obstacle, Cmp::AbsoluteAlpha>( entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
-  for ( auto [obst_entity, obst_pos_cmp, obst_cmp, alpha_cmp] : position_view.each() )
+  auto position_view = reg().view<Cmp::Position, Cmp::Obstacle, Cmp::AbsoluteAlpha, Cmp::AnimData, Cmp::UUID>(
+      entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
+  for ( auto [obstacle_entt, obstacle_pos_cmp, obstacle_cmp, obstacle_alpha_cmp, obstacle_anim_cmp, obstacle_uuid_cmp] : position_view.each() )
   {
+    if ( not obstacle_anim_cmp.m_sprite_type.contains( ".main" ) ) continue;
 
     auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
-    if ( mouse_position_bounds.findIntersection( obst_pos_cmp ) )
+    if ( mouse_position_bounds.findIntersection( obstacle_pos_cmp ) )
     {
       SPDLOG_DEBUG( "Found diggable entity at position: [{}, {}]!", pos_cmp.position.x, pos_cmp.position.y );
 
@@ -225,7 +229,7 @@ void ActionSystem::check_player_dig_obstacle_collision()
       for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : reg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
       {
         auto player_hitbox = Cmp::RectBounds::scaled( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
-        if ( player_hitbox.findIntersection( obst_pos_cmp ) )
+        if ( player_hitbox.findIntersection( obstacle_pos_cmp ) )
         {
           player_nearby = true;
           break;
@@ -237,34 +241,39 @@ void ActionSystem::check_player_dig_obstacle_collision()
 
       // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
       // Add a new SelectedPosition component to the entity
-      reg().emplace_or_replace<Cmp::SelectedPosition>( obst_entity, obst_pos_cmp.position );
+      reg().emplace_or_replace<Cmp::SelectedPosition>( obstacle_entt, obstacle_pos_cmp.position );
 
-      // Apply digging damage, play a sound depending on whether the obstacle was destroyed
       m_dig_cooldown_clock.restart();
 
-      auto existing_alpha = alpha_cmp.getAlpha();
-      auto damage_value = Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( reg() ).get_value();
-      if ( inventory_slot_type.contains( "pickaxe" ) ) {}
-      else if ( inventory_slot_type.contains( "shovel" ) or inventory_slot_type.contains( "axe" ) ) { damage_value = damage_value / 10; }
-      auto damage_percentage = Utils::Maths::to_percent( 255.f, damage_value );
-      auto adjusted_alpha = std::max( 0, existing_alpha - damage_percentage );
-      alpha_cmp.setAlpha( adjusted_alpha );
+      // calculate new alpha value and apply to the current obstacle and any obstacle with matching UUID (cap sprite obstacles)
+      auto damage_per_hit = Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( reg() ).get_value();
+      if ( inventory_slot_type.contains( "pickaxe" ) ) { /* no damage gradient for pickaxe */ }
+      else if ( inventory_slot_type.contains( "shovel" ) or inventory_slot_type.contains( "axe" ) ) { damage_per_hit = damage_per_hit / 10; }
+      auto new_alpha_value = std::max( 0, obstacle_alpha_cmp.getAlpha() - Utils::Maths::to_percent( 255.f, damage_per_hit ) );
+      obstacle_alpha_cmp.setAlpha( new_alpha_value );
+      auto cap_obstacle_view = reg().view<Cmp::Obstacle, Cmp::UUID, Cmp::AbsoluteAlpha, Cmp::Position>();
+      for ( auto [cap_obstacle_entt, cap_obstacle_cmp, cap_obstacle_uuid_cmp, cap_obstacle_alpha, cap_pos_cmp] : cap_obstacle_view.each() )
+      {
+        if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), cap_pos_cmp ) ) continue;
+        if ( obstacle_uuid_cmp != cap_obstacle_uuid_cmp ) continue;
+        cap_obstacle_alpha.setAlpha( new_alpha_value );
+      }
 
       float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
       Utils::Player::reduce_inventory_wear_level( reg(), reduction_amount );
 
-      if ( alpha_cmp.getAlpha() == 0 )
+      if ( obstacle_alpha_cmp.getAlpha() == 0 )
       {
         // select the final smash sound
         m_sound_bank.get_effect( "pickaxe_final" ).play();
 
         // replace the obstacle with a detonated component
-        Factory::remove_obstacle( reg(), obst_entity );
-        Factory::create_detonated( reg(), obst_entity, obst_pos_cmp );
+        Factory::remove_obstacle( reg(), obstacle_entt );
+        Factory::add_detonated( reg(), obstacle_entt, obstacle_pos_cmp );
 
         // add the position to the spatial grid so it can be used in pathfinding
         if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
-          pathfinding_navmesh->insert( obst_entity, obst_pos_cmp );
+          pathfinding_navmesh->insert( obstacle_entt, obstacle_pos_cmp );
 
         SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
       }

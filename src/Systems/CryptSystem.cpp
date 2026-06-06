@@ -383,7 +383,9 @@ void CryptSystem::createRoomBorders()
     for ( auto &[pos_entt, pos_cmp] : room_cmp.m_border_position_list )
     {
       if ( not reg().valid( pos_entt ) ) continue;
-      Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, sprite_index );
+      Factory::add_obstacle( reg(), pos_entt );
+      Factory::decorate_obstacle( reg(), pos_entt, pos_cmp, ms, sprite_index );
+      reg().emplace_or_replace<Cmp::UUID>( pos_entt, Cmp::UUID::generate() );
       if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
         pathfinding_navmesh->remove( pos_entt, pos_cmp );
     }
@@ -463,7 +465,9 @@ void CryptSystem::gen_crypt_initial_interior()
       // if non-zero use the sprites.json zorder value, else use the sprites y-xis pos
       const Sprites::SpriteSheet &ms = m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.wall.int" );
 
-      Factory::create_obstacle( reg(), entity, pos_cmp, ms, 0 );
+      Factory::add_obstacle( reg(), entity );
+      Factory::decorate_obstacle( reg(), entity, pos_cmp, ms, 0 );
+      reg().emplace_or_replace<Cmp::UUID>( entity, Cmp::UUID::generate() );
     }
   }
 }
@@ -725,7 +729,9 @@ void CryptSystem::fill_closed_rooms()
       if ( reg().any_of<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Direction>( pos_entt ) ) continue;
 
       const Sprites::SpriteSheet &ms = m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.wall.int" );
-      Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, 0 );
+      Factory::add_obstacle( reg(), pos_entt );
+      Factory::decorate_obstacle( reg(), pos_entt, pos_cmp, ms, 0 );
+      reg().emplace_or_replace<Cmp::UUID>( pos_entt, Cmp::UUID::generate() );
 
       if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
       {

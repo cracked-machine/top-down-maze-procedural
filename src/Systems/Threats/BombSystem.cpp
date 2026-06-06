@@ -371,9 +371,8 @@ void BombSystem::update()
     // finally delete the armed component
     Factory::destroy_armed( reg(), armed_entt );
 
-    // Replace the armed position with a detonated sprite for visual effect - make sure its z-order
-    // is furthest back
-    Factory::create_detonated( reg(), armed_entt, armed_pos_cmp );
+    // Replace the armed position with a detonated sprite for visual effect - make sure its z-order is furthest back
+    Factory::add_detonated( reg(), armed_entt, armed_pos_cmp );
   }
 }
 

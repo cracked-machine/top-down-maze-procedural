@@ -123,7 +123,7 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &registry, 
     int rel_grid_x = static_cast<int>( rel_x / Constants::kGridSizePx.x );
     int rel_grid_y = static_cast<int>( rel_y / Constants::kGridSizePx.y );
 
-    std::size_t calculated_grid_index = rel_grid_y * ms.get_grid_size().width + rel_grid_x;
+    std::size_t calculated_grid_index = ( rel_grid_y * ms.get_grid_size().width ) + rel_grid_x;
     SPDLOG_DEBUG( "  - Creating segment at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
 
     bool new_solid_mask = true;
@@ -184,8 +184,7 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &registry, 
 
 template <typename MULTIBLOCK, typename MBSEGMENT>
   requires IsMB<MULTIBLOCK> && IsMBSegment<MBSEGMENT>
-void add_multiblock_with_segments( entt::registry &reg, sf::Vector2f position, const Sprites::SpriteSheet &ms, size_t ms_index = 0,
-                                   [[maybe_unused]] float zorder = 0 )
+void add_multiblock_with_segments( entt::registry &reg, sf::Vector2f position, const Sprites::SpriteSheet &ms, size_t ms_index = 0, float zorder = 0 )
 {
   auto entt = reg.create();
   Cmp::Position pos( position, ms.get_sprite_size() );
@@ -193,10 +192,12 @@ void add_multiblock_with_segments( entt::registry &reg, sf::Vector2f position, c
   Factory::detail::create_multiblock<MULTIBLOCK>( reg, entt, pos, ms, ms_index );
   Factory::detail::create_multiblock_segments<MULTIBLOCK, MBSEGMENT>( reg, entt, pos, ms );
 
-  for ( auto [view_entt, view_cmp, view_zorder] : reg.view<MULTIBLOCK, Cmp::ZOrderValue>().each() )
+  for ( auto [mb_entt, mb_cmp, mb_zorder_cmp] : reg.view<MULTIBLOCK, Cmp::ZOrderValue>().each() )
   {
-    if ( ms.get_zorder( 0 ) != 0 ) { view_zorder.setZOrder( ms.get_zorder( 0 ) ); }
-    else { view_zorder.setZOrder( view_cmp.position.y + ms.get_sprite_size().y ); }
+    // Use the non-zero function arg, or the non-zero json value, or fallback to the sprite y-axis
+    if ( zorder != 0 ) { mb_zorder_cmp.setZOrder( zorder ); }
+    else if ( ms.get_zorder( ms_index ) != 0 ) { mb_zorder_cmp.setZOrder( ms.get_zorder( ms_index ) ); }
+    else { mb_zorder_cmp.setZOrder( mb_zorder_cmp.getZOrder() ); }
   }
 }
 

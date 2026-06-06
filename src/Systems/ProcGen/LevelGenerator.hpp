@@ -32,12 +32,19 @@ public:
   //! @param scene_map
   void build_scene_from_data( const Scene::SceneData &scene_data );
 
-  //! @brief create "sprite.graveyard.wall.int" for the graveyard.
-  void gen_graveyard_exterior_obstacles( float init_chance );
+  //! @brief Create obstacle components without sprites for initial proc gen
+  void add_graveyard_exterior_obstacles( float init_chance );
 
-  //! @brief
+  //! @brief create "sprite.graveyard.wall.int.main" and "sprite.graveyard.wall.int.cap" sprites for the graveyard obstacles.
+  void decorate_graveyard_exterior_obstacles();
+
+  //! @brief Create obstacle components without sprites for initial proc gen
   void add_ruin_interior_obstacles( float init_chance );
 
+  //! @brief Create "sprite.crypt.wall.int" sprites for the graveyard obstacles.
+  void decorate_ruin_interior_obstacles();
+
+  //! @brief
   void add_ruin_rune_markers();
 
   //! @brief create multiblock sprites (i.e. graves, altars, crypts) for the graveyard scene.

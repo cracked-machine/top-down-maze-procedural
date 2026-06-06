@@ -7,6 +7,7 @@
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 #include <regex>
+#include <spdlog/fmt/bundled/ranges.h>
 #include <spdlog/spdlog.h>
 #include <string>
 
@@ -153,7 +154,8 @@ std::pair<SpriteMetaType, std::size_t> SpriteFactory::get_random_type_and_textur
     }
   }
   // Fallback to error sprite if not found
-  SPDLOG_ERROR( "Could not find matching sprite type in map, returning error sprite" );
+
+  SPDLOG_ERROR( "Could not find matching sprite types {} in map, returning error sprite", fmt::join( type_list, ", " ) );
   return { "ERROR_SPRITE", 0 };
 }
 

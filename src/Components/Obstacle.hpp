@@ -7,7 +7,6 @@ namespace Game::Cmp
 // Mark the entity as a Rock obstacle
 struct Obstacle
 {
-
   bool m_enabled{ true };
 };
 

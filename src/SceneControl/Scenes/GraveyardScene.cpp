@@ -119,7 +119,7 @@ void GraveyardScene::on_init()
   level_gen.gen_random_plants( map_size_grid );
 
   auto init_chance = Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenInitChance>( m_reg );
-  level_gen.gen_graveyard_exterior_obstacles( init_chance.get_value() );
+  level_gen.add_graveyard_exterior_obstacles( init_chance.get_value() );
 
   auto &cellauto_parser = m_sys.find<Sys::Store::Type::CellAutomataSystem>();
   auto max_iterations = Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenMaxIterations>( m_reg );
@@ -127,6 +127,8 @@ void GraveyardScene::on_init()
   auto survival_threshold = Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenSurvivalThreshold>( m_reg );
   cellauto_parser.iterate( max_iterations.get_value(), birth_threshold.get_value(), survival_threshold.get_value(),
                            Sys::ProcGen::LevelGenerator::SceneType::GRAVEYARD_EXTERIOR, level_gen.get_obstacle_sm() );
+
+  level_gen.decorate_graveyard_exterior_obstacles();
 
   // auto max_iterations = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenMaxIterations>( m_reg );
   // auto &dla_sys = m_sys.find<Sys::Store::Type::DiffusionLtdAggrSystem>();

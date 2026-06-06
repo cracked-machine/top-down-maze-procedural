@@ -94,6 +94,8 @@ void RuinSceneLowerFloor::on_init()
   dla_sys.iterate( sf::FloatRect( { 0.f, 0.f }, map_size_pixel ), sf::Vector2f{ 224.f, 144.f }, max_iterations.get_value(),
                    level_gen.get_obstacle_sm() );
 
+  level_gen.decorate_ruin_interior_obstacles();
+
   // add access hitbox just above horizontal centerpoint
   sf::Vector2f flooraccess_position( map_size_pixel.x - ( 3 * gridsize.x ), 2 * gridsize.y );
   sf::Vector2f flooraccess_size( ( 2 * gridsize.x ), gridsize.y );

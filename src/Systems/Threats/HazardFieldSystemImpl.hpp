@@ -44,10 +44,7 @@ sf::Vector2f HazardFieldSystem<HazardType>::update()
   add_hazard_cell = update_hazard_field();
   check_npc_hazard_field_collision();
 
-  for ( auto [_ent, _sys] : reg().template view<Cmp::System>().each() )
-  {
-    if ( not _sys.collisions_disabled ) { check_player_hazard_field_collision(); }
-  }
+  if ( not Utils::getSystemCmp( reg() ).collisions_disabled ) { check_player_hazard_field_collision(); }
 
   return add_hazard_cell;
 }
@@ -98,7 +95,7 @@ sf::Vector2f HazardFieldSystem<HazardType>::update_hazard_field()
   m_spread_update_clock.restart();
 
   auto hazard_view = reg().template view<HazardType, Cmp::Position>();
-  auto obstacle_view = reg().template view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::ReservedPosition> );
+  auto obstacle_view = reg().template view<Cmp::Obstacle, Cmp::Position, Cmp::AnimData>( entt::exclude<Cmp::ReservedPosition> );
 
   Cmp::RandomInt hazard_spread_picker( 0, Traits::odds ); // 1 in 8 chance for picking an adjacent obstacle
 
@@ -112,8 +109,10 @@ sf::Vector2f HazardFieldSystem<HazardType>::update_hazard_field()
     int adjacent_hazard_fields = 0;
 
     // add new hazard cell
-    for ( auto [obstacle_entity, obstacle_cmp, obst_pos_cmp] : obstacle_view.each() )
+    for ( auto [obstacle_entity, obstacle_cmp, obst_pos_cmp, obst_anim_cmp] : obstacle_view.each() )
     {
+      // only search for main obstacles, cap obstacles are removed implicitly by Factory::remove_obstacle()
+      if ( not obst_anim_cmp.m_sprite_type.contains( ".main" ) ) continue;
       if ( not hazard_hitbox.findIntersection( obst_pos_cmp ) ) continue;
       SPDLOG_DEBUG( "Hazard intersected with object {}", static_cast<uint32_t>( obstacle_entity ) );
 
@@ -166,20 +165,19 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
   {
     // optimization
     // if ( player_mort_cmp.state != Cmp::PlayerMortality::State::ALIVE ) return;
-    if ( !Utils::is_visible_in_view( RenderSystem::get_world_view(), player_pos_cmp ) ) continue;
+    if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), player_pos_cmp ) ) continue;
 
     // dont spam death events if the player is already dead
     if ( player_mort_cmp.state == Cmp::PlayerMortality::State::DEAD ) continue;
 
-    // reduce the player hitbox so that you have to be almost centered over it to fall in
-    auto player_hitbox_redux = Cmp::RectBounds::scaled( player_pos_cmp.position, player_pos_cmp.size, 0.1f );
     for ( auto [hazard_entt, hazard_cmp, hazard_pos_cmp] : hazard_view.each() )
     {
 
       if constexpr ( Traits::sprite_type == "sprite.graveyard.hazard.sinkhole" )
       {
-        // reduce the hazaard hitbox so that you have to be almost centered over it to fall in
+        // reduce the hitboxes so that you have to be almost centered over it to fall in
         auto sinkhole_hitbox_redux = Cmp::RectBounds::scaled( hazard_pos_cmp.position, hazard_pos_cmp.size, 0.1f );
+        auto player_hitbox_redux = Cmp::RectBounds::scaled( player_pos_cmp.position, player_pos_cmp.size, 0.1f );
         if ( player_hitbox_redux.findIntersection( sinkhole_hitbox_redux.getBounds() ) )
         {
           // trigger death animation
@@ -190,19 +188,19 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
       if constexpr ( Traits::sprite_type == "sprite.graveyard.hazard.corruption" )
       {
         // normal size hitbox for corruption for full area
-        auto corruption_hitbox_redux = Cmp::RectBounds::scaled( hazard_pos_cmp.position, hazard_pos_cmp.size, 1.f );
-        if ( player_hitbox_redux.findIntersection( corruption_hitbox_redux.getBounds() ) )
+        if ( hazard_pos_cmp.findIntersection( player_pos_cmp ) )
         {
 
           auto corruption_dmg = Sys::PersistSystem::get<Cmp::Persist::CorruptionDamage>( reg() ).get_value();
           player_stats_cmp.apply_modifiers( { Cmp::Stats::Health{ -corruption_dmg }, {}, {}, {}, {}, {} } );
+          SPDLOG_INFO( "Applying corruption damage {}", corruption_dmg );
+          // trigger death animation
+          if ( player_stats_cmp.health() <= 0 )
+          {
+            get_systems_event_queue().trigger( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::DECAYING, player_position ) );
+          }
+          return;
         }
-        // trigger death animation
-        if ( player_stats_cmp.health() <= 0 )
-        {
-          get_systems_event_queue().trigger( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::DECAYING, player_position ) );
-        }
-        return;
       }
     }
   }

@@ -17,19 +17,29 @@ namespace Game::Factory
 entt::entity create_world_pos( entt::registry &registry, const sf::Vector2f &pos );
 entt::entity create_void_pos( entt::registry &registry, const Cmp::Position &pos );
 
-//! @brief Create a obstacle object
+//! @brief Create an obstacle WITHOUT sprite for procedural generation algorithm
 //! @param registry
 //! @param entity
 //! @param pos_cmp
 //! @param ms
 //! @param sprite_tile_idx
-void create_obstacle( entt::registry &registry, entt::entity entity, Cmp::Position pos_cmp, const Sprites::SpriteSheet &ms,
-                      std::size_t sprite_tile_idx );
+void add_obstacle( entt::registry &registry, entt::entity entity );
+
+//! @brief Create an obstacle WITH sprite for final level gen pass
+//! @param registry
+//! @param entity
+//! @param pos_cmp
+//! @param ms
+//! @param sprite_tile_idx
+//! @param zorder
+//! @param blocking
+void decorate_obstacle( entt::registry &registry, entt::entity entity, Cmp::Position pos_cmp, const Sprites::SpriteSheet &ms,
+                        std::size_t sprite_tile_idx, float zorder = 0, bool blocking = true );
 
 //! @brief Remove the obstacle component from the entity
 //! @param registry
 //! @param obstacle_entity
-void remove_obstacle( entt::registry &registry, entt::entity obstacle_entity );
+void remove_obstacle( entt::registry &reg, entt::entity search_entt );
 
 } // namespace Game::Factory
 

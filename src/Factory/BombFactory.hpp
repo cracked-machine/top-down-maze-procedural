@@ -13,7 +13,7 @@ entt::entity create_armed( entt::registry &registry, entt::entity entity, Cmp::A
 
 void destroy_armed( entt::registry &reg, entt::entity armed_entity );
 
-void create_detonated( entt::registry &reg, entt::entity armed_entity, Cmp::Position &armed_pos_cmp );
+void add_detonated( entt::registry &reg, entt::entity armed_entity, Cmp::Position &armed_pos_cmp );
 
 } // namespace Game::Factory
 
