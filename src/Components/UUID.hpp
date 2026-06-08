@@ -40,7 +40,7 @@ struct UUID
   }
 
   //! @brief spaceship operator overload automatically generates ==, !=, <, >, <=, and >=
-  bool operator<=>( const UUID & ) const = default;
+  auto operator<=>( const UUID & ) const = default;
 
   //! @brief Returns true if all bytes are zero (default-constructed, no UUID assigned)
   [[nodiscard]] bool empty() const

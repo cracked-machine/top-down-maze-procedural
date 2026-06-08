@@ -8,6 +8,7 @@
 #include <Components/Position.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/BombFactory.hpp>
+#include <Player/PlayerNoPath.hpp>
 #include <Systems/PersistSystem.hpp>
 
 #include <Systems/BaseSystem.hpp>
@@ -29,10 +30,10 @@ entt::entity create_armed( entt::registry &reg, entt::entity entity, Cmp::Armed:
   // clang-format on
 
   // create the new armed entity
-  auto new_armed_entity = reg.create();
+  // auto new_armed_entity = reg.create();
   // clang-format off
     reg.emplace_or_replace<Cmp::Armed>(
-      new_armed_entity,
+      entity,
       new_fuse_delay,
       new_warning_delay,
       (epi_center == Cmp::Armed::EpiCenter::YES) ? true : false,
@@ -42,18 +43,18 @@ entt::entity create_armed( entt::registry &reg, entt::entity entity, Cmp::Armed:
     );
   // clang-format on
 
-  reg.emplace_or_replace<Cmp::Position>( new_armed_entity, reg.get<Cmp::Position>( entity ).position, reg.get<Cmp::Position>( entity ).size );
+  // reg.emplace_or_replace<Cmp::Position>( new_armed_entity, reg.get<Cmp::Position>( entity ).position, reg.get<Cmp::Position>( entity ).size );
 
   if ( epi_center == Cmp::Armed::EpiCenter::YES )
   {
-    reg.emplace_or_replace<Cmp::AnimData>( new_armed_entity, Cmp::AnimData::Config{ .sprite_type = "sprite.item.bomb" } );
-    reg.emplace_or_replace<Cmp::ZOrderValue>( new_armed_entity, zorder );
-    reg.emplace_or_replace<Cmp::NpcNoPathFinding>( new_armed_entity );
+    reg.emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ .sprite_type = "sprite.item.bomb" } );
+    reg.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
+    reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
   }
 
-  reg.emplace_or_replace<Cmp::NpcNoPathFinding>( new_armed_entity );
+  reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
 
-  return new_armed_entity;
+  return entity;
 }
 
 void destroy_armed( entt::registry &reg, entt::entity armed_entity )
@@ -66,8 +67,10 @@ void destroy_armed( entt::registry &reg, entt::entity armed_entity )
 
 void add_detonated( entt::registry &reg, entt::entity armed_entity, Cmp::Position &armed_pos_cmp )
 {
+  reg.remove<Cmp::NpcNoPathFinding>( armed_entity );
+  reg.remove<Cmp::PlayerNoPath>( armed_entity );
   reg.emplace_or_replace<Cmp::AnimData>( armed_entity, Cmp::AnimData::Config{ .sprite_type = "sprite.graveyard.detonated" } );
-  reg.emplace<Cmp::ZOrderValue>( armed_entity, armed_pos_cmp.position.y - 256.f );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( armed_entity, armed_pos_cmp.position.y - 256.f );
   reg.emplace_or_replace<Cmp::DestroyedObstacle>( armed_entity );
 }
 

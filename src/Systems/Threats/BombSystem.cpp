@@ -93,7 +93,9 @@ void BombSystem::arm_grave_bomb()
 {
   auto player_entt = Utils::Player::get_entity( reg() );
   m_sound_bank.get_effect( "bomb_fuse" ).play();
-  place_concentric_bomb_pattern( player_entt, reg().get<Cmp::PlayerBlastRadius>( player_entt ).value );
+  auto new_bomb_entt = reg().create();
+  reg().emplace_or_replace<Cmp::Position>( new_bomb_entt, Utils::Player::get_position( reg() ) );
+  place_concentric_bomb_pattern( new_bomb_entt, reg().get<Cmp::PlayerBlastRadius>( player_entt ).value );
 }
 
 void BombSystem::arm_entt( entt::entity target_entt )
@@ -237,7 +239,7 @@ void BombSystem::update()
     for ( auto [obst_entity, obst_cmp, obst_pos_cmp] : obstacle_view.each() )
     {
       if ( not obst_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
-      Factory::remove_obstacle( reg(), obst_entity );
+      Factory::remove_obstacle( reg(), obst_entity, true );
       pathfinding_navmesh->insert( obst_entity, obst_pos_cmp );
     }
 

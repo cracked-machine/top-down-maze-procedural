@@ -39,7 +39,8 @@ void decorate_obstacle( entt::registry &registry, entt::entity entity, Cmp::Posi
 //! @brief Remove the obstacle component from the entity
 //! @param registry
 //! @param obstacle_entity
-void remove_obstacle( entt::registry &reg, entt::entity search_entt );
+//! @param delete_extras Delete any extra obstacles entitys found (doesn't delete the search_entt)
+void remove_obstacle( entt::registry &reg, entt::entity search_entt, bool delete_extras = false );
 
 } // namespace Game::Factory
 

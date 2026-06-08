@@ -19,7 +19,9 @@
 #include <Components/RectBounds.hpp>
 #include <Components/Shop/ShopInventory.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Crypt/CryptPassageDoor.hpp>
 #include <Exit.hpp>
+#include <FootStepTimer.hpp>
 #include <Inventory/FlashUICadaver.hpp>
 #include <Inventory/FlashUIInventory.hpp>
 #include <Inventory/FlashUIRadius.hpp>
@@ -689,7 +691,11 @@ void RenderOverlaySystem::render_ui_entity_inspect()
 
       draw_line( "--- Entity #" + std::to_string( entt::to_integral( entity ) ) + " ---", sf::Color::Yellow );
 
-      if ( auto *cmp = reg().try_get<Cmp::AnimData>( entity ) ) draw_line( " " + cmp->m_sprite_type );
+      if ( auto *cmp = reg().try_get<Cmp::AnimData>( entity ) )
+      {
+        auto sprite_idx = std::to_string( cmp->getFrameIndexOffset() );
+        draw_line( " " + cmp->m_sprite_type + " [" + sprite_idx + "]" );
+      }
       if ( reg().all_of<Cmp::VoidPosition>( entity ) ) draw_line( "  Void", sf::Color::White );
       if ( reg().all_of<Cmp::ReservedPosition>( entity ) ) draw_line( "  ReservedPosition", sf::Color::Red );
       if ( reg().all_of<Cmp::NpcNoPathFinding>( entity ) ) draw_line( "  NpcNoPathFinding", sf::Color::Red );
@@ -698,15 +704,25 @@ void RenderOverlaySystem::render_ui_entity_inspect()
       if ( reg().all_of<Cmp::SelectedPosition>( entity ) ) draw_line( " Selected", sf::Color::Green );
       if ( reg().all_of<Cmp::Exit>( entity ) ) draw_line( " Exit", sf::Color::Green );
       if ( reg().all_of<Cmp::Obstacle>( entity ) ) draw_line( " Obstacle", sf::Color::Green );
+      if ( reg().all_of<Cmp::CryptPassageBlock>( entity ) ) draw_line( " PassageBlock", sf::Color::Blue );
+      if ( reg().all_of<Cmp::FootStepTimer>( entity ) ) draw_line( " Footsteps", sf::Color::Blue );
+      if ( reg().all_of<Cmp::CryptPassageDoor>( entity ) ) draw_line( " PassageDoor", sf::Color::Green );
 
-      if ( auto *cmp = reg().try_get<Cmp::UUID>( entity ) ) draw_line( " " + cmp->str(), sf::Color::Yellow );
+      if ( auto *cmp = reg().try_get<Cmp::UUID>( entity ) ) draw_line( " " + cmp->str(), sf::Color::White );
 
-      draw_line( "  Pos: [ " + std::to_string( static_cast<int>( pos_cmp.position.x ) ) + " , " +
-                 std::to_string( static_cast<int>( pos_cmp.position.y ) ) + " ]" );
+      auto posx = std::to_string( static_cast<int>( pos_cmp.position.x ) );
+      auto posy = std::to_string( static_cast<int>( pos_cmp.position.y ) );
+      draw_line( "  Pos: [ " + posx + " , " += posy + " ]" );
 
-      draw_line( "  Size: [ " + std::to_string( static_cast<int>( pos_cmp.size.x ) ) + " , " + std::to_string( static_cast<int>( pos_cmp.size.y ) ) +
-                 " ]" );
-      if ( auto *cmp = reg().try_get<Cmp::ZOrderValue>( entity ) ) draw_line( "  ZOrder: " + std::to_string( cmp->getZOrder() ) );
+      auto sizex = std::to_string( static_cast<int>( pos_cmp.size.y ) );
+      auto sizey = std::to_string( static_cast<int>( pos_cmp.size.y ) );
+      draw_line( "  Size: [ " + sizex + " , " += sizey + " ]" );
+
+      if ( auto *cmp = reg().try_get<Cmp::ZOrderValue>( entity ) )
+      {
+        auto zorder = std::to_string( cmp->getZOrder() );
+        draw_line( "  ZOrder: " + zorder );
+      }
     }
   }
 }

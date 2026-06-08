@@ -40,9 +40,6 @@ void add_obstacle( entt::registry &reg, entt::entity entity )
   if ( reg.any_of<Cmp::PlayerCharacter, Cmp::ReservedPosition>( entity ) ) { return; }
   if ( reg.all_of<Cmp::DestroyedObstacle>( entity ) ) { reg.remove<Cmp::DestroyedObstacle>( entity ); }
   reg.emplace_or_replace<Cmp::Obstacle>( entity );
-  reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
-  reg.emplace_or_replace<Cmp::PlayerNoPath>( entity );
-  reg.emplace_or_replace<Cmp::Armable>( entity );
 }
 
 void decorate_obstacle( entt::registry &reg, entt::entity entity, Cmp::Position pos_cmp, const Sprites::SpriteSheet &ms, std::size_t sprite_tile_idx,
@@ -62,11 +59,11 @@ void decorate_obstacle( entt::registry &reg, entt::entity entity, Cmp::Position 
 
   if ( reg.any_of<Cmp::PlayerCharacter, Cmp::ReservedPosition>( entity ) ) { return; }
   if ( reg.all_of<Cmp::DestroyedObstacle>( entity ) ) { reg.remove<Cmp::DestroyedObstacle>( entity ); }
-  reg.emplace_or_replace<Cmp::Obstacle>( entity );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
   reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
   if ( blocking ) { reg.emplace_or_replace<Cmp::PlayerNoPath>( entity ); }
   reg.emplace_or_replace<Cmp::AbsoluteAlpha>( entity, 255 );
+  reg.emplace_or_replace<Cmp::Armable>( entity );
   // clang-format off
   reg.emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 
         .sprite_type = ms.get_sprite_type(), 
@@ -79,8 +76,10 @@ void decorate_obstacle( entt::registry &reg, entt::entity entity, Cmp::Position 
   SPDLOG_DEBUG( "Added obstacle {} at [{},{}] Z: {}", ms.get_display_name(), pos_cmp.x(), pos_cmp.y(), zorder_cmp.getZOrder() );
 }
 
-void remove_obstacle( entt::registry &reg, entt::entity search_entt )
+void remove_obstacle( entt::registry &reg, entt::entity search_entt, bool delete_extras )
 {
+  if ( not reg.valid( search_entt ) ) return;
+
   Cmp::UUID search_uuid_cmp;
   auto *search_uuid_cmp_ptr = reg.try_get<Cmp::UUID>( search_entt );
   if ( search_uuid_cmp_ptr ) { search_uuid_cmp = *search_uuid_cmp_ptr; }
@@ -92,12 +91,12 @@ void remove_obstacle( entt::registry &reg, entt::entity search_entt )
   reg.remove<Cmp::AbsoluteAlpha>( search_entt );
   reg.remove<Cmp::AnimData>( search_entt );
   reg.remove<Cmp::UUID>( search_entt );
-  SPDLOG_DEBUG( "Removing obstacle {} - {}", static_cast<uint32_t>( search_entt ), search_uuid_cmp.str() );
+  SPDLOG_INFO( "Removing obstacle {} - {}", static_cast<uint32_t>( search_entt ), search_uuid_cmp.str() );
 
   // don't search for all zeroes UUID
   if ( search_uuid_cmp.empty() )
   {
-    SPDLOG_DEBUG( "This obstacle does not have a matching cap obstacle" );
+    SPDLOG_INFO( "This obstacle does not have a matching cap obstacle" );
     return;
   }
 
@@ -105,16 +104,8 @@ void remove_obstacle( entt::registry &reg, entt::entity search_entt )
   for ( auto [obstacle_entt, obstacle_cmp, obstacle_uuid_cmp] : reg.view<Cmp::Obstacle, Cmp::UUID>().each() )
   {
     if ( obstacle_uuid_cmp != search_uuid_cmp ) continue;
-    SPDLOG_DEBUG( "Removing matching obstacle {} - {}", static_cast<uint32_t>( obstacle_entt ), search_uuid_cmp.str() );
-    reg.remove<Cmp::Obstacle>( obstacle_entt );
-    reg.remove<Cmp::ZOrderValue>( obstacle_entt );
-    reg.remove<Cmp::NpcNoPathFinding>( obstacle_entt );
-    reg.remove<Cmp::PlayerNoPath>( obstacle_entt );
-    reg.remove<Cmp::AbsoluteAlpha>( obstacle_entt );
-    reg.remove<Cmp::AnimData>( obstacle_entt );
-    reg.remove<Cmp::UUID>( obstacle_entt );
-
-    reg.emplace_or_replace<Cmp::Armable>( obstacle_entt );
+    SPDLOG_INFO( "Removing matching obstacle {} - {}", static_cast<uint32_t>( obstacle_entt ), search_uuid_cmp.str() );
+    if ( delete_extras ) reg.destroy( obstacle_entt );
     break;
   }
 }
