@@ -207,7 +207,6 @@ void LevelGenerator::decorate_graveyard_exterior_obstacles()
     auto cap_entt = reg().create();
     Cmp::Position cap_position( { obstacle_pos_cmp.x(), obstacle_pos_cmp.y() - obstacle_pos_cmp.size.y }, obstacle_pos_cmp.size );
     reg().emplace_or_replace<Cmp::Position>( cap_entt, cap_position );
-    Factory::add_obstacle( reg(), cap_entt );
     Factory::decorate_obstacle( reg(), cap_entt, cap_position, ss_cap, rand_obst_tex_idx, obstacle_pos_cmp.y(), false );
     reg().emplace_or_replace<Cmp::UUID>( cap_entt, uuid );
   }

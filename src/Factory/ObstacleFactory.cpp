@@ -100,12 +100,12 @@ void remove_obstacle( entt::registry &reg, entt::entity search_entt, bool delete
     return;
   }
 
-  // search_uuid_cmp (local copy) is used here, not the now-deleted component
-  for ( auto [obstacle_entt, obstacle_cmp, obstacle_uuid_cmp] : reg.view<Cmp::Obstacle, Cmp::UUID>().each() )
+  // delete any cap entity (tied to obstacle entt by UUID)
+  for ( auto [cap_entt, cap_uuid_cmp] : reg.view<Cmp::UUID>().each() )
   {
-    if ( obstacle_uuid_cmp != search_uuid_cmp ) continue;
-    SPDLOG_INFO( "Removing matching obstacle {} - {}", static_cast<uint32_t>( obstacle_entt ), search_uuid_cmp.str() );
-    if ( delete_extras ) reg.destroy( obstacle_entt );
+    if ( cap_uuid_cmp != search_uuid_cmp ) continue;
+    SPDLOG_INFO( "Removing matching obstacle {} - {}", static_cast<uint32_t>( cap_entt ), search_uuid_cmp.str() );
+    if ( delete_extras ) reg.destroy( cap_entt );
     break;
   }
 }
