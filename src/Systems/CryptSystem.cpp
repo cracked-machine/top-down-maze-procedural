@@ -820,18 +820,15 @@ void CryptSystem::empty_open_rooms()
   {
     for ( auto [pos_entt, pos_cmp] : open_room_cmp.m_position_list )
     {
-      for ( auto [other_pos_entt, other_pos_cmp] : reg().view<Cmp::Position>().each() )
-      {
-        if ( not other_pos_cmp.findIntersection( pos_cmp ) ) continue;
-        // skip position outside open room area or if position doesn't have existing obstacle
-        if ( not open_room_cmp.findIntersection( other_pos_cmp ) ) continue;
-        if ( not reg().all_of<Cmp::Obstacle>( other_pos_entt ) ) continue;
+      if ( not pos_cmp.findIntersection( pos_cmp ) ) continue;
+      // skip position outside open room area or if position doesn't have existing obstacle
+      if ( not open_room_cmp.findIntersection( pos_cmp ) ) continue;
+      if ( not reg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
 
-        Factory::remove_obstacle( reg(), other_pos_entt, true );
-        if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
-        {
-          pathfinding_navmesh->insert( other_pos_entt, other_pos_cmp );
-        }
+      Factory::remove_obstacle( reg(), pos_entt, true );
+      if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
+      {
+        pathfinding_navmesh->insert( pos_entt, pos_cmp );
       }
     }
   }
