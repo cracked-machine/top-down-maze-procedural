@@ -453,7 +453,7 @@ void CryptSystem::check_chest_activation( Events::PlayerActionEvent::GameActions
 
 void CryptSystem::create_room_borders()
 {
-  auto add_borders_for_room = [&]<typename Component>( Component &room_cmp, size_t sprite_index )
+  auto add_borders_for_room = [&]<typename Component>( Component &room_cmp, RoomWallType room_wall_type )
   {
     for ( auto &[pos_entt, pos_cmp] : room_cmp.m_border_position_list )
     {
@@ -462,7 +462,7 @@ void CryptSystem::create_room_borders()
       if ( anim_data and anim_data->m_sprite_type.contains( ".main" ) )
       {
         Factory::remove_obstacle( reg(), pos_entt, true );
-        decorate_interior_wall( pos_entt, pos_cmp, sprite_index );
+        decorate_interior_wall( pos_entt, pos_cmp, room_wall_type );
       }
       if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
         pathfinding_navmesh->remove( pos_entt, pos_cmp );
@@ -470,10 +470,10 @@ void CryptSystem::create_room_borders()
   };
 
   for ( auto [closed_room_entt, closed_room_cmp] : reg().view<Cmp::CryptRoomClosed>().each() )
-    add_borders_for_room( closed_room_cmp, 0 );
+    add_borders_for_room( closed_room_cmp, RoomWallType::INTERIOR );
 
   for ( auto [open_room_entt, open_room_cmp] : reg().view<Cmp::CryptRoomOpen>().each() )
-    add_borders_for_room( open_room_cmp, 1 );
+    add_borders_for_room( open_room_cmp, RoomWallType::BORDER );
 }
 
 void CryptSystem::gen_crypt_initial_interior()
@@ -497,7 +497,7 @@ void CryptSystem::gen_crypt_initial_interior()
       if ( pos_cmp.findIntersection( open_room_cmp ) ) add_interior_wall = false;
     }
 
-    if ( add_interior_wall ) { decorate_interior_wall( pos_entt, pos_cmp, 0 ); }
+    if ( add_interior_wall ) { decorate_interior_wall( pos_entt, pos_cmp, RoomWallType::INTERIOR ); }
   }
 }
 
@@ -691,12 +691,13 @@ void CryptSystem::create_end_room( sf::Vector2u map_grid_size )
 
 /// PRIVATE FUNCTIONS
 
-void CryptSystem::decorate_interior_wall( entt::entity main_entt, Cmp::Position &main_pos_cmp, int tile_idx )
+void CryptSystem::decorate_interior_wall( entt::entity main_entt, Cmp::Position &main_pos_cmp, RoomWallType room_wall_type )
 {
   const Sprites::SpriteSheet &ss_main = m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.wall.int.main" );
   const Sprites::SpriteSheet &ss_cap = m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.wall.int.cap" );
   auto uuid = Cmp::UUID::generate();
 
+  int tile_idx = static_cast<int>( room_wall_type );
   Factory::add_obstacle( reg(), main_entt );
   Factory::decorate_obstacle( reg(), main_entt, main_pos_cmp, ss_main, tile_idx, main_pos_cmp.y() + ss_main.get_zorder( tile_idx ) );
   reg().emplace_or_replace<Cmp::UUID>( main_entt, uuid );
@@ -745,7 +746,7 @@ void CryptSystem::fill_closed_rooms()
       if ( reg().any_of<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Direction>( pos_entt ) ) continue;
 
       Factory::remove_obstacle( reg(), pos_entt, true );
-      decorate_interior_wall( pos_entt, pos_cmp, 0 );
+      decorate_interior_wall( pos_entt, pos_cmp, RoomWallType::INTERIOR );
 
       // if ( not reg().valid( pos_entt ) ) continue; // entity was destroyed as a cap
 
@@ -766,7 +767,7 @@ void CryptSystem::fill_closed_rooms()
       if ( reg().any_of<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Direction>( pos_entt ) ) continue;
 
       Factory::remove_obstacle( reg(), pos_entt, true );
-      decorate_interior_wall( pos_entt, pos_cmp, 1 );
+      decorate_interior_wall( pos_entt, pos_cmp, RoomWallType::BORDER );
 
       // if ( not reg().valid( pos_entt ) ) continue; // entity was destroyed as a cap
 
@@ -843,7 +844,7 @@ void CryptSystem::empty_open_rooms()
       if ( not open_room_cmp.findIntersection( pos_cmp ) ) continue;
       if ( not reg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
       Factory::remove_obstacle( reg(), pos_entt, true );
-      decorate_interior_wall( pos_entt, pos_cmp, 1 );
+      decorate_interior_wall( pos_entt, pos_cmp, RoomWallType::BORDER );
     }
   }
 }

@@ -19,6 +19,7 @@ namespace Game::Sys
 class CryptSystem : public Game::Sys::BaseSystem
 {
 public:
+  enum class RoomWallType { INTERIOR = 0, BORDER = 1 };
   CryptSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
                entt::dispatcher &scenemanager_event_dispatcher )
       : Game::Sys::BaseSystem( reg, window, sprite_factory, sound_bank ),
@@ -98,7 +99,7 @@ public:
   }
 
 private:
-  void decorate_interior_wall( entt::entity main_entt, Cmp::Position &main_pos_cmp, int tile_idx );
+  void decorate_interior_wall( entt::entity main_entt, Cmp::Position &main_pos_cmp, RoomWallType room_wall_type );
 
   //! @brief Unlock the objective passage
   void unlock_objective_passage();
