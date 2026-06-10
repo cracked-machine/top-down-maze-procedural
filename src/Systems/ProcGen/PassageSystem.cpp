@@ -493,6 +493,7 @@ void PassageSystem::fill_all_passages()
   {
     if ( reg().any_of<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Direction>( pos_entt ) ) continue;
     if ( reg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
+    if ( reg().all_of<Cmp::UUID>( pos_entt ) ) continue; // skip cap entities (no Obstacle but already decorated)
     for ( auto &pblock_rect : pblock_rects )
     {
       if ( pblock_rect.findIntersection( pos_cmp ) )
