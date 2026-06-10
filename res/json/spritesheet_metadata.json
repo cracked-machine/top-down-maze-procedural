@@ -492,12 +492,26 @@
         }
       }
     },
-    "sprite.crypt.wall.int": {
+    "sprite.crypt.wall.int.main": {
       "spritesheet": {
-        "displayname": "crypt.wall.int",
-        "zorder": [-5,-5],
+        "displayname": "crypt.wall.int.main",
+        "zorder": [-5,5],
         "texture_path": "res/textures/crypt.png",
-        "sprite_indices": [2,3],
+        "sprite_indices": [18,19],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "sprite.crypt.wall.int.cap": {
+      "spritesheet": {
+        "displayname": "crypt.wall.int.cap",
+        "zorder": [-5,5],
+        "texture_path": "res/textures/crypt.png",
+        "sprite_indices": [8,9],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -571,7 +585,7 @@
     "sprite.crypt.chest": {
       "spritesheet": {
         "displayname": "sprite.crypt.chest",
-        "zorder": [0, 0, 0],
+        "zorder": [10, 10, 10],
         "texture_path": "res/textures/crypt.png",
         "sprite_indices": [20,21,22],
         "sprites_per_sequence": 3,

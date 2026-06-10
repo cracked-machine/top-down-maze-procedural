@@ -69,7 +69,7 @@ void CryptScene::on_init()
   auto start_room_entity = m_reg.create();
   m_reg.emplace_or_replace<Cmp::CryptRoomStart>( start_room_entity, player_start_area.position(), player_start_area.size() );
   m_sys.find<Sys::Store::Type::CryptSystem>().create_end_room( map_size_grid );
-  m_sys.find<Sys::Store::Type::CryptSystem>().create_initial_crypt_rooms( map_size_grid );
+  m_sys.find<Sys::Store::Type::CryptSystem>().create_initial_closed_rooms( map_size_grid );
   m_sys.find<Sys::Store::Type::CryptSystem>().cache_all_room_connections();
   m_sys.find<Sys::Store::Type::CryptSystem>().gen_crypt_initial_interior();
 

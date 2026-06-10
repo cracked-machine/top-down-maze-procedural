@@ -56,7 +56,9 @@ void PassageSystem::on_passage_event( Events::PassageEvent &event )
   {
     case Events::PassageEvent::Type::REMOVE_PASSAGES:
       m_passage_algos.reset();
-      remove_passages();
+      fill_all_passages();
+      remove_all_passage_blocks();
+      m_uncached_passage_list.clear();
       break;
     case Events::PassageEvent::Type::OPEN_PASSAGES:
       open_passages();
@@ -83,13 +85,6 @@ void PassageSystem::on_passage_event( Events::PassageEvent &event )
       add_spike_traps();
       break;
   }
-}
-
-void PassageSystem::remove_passages()
-{
-  fill_all_passages();
-  remove_all_passage_blocks();
-  m_uncached_passage_list.clear();
 }
 
 void PassageSystem::open_passages()
@@ -120,7 +115,7 @@ void PassageSystem::connect_start_and_open_rooms_passages( entt::entity start_ro
     SPDLOG_WARN( "start_room_entt is null" );
     return;
   }
-  auto start_room_cmp = reg().try_get<Cmp::CryptRoomStart>( start_room_entt );
+  auto *start_room_cmp = reg().try_get<Cmp::CryptRoomStart>( start_room_entt );
   if ( not start_room_cmp )
   {
     SPDLOG_WARN( "start_room_cmp is null" );
@@ -128,7 +123,7 @@ void PassageSystem::connect_start_and_open_rooms_passages( entt::entity start_ro
   }
 
   Scene::SceneMapSharedPtr crypt_scene_data = m_crypt_scene_data.lock();
-  if ( not crypt_scene_data ) std::runtime_error( "Unable to lock Scene::SceneConfigSharedPtr" );
+  if ( not crypt_scene_data ) throw std::runtime_error( "Unable to lock Scene::SceneConfigSharedPtr" );
   auto [map_size_grid, map_size_pixel] = crypt_scene_data->map_size();
 
   const auto start_room_right_pos_x = start_room_cmp->position.x + start_room_cmp->size.x;
@@ -439,9 +434,7 @@ void PassageSystem::remove_all_passage_blocks()
 {
   std::vector<entt::entity> passage_block_remove_list;
 
-  // find all Cmp::CryptPassageBlocks
-  auto crypt_passage_block_view = reg().view<Cmp::CryptPassageBlock>();
-  for ( auto [entt, block_cmp] : crypt_passage_block_view.each() )
+  for ( auto [entt, block_cmp] : reg().view<Cmp::CryptPassageBlock>().each() )
   {
     passage_block_remove_list.push_back( entt );
   }
@@ -459,64 +452,89 @@ void PassageSystem::empty_open_passages()
   PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock();
   if ( not pathfinding_navmesh ) return;
 
-  auto obstacle_view = reg().view<Cmp::Position>();
-  for ( auto [pos_entt, pos_cmp] : obstacle_view.each() )
+  std::vector<std::pair<entt::entity, Cmp::Position>> obstacles_to_remove;
+  std::vector<std::pair<entt::entity, Cmp::Position>> chests_to_remove;
+
+  for ( auto [pos_entt, pos_cmp] : reg().view<Cmp::Position>().each() )
   {
-    auto pblock_view = reg().view<Cmp::CryptPassageBlock>();
-    for ( auto [pblock_entt, pblock_cmp] : pblock_view.each() )
+    for ( auto [pblock_entt, pblock_cmp] : reg().view<Cmp::CryptPassageBlock>().each() )
     {
       auto pblock_cmp_rect = sf::FloatRect( pblock_cmp, Constants::kGridSizePxF );
-      // skip any positions that are not pblocks or do not have obstacles/chests
       if ( not pblock_cmp_rect.findIntersection( pos_cmp ) ) continue;
-      if ( reg().any_of<Cmp::Obstacle>( pos_entt ) )
-      {
-        Factory::remove_obstacle( reg(), pos_entt );
-        pathfinding_navmesh->insert( pos_entt, pos_cmp );
-      }
-      if ( reg().any_of<Cmp::CryptChest>( pos_entt ) )
-      {
-        Factory::destroy_crypt_chest( reg(), pos_entt );
-        pathfinding_navmesh->insert( pos_entt, pos_cmp );
-      }
+      if ( reg().any_of<Cmp::Obstacle>( pos_entt ) ) obstacles_to_remove.emplace_back( pos_entt, pos_cmp );
+      if ( reg().any_of<Cmp::CryptChest>( pos_entt ) ) chests_to_remove.emplace_back( pos_entt, pos_cmp );
     }
+  }
+
+  for ( auto &[entt, pos_cmp] : obstacles_to_remove )
+  {
+    Factory::remove_obstacle( reg(), entt, true );
+    pathfinding_navmesh->insert( entt, pos_cmp );
+  }
+  for ( auto &[entt, pos_cmp] : chests_to_remove )
+  {
+    Factory::destroy_crypt_chest( reg(), entt );
+    pathfinding_navmesh->insert( entt, pos_cmp );
   }
 }
 
 void PassageSystem::fill_all_passages()
 {
+  // Pre-collect passage block rects
+  std::vector<sf::FloatRect> pblock_rects;
+  for ( auto [pblock_entt, pblock_cmp] : reg().view<Cmp::CryptPassageBlock>().each() )
+    pblock_rects.emplace_back( pblock_cmp, Constants::kGridSizePxF );
 
-  auto obstacle_view = reg().view<Cmp::Position>();
-  for ( auto [pos_entt, pos_cmp] : obstacle_view.each() )
+  if ( pblock_rects.empty() ) return;
+
+  // Collect positions to fill
+  std::vector<std::pair<entt::entity, Cmp::Position>> positions_to_fill;
+  for ( auto [pos_entt, pos_cmp] : reg().view<Cmp::Position>().each() )
   {
-    // don't add obstacles to footstep entities
     if ( reg().any_of<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Direction>( pos_entt ) ) continue;
-
-    auto pblock_view = reg().view<Cmp::CryptPassageBlock>();
-    for ( auto [pblock_entt, pblock_cmp] : pblock_view.each() )
+    if ( reg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
+    for ( auto &pblock_rect : pblock_rects )
     {
-      auto pblock_cmp_rect = sf::FloatRect( pblock_cmp, Constants::kGridSizePxF );
-      // skip any positions that are not pblocks or already have obstacles
-      if ( not pblock_cmp_rect.findIntersection( pos_cmp ) ) continue;
-      if ( reg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
-
-      const Sprites::SpriteSheet &ms = m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.wall.int" );
-      Factory::add_obstacle( reg(), pos_entt );
-      Factory::decorate_obstacle( reg(), pos_entt, pos_cmp, ms, 0 );
-      reg().emplace_or_replace<Cmp::UUID>( pos_entt, Cmp::UUID::generate() );
-
-      if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
+      if ( pblock_rect.findIntersection( pos_cmp ) )
       {
-        pathfinding_navmesh->remove( pos_entt, pos_cmp );
+        positions_to_fill.emplace_back( pos_entt, pos_cmp );
+        break;
       }
+    }
+  }
 
-      if ( not Utils::getSystemCmp( reg() ).collisions_disabled )
+  // Position view iteration is fully complete
+  const Sprites::SpriteSheet &ss_main = m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.wall.int.main" );
+  const Sprites::SpriteSheet &ss_cap = m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.wall.int.cap" );
+  PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock();
+
+  for ( auto &[pos_entt, pos_cmp] : positions_to_fill )
+  {
+    auto uuid = Cmp::UUID::generate();
+
+    Factory::add_obstacle( reg(), pos_entt );
+    Factory::decorate_obstacle( reg(), pos_entt, pos_cmp, ss_main, 0, pos_cmp.y() + ss_main.get_zorder( 0 ) );
+    reg().emplace_or_replace<Cmp::UUID>( pos_entt, uuid );
+
+    auto cap_entt = reg().create();
+    Cmp::Position cap_position( { pos_cmp.x(), pos_cmp.y() - pos_cmp.size.y }, pos_cmp.size );
+    reg().emplace_or_replace<Cmp::Position>( cap_entt, cap_position );
+    Factory::decorate_obstacle( reg(), cap_entt, cap_position, ss_cap, 0, pos_cmp.y() + ss_cap.get_zorder( 0 ), false );
+    reg().emplace_or_replace<Cmp::UUID>( cap_entt, uuid );
+
+    if ( pathfinding_navmesh ) pathfinding_navmesh->remove( pos_entt, pos_cmp );
+  }
+
+  // Player squish check — done once after all walls are placed
+  if ( not Utils::getSystemCmp( reg() ).collisions_disabled )
+  {
+    for ( auto &pblock_rect : pblock_rects )
+    {
+      if ( Utils::Player::get_position( reg() ).findIntersection( pblock_rect ) )
       {
-        if ( Utils::Player::get_position( reg() ).findIntersection( pblock_cmp_rect ) )
-        {
-          // player got squished
-          get_systems_event_queue().enqueue(
-              Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SQUISHED, Utils::Player::get_position( reg() ) ) );
-        }
+        get_systems_event_queue().enqueue(
+            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SQUISHED, Utils::Player::get_position( reg() ) ) );
+        break;
       }
     }
   }

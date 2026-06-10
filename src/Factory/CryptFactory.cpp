@@ -83,6 +83,7 @@ entt::entity create_crypt_chest( entt::registry &reg, sf::Vector2f pos, Sprites:
 
 void destroy_crypt_chest( entt::registry &reg, entt::entity entt )
 {
+  if ( not reg.valid( entt ) ) return;
   if ( reg.all_of<Cmp::CryptChest>( entt ) ) reg.remove<Cmp::CryptLever>( entt );
   if ( reg.all_of<Cmp::Position>( entt ) ) reg.remove<Cmp::Position>( entt );
   if ( reg.all_of<Cmp::AnimData>( entt ) ) reg.remove<Cmp::AnimData>( entt );

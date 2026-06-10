@@ -33,7 +33,6 @@ public:
 
   void update( sf::Time dt );
 
-  void remove_passages();
   void open_passages();
 
   //! @brief Create west, north, east passages for the start room via find_passage_target()

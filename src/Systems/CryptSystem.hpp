@@ -9,11 +9,9 @@
 
 #include <set>
 
-namespace Game::Cmp
-{
-class CryptRoomEnd;
-class CryptRoomStart;
-} // namespace Game::Cmp
+// clang-format off
+namespace Game::Cmp { class CryptRoomEnd; class CryptRoomStart; class Position; }
+// clang-format on
 
 namespace Game::Sys
 {
@@ -69,7 +67,7 @@ public:
   void check_chest_activation( Events::PlayerActionEvent::GameActions action );
 
   //! @brief Restores border Cmp::Obstacles to Cmp::CryptRoomEnd, Cmp::CryptRoomStart and Cmp::CryptRoomOpen areas
-  void createRoomBorders();
+  void create_room_borders();
 
   void on_pause() override {}
   void on_resume() override {}
@@ -80,12 +78,14 @@ public:
   //! @brief Generate the initial Crypt interior walls (fills in Cmp::CryptRoomsClosed)
   //! @note Except for start/end rooms, all other rooms should start as Cmp::CryptRoomsClosed
   void gen_crypt_initial_interior();
+
+  //! @brief Pre-cache the passage connections between the initial closed rooms to mitigate FPS issues during play.
   void cache_all_room_connections();
 
-  //! @brief Create rooms that are NOT start/end rooms for the crypt game area.
+  //! @brief Create the initial rooms that are closed by default.
   //! @param reg
   //! @param map_grid_size
-  void create_initial_crypt_rooms( sf::Vector2u map_grid_size );
+  void create_initial_closed_rooms( sf::Vector2u map_grid_size );
 
   //! @brief Generate the main objective for the Crypt
   //! @param map_grid_size
@@ -98,6 +98,8 @@ public:
   }
 
 private:
+  void decorate_interior_wall( entt::entity main_entt, Cmp::Position &main_pos_cmp, int tile_idx );
+
   //! @brief Unlock the objective passage
   void unlock_objective_passage();
 

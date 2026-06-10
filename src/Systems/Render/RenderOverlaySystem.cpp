@@ -20,6 +20,8 @@
 #include <Components/Shop/ShopInventory.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Crypt/CryptPassageDoor.hpp>
+#include <Crypt/CryptRoomLavaPit.hpp>
+#include <Crypt/CryptRoomLavaPitCell.hpp>
 #include <Exit.hpp>
 #include <FootStepTimer.hpp>
 #include <Inventory/FlashUICadaver.hpp>
@@ -707,6 +709,8 @@ void RenderOverlaySystem::render_ui_entity_inspect()
       if ( reg().all_of<Cmp::CryptPassageBlock>( entity ) ) draw_line( " PassageBlock", sf::Color::Blue );
       if ( reg().all_of<Cmp::FootStepTimer>( entity ) ) draw_line( " Footsteps", sf::Color::Blue );
       if ( reg().all_of<Cmp::CryptPassageDoor>( entity ) ) draw_line( " PassageDoor", sf::Color::Green );
+      if ( reg().all_of<Cmp::CryptRoomLavaPitCell>( entity ) ) draw_line( " CryptRoomLavaPitCell", sf::Color{ 255, 165, 0 } );
+      if ( reg().all_of<Cmp::CryptRoomLavaPit>( entity ) ) draw_line( " CryptRoomLavaPit", sf::Color{ 255, 165, 0 } );
 
       if ( auto *cmp = reg().try_get<Cmp::UUID>( entity ) ) draw_line( " " + cmp->str(), sf::Color::White );
 
