@@ -74,13 +74,9 @@ namespace Game::Sys
 
 void CryptSystem::setup()
 {
-
   if ( Utils::Player::get_mortality( m_reg ).state != Cmp::PlayerMortality::State::DEAD )
   {
-    // create_room_borders();
-
-    // make sure player has been situated in start room first
-    // shuffle_rooms_passages();
+    shuffle_rooms_passages();
     reset_maze();
   }
 }
@@ -1084,18 +1080,38 @@ std::vector<entt::entity> CryptSystem::get_available_room_positions()
 
 void CryptSystem::add_chest_to_open_rooms()
 {
+  auto is_invalid_position = [&]( const Cmp::CryptRoomOpen &open_room_cmp, const sf::Vector2f &selected_pos ) -> bool
+  {
+    auto open_room_width = open_room_cmp.position.x + open_room_cmp.size.x;
+
+    // skip bottom edge and all corner border positons
+    if ( selected_pos.y >= open_room_cmp.position.y + ( open_room_cmp.size.y - Constants::kGridSizePxF.y ) ) return true;
+    if ( selected_pos.x >= open_room_width and selected_pos.y <= open_room_cmp.position.y ) return true;
+    if ( selected_pos.x <= open_room_cmp.position.x and selected_pos.y <= open_room_cmp.position.y ) return true;
+    return false;
+  };
+
   for ( auto [open_room_entt, open_room_cmp] : reg().view<Cmp::CryptRoomOpen>().each() )
   {
     if ( open_room_cmp.findIntersection( Utils::Player::get_position( reg() ) ) ) continue;
-
     Cmp::RandomInt room_border_picker( 0, static_cast<int>( open_room_cmp.m_border_position_list.size() ) - 1 );
-    auto [selected_entt, selected_pos] = open_room_cmp.m_border_position_list[room_border_picker.gen()];
 
-    float zorder = selected_pos.y() + m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.chest" ).get_zorder( 0 );
+    size_t iterations = 0;
+    bool invalid_pos_found = true;
+    while ( invalid_pos_found and iterations < open_room_cmp.m_border_position_list.size() )
+    {
+      auto [selected_entt, selected_pos] = open_room_cmp.m_border_position_list[room_border_picker.gen()];
 
-    Factory::remove_obstacle( reg(), selected_entt, true );
-    Factory::create_crypt_chest( reg(), selected_pos.position, "sprite.crypt.chest", 0, zorder );
-    SPDLOG_DEBUG( "Added chest to position: {},{}", selected_pos.position.x, selected_pos.position.y );
+      invalid_pos_found = is_invalid_position( open_room_cmp, selected_pos.position );
+      iterations++;
+      if ( invalid_pos_found ) { continue; }
+
+      float zorder = selected_pos.y() + m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.chest" ).get_zorder( 0 );
+
+      Factory::remove_obstacle( reg(), selected_entt, true );
+      Factory::create_crypt_chest( reg(), selected_pos.position, "sprite.crypt.chest", 0, zorder );
+      SPDLOG_DEBUG( "Added chest to position: {},{}", selected_pos.position.x, selected_pos.position.y );
+    }
   }
 }
 
