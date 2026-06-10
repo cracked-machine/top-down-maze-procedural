@@ -585,7 +585,7 @@
     "sprite.crypt.chest": {
       "spritesheet": {
         "displayname": "sprite.crypt.chest",
-        "zorder": [10, 10, 10],
+        "zorder": [100, 100, 100],
         "texture_path": "res/textures/crypt.png",
         "sprite_indices": [20,21,22],
         "sprites_per_sequence": 3,

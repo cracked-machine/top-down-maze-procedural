@@ -1086,18 +1086,17 @@ std::vector<entt::entity> CryptSystem::get_available_room_positions()
 
 void CryptSystem::add_chest_to_open_rooms()
 {
-  Sprites::SpriteMetaType chest_sprite_type = "sprite.crypt.chest";
-  float zorder = m_sprite_factory.get_sprite_size_by_type( chest_sprite_type )
-                     .y; // + m_sprite_factory.get_spritesheet_by_type(chest_sprite_type).get_zorder(0);
-
-  // iterate all open rooms
   for ( auto [open_room_entt, open_room_cmp] : reg().view<Cmp::CryptRoomOpen>().each() )
   {
     if ( open_room_cmp.findIntersection( Utils::Player::get_position( reg() ) ) ) continue;
-    // pick a random border position
+
     Cmp::RandomInt room_border_picker( 0, open_room_cmp.m_border_position_list.size() - 1 );
     auto [selected_entt, selected_pos] = open_room_cmp.m_border_position_list[room_border_picker.gen()];
-    Factory::create_crypt_chest( reg(), selected_pos.position, chest_sprite_type, 0, zorder );
+
+    float zorder = selected_pos.y() + m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.chest" ).get_zorder( 0 );
+
+    Factory::remove_obstacle( reg(), selected_entt );
+    Factory::create_crypt_chest( reg(), selected_pos.position, "sprite.crypt.chest", 0, zorder );
     SPDLOG_DEBUG( "Added chest to position: {},{}", selected_pos.position.x, selected_pos.position.y );
   }
 }

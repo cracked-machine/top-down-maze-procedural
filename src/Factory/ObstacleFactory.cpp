@@ -91,12 +91,12 @@ void remove_obstacle( entt::registry &reg, entt::entity search_entt, bool delete
   reg.remove<Cmp::AbsoluteAlpha>( search_entt );
   reg.remove<Cmp::AnimData>( search_entt );
   reg.remove<Cmp::UUID>( search_entt );
-  SPDLOG_INFO( "Removing obstacle {} - {}", static_cast<uint32_t>( search_entt ), search_uuid_cmp.str() );
+  SPDLOG_DEBUG( "Removing obstacle {} - {}", static_cast<uint32_t>( search_entt ), search_uuid_cmp.str() );
 
   // don't search for all zeroes UUID
   if ( search_uuid_cmp.empty() )
   {
-    SPDLOG_INFO( "This obstacle does not have a matching cap obstacle" );
+    SPDLOG_DEBUG( "This obstacle {} does not have a matching cap obstacle {}", static_cast<uint32_t>( search_entt ), search_uuid_cmp.str() );
     return;
   }
 
@@ -104,7 +104,7 @@ void remove_obstacle( entt::registry &reg, entt::entity search_entt, bool delete
   for ( auto [cap_entt, cap_uuid_cmp] : reg.view<Cmp::UUID>().each() )
   {
     if ( cap_uuid_cmp != search_uuid_cmp ) continue;
-    SPDLOG_INFO( "Removing matching obstacle {} - {}", static_cast<uint32_t>( cap_entt ), search_uuid_cmp.str() );
+    SPDLOG_DEBUG( "Removing matching obstacle {} - {}", static_cast<uint32_t>( cap_entt ), search_uuid_cmp.str() );
     if ( delete_extras ) reg.destroy( cap_entt );
     break;
   }
