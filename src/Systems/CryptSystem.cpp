@@ -1096,7 +1096,7 @@ void CryptSystem::add_chest_to_open_rooms()
 
     float zorder = selected_pos.y() + m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.chest" ).get_zorder( 0 );
 
-    Factory::remove_obstacle( reg(), selected_entt );
+    Factory::remove_obstacle( reg(), selected_entt, true );
     Factory::create_crypt_chest( reg(), selected_pos.position, "sprite.crypt.chest", 0, zorder );
     SPDLOG_DEBUG( "Added chest to position: {},{}", selected_pos.position.x, selected_pos.position.y );
   }
