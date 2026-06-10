@@ -95,16 +95,16 @@ void PassageSystem::open_passages()
 
 void PassageSystem::add_spike_traps()
 {
-  auto passage_picker = Cmp::RandomInt( 0, m_passage_algos.get_current_passage_id() );
+  auto passage_picker = Cmp::RandomInt( 0, static_cast<int>( m_passage_algos.get_current_passage_id() ) );
   // static int max_num_spike_traps = 3;
   std::set<int> passage_ids_used;
 
   auto pblock_view = reg().view<Cmp::CryptPassageBlock>();
   for ( auto [pblock_entt, pblock_cmp] : pblock_view.each() )
   {
-    if ( passage_ids_used.contains( pblock_cmp.m_passage_id ) ) continue;
-    passage_ids_used.insert( pblock_cmp.m_passage_id );
-    Factory::add_spike_trap( reg(), pblock_entt, pblock_cmp.m_passage_id );
+    if ( passage_ids_used.contains( static_cast<int>( pblock_cmp.m_passage_id ) ) ) continue;
+    passage_ids_used.insert( static_cast<int>( pblock_cmp.m_passage_id ) );
+    Factory::add_spike_trap( reg(), pblock_entt, static_cast<int>( pblock_cmp.m_passage_id ) );
   }
 }
 
@@ -153,7 +153,7 @@ void PassageSystem::connect_start_and_open_rooms_passages( entt::entity start_ro
 void PassageSystem::connect_occupied_and_open_room_passages()
 {
   Scene::SceneMapSharedPtr crypt_scene_data = m_crypt_scene_data.lock();
-  if ( not crypt_scene_data ) std::runtime_error( "Unable to lock Scene::SceneConfigSharedPtr" );
+  if ( not crypt_scene_data ) throw std::runtime_error( "Unable to lock Scene::SceneConfigSharedPtr" );
 
   auto [map_size_grid, map_size_pixel] = crypt_scene_data->map_size();
 
@@ -201,7 +201,7 @@ void PassageSystem::connect_occupied_and_end_room_passages( entt::registry &reg,
     SPDLOG_WARN( "End room entt is null" );
     return;
   }
-  auto crypt_end_room_cmp = reg.try_get<Cmp::CryptRoomEnd>( end_room_entt );
+  auto *crypt_end_room_cmp = reg.try_get<Cmp::CryptRoomEnd>( end_room_entt );
   if ( not crypt_end_room_cmp )
   {
     SPDLOG_WARN( "end room cmp is null" );
@@ -229,7 +229,7 @@ void PassageSystem::cache_all_room_connections()
 {
 
   Scene::SceneMapSharedPtr crypt_scene_data = m_crypt_scene_data.lock();
-  if ( not crypt_scene_data ) std::runtime_error( "Unable to lock Scene::SceneConfigSharedPtr" );
+  if ( not crypt_scene_data ) throw std::runtime_error( "Unable to lock Scene::SceneConfigSharedPtr" );
 
   auto [map_size_grid, map_size_pixel] = crypt_scene_data->map_size();
   const auto world_area = sf::FloatRect( { 0, 0 }, map_size_pixel );
@@ -240,13 +240,13 @@ void PassageSystem::cache_all_room_connections()
   std::vector<Cmp::CryptPassageDirection> directions = { Cmp::CryptPassageDirection::WEST, Cmp::CryptPassageDirection::EAST,
                                                          Cmp::CryptPassageDirection::NORTH, Cmp::CryptPassageDirection::SOUTH };
 
-  float region_height = world_area.size.y / m_cached_passage_list.size();
+  float region_height = world_area.size.y / static_cast<float>( m_cached_passage_list.size() );
   float region_width = world_area.size.x;
   SPDLOG_DEBUG( "World height: {}, Region Height: {}", world_area.size.y, region_height );
   for ( auto [idx, it] : std::views::enumerate( m_cached_passage_list ) )
   {
-    auto new_region = sf::FloatRect( { 0.f, idx * region_height }, { region_width, region_height } );
-    it = ProcGen::PassageCachedRegions<40>::BlockRegion{ new_region, {} };
+    auto new_region = sf::FloatRect( { 0.f, static_cast<float>( idx ) * region_height }, { region_width, region_height } );
+    it = ProcGen::PassageCachedRegions<40>::BlockRegion{ .region = new_region, .blocklist = {} };
     SPDLOG_DEBUG( "Created cached region {},{} {},{}", new_region.position.x, new_region.position.y, new_region.size.x, new_region.size.y );
   }
 
@@ -355,7 +355,7 @@ void PassageSystem::create_cached_passages()
 }
 
 template <typename ROOMTYPE>
-ProcGen::MidPointDistanceQueue PassageSystem::find_room_distances( Cmp::CryptPassageDoor &start_passage_door, const sf::FloatRect search_quadrant,
+ProcGen::MidPointDistanceQueue PassageSystem::find_room_distances( Cmp::CryptPassageDoor &start_passage_door, const sf::FloatRect &search_quadrant,
                                                                    std::set<entt::entity> exclude_entts )
 {
 
@@ -372,9 +372,9 @@ ProcGen::MidPointDistanceQueue PassageSystem::find_room_distances( Cmp::CryptPas
 
   return pqueue;
 }
-template ProcGen::MidPointDistanceQueue PassageSystem::find_room_distances<Cmp::CryptRoomOpen>( Cmp::CryptPassageDoor &, const sf::FloatRect,
+template ProcGen::MidPointDistanceQueue PassageSystem::find_room_distances<Cmp::CryptRoomOpen>( Cmp::CryptPassageDoor &, const sf::FloatRect &,
                                                                                                 std::set<entt::entity> );
-template ProcGen::MidPointDistanceQueue PassageSystem::find_room_distances<Cmp::CryptRoomClosed>( Cmp::CryptPassageDoor &, const sf::FloatRect,
+template ProcGen::MidPointDistanceQueue PassageSystem::find_room_distances<Cmp::CryptRoomClosed>( Cmp::CryptPassageDoor &, const sf::FloatRect &,
                                                                                                   std::set<entt::entity> );
 
 template <typename ROOMTYPE>

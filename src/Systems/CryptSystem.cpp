@@ -292,7 +292,6 @@ void CryptSystem::unlock_crypt_door()
       }
       continue;
     }
-    else
     {
       // Set the z-order value
       auto crypt_view = reg().view<Cmp::CryptMultiBlock>();
@@ -428,7 +427,7 @@ void CryptSystem::check_chest_activation( Events::PlayerActionEvent::GameActions
     for ( auto [chest_entt, chest_cmp, chest_pos_cmp, chest_anim_cmp] : chest_view.each() )
     {
       // prevent player from spamming chest twice
-      if ( chest_cmp.open == true ) continue;
+      if ( chest_cmp.open ) continue;
       if ( not player_hitbox.findIntersection( chest_pos_cmp ) ) continue;
 
       chest_cmp.open = true;
@@ -519,7 +518,8 @@ void CryptSystem::create_initial_closed_rooms( sf::Vector2u map_grid_size )
     int room_width = Cmp::RandomInt{ min_room_width, max_room_width }.gen();
     int room_height = Cmp::RandomInt{ min_room_height, max_room_height }.gen();
     auto [_, pos] = Utils::Rnd::get_random_position( reg(), {}, Utils::Rnd::ExcludePack<Cmp::ReservedPosition>{}, 0 );
-    Cmp::CryptRoomClosed new_room( pos.position, { room_width * grid_square_size.x, room_height * grid_square_size.y } );
+    sf::Vector2f new_room_size( static_cast<float>( room_width ) * grid_square_size.x, static_cast<float>( room_height ) * grid_square_size.y );
+    Cmp::CryptRoomClosed new_room( pos.position, new_room_size );
     SPDLOG_DEBUG( "Generated new room at ({}, {}) size ({}, {})", new_room.position.x, new_room.position.y, new_room.size.x, new_room.size.y );
 
     auto is_min_distance_ok = [&]( const Cmp::CryptRoomClosed &existing_room, const Cmp::CryptRoomClosed &new_room ) -> bool
@@ -792,7 +792,7 @@ void CryptSystem::open_selected_rooms( std::set<entt::entity> selected_rooms )
   }
 
   // open the room safely outside of view loop
-  for ( auto [room_entt, closed_room_cmp] : rooms_to_open )
+  for ( const auto &[room_entt, closed_room_cmp] : rooms_to_open )
   {
     // transfer the position list to the new open room before destroying the closed room
     Cmp::CryptRoomOpen new_open_room( closed_room_cmp.position, closed_room_cmp.size );
@@ -1091,7 +1091,7 @@ void CryptSystem::add_chest_to_open_rooms()
   {
     if ( open_room_cmp.findIntersection( Utils::Player::get_position( reg() ) ) ) continue;
 
-    Cmp::RandomInt room_border_picker( 0, open_room_cmp.m_border_position_list.size() - 1 );
+    Cmp::RandomInt room_border_picker( 0, static_cast<int>( open_room_cmp.m_border_position_list.size() ) - 1 );
     auto [selected_entt, selected_pos] = open_room_cmp.m_border_position_list[room_border_picker.gen()];
 
     float zorder = selected_pos.y() + m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.chest" ).get_zorder( 0 );
@@ -1110,7 +1110,7 @@ void CryptSystem::add_lever_to_open_rooms()
   float zorder = m_sprite_factory.get_sprite_size_by_type( lever_sprite_type ).y;
 
   // add one lever to one room picked from the pool of candidates room positions
-  Cmp::RandomInt room_position_picker( 0, internal_room_entts.size() - 1 );
+  Cmp::RandomInt room_position_picker( 0, static_cast<int>( internal_room_entts.size() ) - 1 );
   auto selected_entt = internal_room_entts[room_position_picker.gen()];
   auto room_pos = reg().get<Cmp::Position>( selected_entt );
   Factory::create_crypt_lever( reg(), room_pos.position, lever_sprite_type, disabled_lever_sprite_idx, zorder );
@@ -1202,7 +1202,7 @@ void CryptSystem::spawn_npc_in_open_rooms()
   for ( int r = 0; r < npcs_to_spawn; r++ )
   {
     // Select a random room from remaining rooms
-    Cmp::RandomInt room_picker( 0, open_room_list.size() - 1 );
+    Cmp::RandomInt room_picker( 0, static_cast<int>( open_room_list.size() ) - 1 );
     std::size_t selected_idx = room_picker.gen();
 
     // Extract the selected room

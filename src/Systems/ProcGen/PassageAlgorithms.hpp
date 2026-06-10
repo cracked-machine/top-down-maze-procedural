@@ -42,7 +42,7 @@ public:
   //! @return true if the passage was created successfully
   //! @return false if the passage could not be created
   std::vector<Cmp::CryptPassageBlock> create_drunken_walk( entt::registry &reg, Cmp::CryptPassageDoor start, sf::FloatRect end_bounds,
-                                                           sf::Vector2f map_size_pixel, std::set<entt::entity> exclude_entts,
+                                                           sf::Vector2f map_size_pixel, const std::set<entt::entity> &exclude_entts,
                                                            AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
 
   //! @brief Create a Dog Leg Passage between start and end points
@@ -55,7 +55,7 @@ public:
                                                       AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
 
   void reset() { m_current_passage_id = 0; }
-  unsigned int get_current_passage_id() { return m_current_passage_id; }
+  [[nodiscard]] unsigned int get_current_passage_id() const { return m_current_passage_id; }
   void increment_passage_id() { m_current_passage_id++; }
 
   void cache_wall_components( entt::registry &reg );

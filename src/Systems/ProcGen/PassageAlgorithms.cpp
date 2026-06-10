@@ -51,7 +51,7 @@ std::optional<Cmp::CryptPassageBlock> PassageAlogirthms::place_passage_block( en
 std::vector<Cmp::CryptPassageBlock> PassageAlogirthms::create_drunken_walk( entt::registry &reg, Cmp::CryptPassageDoor start,
                                                                             sf::FloatRect end_bounds, sf::Vector2f map_size_pixel,
 
-                                                                            std::set<entt::entity> exclude_entts,
+                                                                            const std::set<entt::entity> &exclude_entts,
                                                                             AllowDuplicatePassages duplicates_policy )
 {
 
@@ -162,7 +162,7 @@ std::vector<Cmp::CryptPassageBlock> PassageAlogirthms::create_drunken_walk( entt
         }
         else
         {
-          auto random_dir_idx = Cmp::RandomInt( 0, kDirectionChoices.size() - 1 );
+          auto random_dir_idx = Cmp::RandomInt( 0, static_cast<int>( kDirectionChoices.size() ) - 1 );
           chosen_direction = kDirectionChoices[random_dir_idx.gen()];
         }
       }
