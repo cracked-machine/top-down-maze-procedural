@@ -166,8 +166,8 @@ void PlayerSystem::enable_damage_cooldown()
 void PlayerSystem::move_obstacle( const sf::FloatRect &target_position )
 {
   // check if player can move the obstacle
-  for ( auto [selected_entt, selected_cmp, moveable_cmp, selected_pos_cmp] :
-        reg().view<Cmp::SelectedPosition, Cmp::Moveable, Cmp::Position>().each() )
+  for ( auto [selected_entt, selected_cmp, moveable_cmp, selected_pos_cmp, selected_uuid_cmp] :
+        reg().view<Cmp::SelectedPosition, Cmp::Moveable, Cmp::Position, Cmp::UUID>().each() )
   {
     if ( not target_position.findIntersection( selected_pos_cmp ) ) continue;
 
@@ -201,8 +201,18 @@ void PlayerSystem::move_obstacle( const sf::FloatRect &target_position )
     if ( new_position_is_empty )
     {
       Utils::Player::get_position( reg() ).position = player_dest_position.position();
+
+      // move the obstacle
       selected_pos_cmp.position += player_velocity.position();
       reg().remove<Cmp::SelectedPosition>( selected_entt );
+
+      // find the matching cap to this obstacle and move it too
+      for ( auto [cap_search_entt, cap_search_uuid_cmp, cap_search_pos_cmp] :
+            reg().view<Cmp::UUID, Cmp::Position>( entt::exclude<Cmp::Obstacle> ).each() )
+      {
+        if ( cap_search_uuid_cmp != selected_uuid_cmp ) continue;
+        cap_search_pos_cmp.position += player_velocity.position();
+      }
 
       // if we moved obstacle into cobweb it is now stuck :'(
       for ( auto [cobweb_entt, cobweb_cmp, cobweb_pos_cmp] : reg().view<Cmp::RuinCobweb, Cmp::Position>().each() )

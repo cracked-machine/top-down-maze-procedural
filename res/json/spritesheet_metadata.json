@@ -1569,12 +1569,27 @@
       }
     },
 
-    "sprite.ruin.wall.int": {
+    "sprite.ruin.wall.int.main": {
       "spritesheet": {
         "displayname": "sprite.ruin.wall.int",
-        "zorder": [0],
+        "zorder": [100],
         "texture_path": "res/textures/ruin.png",
-        "sprite_indices": [30],
+        "sprite_indices": [17],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+
+    "sprite.ruin.wall.int.cap": {
+      "spritesheet": {
+        "displayname": "sprite.ruin.wall.int",
+        "zorder": [100],
+        "texture_path": "res/textures/ruin.png",
+        "sprite_indices": [7],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
