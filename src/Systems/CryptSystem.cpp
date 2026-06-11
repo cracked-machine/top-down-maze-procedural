@@ -86,11 +86,11 @@ void CryptSystem::update()
 
   check_exit_collision();
 
-  // if ( not m_maze_unlocked and Scene::CryptScene::is_maze_timer_expired() )
-  // {
-  //   //
-  //   shuffle_rooms_passages();
-  // }
+  if ( not m_maze_unlocked and Scene::CryptScene::is_maze_timer_expired() )
+  {
+    //
+    shuffle_rooms_passages();
+  }
 
   // check collisions with lava pit
   if ( not Utils::getSystemCmp( reg() ).collisions_disabled )
