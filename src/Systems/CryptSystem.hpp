@@ -109,7 +109,7 @@ private:
 
   //! @brief Change all Cmp::CryptRoomOpen to Cmp::CryptRoomClosed
   //! @note Excludes start/end rooms and the open room occupied by the player)
-  void close_open_rooms();
+  void close_open_rooms( const Cmp::Position &player_pos_cmp );
 
   //! @brief Restores missing Cmp::Obstacles components to Cmp::CryptRoomClosed areas
   void fill_closed_rooms();
@@ -117,7 +117,7 @@ private:
   //! @brief Change selected Cmp::CryptRoomClosed to Cmp::CryptRoomOpen.
   //! @param selected_rooms Set of entity ids to open
   //! @note Removes Cmp::Obstacle
-  void open_selected_rooms( std::set<entt::entity> selected_rooms );
+  void open_selected_rooms( const std::set<entt::entity> &selected_rooms );
 
   //! @brief Open all rooms
   void open_all_rooms();
@@ -128,14 +128,14 @@ private:
   std::vector<entt::entity> get_available_room_positions();
   //! @brief Adds Cmp::Lever components to Cmp::CryptRoomOpen areas
   void add_lever_to_open_rooms();
-  void add_chest_to_open_rooms();
+  void add_chest_to_open_rooms( const Cmp::Position &player_pos_cmp );
 
   //! @brief Add lava pits to open rooms
-  void add_lava_pit_open_rooms();
+  void add_lava_pit_open_rooms( const Cmp::Position &player_pos_cmp );
   void do_lava_pit_animation();
 
   //! @brief Remove lava pits from open rooms
-  void remove_lava_pit_open_rooms();
+  void remove_lava_pit_open_rooms( const Cmp::Position &player_pos_cmp );
 
   //! @brief Check player collision with lava pits
   void check_lava_pit_collision();
@@ -151,8 +151,8 @@ private:
   void check_spike_trap_activation_by_proximity();
 
   //! @brief Removes Cmp::Lever components from Cmp::CryptRoomOpen areas
-  void remove_lever_open_rooms();
-  void remove_chest_open_rooms();
+  void remove_lever_open_rooms( const Cmp::Position &player_pos_cmp );
+  void remove_chest_open_rooms( const Cmp::Position &player_pos_cmp );
 
   //! @brief Removes ALL levers.
   void remove_all_levers();

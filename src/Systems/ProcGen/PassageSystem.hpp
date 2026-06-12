@@ -4,7 +4,9 @@
 #include <Components/Crypt/CryptRoomClosed.hpp>
 #include <Components/Crypt/CryptRoomOpen.hpp>
 #include <PathFinding/SmartPointers.hpp>
+#include <SceneControl/Scene.hpp>
 #include <SceneControl/SmartPointers.hpp>
+#include <SpatialHashGrid.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/ProcGen/PassageAlgorithms.hpp>
 
@@ -13,6 +15,7 @@
 // clang-format off
 namespace Game::Crypt { class CryptPassageDoor; class CryptPassageBlock; class CryptRoomClosed; class CryptRoomOpen; }
 namespace Game::Events { class PassageEvent; }
+namespace Game::PathFinding { class SpatialHashGrid; }
 // clang-format on
 
 namespace Game::Sys

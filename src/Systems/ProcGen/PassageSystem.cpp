@@ -455,9 +455,10 @@ void PassageSystem::empty_open_passages()
   std::vector<std::pair<entt::entity, Cmp::Position>> obstacles_to_remove;
   std::vector<std::pair<entt::entity, Cmp::Position>> chests_to_remove;
 
+  auto passage_block_view = reg().view<Cmp::CryptPassageBlock>();
   for ( auto [pos_entt, pos_cmp] : reg().view<Cmp::Position>().each() )
   {
-    for ( auto [pblock_entt, pblock_cmp] : reg().view<Cmp::CryptPassageBlock>().each() )
+    for ( auto [pblock_entt, pblock_cmp] : passage_block_view.each() )
     {
       auto pblock_cmp_rect = sf::FloatRect( pblock_cmp, Constants::kGridSizePxF );
       if ( not pblock_cmp_rect.findIntersection( pos_cmp ) ) continue;
