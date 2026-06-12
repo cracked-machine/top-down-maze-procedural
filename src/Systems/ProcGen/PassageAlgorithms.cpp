@@ -3,6 +3,7 @@
 #include <Components/Crypt/CryptRoomEnd.hpp>
 #include <Components/Crypt/CryptRoomOpen.hpp>
 #include <Components/Random.hpp>
+#include <array>
 #include <Components/Wall.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <Systems/ProcGen/PassageAlgorithms.hpp>
@@ -14,7 +15,7 @@ namespace Game::Sys::ProcGen
 {
 
 std::optional<Cmp::CryptPassageBlock> PassageAlogirthms::place_passage_block( entt::registry &reg, float x, float y,
-                                                                              AllowDuplicatePassages duplicates_policy )
+                                                                              AllowDuplicatePassages duplicates_policy, bool skip_wall_check )
 {
   Cmp::Position candidate_passage_block_pos_cmp( Utils::snap_to_grid( { x, y }, Utils::Rounding::TOWARDS_ZERO ), Constants::kGridSizePxF );
 
@@ -34,12 +35,15 @@ std::optional<Cmp::CryptPassageBlock> PassageAlogirthms::place_passage_block( en
   // Allow placement in open rooms (passages connect to rooms)
   // Only block placement if there's a wall collision
 
-  for ( auto &wall_rects : m_cached_wall_components )
+  if ( !skip_wall_check )
   {
-    if ( wall_rects.findIntersection( candidate_passage_block_pos_cmp ) )
+    for ( auto &wall_rects : m_cached_wall_components )
     {
-      SPDLOG_DEBUG( "Wall collision: Cannot place CryptPassageBlock at {},{}", x, y );
-      return std::nullopt;
+      if ( wall_rects.findIntersection( candidate_passage_block_pos_cmp ) )
+      {
+        SPDLOG_DEBUG( "Wall collision: Cannot place CryptPassageBlock at {},{}", x, y );
+        return std::nullopt;
+      }
     }
   }
 
@@ -87,10 +91,14 @@ std::vector<Cmp::CryptPassageBlock> PassageAlogirthms::create_drunken_walk( entt
   //! @brief Drunken walk roulette picker for direction
   //! @note undefined odds are used to select a random direction
   Cmp::RandomInt direction_picker{ 0, 99 };
+  Cmp::RandomInt random_dir_idx{ 0, static_cast<int>( kDirectionChoices.size() ) - 1 };
   //! @brief Drunken walk roulette odds for moving towards target: 60%
   static const float kRouletteTargetBiasOdds = 0.6f;
   //! @brief Drunken walk roulette odds for continuing in the same direction
   static const float kRouletteSameDirectionOdds = 0.1f;
+  static const int kRouletteTargetBiasThreshold = static_cast<int>( kRouletteTargetBiasOdds * 100 );
+  static const int kRouletteSameDirectionThreshold = static_cast<int>( ( kRouletteTargetBiasOdds + kRouletteSameDirectionOdds ) * 100 );
+  static const int kRecentPositionAttemptsThreshold = static_cast<int>( kMaxAttemptsPerStep * 0.7f );
 
   int walk_step_count = 0;
 
@@ -102,6 +110,8 @@ std::vector<Cmp::CryptPassageBlock> PassageAlogirthms::create_drunken_walk( entt
   float max_y = std::min( map_size_pixel.y,
                           std::max( start.y + Constants::kGridSizePxF.y, end_bounds.position.y + end_bounds.size.y ) + kMinSpacing );
   sf::FloatRect walk_bounds( sf::Vector2f( min_x, min_y ), sf::Vector2f( max_x - min_x, max_y - min_y ) );
+  const float walk_right  = max_x - Constants::kGridSizePxF.x;
+  const float walk_bottom = max_y - Constants::kGridSizePxF.y;
 
   // cache open room rects once before the walk
   std::vector<sf::FloatRect> open_room_rects;
@@ -122,15 +132,18 @@ std::vector<Cmp::CryptPassageBlock> PassageAlogirthms::create_drunken_walk( entt
   }
 
   std::vector<Cmp::CryptPassageBlock> passage_block_list;
+  passage_block_list.reserve( kMaxStepsPerWalk );
 
-  auto maybe_passage_block = place_passage_block( reg, start.x, start.y, duplicates_policy );
+  auto maybe_passage_block = place_passage_block( reg, start.x, start.y, duplicates_policy, true );
   if ( maybe_passage_block.has_value() ) { passage_block_list.push_back( maybe_passage_block.value() ); }
 
   sf::FloatRect current_pos( { start.x, start.y }, Constants::kGridSizePxF );
   sf::Vector2f last_move_direction( 0.f, 0.f );
 
-  std::vector<sf::Vector2f> recent_positions;
-  const size_t max_recent_positions = 5;
+  std::array<sf::Vector2f, 5> recent_positions{};
+  size_t recent_write_idx = 0;
+  size_t recent_count = 0;
+  static constexpr size_t max_recent_positions = 5;
 
   while ( not current_pos.findIntersection( end_bounds ) && walk_step_count < kMaxStepsPerWalk )
   {
@@ -138,58 +151,53 @@ std::vector<Cmp::CryptPassageBlock> PassageAlogirthms::create_drunken_walk( entt
     int step_attempts = 0;
     bool is_candidate_rejected = false;
     bool found_valid_candidate = false;
+    sf::Vector2f target_distance = end_bounds.getCenter() - current_pos.getCenter();
+    sf::Vector2f chosen_direction;
 
     do
     {
-      sf::Vector2f target_distance = end_bounds.getCenter() - current_pos.getCenter();
-      sf::Vector2f chosen_direction;
       int random_choice = direction_picker.gen();
 
       if ( walk_step_count < kMinInitialOrthogonalSteps ) { chosen_direction = kDirectionDictionary[start.m_direction]; }
       else
       {
-        if ( random_choice < static_cast<int>( kRouletteTargetBiasOdds * 100 ) )
+        if ( random_choice < kRouletteTargetBiasThreshold )
         {
           if ( std::abs( target_distance.x ) > std::abs( target_distance.y ) )
             chosen_direction = ( target_distance.x > 0 ) ? sf::Vector2f( 1.f, 0.f ) : sf::Vector2f( -1.f, 0.f );
           else
             chosen_direction = ( target_distance.y > 0 ) ? sf::Vector2f( 0.f, 1.f ) : sf::Vector2f( 0.f, -1.f );
         }
-        else if ( random_choice < static_cast<int>( ( kRouletteTargetBiasOdds + kRouletteSameDirectionOdds ) * 100 ) &&
+        else if ( random_choice < kRouletteSameDirectionThreshold &&
                   ( last_move_direction.x != 0.f || last_move_direction.y != 0.f ) )
         {
           chosen_direction = last_move_direction;
         }
-        else
-        {
-          auto random_dir_idx = Cmp::RandomInt( 0, static_cast<int>( kDirectionChoices.size() ) - 1 );
-          chosen_direction = kDirectionChoices[random_dir_idx.gen()];
-        }
+        else { chosen_direction = kDirectionChoices[random_dir_idx.gen()]; }
       }
 
       auto chosen_magnitude = chosen_direction.componentWiseMul( Constants::kGridSizePxF );
       candidate_pos.position.x = current_pos.position.x + chosen_magnitude.x;
       candidate_pos.position.y = current_pos.position.y + chosen_magnitude.y;
 
-      if ( !walk_bounds.contains( candidate_pos.position ) ||
-           candidate_pos.position.x + candidate_pos.size.x > walk_bounds.position.x + walk_bounds.size.x ||
-           candidate_pos.position.y + candidate_pos.size.y > walk_bounds.position.y + walk_bounds.size.y )
+      if ( candidate_pos.position.x < min_x || candidate_pos.position.x > walk_right ||
+           candidate_pos.position.y < min_y || candidate_pos.position.y > walk_bottom )
       {
         step_attempts++;
         continue;
       }
 
       bool is_recent = false;
-      for ( const auto &recent_pos : recent_positions )
+      for ( size_t i = 0; i < recent_count; ++i )
       {
-        if ( std::abs( recent_pos.x - candidate_pos.position.x ) < Constants::kGridSizePxF.x * 0.5f &&
-             std::abs( recent_pos.y - candidate_pos.position.y ) < Constants::kGridSizePxF.y * 0.5f )
+        if ( std::abs( recent_positions[i].x - candidate_pos.position.x ) < Constants::kGridSizePxF.x * 0.5f &&
+             std::abs( recent_positions[i].y - candidate_pos.position.y ) < Constants::kGridSizePxF.y * 0.5f )
         {
           is_recent = true;
           break;
         }
       }
-      if ( is_recent && step_attempts < kMaxAttemptsPerStep * 0.7f )
+      if ( is_recent && step_attempts < kRecentPositionAttemptsThreshold )
       {
         step_attempts++;
         continue;
@@ -200,10 +208,12 @@ std::vector<Cmp::CryptPassageBlock> PassageAlogirthms::create_drunken_walk( entt
       if ( duplicates_policy == AllowDuplicatePassages::NO )
       {
         // use cached other_passage_block_positions instead of registry view
+        static const float kMinBlockDistanceSq = kMinBlockDistanceBetweenPassages * kMinBlockDistanceBetweenPassages;
         for ( const auto &block_pos : other_passage_block_positions )
         {
-          float distance = Utils::Maths::getEuclideanDistance( candidate_pos.position, block_pos );
-          if ( distance < kMinBlockDistanceBetweenPassages )
+          float dx = candidate_pos.position.x - block_pos.x;
+          float dy = candidate_pos.position.y - block_pos.y;
+          if ( dx * dx + dy * dy < kMinBlockDistanceSq )
           {
             is_candidate_rejected = true;
             break;
@@ -254,15 +264,14 @@ std::vector<Cmp::CryptPassageBlock> PassageAlogirthms::create_drunken_walk( entt
       return {};
     }
 
-    sf::Vector2f old_pos = current_pos.position;
     current_pos.position = candidate_pos.position;
-    last_move_direction = sf::Vector2f( ( current_pos.position.x - old_pos.x ) / Constants::kGridSizePxF.x,
-                                        ( current_pos.position.y - old_pos.y ) / Constants::kGridSizePxF.y );
+    last_move_direction = chosen_direction;
 
-    recent_positions.push_back( current_pos.position );
-    if ( recent_positions.size() > max_recent_positions ) { recent_positions.erase( recent_positions.begin() ); }
+    recent_positions[recent_write_idx] = current_pos.position;
+    recent_write_idx = ( recent_write_idx + 1 ) % max_recent_positions;
+    if ( recent_count < max_recent_positions ) recent_count++;
 
-    maybe_passage_block = place_passage_block( reg, current_pos.position.x, current_pos.position.y, duplicates_policy );
+    maybe_passage_block = place_passage_block( reg, current_pos.position.x, current_pos.position.y, duplicates_policy, true );
     if ( maybe_passage_block.has_value() ) { passage_block_list.push_back( maybe_passage_block.value() ); }
 
     walk_step_count++;

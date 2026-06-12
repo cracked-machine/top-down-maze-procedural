@@ -2,6 +2,7 @@
 #define SRC_CMPS_UUID_HPP_
 
 #include <algorithm>
+#include <functional>
 #include <random>
 namespace Game::Cmp
 {
@@ -50,4 +51,17 @@ struct UUID
 };
 
 } // namespace Game::Cmp
+
+template <>
+struct std::hash<Game::Cmp::UUID>
+{
+  std::size_t operator()( const Game::Cmp::UUID &uuid ) const noexcept
+  {
+    std::size_t seed = 0;
+    for ( auto byte : uuid.data )
+      seed ^= std::hash<uint8_t>{}( byte ) + 0x9e3779b9 + ( seed << 6 ) + ( seed >> 2 );
+    return seed;
+  }
+};
+
 #endif // SRC_CMPS_UUID_HPP_

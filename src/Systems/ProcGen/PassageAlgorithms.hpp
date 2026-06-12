@@ -32,8 +32,8 @@ public:
   //! @param duplicates_policy Whether to allow duplicate passages blocks
   //! @return Cmp::CryptPassageBlock
   std::optional<Cmp::CryptPassageBlock> place_passage_block( entt::registry &reg, float x, float y,
-
-                                                             AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
+                                                             AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO,
+                                                             bool skip_wall_check = false );
 
   //! @param start The starting position and direction for the passage
   //! @param end_bounds The bounds of the end point for the passage

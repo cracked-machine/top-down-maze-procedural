@@ -2,14 +2,14 @@
 #define SRC_FACTORY_OBSTACLEFACTORY_HPP
 
 #include <Components/Position.hpp>
+#include <Components/UUID.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #include <entt/fwd.hpp>
+#include <unordered_map>
 
-namespace Game::Sprites
-{
-class SpriteSheet;
-class SpriteFactory;
-} // namespace Game::Sprites
+// clang-format off
+namespace Game::Sprites { class SpriteSheet; class SpriteFactory; }
+// clang-format on
 
 namespace Game::Factory
 {
@@ -41,6 +41,9 @@ void decorate_obstacle( entt::registry &registry, entt::entity entity, Cmp::Posi
 //! @param obstacle_entity
 //! @param delete_extras Delete any extra obstacles entitys found (doesn't delete the search_entt)
 void remove_obstacle( entt::registry &reg, entt::entity search_entt, bool delete_extras = false );
+
+using UUIDEntityMap = std::unordered_map<Cmp::UUID, entt::entity>;
+void remove_obstacle( entt::registry &reg, entt::entity search_entt, bool delete_extras, const UUIDEntityMap &uuid_map );
 
 } // namespace Game::Factory
 

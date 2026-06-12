@@ -107,6 +107,10 @@ void CryptSystem::update()
 
 void CryptSystem::shuffle_rooms_passages()
 {
+  Factory::UUIDEntityMap uuid_map;
+  for ( auto [e, uuid] : reg().view<Cmp::UUID>().each() )
+    if ( !reg().all_of<Cmp::Obstacle>( e ) ) uuid_map[uuid] = e;
+
   auto selected_rooms = Utils::Rnd::get_n_rand_components<Cmp::CryptRoomClosed>(
       reg(), 4, {}, Utils::Rnd::ExcludePack<Cmp::CryptRoomStart, Cmp::CryptRoomEnd>{}, 0 );
 
@@ -116,13 +120,13 @@ void CryptSystem::shuffle_rooms_passages()
   remove_lever_open_rooms( player_pos_cmp );
   remove_chest_open_rooms( player_pos_cmp );
   close_open_rooms( player_pos_cmp );
-  fill_closed_rooms();
+  fill_closed_rooms( uuid_map );
   get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::REMOVE_PASSAGES ) );
 
   // open new rooms/passages
   open_selected_rooms( selected_rooms );
-  empty_open_rooms();
-  create_room_borders();
+  empty_open_rooms( uuid_map );
+  create_room_borders( uuid_map );
   add_lava_pit_open_rooms( player_pos_cmp );
 
   // try to open passages for the occupied room: only do start room if player is currently there
@@ -143,6 +147,9 @@ void CryptSystem::shuffle_rooms_passages()
 
 void CryptSystem::unlock_objective_passage()
 {
+  Factory::UUIDEntityMap uuid_map;
+  for ( auto [e, uuid] : reg().view<Cmp::UUID>().each() )
+    if ( !reg().all_of<Cmp::Obstacle>( e ) ) uuid_map[uuid] = e;
 
   auto player_pos_cmp = Utils::Player::get_position( reg() );
 
@@ -152,9 +159,10 @@ void CryptSystem::unlock_objective_passage()
   remove_chest_open_rooms( player_pos_cmp );
   close_open_rooms( player_pos_cmp );
   remove_all_levers();
-  fill_closed_rooms();
+  fill_closed_rooms( uuid_map );
   get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::REMOVE_PASSAGES ) );
-  create_room_borders();
+  empty_open_rooms( uuid_map );
+  create_room_borders( uuid_map );
 
   // open new rooms/passages
   SPDLOG_DEBUG( "~~~~~~~~~~~ OPENING FINAL PASSAGE ~~~~~~~~~~~~~~~" );
@@ -165,6 +173,10 @@ void CryptSystem::unlock_objective_passage()
 
 void CryptSystem::unlock_exit_passage()
 {
+  Factory::UUIDEntityMap uuid_map;
+  for ( auto [e, uuid] : reg().view<Cmp::UUID>().each() )
+    if ( !reg().all_of<Cmp::Obstacle>( e ) ) uuid_map[uuid] = e;
+
   auto player_pos_cmp = Utils::Player::get_position( reg() );
 
   // if we unlocked the maze by picking up the cadaver, then cancel the timer
@@ -176,8 +188,8 @@ void CryptSystem::unlock_exit_passage()
   remove_all_levers();
   remove_lava_pit_open_rooms( player_pos_cmp );
   open_all_rooms();
-  empty_open_rooms();
-  create_room_borders();
+  empty_open_rooms( uuid_map );
+  create_room_borders( uuid_map );
 
   // make sure player can reach exit
   get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::CONNECT_START_TO_OPENROOMS, get_crypt_room_start().first ) );
@@ -447,7 +459,7 @@ void CryptSystem::check_chest_activation( Events::PlayerActionEvent::GameActions
   }
 }
 
-void CryptSystem::create_room_borders()
+void CryptSystem::create_room_borders( const Factory::UUIDEntityMap &uuid_map )
 {
   auto add_borders_for_room = [&]<typename Component>( Component &room_cmp, RoomWallType room_wall_type )
   {
@@ -457,7 +469,7 @@ void CryptSystem::create_room_borders()
       auto *anim_data = reg().try_get<Cmp::AnimData>( pos_entt );
       if ( anim_data and anim_data->m_sprite_type.contains( ".main" ) )
       {
-        Factory::remove_obstacle( reg(), pos_entt, true );
+        Factory::remove_obstacle( reg(), pos_entt, true, uuid_map );
         decorate_interior_wall( pos_entt, pos_cmp, room_wall_type );
       }
       if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
@@ -725,7 +737,7 @@ void CryptSystem::close_open_rooms( const Cmp::Position &player_pos_cmp )
   }
 }
 
-void CryptSystem::fill_closed_rooms()
+void CryptSystem::fill_closed_rooms( const Factory::UUIDEntityMap &uuid_map )
 {
   PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock();
   if ( not pathfinding_navmesh ) throw std::runtime_error( "CryptSystem::fill_closed_rooms() - unable to lock pathfinding navmesh" );
@@ -737,7 +749,7 @@ void CryptSystem::fill_closed_rooms()
       if ( reg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
       if ( reg().any_of<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Direction>( pos_entt ) ) continue;
 
-      Factory::remove_obstacle( reg(), pos_entt, true );
+      Factory::remove_obstacle( reg(), pos_entt, true, uuid_map );
       decorate_interior_wall( pos_entt, pos_cmp, RoomWallType::INTERIOR );
       pathfinding_navmesh->remove( pos_entt, pos_cmp );
     }
@@ -752,7 +764,7 @@ void CryptSystem::fill_closed_rooms()
       if ( reg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
       if ( reg().any_of<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Direction>( pos_entt ) ) continue;
 
-      Factory::remove_obstacle( reg(), pos_entt, true );
+      Factory::remove_obstacle( reg(), pos_entt, true, uuid_map );
       decorate_interior_wall( pos_entt, pos_cmp, RoomWallType::BORDER );
       pathfinding_navmesh->remove( pos_entt, pos_cmp );
     }
@@ -785,7 +797,7 @@ void CryptSystem::open_all_rooms()
   open_selected_rooms( all_rooms );
 }
 
-void CryptSystem::empty_open_rooms()
+void CryptSystem::empty_open_rooms( const Factory::UUIDEntityMap &uuid_map )
 {
 
   for ( auto [open_room_entt, open_room_cmp] : reg().view<Cmp::CryptRoomOpen>().each() )
@@ -796,7 +808,7 @@ void CryptSystem::empty_open_rooms()
       if ( not open_room_cmp.findIntersection( pos_cmp ) ) continue;
       if ( not reg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
 
-      Factory::remove_obstacle( reg(), pos_entt, true );
+      Factory::remove_obstacle( reg(), pos_entt, true, uuid_map );
       if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
       {
         pathfinding_navmesh->insert( pos_entt, pos_cmp );
@@ -806,7 +818,7 @@ void CryptSystem::empty_open_rooms()
     for ( auto [pos_entt, pos_cmp] : open_room_cmp.m_border_position_list )
     {
       if ( not reg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
-      Factory::remove_obstacle( reg(), pos_entt, true );
+      Factory::remove_obstacle( reg(), pos_entt, true, uuid_map );
       decorate_interior_wall( pos_entt, pos_cmp, RoomWallType::BORDER );
     }
   }
