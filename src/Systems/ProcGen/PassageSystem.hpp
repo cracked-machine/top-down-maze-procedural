@@ -105,6 +105,8 @@ private:
 
   //! @brief
   ProcGen::PassageAlogirthms m_passage_algos;
+
+  PathFinding::SpatialHashGrid m_passage_block_grid;
 };
 
 // clang-format off

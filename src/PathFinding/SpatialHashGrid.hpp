@@ -53,6 +53,7 @@ public:
   std::vector<entt::entity> neighbours( const Cmp::Position &pos, QueryCompass offset = QueryCompass::BOTH ) const;
 
   size_t size() { return m_grid.size(); }
+  void clear() { m_grid.clear(); }
 
 private:
   //! @brief dimensions of a single cell in the game area grid

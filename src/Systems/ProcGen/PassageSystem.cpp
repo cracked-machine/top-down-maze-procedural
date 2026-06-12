@@ -11,6 +11,7 @@
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Random.hpp>
 #include <Components/System.hpp>
+#include <Constants.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
@@ -330,6 +331,7 @@ void PassageSystem::create_uncached_passages()
   {
     auto entt = reg().create();
     reg().emplace<Cmp::CryptPassageBlock>( entt, passage_block_cmp );
+    m_passage_block_grid.insert( entt, Cmp::Position( passage_block_cmp, Constants::kGridSizePxF ) );
   }
 }
 
@@ -445,6 +447,7 @@ void PassageSystem::remove_all_passage_blocks()
     reg().remove<Cmp::CryptPassageBlock>( entt );
     reg().destroy( entt );
   }
+  m_passage_block_grid.clear();
 }
 
 void PassageSystem::empty_open_passages()
@@ -455,16 +458,11 @@ void PassageSystem::empty_open_passages()
   std::vector<std::pair<entt::entity, Cmp::Position>> obstacles_to_remove;
   std::vector<std::pair<entt::entity, Cmp::Position>> chests_to_remove;
 
-  auto passage_block_view = reg().view<Cmp::CryptPassageBlock>();
   for ( auto [pos_entt, pos_cmp] : reg().view<Cmp::Position>().each() )
   {
-    for ( auto [pblock_entt, pblock_cmp] : passage_block_view.each() )
-    {
-      auto pblock_cmp_rect = sf::FloatRect( pblock_cmp, Constants::kGridSizePxF );
-      if ( not pblock_cmp_rect.findIntersection( pos_cmp ) ) continue;
-      if ( reg().any_of<Cmp::Obstacle>( pos_entt ) ) obstacles_to_remove.emplace_back( pos_entt, pos_cmp );
-      if ( reg().any_of<Cmp::CryptChest>( pos_entt ) ) chests_to_remove.emplace_back( pos_entt, pos_cmp );
-    }
+    if ( m_passage_block_grid.at( pos_cmp ).empty() ) continue;
+    if ( reg().any_of<Cmp::Obstacle>( pos_entt ) ) obstacles_to_remove.emplace_back( pos_entt, pos_cmp );
+    if ( reg().any_of<Cmp::CryptChest>( pos_entt ) ) chests_to_remove.emplace_back( pos_entt, pos_cmp );
   }
 
   for ( auto &[entt, pos_cmp] : obstacles_to_remove )
@@ -481,37 +479,19 @@ void PassageSystem::empty_open_passages()
 
 void PassageSystem::fill_all_passages()
 {
-  // Pre-collect passage block rects
-  std::vector<sf::FloatRect> pblock_rects;
-  for ( auto [pblock_entt, pblock_cmp] : reg().view<Cmp::CryptPassageBlock>().each() )
-    pblock_rects.emplace_back( pblock_cmp, Constants::kGridSizePxF );
-
-  if ( pblock_rects.empty() ) return;
-
-  // Collect positions to fill
-  std::vector<std::pair<entt::entity, Cmp::Position>> positions_to_fill;
-  for ( auto [pos_entt, pos_cmp] : reg().view<Cmp::Position>().each() )
-  {
-    if ( reg().any_of<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Direction>( pos_entt ) ) continue;
-    if ( reg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
-    if ( reg().all_of<Cmp::UUID>( pos_entt ) ) continue; // skip cap entities (no Obstacle but already decorated)
-    for ( auto &pblock_rect : pblock_rects )
-    {
-      if ( pblock_rect.findIntersection( pos_cmp ) )
-      {
-        positions_to_fill.emplace_back( pos_entt, pos_cmp );
-        break;
-      }
-    }
-  }
-
   // Position view iteration is fully complete
   const Sprites::SpriteSheet &ss_main = m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.wall.int.main" );
   const Sprites::SpriteSheet &ss_cap = m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.wall.int.cap" );
   PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock();
 
-  for ( auto &[pos_entt, pos_cmp] : positions_to_fill )
+  for ( auto [pos_entt, pos_cmp] : reg().view<Cmp::Position>().each() )
   {
+    if ( reg().any_of<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Direction>( pos_entt ) ) continue;
+    if ( reg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
+    if ( reg().all_of<Cmp::UUID>( pos_entt ) ) continue; // skip cap entities (no Obstacle but already decorated)
+
+    if ( m_passage_block_grid.at( pos_cmp ).empty() ) continue;
+
     auto uuid = Cmp::UUID::generate();
 
     Factory::add_obstacle( reg(), pos_entt );
@@ -530,14 +510,10 @@ void PassageSystem::fill_all_passages()
   // Player squish check — done once after all walls are placed
   if ( not Utils::getSystemCmp( reg() ).collisions_disabled )
   {
-    for ( auto &pblock_rect : pblock_rects )
+    if ( not m_passage_block_grid.at( Utils::Player::get_position( reg() ) ).empty() )
     {
-      if ( Utils::Player::get_position( reg() ).findIntersection( pblock_rect ) )
-      {
-        get_systems_event_queue().enqueue(
-            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SQUISHED, Utils::Player::get_position( reg() ) ) );
-        break;
-      }
+      get_systems_event_queue().enqueue(
+          Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SQUISHED, Utils::Player::get_position( reg() ) ) );
     }
   }
 }
