@@ -266,6 +266,7 @@ void BombSystem::update()
     auto carryitem_view = reg().view<Cmp::WorldItem, Cmp::Position>();
     for ( auto [carryitem_entt, carryitem_cmp, carryitem_pos_cmp] : carryitem_view.each() )
     {
+      if ( carryitem_entt == armed_entt ) continue;
       if ( not carryitem_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
       if ( carryitem_cmp.sprite_type == "sprite.item.pickaxe" or carryitem_cmp.sprite_type == "sprite.item.axe" or
            carryitem_cmp.sprite_type == "sprite.item.shovel" )
