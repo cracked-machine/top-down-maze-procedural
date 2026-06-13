@@ -186,6 +186,8 @@ private:
   sf::Clock m_lava_effect_cooldown_timer;
   sf::Time m_lava_effect_cooldown_threshold{ sf::seconds( 1.f ) };
 
+  sf::Clock m_priest_fear_clock;
+
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
 };
 

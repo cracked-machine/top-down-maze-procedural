@@ -1,4 +1,5 @@
 #include <Player.hpp>
+#include <Stats/BaseAction.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
@@ -129,6 +130,8 @@ void LootSystem::check_loot_collision()
       // signal UI to flash
       auto flash_entt = reg().create();
       reg().emplace_or_replace<Cmp::FlashUICadaver>( flash_entt );
+
+      Utils::Player::get_player_stats( reg() ).apply_modifiers( { {}, {}, {}, Cmp::Stats::Infamy{ 30 }, {} } );
 
       get_systems_event_queue().trigger( Events::CryptRoomEvent( Events::CryptRoomEvent::Type::EXIT_ALL_PASSAGES ) );
     }

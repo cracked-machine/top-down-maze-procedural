@@ -52,11 +52,13 @@
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Sprites/SpriteSheet.hpp>
+#include <Stats/ExhumeAction.hpp>
 #include <Systems/CryptSystem.hpp>
 #include <Systems/Events/PassageEvent.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Systems/Stores/NpcStore.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>
@@ -103,6 +105,20 @@ void CryptSystem::update()
   check_lava_pit_activation_by_proximity();
   do_lava_pit_animation();
   check_spike_trap_activation_by_proximity();
+
+  if ( m_maze_unlocked )
+  {
+    for ( auto [priest_npc_entt, priest_npc_cmp] : reg().view<Cmp::NPC>().each() )
+    {
+      if ( priest_npc_cmp.sprite_type_list.front() != "sprite.priest" ) continue;
+      auto &[priest_actions, priest_timer] = priest_npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) );
+      if ( priest_timer.asSeconds() >= priest_actions.interval() )
+      {
+        Utils::Player::get_player_stats( reg() ).apply_modifiers( priest_actions );
+        priest_timer = sf::Time::Zero;
+      }
+    }
+  }
 }
 
 void CryptSystem::shuffle_rooms_passages()

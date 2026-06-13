@@ -432,6 +432,7 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
       {
         if ( action_type == std::type_index( typeid( Cmp::CollisionAction ) ) ) continue;
         if ( action_type == std::type_index( typeid( Cmp::ProjectileAction ) ) ) continue;
+        // if ( action_type == std::type_index( typeid( Cmp::ExhumeAction ) ) ) continue;
         auto &[npc_action, npc_action_timer] = npc_action_pair;
 
         if ( npc_action_timer.asSeconds() < npc_action.interval() ) continue;

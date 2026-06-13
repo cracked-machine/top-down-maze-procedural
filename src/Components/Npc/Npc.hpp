@@ -30,13 +30,16 @@ public:
   //! @brief The associated sprite. Supports multiple sprites for animation. See res/json/npc.json.
   std::vector<Sprites::SpriteMetaType> sprite_type_list;
 
+  //! @brief Object holding a list of action modifiers and time object
   struct ActionTimePair
   {
+    //! @brief Record of player stat modifiers for a specific action.
     BaseAction action;
+    //! @brief Time elapsed for a specific action. This can be used for applying modifiers from a specific NPC instance.
     sf::Time time;
   };
 
-  //! @brief The action and its effects that can be applied to the player
+  //! @brief The list of action modifiers and their current elapsed time
   std::unordered_map<std::type_index, ActionTimePair> actions;
 
   float m_lerp_speed{0};
