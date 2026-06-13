@@ -54,6 +54,7 @@
 #include <Ruin/RuinCobweb.hpp>
 #include <Ruin/RuneMarking.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
+#include <Stats/DestroyAction.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PlayerSystem.hpp>
@@ -425,14 +426,19 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
   if ( m_timed_action_sync_clock.asSeconds() >= kTimedActionSyncClockMax )
   {
     // add the NPC modifiers to the `net_modifier` every kTimedActionSyncClockMax.
-    for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::NPC>().each() )
+    for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : reg().view<Cmp::NPC, Cmp::Position>().each() )
     {
       mod_log << " " << npc_cmp.sprite_type_list.front() << "(actions";
       for ( auto &[action_type, npc_action_pair] : npc_cmp.actions )
       {
-        if ( action_type == std::type_index( typeid( Cmp::CollisionAction ) ) ) continue;
-        if ( action_type == std::type_index( typeid( Cmp::ProjectileAction ) ) ) continue;
-        // if ( action_type == std::type_index( typeid( Cmp::ExhumeAction ) ) ) continue;
+        if ( action_type == std::type_index( typeid( Cmp::CollisionAction ) ) ) { continue; }
+        if ( action_type == std::type_index( typeid( Cmp::ProjectileAction ) ) ) { continue; }
+        if ( action_type == std::type_index( typeid( Cmp::DestroyAction ) ) ) { continue; }
+        if ( action_type == std::type_index( typeid( Cmp::ExhumeAction ) ) and
+             not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), npc_pos_cmp ) )
+        {
+          continue;
+        }
         auto &[npc_action, npc_action_timer] = npc_action_pair;
 
         if ( npc_action_timer.asSeconds() < npc_action.interval() ) continue;
