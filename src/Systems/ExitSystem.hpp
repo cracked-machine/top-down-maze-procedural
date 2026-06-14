@@ -1,14 +1,12 @@
 #ifndef SRC_SYSTEMS_EXITSYSTEM_HPP__
 #define SRC_SYSTEMS_EXITSYSTEM_HPP__
 
-#include <Components/Persistent/EffectsVolume.hpp>
 #include <Events/PlayerActionEvent.hpp>
-#include <SFML/Audio/Sound.hpp>
-#include <SFML/Audio/SoundBuffer.hpp>
-
 #include <Events/UnlockDoorEvent.hpp>
-#include <SFML/System/Vector2.hpp>
 #include <Systems/BaseSystem.hpp>
+
+#include <SFML/System/Vector2.hpp>
+
 namespace Game::Sys
 {
 

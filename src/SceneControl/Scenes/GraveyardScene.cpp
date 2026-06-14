@@ -265,6 +265,7 @@ void GraveyardScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::RuinSystem>().check_entrance_collision();
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
   m_sys.find<Sys::Store::Type::LightningSystem>().update( dt );
+  m_sys.find<Sys::Store::Type::ExitSystem>().check_exit_collision();
 
   for ( auto [ob_entt, ob_cmp, pos_cmp] : m_reg.view<Cmp::Obstacle, Cmp::Position>().each() )
   {

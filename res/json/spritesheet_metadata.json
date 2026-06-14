@@ -5,7 +5,7 @@
         "displayname": "exit",
         "zorder": [0, 0],
         "texture_path": "res/textures/graveyard.png",
-        "sprite_indices": [14, 15],
+        "sprite_indices": [8, 9],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
