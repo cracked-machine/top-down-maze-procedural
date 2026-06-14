@@ -52,7 +52,7 @@
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Sprites/SpriteSheet.hpp>
-#include <Stats/ExhumeAction.hpp>
+#include <Stats/SpawnAction.hpp>
 #include <Systems/CryptSystem.hpp>
 #include <Systems/Events/PassageEvent.hpp>
 #include <Systems/PersistSystem.hpp>

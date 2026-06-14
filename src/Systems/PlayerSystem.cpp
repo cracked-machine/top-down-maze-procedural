@@ -29,9 +29,9 @@
 #include <Components/Stats/BaseAction.hpp>
 #include <Components/Stats/CarryAction.hpp>
 #include <Components/Stats/CollisionAction.hpp>
-#include <Components/Stats/ExhumeAction.hpp>
 #include <Components/Stats/PlayerStats.hpp>
 #include <Components/Stats/ProjectileAction.hpp>
+#include <Components/Stats/SpawnAction.hpp>
 #include <Components/System.hpp>
 #include <Components/UUID.hpp>
 #include <Components/Wormhole/WormholeJump.hpp>
@@ -431,10 +431,12 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
       mod_log << " " << npc_cmp.sprite_type_list.front() << "(actions";
       for ( auto &[action_type, npc_action_pair] : npc_cmp.actions )
       {
+        // these are handled as one time modifiers in NpcSystem, ShockwaveSystem
         if ( action_type == std::type_index( typeid( Cmp::CollisionAction ) ) ) { continue; }
         if ( action_type == std::type_index( typeid( Cmp::ProjectileAction ) ) ) { continue; }
         if ( action_type == std::type_index( typeid( Cmp::DestroyAction ) ) ) { continue; }
-        if ( action_type == std::type_index( typeid( Cmp::ExhumeAction ) ) and
+
+        if ( action_type == std::type_index( typeid( Cmp::SpawnAction ) ) and
              not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), npc_pos_cmp ) )
         {
           continue;

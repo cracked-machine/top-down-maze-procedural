@@ -6,14 +6,14 @@
 namespace Game::Cmp
 {
 
-class ExhumeAction : public BaseAction
+class SpawnAction : public BaseAction
 {
 public:
-  ExhumeAction( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Tick tick, Stats::Disease disease = {} )
+  SpawnAction( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Tick tick, Stats::Disease disease = {} )
       : BaseAction( health, fear, despair, infamy, tick, disease )
   {
   }
-  ~ExhumeAction() {}
+  ~SpawnAction() {}
 
 private:
 };

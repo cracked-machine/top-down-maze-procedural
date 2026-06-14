@@ -4,8 +4,8 @@
 #include <Components/Stats/CarryAction.hpp>
 #include <Components/Stats/ConsumeAction.hpp>
 #include <Components/Stats/DestroyAction.hpp>
-#include <Components/Stats/ExhumeAction.hpp>
 #include <Components/Stats/SacrificeAction.hpp>
+#include <Components/Stats/SpawnAction.hpp>
 #include <Stats/BaseAction.hpp>
 #include <Systems/Stores/BaseStore.hpp>
 

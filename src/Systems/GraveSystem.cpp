@@ -1,6 +1,6 @@
 
 #include <Events/CreateItemEvent.hpp>
-#include <Stats/ExhumeAction.hpp>
+#include <Stats/SpawnAction.hpp>
 #include <Systems/Stores/ItemStore.hpp>
 #include <typeindex>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
@@ -145,7 +145,7 @@ void GraveSystem::check_player_grave_collision()
 
             // Apply the effects from exhuming this item to the player stats
             auto item = Sys::ItemStore::instance().get_item( relic_selection_list.at( selected_relic ) );
-            Utils::Player::get_player_stats( reg() ).apply_modifiers( item.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) ).action );
+            Utils::Player::get_player_stats( reg() ).apply_modifiers( item.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) ).action );
             break;
           }
           case 4: {
@@ -162,7 +162,7 @@ void GraveSystem::check_player_grave_collision()
 
             // Apply the effects from exhuming this item to the player stats
             auto item = Sys::ItemStore::instance().get_item( jewelry_selection_list.at( selected_jewelry ) );
-            Utils::Player::get_player_stats( reg() ).apply_modifiers( item.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) ).action );
+            Utils::Player::get_player_stats( reg() ).apply_modifiers( item.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) ).action );
             break;
           }
         }

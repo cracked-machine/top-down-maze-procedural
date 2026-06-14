@@ -22,7 +22,7 @@
 #include <SpatialHashGrid.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Stats/DestroyAction.hpp>
-#include <Stats/ExhumeAction.hpp>
+#include <Stats/SpawnAction.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Stores/NpcStore.hpp>
@@ -127,7 +127,7 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
 
     reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
 
-    auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) );
+    auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
   }
   else if ( npc_type == "npc.skeleton" )
@@ -145,7 +145,7 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
 
     reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
 
-    auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) );
+    auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
 
     Factory::destroy_npc_container( reg, position_entity );
@@ -168,7 +168,7 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
     reg.emplace_or_replace<Cmp::NpcShockwaveTimer>( new_pos_entity );
     Factory::create_shockwave( reg, new_pos_entity );
 
-    auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) );
+    auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
   }
   else if ( npc_type == "npc.witch" )
@@ -186,7 +186,7 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
 
     reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
 
-    auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) );
+    auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
   }
   else if ( npc_type == "npc.wisp" )
@@ -222,7 +222,7 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
 
     reg.emplace_or_replace<Cmp::NpcFriendly>( new_pos_entity );
 
-    auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) );
+    auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
   }
 

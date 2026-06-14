@@ -2,8 +2,8 @@
 #include <Stats/CarryAction.hpp>
 #include <Stats/ConsumeAction.hpp>
 #include <Stats/DestroyAction.hpp>
-#include <Stats/ExhumeAction.hpp>
 #include <Stats/SacrificeAction.hpp>
+#include <Stats/SpawnAction.hpp>
 #include <Systems/Stores/BaseStore.hpp>
 #include <Systems/Stores/ItemStore.hpp>
 
@@ -56,11 +56,11 @@ void ItemStore::init_store()
                                      Cmp::DestroyAction( { health( action_value ) }, { fear( action_value ) }, { despair( action_value ) },
                                                          { infamy( action_value ) }, { tick( action_value ) }, disease( action_value ) ) );
         }
-        else if ( action_key == "exhume_action" )
+        else if ( action_key == "spawn_action" )
         {
-          carryitem.actions.emplace( typeid( Cmp::ExhumeAction ),
-                                     Cmp::ExhumeAction( { health( action_value ) }, { fear( action_value ) }, { despair( action_value ) },
-                                                        { infamy( action_value ) }, { tick( action_value ) }, disease( action_value ) ) );
+          carryitem.actions.emplace( typeid( Cmp::SpawnAction ),
+                                     Cmp::SpawnAction( { health( action_value ) }, { fear( action_value ) }, { despair( action_value ) },
+                                                       { infamy( action_value ) }, { tick( action_value ) }, disease( action_value ) ) );
         }
         else if ( action_key == "sacrifice_action" )
         {

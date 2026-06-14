@@ -22,7 +22,7 @@
             { "contains": { "required": ["carry_action"] } },
             { "contains": { "required": ["consume_action"] } },
             { "contains": { "required": ["destroy_action"] } },
-            { "contains": { "required": ["exhume_action"] } },
+            { "contains": { "required": ["spawn_action"] } },
             { "contains": { "required": ["sacrifice_action"] } }
           ],
           "items": {
