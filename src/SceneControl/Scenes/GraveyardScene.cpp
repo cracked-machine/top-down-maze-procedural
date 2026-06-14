@@ -13,6 +13,7 @@
 #include <Factory/ShaderFactory.hpp>
 #include <Grave/GraveMultiBlock.hpp>
 #include <HolyWell/HolyWellMultiBlock.hpp>
+#include <Inventory/Grimoire.hpp>
 #include <Npc/NpcNoPathFinding.hpp>
 #include <Obstacle.hpp>
 #include <Optimizations.hpp>
@@ -40,6 +41,7 @@
 #include <Systems/ExitSystem.hpp>
 #include <Systems/FootstepSystem.hpp>
 #include <Systems/GraveSystem.hpp>
+#include <Systems/GrimoireSystem.hpp>
 #include <Systems/HolyWellSystem.hpp>
 #include <Systems/LootSystem.hpp>
 #include <Systems/ParticleSystem.hpp>
@@ -83,6 +85,9 @@ void GraveyardScene::on_init()
 
   m_sys.find<Sys::Store::Type::ItemStore>().init_store();
   m_sys.find<Sys::Store::Type::NpcStore>().init_store();
+
+  auto grimoire_entt = m_reg.create();
+  m_reg.emplace_or_replace<Cmp::Grimoire>( grimoire_entt );
 
   m_scene_data = std::make_shared<SceneData>( "res/scenes/graveyard.json" );
 
@@ -264,6 +269,7 @@ void GraveyardScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::RuinSystem>().check_entrance_collision();
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
   m_sys.find<Sys::Store::Type::LightningSystem>().update( dt );
+  m_sys.find<Sys::Store::Type::GrimoireSystem>().update( dt );
   m_sys.find<Sys::Store::Type::ExitSystem>().check_exit_collision();
 
   for ( auto [ob_entt, ob_cmp, pos_cmp] : m_reg.view<Cmp::Obstacle, Cmp::Position>().each() )

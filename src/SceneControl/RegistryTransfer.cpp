@@ -13,10 +13,12 @@
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
 #include <Components/Inventory/Explosive.hpp>
+#include <Components/Inventory/Grimoire.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/Inventory/WorldItem.hpp>
+#include <Components/LastDirection.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Player/PlayerBlastRadius.hpp>
@@ -25,20 +27,19 @@
 #include <Components/Player/PlayerCurse.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
+#include <Components/Player/PlayerLevelDepth.hpp>
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Player/PlayerRuinLocation.hpp>
 #include <Components/Player/PlayerWealth.hpp>
+#include <Components/Player/TorchRadius.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinObjectiveType.hpp>
+#include <Components/Stats/PlayerStats.hpp>
 #include <Components/System.hpp>
 #include <Components/UUID.hpp>
 #include <Components/VoidPosition.hpp>
 #include <Components/ZOrderValue.hpp>
-#include <LastDirection.hpp>
-#include <Player/PlayerLevelDepth.hpp>
-#include <Player/TorchRadius.hpp>
 #include <SceneControl/RegistryTransfer.hpp>
-#include <Stats/PlayerStats.hpp>
 
 #include <spdlog/spdlog.h>
 
@@ -240,6 +241,7 @@ void RegistryTransfer::init_missing_cmp_storages( entt::registry &registry )
   registry.storage<Cmp::PlayerRuinLocation>();
   registry.storage<Cmp::RuinObjectiveType>();
   registry.storage<Cmp::UUID>();
+  registry.storage<Cmp::Grimoire>();
   // Add other player-related components as needed
 }
 

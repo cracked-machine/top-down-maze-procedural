@@ -33,6 +33,7 @@ class ActionSystem;
 class ExitSystem;
 class FootstepSystem;
 class GraveSystem;
+class GrimoireSystem;
 class HolyWellSystem;
 class ItemStore;
 class ItemSystem;
@@ -68,6 +69,7 @@ public:
     ExitSystem,
     FootstepSystem,
     GraveSystem,
+    GrimoireSystem,
     HolyWellSystem,
     ItemStore,
     ItemSystem,
@@ -135,6 +137,7 @@ template<> struct Store::SystemTraits<Store::Type::DiffusionLtdAggrSystem> { usi
 template<> struct Store::SystemTraits<Store::Type::ExitSystem>             { using type = ExitSystem; };
 template<> struct Store::SystemTraits<Store::Type::FootstepSystem>         { using type = FootstepSystem; };
 template<> struct Store::SystemTraits<Store::Type::GraveSystem>            { using type = GraveSystem; };
+template<> struct Store::SystemTraits<Store::Type::GrimoireSystem>         { using type = GrimoireSystem; };
 template<> struct Store::SystemTraits<Store::Type::HolyWellSystem>         { using type = HolyWellSystem; };
 template<> struct Store::SystemTraits<Store::Type::ItemStore>              { using type = ItemStore; };
 template<> struct Store::SystemTraits<Store::Type::ItemSystem>             { using type = ItemSystem; };

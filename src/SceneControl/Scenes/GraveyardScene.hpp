@@ -47,6 +47,7 @@ private:
   sf::Clock m_scene_exit_cooldown{};
   sf::Time m_scene_exit_cooldown_time{ sf::seconds( 2 ) };
 
+  bool m_grimoire_overlay_open{ false };
   void reinit_navmesh();
 };
 

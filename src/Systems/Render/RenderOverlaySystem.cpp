@@ -28,6 +28,7 @@
 #include <Inventory/FlashUIInventory.hpp>
 #include <Inventory/FlashUIRadius.hpp>
 #include <Inventory/FlashUIWealth.hpp>
+#include <Inventory/Grimoire.hpp>
 #include <LastDirection.hpp>
 #include <Moveable.hpp>
 #include <Npc/NpcNoPathFinding.hpp>
@@ -410,6 +411,45 @@ void RenderOverlaySystem::render_shop_inventory_overlay()
           break;
       }
     }
+  }
+}
+
+void RenderOverlaySystem::render_grimoire_inventory_overlay()
+{
+  // only draw the shop if its enabled
+  auto grimoire_view = reg().view<Cmp::Grimoire>();
+  if ( grimoire_view.empty() ) { return; }
+  auto &grimoire_cmp = grimoire_view.get<Cmp::Grimoire>( grimoire_view.front() );
+  if ( not grimoire_cmp.is_enabled ) return;
+
+  sf::Vector2f rect_position( 600.f, 400.f );
+  auto rect = sf::RectangleShape( rect_position );
+  rect.setPosition( { 500.f, 300.f } );
+  rect.setFillColor( sf::Color::Black );
+  rect.setOutlineColor( sf::Color::White );
+  rect.setOutlineThickness( 2.f );
+  draw_screen( rect );
+
+  float y_offset = 0.f;
+  constexpr unsigned int font_size = 18;
+  constexpr float line_height = 22.f;
+
+  //! @brief Draw a text line in the UI
+  auto draw_line = [&]( const std::string &str, sf::Color color = sf::Color::White )
+  {
+    sf::Text text( m_font, str, font_size );
+    text.setFillColor( color );
+    text.setOutlineColor( sf::Color::Black );
+    text.setOutlineThickness( 1.f );
+    text.setPosition( { rect_position.x, rect_position.y + y_offset } );
+    draw_screen( text );
+    y_offset += line_height;
+  };
+
+  // Draw all UI outlines
+  for ( const auto &[item, is_enabled] : grimoire_cmp.contents )
+  {
+    draw_line( item + " - " + ( is_enabled ? "Shown" : "Hidden" ) );
   }
 }
 

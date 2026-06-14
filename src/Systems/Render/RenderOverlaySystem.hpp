@@ -46,6 +46,7 @@ public:
 
   void render_level_depth();
   void render_shop_inventory_overlay();
+  void render_grimoire_inventory_overlay();
 
   void render_ui_misc_stats();
   void render_ui_zorder_list( std::vector<ZOrder> &zorder_queue );

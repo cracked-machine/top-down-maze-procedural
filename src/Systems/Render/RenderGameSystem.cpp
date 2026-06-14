@@ -207,6 +207,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
 
   render_lightning_strike();
   render_overlay_sys.render_shop_inventory_overlay();
+  render_overlay_sys.render_grimoire_inventory_overlay();
 
   // lava pit outline
   render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPit>( sf::Color( 16, 16, 16 ), 0.5f );
