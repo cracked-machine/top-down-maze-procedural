@@ -30,7 +30,7 @@ entt::entity create_plant_obstacle( entt::registry &reg, Cmp::Position pos_cmp, 
   auto plant_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( plant_entt, pos_cmp.position, pos_cmp.size );
   reg.emplace_or_replace<Cmp::PlantObstacle>( plant_entt );
-  reg.emplace_or_replace<Cmp::WorldItem>( plant_entt, ms.get_sprite_type() );
+  reg.emplace_or_replace<Cmp::WorldItem>( plant_entt, ms.get_sprite_type().substr( std::string_view{ "sprite." }.size() ), ms.get_sprite_type() );
   reg.emplace_or_replace<Cmp::ReservedPosition>( plant_entt );
   reg.emplace_or_replace<Cmp::NpcNoPathFinding>( plant_entt );
   reg.emplace_or_replace<Cmp::PlayerNoPath>( plant_entt, false );

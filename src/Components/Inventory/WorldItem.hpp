@@ -17,10 +17,13 @@ class WorldItem
 {
 public:
   WorldItem() = default;
-  WorldItem( Sprites::SpriteMetaType sprite_type )
-      : sprite_type( std::move( sprite_type ) )
+  WorldItem( std::string item_type, Sprites::SpriteMetaType sprite_type )
+      : item_type( std::move( item_type ) ),
+        sprite_type( std::move( sprite_type ) )
   {
   }
+
+  std::string item_type;
 
   //! @brief The associated sprite
   Sprites::SpriteMetaType sprite_type;

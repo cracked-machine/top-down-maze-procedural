@@ -28,7 +28,7 @@ void ItemStore::init_store()
   for ( const auto &[item_key, item_value] : json.items() )
   {
     Sprites::SpriteMetaType sprite_mtype = item_value.at( "sprite" ).get<std::string>();
-    Cmp::WorldItem carryitem( sprite_mtype );
+    Cmp::WorldItem carryitem( item_key, sprite_mtype );
     for ( const auto &action_entry : item_value.at( "actions" ) )
     {
       for ( const auto &[action_key, action_value] : action_entry.items() )
