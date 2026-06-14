@@ -1,5 +1,5 @@
-#ifndef SRC_CMPS_STATS_EXHUMEACTION_HPP_
-#define SRC_CMPS_STATS_EXHUMEACTION_HPP_
+#ifndef SRC_CMPS_STATS_SPAWNACTION_HPP_
+#define SRC_CMPS_STATS_SPAWNACTION_HPP_
 
 #include <Stats/BaseAction.hpp>
 
@@ -20,4 +20,4 @@ private:
 
 } // namespace Game::Cmp
 
-#endif // SRC_CMPS_STATS_EXHUMEACTION_HPP_
+#endif // SRC_CMPS_STATS_SPAWNACTION_HPP_

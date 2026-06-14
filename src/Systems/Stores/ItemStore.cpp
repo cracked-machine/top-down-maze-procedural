@@ -2,6 +2,7 @@
 #include <Stats/CarryAction.hpp>
 #include <Stats/ConsumeAction.hpp>
 #include <Stats/DestroyAction.hpp>
+#include <Stats/ProximityAction.hpp>
 #include <Stats/SacrificeAction.hpp>
 #include <Stats/SpawnAction.hpp>
 #include <Systems/Stores/BaseStore.hpp>
@@ -61,6 +62,12 @@ void ItemStore::init_store()
           carryitem.actions.emplace( typeid( Cmp::SpawnAction ),
                                      Cmp::SpawnAction( { health( action_value ) }, { fear( action_value ) }, { despair( action_value ) },
                                                        { infamy( action_value ) }, { tick( action_value ) }, disease( action_value ) ) );
+        }
+        else if ( action_key == "proximity_action" )
+        {
+          carryitem.actions.emplace( typeid( Cmp::ProximityAction ),
+                                     Cmp::ProximityAction( { health( action_value ) }, { fear( action_value ) }, { despair( action_value ) },
+                                                           { infamy( action_value ) }, { tick( action_value ) }, disease( action_value ) ) );
         }
         else if ( action_key == "sacrifice_action" )
         {

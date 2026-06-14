@@ -55,6 +55,7 @@
 #include <Ruin/RuneMarking.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Stats/DestroyAction.hpp>
+#include <Stats/ProximityAction.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PlayerSystem.hpp>
@@ -431,12 +432,14 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
       mod_log << " " << npc_cmp.sprite_type_list.front() << "(actions";
       for ( auto &[action_type, npc_action_pair] : npc_cmp.actions )
       {
-        // these are handled as one time modifiers in NpcSystem, ShockwaveSystem
-        if ( action_type == std::type_index( typeid( Cmp::CollisionAction ) ) ) { continue; }
-        if ( action_type == std::type_index( typeid( Cmp::ProjectileAction ) ) ) { continue; }
-        if ( action_type == std::type_index( typeid( Cmp::DestroyAction ) ) ) { continue; }
+        // These are handled as one time modifiers handled by specific systems/factories. Note the tick action field is ignored.
+        if ( action_type == std::type_index( typeid( Cmp::CollisionAction ) ) ) { continue; }  // See NpcSystem
+        if ( action_type == std::type_index( typeid( Cmp::ProjectileAction ) ) ) { continue; } // See ShockwaveSystem
+        if ( action_type == std::type_index( typeid( Cmp::SpawnAction ) ) ) { continue; }      // See NpcFactory/GraveSystem
+        if ( action_type == std::type_index( typeid( Cmp::DestroyAction ) ) ) { continue; }    // See NpcFactory
 
-        if ( action_type == std::type_index( typeid( Cmp::SpawnAction ) ) and
+        // special case: Only apply ProximityAction when the NPC is in the current screen view.
+        if ( action_type == std::type_index( typeid( Cmp::ProximityAction ) ) and
              not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), npc_pos_cmp ) )
         {
           continue;

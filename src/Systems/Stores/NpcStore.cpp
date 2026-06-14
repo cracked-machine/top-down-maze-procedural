@@ -4,6 +4,7 @@
 #include <Stats/ConsumeAction.hpp>
 #include <Stats/DestroyAction.hpp>
 #include <Stats/ProjectileAction.hpp>
+#include <Stats/ProximityAction.hpp>
 #include <Stats/SacrificeAction.hpp>
 #include <Stats/SpawnAction.hpp>
 #include <Systems/Stores/NpcStore.hpp>
@@ -70,6 +71,12 @@ void NpcStore::init_store()
           npc.actions.emplace( typeid( Cmp::SpawnAction ),
                                Cmp::SpawnAction( { health( action_value ) }, { fear( action_value ) }, { despair( action_value ) },
                                                  { infamy( action_value ) }, { tick( action_value ) }, disease( action_value ) ) );
+        }
+        else if ( action_key == "proximity_action" )
+        {
+          npc.actions.emplace( typeid( Cmp::ProximityAction ),
+                               Cmp::ProximityAction( { health( action_value ) }, { fear( action_value ) }, { despair( action_value ) },
+                                                     { infamy( action_value ) }, { tick( action_value ) }, disease( action_value ) ) );
         }
         else if ( action_key == "sacrifice_action" )
         {

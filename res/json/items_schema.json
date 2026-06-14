@@ -15,21 +15,22 @@
         "actions": {
           "type": "array",
           "description": "List of actions available for this item",
-          "minItems": 6,
-          "maxItems": 6,
+          "minItems": 7,
+          "maxItems": 7,
           "allOf": [
             { "contains": { "required": ["bury_action"] } },
             { "contains": { "required": ["carry_action"] } },
             { "contains": { "required": ["consume_action"] } },
             { "contains": { "required": ["destroy_action"] } },
             { "contains": { "required": ["spawn_action"] } },
+            { "contains": { "required": ["proximity_action"] } },
             { "contains": { "required": ["sacrifice_action"] } }
           ],
           "items": {
             "type": "object",
             "maxProperties": 1,
             "patternProperties": {
-              "^(bury|carry|consume|destroy|exhume|sacrifice)_action$": {
+              "^(bury|carry|consume|destroy|spawn|proximity|sacrifice)_action$": {
                 "type": "object",
                 "required": ["health", "fear", "despair", "infamy", "disease", "tick"],
                 "additionalProperties": false,

@@ -7,8 +7,9 @@
       { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
-      { "destroy_action":     { "health": 0, "fear": -2, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
-      { "spawn_action":      { "health": 0, "fear": 1, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 2 }},
+      { "destroy_action":     { "health": 0, "fear": -10, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "spawn_action":       { "health": 0, "fear": 1, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "proximity_action":   { "health": 0, "fear": 1, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 2 }},
       { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "projectile_action":  { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "collision_action":   { "health": -15, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }}
@@ -23,7 +24,8 @@
       { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
-      { "spawn_action":      { "health": 0, "fear": 1, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 2 }},
+      { "spawn_action":       { "health": 0, "fear": 1, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "proximity_action":   { "health": 0, "fear": 1, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 2 }},
       { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "projectile_action":  { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "collision_action":   { "health": -15, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }}      
@@ -38,7 +40,8 @@
       { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
-      { "spawn_action":      { "health": 0, "fear": 1, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 1 }},
+      { "spawn_action":       { "health": 0, "fear": 1, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "proximity_action":   { "health": 0, "fear": 1, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 1 }},
       { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "projectile_action":  { "health": -15, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "collision_action":   { "health": -15, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }}
@@ -53,7 +56,8 @@
       { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
-      { "spawn_action":      { "health": -1, "fear": 1, "despair": 1, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 1 }},
+      { "spawn_action":       { "health": -1, "fear": 1, "despair": 1, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "proximity_action":   { "health": -1, "fear": 1, "despair": 1, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 1 }},
       { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "projectile_action":  { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "collision_action":   { "health": -15, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }}
@@ -68,7 +72,8 @@
       { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
-      { "spawn_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "proximity_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "projectile_action":  { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "collision_action":   { "health": -1, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0.05 }}
@@ -83,7 +88,8 @@
       { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
-      { "spawn_action":      { "health": 1, "fear": -1, "despair": 0, "infamy": 1, "disease": { "type": "none", "tick": 0 }, "tick": 3 }},
+      { "spawn_action":       { "health": 1, "fear": -1, "despair": 0, "infamy": 1, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "proximity_action":   { "health": 1, "fear": -1, "despair": 0, "infamy": 1, "disease": { "type": "none", "tick": 0 }, "tick": 3 }},
       { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "projectile_action":  { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "collision_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }}
@@ -98,7 +104,8 @@
       { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
-      { "spawn_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "proximity_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "projectile_action":  { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "collision_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }}
