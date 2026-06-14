@@ -27,7 +27,7 @@ public:
 
   //! @brief Create the exit in the game area
   //! @param spawn_position
-  void spawn_exit( std::optional<sf::Vector2u> spawn_position = std::nullopt );
+  void spawn_exit();
 
   //! @brief  This function is called via event trigger:
   //!         `Events::PlayerActionEvent` from `SceneInputRouter::graveyard_scene_state_handler()`

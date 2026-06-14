@@ -1,11 +1,39 @@
 {
   "sprites": {
-    "sprite.graveyard.exit": {
+    "sprite.graveyard.exit.main": {
       "spritesheet": {
-        "displayname": "exit",
-        "zorder": [0, 0],
+        "displayname": "exit.main",
+        "zorder": [0],
         "texture_path": "res/textures/graveyard.png",
-        "sprite_indices": [8, 9],
+        "sprite_indices": [48],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "sprite.graveyard.exit.cap": {
+      "spritesheet": {
+        "displayname": "exit.cap",
+        "zorder": [0 ],
+        "texture_path": "res/textures/graveyard.png",
+        "sprite_indices": [38],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "sprite.graveyard.exit.unlocked": {
+      "spritesheet": {
+        "displayname": "exit.unlocked",
+        "zorder": [0],
+        "texture_path": "res/textures/graveyard.png",
+        "sprite_indices": [9],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {

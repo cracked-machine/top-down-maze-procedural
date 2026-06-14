@@ -15,7 +15,9 @@
 #include <Components/System.hpp>
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Constants.hpp>
 #include <Events/PlayerActionEvent.hpp>
+#include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Systems/ExitSystem.hpp>
@@ -40,55 +42,34 @@ ExitSystem::ExitSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::
   std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&ExitSystem::on_player_action>( this );
 }
 
-void ExitSystem::spawn_exit( std::optional<sf::Vector2u> spawn_position )
+void ExitSystem::spawn_exit()
 {
-  if ( spawn_position )
-  {
-    sf::FloatRect spawn_pos_px = sf::FloatRect(
-        { static_cast<float>( spawn_position->x ) * Constants::kGridSizePx.x, static_cast<float>( spawn_position->y ) * Constants::kGridSizePx.y },
-        Constants::kGridSizePxF );
 
-    // remove any wall
-    for ( auto [entt, wall_cmp, pos_cmp] : reg().view<Cmp::Wall, Cmp::Position>().each() )
-    {
-      if ( spawn_pos_px.findIntersection( pos_cmp ) ) { reg().remove<Cmp::Wall>( entt ); }
-    }
+  auto [rand_entity, rand_pos_cmp] = Utils::Rnd::get_random_position(
+      reg(), {}, Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, 0 );
 
-    auto entity = reg().create();
-    reg().emplace_or_replace<Cmp::Position>( entity, spawn_pos_px.position, Constants::kGridSizePxF );
-    reg().emplace_or_replace<Cmp::Exit>( entity, true ); // locked at start
-                                                         // clang-format off
-    reg().emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 
-          .sprite_type = "sprite.graveyard.exit", 
-          .frame_index_offset = 1,
-          .enabled = true
-    });
-    // clang-format on   
-    reg().emplace_or_replace<Cmp::ZOrderValue>( entity, spawn_pos_px.position.y );
-    reg().emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
+  // Remove the existing wall obstacle first
+  Factory::remove_obstacle( reg(), rand_entity, true );
 
-    SPDLOG_INFO( "Exit spawned at position ({}, {})", spawn_position->x, spawn_position->y );
-  }
-  else
-  {
-    auto [rand_entity, rand_pos_cmp] = Utils::Rnd::get_random_position(
-        reg(), {}, Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, 0 );
+  const auto &ss_main = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.exit.main" );
+  const auto &ss_cap = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.exit.cap" );
+  auto uuid = Cmp::UUID::generate();
 
-    auto *existing_obstacle_cmp = reg().try_get<Cmp::Obstacle>( rand_entity );
-    if ( existing_obstacle_cmp ) { reg().remove<Cmp::Obstacle>( rand_entity ); }
+  Factory::add_obstacle( reg(), rand_entity );
+  reg().emplace_or_replace<Cmp::Exit>( rand_entity, true );
+  Factory::decorate_obstacle( reg(), rand_entity, rand_pos_cmp, ss_main, 0 );
+  reg().emplace_or_replace<Cmp::UUID>( rand_entity, uuid );
 
-    reg().emplace_or_replace<Cmp::Exit>( rand_entity, true ); // locked at start
-    // clang-format off
-    reg().emplace_or_replace<Cmp::AnimData>( rand_entity, Cmp::AnimData::Config{ 
-          .sprite_type = "sprite.graveyard.exit", 
-          .frame_index_offset = 0,
-          .enabled = true
-    });
-    // clang-format on   
-    reg().emplace_or_replace<Cmp::ZOrderValue>( rand_entity, rand_pos_cmp.position.y );
-    reg().emplace_or_replace<Cmp::NpcNoPathFinding>( rand_entity );
-    SPDLOG_INFO( "Exit spawned at position ({}, {})", rand_pos_cmp.position.x, rand_pos_cmp.position.y );
-  }
+  auto cap_entt = reg().create();
+  Cmp::Position cap_position( { rand_pos_cmp.x(), rand_pos_cmp.y() - Constants::kGridSizePxF.y }, Constants::kGridSizePxF );
+  reg().emplace_or_replace<Cmp::Position>( cap_entt, cap_position );
+  Factory::decorate_obstacle( reg(), cap_entt, cap_position, ss_cap, 0, rand_pos_cmp.y(), false );
+  reg().emplace_or_replace<Cmp::UUID>( cap_entt, uuid );
+  reg().emplace_or_replace<Cmp::ReservedPosition>( cap_entt );
+
+  reg().emplace_or_replace<Cmp::ReservedPosition>( rand_entity );
+
+  SPDLOG_INFO( "Exit spawned at position ({}, {})", rand_pos_cmp.position.x, rand_pos_cmp.position.y );
 }
 
 void ExitSystem::on_player_action( Events::PlayerActionEvent ev )
@@ -108,23 +89,20 @@ void ExitSystem::check_player_can_unlock_exit()
     auto [found_entt, found_carryitem_type] = Utils::Player::get_inventory_type( reg() );
     if ( player_hitbox.findIntersection( exit_pos_cmp ) and found_carryitem_type.contains( "exitkey" ) )
     {
-      // otherwise unlock the exit
-      auto exit_view = reg().view<Cmp::Exit, Cmp::Position>();
-      for ( auto [entity, exit_cmp, pos_cmp] : exit_view.each() )
-      {
-        exit_cmp.m_locked = false;
-        // clang-format off
-        reg().emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 
-              .sprite_type = "sprite.graveyard.exit", 
-              .frame_index_offset = 1,
-              .enabled = true
-        });
-        // clang-format on
-        reg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y - 16.f );
-        reg().remove<Cmp::PlayerNoPath>( entity );
-        if ( m_sound_bank.get_effect( "secret" ).getStatus() == sf::Sound::Status::Stopped ) m_sound_bank.get_effect( "secret" ).play();
-        Factory::destroy_inventory( reg(), "sprite.item.exitkey" );
-      }
+      exit_cmp.m_locked = false;
+      Factory::remove_obstacle( reg(), entity, true );
+
+      // clang-format off
+      reg().emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 
+            .sprite_type = "sprite.graveyard.exit.unlocked",
+            .enabled = true
+      });
+      // clang-format on
+
+      reg().emplace_or_replace<Cmp::ZOrderValue>( entity, exit_pos_cmp.position.y );
+      reg().remove<Cmp::PlayerNoPath>( entity );
+      if ( m_sound_bank.get_effect( "secret" ).getStatus() == sf::Sound::Status::Stopped ) m_sound_bank.get_effect( "secret" ).play();
+      Factory::destroy_inventory( reg(), "sprite.item.exitkey" );
     }
   }
 }

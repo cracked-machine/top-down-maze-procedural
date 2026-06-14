@@ -117,6 +117,7 @@ void GraveyardScene::on_init()
   Factory::gen_loot_containers( m_reg, m_sprite_factory, map_size_grid );
   Factory::gen_npc_containers( m_reg, m_sprite_factory, map_size_grid );
   level_gen.gen_random_plants( map_size_grid );
+  m_sys.find<Sys::Store::Type::ExitSystem>().spawn_exit();
 
   auto init_chance = Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenInitChance>( m_reg );
   level_gen.add_graveyard_exterior_obstacles( init_chance.get_value() );
@@ -143,8 +144,6 @@ void GraveyardScene::on_init()
   // create floor background
   Sprites::Containers::VertexFloor floortiles;
   floortiles.create( level_gen.get_void_sm(), m_scene_data );
-
-  m_sys.find<Sys::Store::Type::ExitSystem>().spawn_exit();
 
   m_sys.find<Sys::Store::Type::RenderGameSystem>().init_world_view();
 
