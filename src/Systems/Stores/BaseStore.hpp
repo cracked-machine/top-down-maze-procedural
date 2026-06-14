@@ -25,6 +25,7 @@ public:
   int fear( const nlohmann::json & );
   int despair( const nlohmann::json & );
   int infamy( const nlohmann::json & );
+  int toxicity( const nlohmann::json & );
   float tick( const nlohmann::json & );
   Cmp::Stats::Disease disease( const nlohmann::json & );
 

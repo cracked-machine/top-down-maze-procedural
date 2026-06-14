@@ -149,7 +149,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
       {
-        Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ 10 }, {}, {}, {}, {} } );
+        Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ 10 }, {}, {}, {}, {}, {} } );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
@@ -204,7 +204,7 @@ void SceneInputRouter::crypt_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
       {
-        Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ 10 }, {}, {}, {}, {} } );
+        Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ 10 }, {}, {}, {}, {}, {} } );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
@@ -275,7 +275,7 @@ void SceneInputRouter::holywell_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
       {
-        Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ 10 }, {}, {}, {}, {} } );
+        Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ 10 }, {}, {}, {}, {}, {} } );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
@@ -325,7 +325,7 @@ void SceneInputRouter::shop_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
       {
-        Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ 10 }, {}, {}, {}, {} } );
+        Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ 10 }, {}, {}, {}, {}, {} } );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
@@ -380,7 +380,7 @@ void SceneInputRouter::ruin_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
       {
-        Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ 10 }, {}, {}, {}, {} } );
+        Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ 10 }, {}, {}, {}, {}, {} } );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }

@@ -9,8 +9,9 @@ namespace Game::Cmp
 class BuryAction : public BaseAction
 {
 public:
-  BuryAction( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Tick tick, Stats::Disease disease = {} )
-      : BaseAction( health, fear, despair, infamy, tick, disease )
+  BuryAction( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Toxicity toxicity, Stats::Tick tick,
+              Stats::Disease disease = {} )
+      : BaseAction( health, fear, despair, infamy, toxicity, tick, disease )
   {
   }
   ~BuryAction() {}

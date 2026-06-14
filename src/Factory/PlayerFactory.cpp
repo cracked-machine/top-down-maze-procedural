@@ -34,6 +34,7 @@
 #include <Player/TorchRadius.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #include <Sprites/SpriteSheet.hpp>
+#include <Stats/BaseAction.hpp>
 #include <Stats/PlayerStats.hpp>
 #include <Stats/SacrificeAction.hpp>
 #include <Systems/ParticleSystem.hpp>
@@ -66,7 +67,7 @@ void create_player( entt::registry &reg )
   reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
   reg.emplace_or_replace<Cmp::PlayerBlastRadius>( entity, blast_radius.get_value() );
   reg.emplace_or_replace<Cmp::PlayerStats>( entity, Cmp::Stats::Health{ 100 }, Cmp::Stats::Fear{ 0 }, Cmp::Stats::Despair{ 0 },
-                                            Cmp::Stats::Infamy{ 0 } );
+                                            Cmp::Stats::Infamy{ 0 }, Cmp::Stats::Toxicity{ 0 } );
 
   reg.emplace_or_replace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
   reg.emplace_or_replace<Cmp::LastDirection>( entity, sf::Vector2f{ 0, 0 } );

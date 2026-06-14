@@ -9,9 +9,9 @@ namespace Game::Cmp
 class ProximityAction : public BaseAction
 {
 public:
-  ProximityAction( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Tick tick,
+  ProximityAction( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Toxicity toxicity, Stats::Tick tick,
                    Stats::Disease disease = {} )
-      : BaseAction( health, fear, despair, infamy, tick, disease )
+      : BaseAction( health, fear, despair, infamy, toxicity, tick, disease )
   {
   }
   ~ProximityAction() {}

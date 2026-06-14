@@ -415,7 +415,7 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
   // Therefore the summing of each modifier should be done in sync with a 1 second tick (kTimedActionSyncThreshold).
   // Because PlayerInventorySlot/NPC components have independent timers from the light/dark timer, we need to update their timers every frame.
 
-  Cmp::BaseAction net_modifier( {}, {}, {}, {}, {} );
+  Cmp::BaseAction net_modifier( {}, {}, {}, {}, {}, {} );
   std::stringstream mod_log;
   const auto candle_item = Sys::ItemStore::instance().get_item( "item.candle" );
 
@@ -458,7 +458,7 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
     const static float kDarknessFearClockMax = candle_item.actions.at( std::type_index( typeid( Cmp::CarryAction ) ) ).action.interval();
     if ( m_darkness_fear_clock.asSeconds() >= kDarknessFearClockMax )
     {
-      Cmp::BaseAction fear_of_the_dark( {}, { +1 }, {}, {}, {} );
+      Cmp::BaseAction fear_of_the_dark( {}, { +1 }, {}, {}, {}, {} );
       net_modifier += fear_of_the_dark;
       mod_log << " dark[" << fear_of_the_dark.fear() << "]";
 
@@ -569,7 +569,7 @@ void PlayerSystem::check_player_max_fear_despair()
   // check if player should take health damage/die
   if ( Utils::Player::get_player_stats( reg() ).fear() == 100 )
   {
-    Utils::Player::get_player_stats( reg() ).apply_modifiers( Cmp::BaseAction( { -1 }, {}, {}, {}, {} ) );
+    Utils::Player::get_player_stats( reg() ).apply_modifiers( Cmp::BaseAction( { -1 }, {}, {}, {}, {}, {} ) );
     if ( Utils::Player::get_player_stats( reg() ).health() == 0 and Utils::Player::get_mortality( reg() ).state != Cmp::PlayerMortality::State::DEAD )
     {
       on_player_mortality_event( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::TERRIFIED, Utils::Player::get_position( reg() ) ) );
@@ -882,7 +882,7 @@ void PlayerSystem::on_player_mortality_event( Game::Events::PlayerMortalityEvent
     m_post_death_timer.restart();
     reg().remove<Cmp::AnimData>( Utils::Player::get_entity( reg() ) );
     stop_footsteps_sound();
-    Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ -100 }, {}, {}, {}, {} } );
+    Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ -100 }, {}, {}, {}, {}, {} } );
     SPDLOG_INFO( "Player death code: {}", static_cast<uint8_t>( ev.m_new_state ) );
     Utils::Player::get_mortality( reg() ).state = Cmp::PlayerMortality::State::DEAD;
     SPDLOG_INFO( "Player died" );

@@ -32,14 +32,15 @@
             "patternProperties": {
               "^(bury|carry|consume|destroy|spawn|proximity|sacrifice)_action$": {
                 "type": "object",
-                "required": ["health", "fear", "despair", "infamy", "disease", "tick"],
+                "required": ["health", "fear", "despair", "infamy", "toxicity", "disease", "tick"],
                 "additionalProperties": false,
                 "properties": {
-                  "health":  { "type": "number" },
-                  "fear":    { "type": "number" },
-                  "despair": { "type": "number" },
-                  "infamy":  { "type": "number" },
-                  "disease": {
+                  "health":   { "type": "number" },
+                  "fear":     { "type": "number" },
+                  "despair":  { "type": "number" },
+                  "infamy":   { "type": "number" },
+                  "toxicity": { "type": "number" },
+                  "disease":  {
                     "type": "object",
                     "required": ["type", "tick"],
                     "additionalProperties": false,
