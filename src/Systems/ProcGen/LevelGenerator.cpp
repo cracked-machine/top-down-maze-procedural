@@ -1,3 +1,4 @@
+#include <Collision.hpp>
 #include <Components/Altar/AltarMultiBlock.hpp>
 #include <Components/Altar/AltarSegment.hpp>
 #include <Components/Crypt/CryptInteriorMultiBlock.hpp>
@@ -39,9 +40,11 @@
 #include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <Factory/RuinFactory.hpp>
 #include <Factory/WallFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <PlantObstacle.hpp>
+#include <Ruin/RuinCobweb.hpp>
 #include <Ruin/RuinGateSegment.hpp>
 #include <Ruin/RuinStairsGateMultiBlock.hpp>
 #include <SceneControl/SceneData.hpp>
@@ -69,12 +72,14 @@ namespace Game::Sys::ProcGen
 LevelGenerator::LevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank ),
       m_obstacle_sm( std::make_unique<PathFinding::SpatialHashGrid>() ),
-      m_void_sm( std::make_unique<PathFinding::SpatialHashGrid>() )
+      m_void_sm( std::make_unique<PathFinding::SpatialHashGrid>() ),
+      m_non_obstacle_sm( std::make_unique<PathFinding::SpatialHashGrid>() )
 {
 }
 
 PathFinding::SpatialHashGrid &LevelGenerator::get_obstacle_sm() { return *m_obstacle_sm; }
 PathFinding::SpatialHashGrid &LevelGenerator::get_void_sm() { return *m_void_sm; }
+PathFinding::SpatialHashGrid &LevelGenerator::get_non_obstacle_sm() { return *m_non_obstacle_sm; }
 
 void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
 {
@@ -277,6 +282,34 @@ void LevelGenerator::add_ruin_rune_markers()
     {
       if ( world_pos_cmp.findIntersection( rnd_pos ) ) reg().emplace_or_replace<Cmp::ReservedPosition>( rnd_entt );
     }
+    m_non_obstacle_sm->insert( rune_entt, rnd_pos );
+  }
+}
+
+void LevelGenerator::add_lowerfloor_cobwebs( int num_cobwebs, sf::FloatRect scene_dimensions )
+{
+  auto has_collision = [&]( const Cmp::RectBounds &pos )
+  {
+    if ( Utils::Collision::check_cmp<Cmp::RuinStairsLowerMultiBlock>( reg(), pos ) ) { return true; }
+    if ( Utils::Collision::check_cmp<Cmp::RuinCobweb>( reg(), pos ) ) { return true; }
+    if ( Utils::Collision::check_cmp<Cmp::Exit>( reg(), pos ) ) { return true; }
+
+    // ensure is inside scene
+    if ( not Cmp::RectBounds::scaled( pos.position(), pos.size(), 1.5f ).findIntersection( scene_dimensions ) ) { return true; }
+    return false;
+  };
+
+  constexpr auto gridsize = Constants::kGridSizePxF;
+  int max_cobwebs = num_cobwebs;
+  for ( auto _ : std::views::iota( 0, max_cobwebs ) )
+  {
+    auto [rnd_entt, rnd_pos] = Utils::Rnd::get_random_position( reg(), {}, Utils::Rnd::ExcludePack<Cmp::ReservedPosition>{} );
+    if ( rnd_entt == entt::null ) continue;
+
+    if ( has_collision( Cmp::RectBounds::scaled( { rnd_pos.position }, gridsize, 1 ) ) ) continue;
+    auto [ms, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.ruin.cobweb" } );
+    Factory::create_cobweb( reg(), rnd_entt, rnd_pos.position, m_sprite_factory.get_spritesheet_by_type( ms ), idx );
+    m_non_obstacle_sm->insert( rnd_entt, rnd_pos );
   }
 }
 
@@ -497,8 +530,9 @@ std::vector<entt::entity> LevelGenerator::gen_random_plants( sf::Vector2u map_gr
 
 void LevelGenerator::reset()
 {
-  m_obstacle_sm = std::make_unique<PathFinding::SpatialHashGrid>();
-  m_void_sm = std::make_unique<PathFinding::SpatialHashGrid>();
+  m_obstacle_sm->clear();
+  m_void_sm->clear();
+  m_non_obstacle_sm->clear();
 }
 
 } // namespace Game::Sys::ProcGen

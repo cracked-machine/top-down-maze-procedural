@@ -50,7 +50,8 @@ public:
   }
 
   void gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions );
-  void add_lowerfloor_cobwebs( int num_cobwebs, sf::FloatRect scene_dimensions );
+
+  void remove_rune_markings_neighbouring_cobwebs( PathFinding::SpatialHashGrid &non_obstacle_spatialgrid );
   void check_movement_slowdowns();
   void reset_player_curse();
   void check_exit_collision();

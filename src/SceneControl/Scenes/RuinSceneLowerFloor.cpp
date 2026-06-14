@@ -77,17 +77,10 @@ void RuinSceneLowerFloor::on_init()
   level_gen.build_scene_from_data( *m_scene_data );
   level_gen.add_ruin_rune_markers();
   auto max_cobwebs = Sys::PersistSystem::get<Cmp::Persist::RuinMaxCobwebs>( m_reg );
-  m_sys.find<SystemStoreType::RuinSystem>().add_lowerfloor_cobwebs( max_cobwebs.get_value(), sf::FloatRect( { 0.f, 0.f }, map_size_pixel ) );
+  level_gen.add_lowerfloor_cobwebs( max_cobwebs.get_value(), sf::FloatRect( { 0.f, 0.f }, map_size_pixel ) );
 
   auto init_chance = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenInitChance>( m_reg );
   level_gen.add_ruin_interior_obstacles( init_chance.get_value() );
-
-  // auto &cellauto_parser = m_sys.find<Sys::Store::Type::CellAutomataSystem>();
-  // auto max_iterations = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenMaxIterations>( m_reg );
-  // auto birth_threshold = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenBirthThreshold>( m_reg );
-  // auto survival_threshold = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenSurvivalThreshold>( m_reg );
-  // cellauto_parser.iterate( max_iterations.get_value(), birth_threshold.get_value(), survival_threshold.get_value(),
-  //                          Sys::ProcGen::LevelGenerator::SceneType::RUIN_INTERIOR, level_gen.get_obstacle_sm() );
 
   auto max_iterations = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenMaxIterations>( m_reg );
   auto &dla_sys = m_sys.find<Sys::Store::Type::DiffusionLtdAggrSystem>();
@@ -95,6 +88,7 @@ void RuinSceneLowerFloor::on_init()
                    level_gen.get_obstacle_sm() );
 
   level_gen.decorate_ruin_interior_obstacles();
+  m_sys.find<Sys::Store::Type::RuinSystem>().remove_rune_markings_neighbouring_cobwebs( level_gen.get_non_obstacle_sm() );
 
   // add access hitbox just above horizontal centerpoint
   sf::Vector2f flooraccess_position( map_size_pixel.x - ( 3 * gridsize.x ), 2 * gridsize.y );
@@ -106,14 +100,6 @@ void RuinSceneLowerFloor::on_init()
   auto floor_entity = m_reg.create();
   m_reg.emplace<Sprites::Containers::VertexFloor>( floor_entity, floortiles );
   m_reg.emplace<Cmp::ZOrderValue>( floor_entity, -16.f );
-
-  // sf::Vector2f bc_area_position( 0, 0 );
-  // sf::Vector2f bc_area_size( map_size_pixel.x - 48, map_size_pixel.y - 16 );
-  // m_sys.find<SystemStoreType::RuinSystem>().gen_lowerfloor_bookcases( sf::FloatRect( bc_area_position, bc_area_size ) );
-
-  // sf::Vector2f cobweb_area_position( 0, 0 );
-  // sf::Vector2f cobweb_area_size( map_size_pixel.x - 48, map_size_pixel.y - 32 );
-  // m_sys.find<SystemStoreType::RuinSystem>().add_lowerfloor_cobwebs( 200, sf::FloatRect( cobweb_area_position, cobweb_area_size ) );
 
   m_sys.find<Sys::Store::Type::RuinSystem>().reset_player_curse();
 

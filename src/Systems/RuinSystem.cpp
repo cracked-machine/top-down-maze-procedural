@@ -1,9 +1,11 @@
 #include <Audio/SoundBank.hpp>
+#include <Components/Exit.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerCurse.hpp>
 #include <Components/Player/PlayerMortality.hpp>
+#include <Components/Player/PlayerNoPath.hpp>
 #include <Components/Player/PlayerRuinLocation.hpp>
 #include <Components/Player/PlayerSpeedPenalty.hpp>
 #include <Components/Random.hpp>
@@ -13,36 +15,34 @@
 #include <Components/Ruin/RuinCobweb.hpp>
 #include <Components/Ruin/RuinEntrance.hpp>
 #include <Components/Ruin/RuinFloorAccess.hpp>
+#include <Components/Ruin/RuinGateSegment.hpp>
 #include <Components/Ruin/RuinStairsBalustradeMultiBlock.hpp>
+#include <Components/Ruin/RuinStairsGateMultiBlock.hpp>
 #include <Components/Ruin/RuinStairsLowerMultiBlock.hpp>
 #include <Components/Ruin/RuinStairsSegment.hpp>
 #include <Components/Ruin/RuinStairsUpperMultiBlock.hpp>
+#include <Components/Ruin/RuneMarking.hpp>
+#include <Components/System.hpp>
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/DropInventoryEvent.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
-#include <Exit.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/RuinFactory.hpp>
-#include <Player/PlayerNoPath.hpp>
-#include <Ruin/RuinGateSegment.hpp>
-#include <Ruin/RuinStairsGateMultiBlock.hpp>
-#include <Ruin/RuneMarking.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Stats/BaseAction.hpp>
 #include <Stats/CollisionAction.hpp>
-#include <System.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/RuinSystem.hpp>
 #include <Systems/Stores/NpcStore.hpp>
-#include <Utils.hpp>
 #include <Utils/Collision.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Random.hpp>
+#include <Utils/Utils.hpp>
 
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Sleep.hpp>
@@ -253,7 +253,7 @@ void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
     return false;
   };
 
-  constexpr auto &gridsize = Constants::kGridSizePxF;
+  constexpr auto gridsize = Constants::kGridSizePxF;
   constexpr auto ScaleCardinality_VERTICAL = Cmp::RectBounds::ScaleAxis::Y;
 
   int max_rows = scene_dimensions.size.y / gridsize.y;
@@ -269,7 +269,7 @@ void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
 
       // column picker as we traverse row left->right: 1 in N chance of starting a new bookcase
       Cmp::RandomInt column_pick( 0, 1 );
-      if ( column_pick.gen() )
+      if ( column_pick.gen() != 0 )
       {
         SPDLOG_DEBUG( "Skipping col #{}", col );
         ++col;
@@ -359,30 +359,28 @@ void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
   used_cols.insert( colpick );
 }
 
-void RuinSystem::add_lowerfloor_cobwebs( int num_cobwebs, sf::FloatRect scene_dimensions )
+void RuinSystem::remove_rune_markings_neighbouring_cobwebs( PathFinding::SpatialHashGrid &non_obstacle_spatialgrid )
 {
-  auto has_collision = [&]( const Cmp::RectBounds &pos )
+  std::vector<std::pair<entt::entity, Cmp::Position>> kill_list;
+  for ( auto [rune_entt, rune_cmp, rune_pos_cmp] : reg().view<Cmp::RuneMarking, Cmp::Position>().each() )
   {
-    if ( Utils::Collision::check_cmp<Cmp::RuinBookcase>( reg(), pos ) ) { return true; }
-    if ( Utils::Collision::check_cmp<Cmp::RuinStairsLowerMultiBlock>( reg(), pos ) ) { return true; }
-    if ( Utils::Collision::check_cmp<Cmp::RuinCobweb>( reg(), pos ) ) { return true; }
-    if ( Utils::Collision::check_cmp<Cmp::Exit>( reg(), pos ) ) { return true; }
+    int neighbour_count = 0;
+    auto neighbours_list = non_obstacle_spatialgrid.neighbours( rune_pos_cmp );
+    for ( auto &neighbour_entt : neighbours_list )
+    {
+      if ( not reg().any_of<Cmp::RuinCobweb>( neighbour_entt ) ) continue;
+      if ( not reg().all_of<Cmp::Wall, Cmp::PlayerNoPath>( neighbour_entt ) ) continue;
+      neighbour_count++;
 
-    // ensure bookcase is inside scene
-    if ( not Cmp::RectBounds::scaled( pos.position(), pos.size(), 1.5f ).findIntersection( scene_dimensions ) ) { return true; }
-    return false;
-  };
+      // don't surround on four sides
+      if ( neighbour_count > 3 ) { kill_list.emplace_back( neighbour_entt, rune_pos_cmp ); }
+    }
+  }
 
-  constexpr auto &gridsize = Constants::kGridSizePxF;
-  int max_cobwebs = num_cobwebs;
-  for ( auto _ : std::views::iota( 0, max_cobwebs ) )
+  for ( auto [entt, pos_cmp] : kill_list )
   {
-    auto [rnd_entt, rnd_pos] = Utils::Rnd::get_random_position( reg(), {}, Utils::Rnd::ExcludePack<Cmp::ReservedPosition>{} );
-    if ( rnd_entt == entt::null ) continue;
-
-    if ( has_collision( Cmp::RectBounds::scaled( { rnd_pos.position }, gridsize, 1 ) ) ) continue;
-    auto [ms, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.ruin.cobweb" } );
-    Factory::create_cobweb( reg(), rnd_entt, rnd_pos.position, m_sprite_factory.get_spritesheet_by_type( ms ), idx );
+    non_obstacle_spatialgrid.remove( entt, pos_cmp );
+    reg().destroy( entt );
   }
 }
 

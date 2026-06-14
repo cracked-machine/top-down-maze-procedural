@@ -35,6 +35,7 @@
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Player/PlayerNoPath.hpp>
 #include <ReservedPosition.hpp>
+#include <Ruin/RuinCobweb.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <SelectedPosition.hpp>
 #include <Sprites/SpriteSheet.hpp>
@@ -706,8 +707,10 @@ void RenderOverlaySystem::render_ui_entity_inspect()
       if ( reg().all_of<Cmp::SelectedPosition>( entity ) ) draw_line( " Selected", sf::Color::Green );
       if ( reg().all_of<Cmp::Exit>( entity ) ) draw_line( " Exit", sf::Color::Green );
       if ( reg().all_of<Cmp::Obstacle>( entity ) ) draw_line( " Obstacle", sf::Color::Green );
-      if ( reg().all_of<Cmp::CryptPassageBlock>( entity ) ) draw_line( " PassageBlock", sf::Color::Blue );
-      if ( reg().all_of<Cmp::FootStepTimer>( entity ) ) draw_line( " Footsteps", sf::Color::Blue );
+      if ( reg().all_of<Cmp::CryptPassageBlock>( entity ) ) draw_line( " PassageBlock", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::FootStepTimer>( entity ) ) draw_line( " Footsteps", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::RuinCobweb>( entity ) ) draw_line( " Cobweb", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::Wall>( entity ) ) draw_line( " Wall", sf::Color::Cyan );
       if ( reg().all_of<Cmp::CryptPassageDoor>( entity ) ) draw_line( " PassageDoor", sf::Color::Green );
       if ( reg().all_of<Cmp::CryptRoomLavaPitCell>( entity ) ) draw_line( " CryptRoomLavaPitCell", sf::Color{ 255, 165, 0 } );
       if ( reg().all_of<Cmp::CryptRoomLavaPit>( entity ) ) draw_line( " CryptRoomLavaPit", sf::Color{ 255, 165, 0 } );

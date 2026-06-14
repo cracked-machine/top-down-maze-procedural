@@ -47,6 +47,8 @@ public:
   //! @brief
   void add_ruin_rune_markers();
 
+  void add_lowerfloor_cobwebs( int num_cobwebs, sf::FloatRect scene_dimensions );
+
   //! @brief create multiblock sprites (i.e. graves, altars, crypts) for the graveyard scene.
   void gen_graveyard_exterior_multiblocks();
 
@@ -72,6 +74,10 @@ public:
   //! @return PathFinding::SpatialHashGrid&
   PathFinding::SpatialHashGrid &get_void_sm();
 
+  //! @brief Get the non obstacle sm object
+  //! @return PathFinding::SpatialHashGrid&
+  PathFinding::SpatialHashGrid &get_non_obstacle_sm();
+
   //! @brief event handlers for pausing system clocks
   void on_pause() override {}
   //! @brief event handlers for resuming system clocks
@@ -88,6 +94,8 @@ private:
   PathFinding::SpatialHashGridUniquePtr m_obstacle_sm;
   //! @brief Spatial map for marking void areas that are not part of the game area.
   PathFinding::SpatialHashGridUniquePtr m_void_sm;
+
+  PathFinding::SpatialHashGridUniquePtr m_non_obstacle_sm;
 };
 
 } // namespace Game::Sys::ProcGen
