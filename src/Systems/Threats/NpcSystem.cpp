@@ -530,6 +530,7 @@ void NpcSystem::find_pushback_position( const Cmp::Direction &npc_direction )
   // make sure player isnt knocked into an obstacle or multiblock
   auto new_pos_rect = Cmp::RectBounds::scaled( new_position, Constants::kGridSizePxF, 1.f );
   if ( Utils::Collision::check_cmp<Cmp::Obstacle>( reg(), new_pos_rect ) ) return;
+  if ( Utils::Collision::check_cmp<Cmp::Wall>( reg(), new_pos_rect ) ) return;
   if ( Utils::Collision::check_cmp<Cmp::AltarSegment>( reg(), new_pos_rect ) ) return;
   if ( Utils::Collision::check_cmp<Cmp::GraveSegment>( reg(), new_pos_rect ) ) return;
   if ( Utils::Collision::check_cmp<Cmp::CryptSegment>( reg(), new_pos_rect ) ) return;
