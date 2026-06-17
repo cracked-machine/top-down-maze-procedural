@@ -168,7 +168,7 @@ void BombSystem::place_concentric_bomb_pattern( const entt::entity &epicenter_en
 
   // We dont detonate ReservedPositions so dont arm them in the first place
   // Also exclude NPCs since they're handled separately and may be missing Position component during death animation
-  auto all_obstacle_view = reg().view<Cmp::Armable, Cmp::Position>( exclude<Cmp::NPC, Cmp::Exit> );
+  auto all_obstacle_view = reg().view<Cmp::Armable, Cmp::Position>( exclude<Cmp::NPC, Cmp::Exit, Cmp::ReservedPosition> );
 
   // For each layer from 1 to BLAST_RADIUS
   for ( int layer = 1; layer <= blast_radius; layer++ )
@@ -235,7 +235,7 @@ void BombSystem::update()
     if ( armed_cmp.getElapsedFuseTime() < armed_cmp.m_fuse_delay ) continue;
 
     // detonate obstacles - remove all traces of obstacle
-    auto obstacle_view = reg().view<Cmp::Obstacle, Cmp::Position>();
+    auto obstacle_view = reg().view<Cmp::Obstacle, Cmp::Position>( exclude<Cmp::ReservedPosition> );
     for ( auto [obst_entity, obst_cmp, obst_pos_cmp] : obstacle_view.each() )
     {
       if ( not obst_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
