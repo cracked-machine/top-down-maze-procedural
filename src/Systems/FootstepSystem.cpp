@@ -60,7 +60,7 @@ void FootstepSystem::add_footstep( const Cmp::Position &pos_cmp, const Cmp::Dire
     reg().emplace<Cmp::Direction>( entity, direction );
     reg().emplace<Cmp::FootStepTimer>( entity );
     reg().emplace<Cmp::FootStepAlpha>( entity );
-    reg().emplace<Cmp::ZOrderValue>( entity, -10.f ); // footsteps render below player
+    reg().emplace<Cmp::ZOrderValue>( entity, -8.f ); // footsteps render below player
 
     // select the footstep tilset index based on the players current direction
     // tileset indices: [0: right] [1: left] [2: down] [3: up]
