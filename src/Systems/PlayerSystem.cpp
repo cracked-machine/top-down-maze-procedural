@@ -825,10 +825,10 @@ bool PlayerSystem::is_valid_move( const sf::FloatRect &target_position )
   // Use the spatial hash to check only the ~5 adjacent cells instead of scanning all
   // PlayerNoPath entities (walls + obstacles). Without this, the open spawn area causes
   // a full O(N) scan every frame because no entity triggers an early exit.
-  if ( auto navmesh = m_pathfinding_navmesh.lock() )
+  if ( auto navmesh = m_player_navmesh.lock() )
   {
     Cmp::Position target_pos( target_position.position, target_position.size );
-    for ( auto candidate_entt : navmesh->neighbours( target_pos, PathFinding::QueryCompass::CARDINAL ) )
+    for ( auto candidate_entt : navmesh->neighbours( target_pos, PathFinding::QueryCompass::BOTH ) )
     {
       auto *nopath_cmp = reg().try_get<Cmp::PlayerNoPath>( candidate_entt );
       if ( not nopath_cmp || not nopath_cmp->active ) continue;

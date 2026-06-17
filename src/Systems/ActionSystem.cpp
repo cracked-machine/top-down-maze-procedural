@@ -274,6 +274,8 @@ void ActionSystem::check_player_dig_obstacle_collision()
         // add the position to the spatial grid so it can be used in pathfinding
         if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
           pathfinding_navmesh->insert( obstacle_entt, obstacle_pos_cmp );
+        if ( PathFinding::SpatialHashGridSharedPtr player_navmesh = m_player_navmesh.lock() )
+          player_navmesh->insert( obstacle_entt, obstacle_pos_cmp );
 
         SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
       }

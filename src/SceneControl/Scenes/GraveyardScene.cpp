@@ -143,6 +143,7 @@ void GraveyardScene::on_init()
 
   // create navmeshes for pathfinding
   m_pathfinding_navmesh = Pathfinding::Factory::create_restricted_navmesh( m_reg );
+  m_player_navmesh = Pathfinding::Factory::create_player_navmesh( m_reg );
   m_open_navmesh = Pathfinding::Factory::create_open_navmesh( m_reg );
   reinit_navmesh();
 
@@ -286,9 +287,9 @@ void GraveyardScene::do_update( sf::Time dt )
 void GraveyardScene::reinit_navmesh()
 {
   m_sys.find<Sys::Store::Type::NpcSystem>().init( m_pathfinding_navmesh, m_open_navmesh );
-  m_sys.find<Sys::Store::Type::BombSystem>().init( m_pathfinding_navmesh );
-  m_sys.find<Sys::Store::Type::ActionSystem>().init( m_pathfinding_navmesh );
-  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh, m_open_navmesh );
+  m_sys.find<Sys::Store::Type::BombSystem>().init( m_pathfinding_navmesh, m_player_navmesh );
+  m_sys.find<Sys::Store::Type::ActionSystem>().init( m_pathfinding_navmesh, m_player_navmesh );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh, m_player_navmesh, m_open_navmesh );
   m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
 }
 

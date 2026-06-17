@@ -28,7 +28,11 @@ public:
 
   //! @brief init the weak pointer for the pathfinding navmesh
   //! @param pathfinding_navmesh
-  void init( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh ) { m_pathfinding_navmesh = pathfinding_navmesh; }
+  void init( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh, const PathFinding::SpatialHashGridSharedPtr &player_navmesh )
+  {
+    m_pathfinding_navmesh = pathfinding_navmesh;
+    m_player_navmesh = player_navmesh;
+  }
 
   // void load_sounds();
   // additional updates via the main game loop
@@ -73,6 +77,7 @@ private:
   };
 
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
+  PathFinding::SpatialHashGridWeakPtr m_player_navmesh;
 };
 } // namespace Game::Sys
 

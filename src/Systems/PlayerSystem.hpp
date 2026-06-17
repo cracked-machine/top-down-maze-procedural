@@ -29,9 +29,11 @@ public:
   //! @brief init the weak pointer for the pathfinding navmesh
   //! @param pathfinding_navmesh
   //! @param open_navmesh
-  void init( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh, const PathFinding::SpatialHashGridSharedPtr &open_navmesh )
+  void init( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh, const PathFinding::SpatialHashGridSharedPtr &player_navmesh,
+             const PathFinding::SpatialHashGridSharedPtr &open_navmesh )
   {
     m_pathfinding_navmesh = pathfinding_navmesh;
+    m_player_navmesh = player_navmesh;
     m_open_navmesh = open_navmesh;
   }
 
@@ -144,6 +146,7 @@ private:
 
   //! @brief Weak pointer to the pathfinding navmesh.
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
+  PathFinding::SpatialHashGridWeakPtr m_player_navmesh;
   PathFinding::SpatialHashGridWeakPtr m_open_navmesh;
 
   //! @brief Prevent the player from moving when running

@@ -226,9 +226,17 @@ void BombSystem::update()
   PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock();
   if ( not pathfinding_navmesh )
   {
-    SPDLOG_WARN( "Unable to lock weakptr" );
+    SPDLOG_WARN( "Unable to lock weakptr: pathfinding_navmesh" );
     return;
   }
+
+  PathFinding::SpatialHashGridSharedPtr player_navmesh = m_player_navmesh.lock();
+  if ( not player_navmesh )
+  {
+    SPDLOG_WARN( "Unable to lock weakptr: player_navmesh" );
+    return;
+  }
+
   auto armed_view = reg().view<Cmp::Armed, Cmp::Position>();
   for ( auto [armed_entt, armed_cmp, armed_pos_cmp] : armed_view.each() )
   {
@@ -241,6 +249,7 @@ void BombSystem::update()
       if ( not obst_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
       Factory::remove_obstacle( reg(), obst_entity, true );
       pathfinding_navmesh->insert( obst_entity, obst_pos_cmp );
+      player_navmesh->insert( obst_entity, obst_pos_cmp );
     }
 
     // detonate loot containers - component removal is handled by LootSystem
@@ -276,7 +285,7 @@ void BombSystem::update()
       else if ( carryitem_cmp.sprite_type == "sprite.item.bomb" )
       {
         // process other explosives lying around - chain reaction!
-        auto explosive_cmp = reg().try_get<Cmp::Explosive>( carryitem_entt );
+        auto *explosive_cmp = reg().try_get<Cmp::Explosive>( carryitem_entt );
         if ( not explosive_cmp ) continue;
         SPDLOG_DEBUG( "Found explosive component {}", static_cast<int>( carryitem_entt ) );
 

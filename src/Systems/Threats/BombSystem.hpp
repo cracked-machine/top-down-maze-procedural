@@ -40,7 +40,11 @@ public:
 
   //! @brief init the weak pointer for the pathfinding navmesh
   //! @param pathfinding_navmesh
-  void init( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh ) { m_pathfinding_navmesh = pathfinding_navmesh; }
+  void init( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh, const PathFinding::SpatialHashGridSharedPtr &player_navmesh )
+  {
+    m_pathfinding_navmesh = pathfinding_navmesh;
+    m_player_navmesh = player_navmesh;
+  }
 
   void arm_grave_bomb();
   void arm_player_bomb();
@@ -61,6 +65,7 @@ private:
   const sf::Vector2f max_explosion_zone_size{ Constants::kGridSizePx.x * 3.f, Constants::kGridSizePx.y * 3.f };
 
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
+  PathFinding::SpatialHashGridWeakPtr m_player_navmesh;
 };
 
 } // namespace Game::Sys
