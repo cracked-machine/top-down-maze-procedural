@@ -114,12 +114,12 @@ private:
       {
         if ( not Utils::is_visible_in_view( view_bounds, component ) ) continue;
       }
-      // if constexpr ( std::is_same_v<Sys::ParticleSpriteOwner, Component> )
-      // {
-      //   if ( component.sprite && not Utils::is_visible_in_view( view_bounds, { component.sprite->get_emitter_position(), Constants::kGridSizePxF }
-      //   ) )
-      //     continue;
-      // }
+      if constexpr ( std::is_same_v<Sys::ParticleSpriteOwner, Component> )
+      {
+        if ( component.sprite && component.sprite->get_view_type() == Cmp::Particle::ViewType::WORLD &&
+             not Utils::is_visible_in_view( view_bounds, { component.sprite->get_emitter_position(), Constants::kGridSizePxF } ) )
+          continue;
+      }
 
       auto z_order_cmp = reg().try_get<Cmp::ZOrderValue>( entity );
       if ( z_order_cmp ) { zorder_queue.push_back( ZOrder{ z_order_cmp->getZOrder(), entity } ); }

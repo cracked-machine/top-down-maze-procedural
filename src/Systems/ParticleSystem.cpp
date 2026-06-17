@@ -2,6 +2,7 @@
 #include <Inventory/WorldItem.hpp>
 #include <Optimizations.hpp>
 #include <Position.hpp>
+#include <Utils/Constants.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -54,9 +55,14 @@ void ParticleSystem::update( sf::Time dt )
   }
 
   // update all particlesprite simulations
+  const auto &world_view = Sys::RenderSystem::get_world_view();
   for ( auto [entt, owner] : reg().view<ParticleSpriteOwner>().each() )
   {
     if ( not owner.sprite->is_active() ) continue;
+
+    if ( owner.sprite->get_view_type() == Cmp::Particle::ViewType::WORLD &&
+         not Utils::is_visible_in_view( world_view, { owner.sprite->get_emitter_position(), Constants::kGridSizePxF } ) )
+      continue;
 
     owner.sprite->simulate( dt );
     owner.sprite->prune_inactive_expired_particles();
