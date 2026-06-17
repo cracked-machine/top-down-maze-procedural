@@ -820,13 +820,27 @@ void PlayerSystem::pickup_world_item( entt::registry &reg, entt::entity world_it
 
 bool PlayerSystem::is_valid_move( const sf::FloatRect &target_position )
 {
-  bool result = false;
   auto search_bounds = Cmp::RectBounds::scaled( target_position.position, target_position.size, 1 );
 
-  auto is_active = []( const Cmp::PlayerNoPath &playernopath ) { return playernopath.active; };
-  result = not Utils::Collision::check_cmp<Cmp::PlayerNoPath>( reg(), search_bounds, is_active );
+  // Use the spatial hash to check only the ~5 adjacent cells instead of scanning all
+  // PlayerNoPath entities (walls + obstacles). Without this, the open spawn area causes
+  // a full O(N) scan every frame because no entity triggers an early exit.
+  if ( auto navmesh = m_pathfinding_navmesh.lock() )
+  {
+    Cmp::Position target_pos( target_position.position, target_position.size );
+    for ( auto candidate_entt : navmesh->neighbours( target_pos, PathFinding::QueryCompass::CARDINAL ) )
+    {
+      auto *nopath_cmp = reg().try_get<Cmp::PlayerNoPath>( candidate_entt );
+      if ( not nopath_cmp || not nopath_cmp->active ) continue;
+      auto *pos_cmp = reg().try_get<Cmp::Position>( candidate_entt );
+      if ( not pos_cmp ) continue;
+      if ( search_bounds.findIntersection( *pos_cmp ) ) return false;
+    }
+    return true;
+  }
 
-  return result;
+  auto is_active = []( const Cmp::PlayerNoPath &playernopath ) { return playernopath.active; };
+  return not Utils::Collision::check_cmp<Cmp::PlayerNoPath>( reg(), search_bounds, is_active );
 }
 
 void PlayerSystem::on_drop_inventory_event( Game::Events::DropInventoryEvent ev )
