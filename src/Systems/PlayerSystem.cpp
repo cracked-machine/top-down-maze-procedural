@@ -841,7 +841,7 @@ void PlayerSystem::on_player_action_event( Game::Events::PlayerActionEvent ev )
   {
     if ( m_inventory_cooldown_timer.getElapsedTime() < sf::milliseconds( 750.f ) ) return;
 
-    auto player_pos = Utils::Player::get_position( reg() );
+    auto player_pos = Cmp::RectBounds::scaled( Utils::Player::get_position( reg() ), 0.5 );
     Sprites::SpriteMetaType existing_player_inventory_type;
 
     // drop inventory if we have one
@@ -849,7 +849,7 @@ void PlayerSystem::on_player_action_event( Game::Events::PlayerActionEvent ev )
     for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
     {
       existing_player_inventory_type = inventory_cmp.m_item.sprite_type;
-      drop_inventory_slot_into_world( player_pos.position, inventory_entt );
+      drop_inventory_slot_into_world( Utils::Player::get_position( reg() ).position, inventory_entt );
     }
 
     // pickup inventory if there is something at this position
