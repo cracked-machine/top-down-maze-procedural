@@ -86,7 +86,7 @@ private:
   void find_pushback_position( const Cmp::Direction &npc_direction );
 
   void update_pathfinding( sf::Time dt );
-  void update_pathfinding_for( PathFinding::SpatialHashGrid &navmesh, const Cmp::Position &target_pos, entt::entity npc_entity );
+  void update_pathfinding_for( PathFinding::SpatialHashGrid &navmesh, const Cmp::Position &target_pos, entt::entity npc_entity, bool target_in_spawn );
 
   void update_animation();
 

@@ -262,28 +262,36 @@ void NpcSystem::update_pathfinding( sf::Time dt )
       for ( auto [target_entt, npc_target_cmp, npc_target_pos_cmp] : reg().view<Cmp::NpcTarget, Cmp::Position>().each() )
       {
         if ( not reg().valid( npc_target_cmp.id ) ) continue;
-        update_pathfinding_for( *navmesh, npc_target_pos_cmp, npc_target_cmp.id );
+        bool target_in_spawn = Utils::Player::is_in_spawn( reg(), npc_target_pos_cmp );
+        update_pathfinding_for( *navmesh, npc_target_pos_cmp, npc_target_cmp.id, target_in_spawn );
       }
     }
 
-    // Other NPCs — target is always the player
+    // Other NPCs — target is always the player; compute spawn check once for all
     const Cmp::Position player_pos = Utils::Player::get_position( reg() );
+    const bool player_in_spawn = Utils::Player::is_in_spawn( reg(), player_pos );
     if ( auto navmesh = m_pathfinding_navmesh.lock() )
     {
       for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::NPC>().each() )
       {
         if ( npc_cmp.sprite_type_list.front().contains( "wisp" ) ) continue;
-        update_pathfinding_for( *navmesh, player_pos, npc_entt );
+        // Skip NPCs already stopped at the spawn boundary — A* result won't change
+        if ( player_in_spawn )
+        {
+          auto *npc_dir = reg().try_get<Cmp::Direction>( npc_entt );
+          auto *npc_lerp = reg().try_get<Cmp::LerpPosition>( npc_entt );
+          if ( npc_dir && npc_dir->x == 0.0f && npc_dir->y == 0.0f && !npc_lerp ) continue;
+        }
+        update_pathfinding_for( *navmesh, player_pos, npc_entt, player_in_spawn );
       }
     }
 
     m_scan_accumulator = sf::Time::Zero;
   }
 }
-void NpcSystem::update_pathfinding_for( PathFinding::SpatialHashGrid &navmesh, const Cmp::Position &target_pos, entt::entity npc_entity )
+void NpcSystem::update_pathfinding_for( PathFinding::SpatialHashGrid &navmesh, const Cmp::Position &target_pos, entt::entity npc_entity,
+                                        bool target_in_spawn )
 {
-
-  auto target_is_in_spawn = Utils::Player::is_in_spawn( reg(), target_pos );
 
   auto *npc_anim_cmp = reg().try_get<Cmp::AnimData>( npc_entity );
   if ( not npc_anim_cmp ) return;
@@ -319,7 +327,7 @@ void NpcSystem::update_pathfinding_for( PathFinding::SpatialHashGrid &navmesh, c
 
     // If player is in spawn, only stop when the very next step would cross into spawn.
     // This lets the NPC walk the full path to the boundary before stopping.
-    if ( ( target_is_in_spawn and Utils::Player::is_in_spawn( reg(), next_npc_pos ) ) )
+    if ( ( target_in_spawn and Utils::Player::is_in_spawn( reg(), next_npc_pos ) ) )
     {
       reg().emplace_or_replace<Cmp::Direction>( npc_entity, Cmp::Direction( { 0.0f, 0.0f } ) );
       return;
