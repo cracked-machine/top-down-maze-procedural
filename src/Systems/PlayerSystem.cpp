@@ -754,7 +754,8 @@ void PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entit
       if ( ps_uuid_cmp == *uuid_cmp )
       {
         ps_owner.sprite->set_view_type( Cmp::Particle::ViewType::WORLD );
-        // ps_owner.sprite->clear();
+        // Put the flame particle just behind the players zorder
+        reg().emplace_or_replace<Cmp::ZOrderValue>( ps_entt, Utils::Player::get_position(reg()).y() - 1);
       }
     }
     reg().emplace_or_replace<Cmp::UUID>( world_item_entt, uuid_cmp->data );
@@ -794,6 +795,8 @@ void PlayerSystem::pickup_world_item( entt::registry &reg, entt::entity world_it
         // The emitter position is set by RenderGameSystem using the UiData object.
         ps_owner.sprite->clear();
         ps_owner.sprite->set_view_type( Cmp::Particle::ViewType::SCREEN );
+        // The flame particle needs to be in front of everything when in the UI panel
+        reg.emplace_or_replace<Cmp::ZOrderValue>( ps_entt, 50000 );
       }
     }
     reg.emplace_or_replace<Cmp::UUID>( inventory_entity, uuid_cmp->data );
