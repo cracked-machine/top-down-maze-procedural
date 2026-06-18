@@ -80,7 +80,7 @@ void ActionSystem::update( sf::Time dt )
     auto player_pos = Utils::Player::get_position( reg() );
     for ( auto [plant_entt, plant_cmp, plant_pos_cmp] : reg().view<Cmp::PlantObstacle, Cmp::Position>().each() )
     {
-      auto playernopath_cmp = reg().try_get<Cmp::PlayerNoPath>( plant_entt );
+      auto *playernopath_cmp = reg().try_get<Cmp::PlayerNoPath>( plant_entt );
       if ( not playernopath_cmp ) continue;
 
       // enable inactive pathblocking on the plant once the player has moved away from its bbox
@@ -223,21 +223,19 @@ void ActionSystem::check_player_dig_obstacle_collision()
     {
       SPDLOG_DEBUG( "Found diggable entity at position: [{}, {}]!", pos_cmp.position.x, pos_cmp.position.y );
 
-      // TODO: check player is facing the obstacle
-      // Check player proximity to the entity
-      bool player_nearby = false;
-      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : reg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
-      {
-        auto player_hitbox = Cmp::RectBounds::scaled( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
-        if ( player_hitbox.findIntersection( obstacle_pos_cmp ) )
-        {
-          player_nearby = true;
-          break;
-        }
-      }
+      auto player_pos_cmp = Utils::Player::get_position( reg() );
 
-      // skip this iteration of the loop if player too far away
-      if ( not player_nearby ) { continue; }
+      // check player is near obstacle that was mouse-selected
+      auto player_hitbox = Cmp::RectBounds::scaled( player_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
+      if ( not player_hitbox.findIntersection( obstacle_pos_cmp ) ) continue;
+
+      // check player is facing the obstacle
+      auto player_last_direction = Utils::Player::get_last_direction( reg() );
+      Cmp::Position player_projected_position(
+          { Utils::Player::get_position( reg() ).getCenter().x + ( player_last_direction.x * Constants::kGridSizePxF.x ),
+            Utils::Player::get_position( reg() ).getCenter().y + ( player_last_direction.y * Constants::kGridSizePxF.y ) },
+          { 1.f, 1.f } );
+      if ( not player_projected_position.findIntersection( obstacle_pos_cmp ) ) continue;
 
       // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
       // Add a new SelectedPosition component to the entity
