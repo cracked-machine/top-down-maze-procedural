@@ -272,7 +272,7 @@ void ActionSystem::check_player_dig_obstacle_collision()
         Factory::add_detonated( reg(), obstacle_entt, obstacle_pos_cmp );
 
         // add the position to the spatial grid so it can be used in pathfinding
-        if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
+        if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock() )
           pathfinding_navmesh->insert( obstacle_entt, obstacle_pos_cmp );
         if ( PathFinding::SpatialHashGridSharedPtr player_navmesh = m_player_navmesh.lock() )
           player_navmesh->insert( obstacle_entt, obstacle_pos_cmp );

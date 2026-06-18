@@ -35,7 +35,7 @@ public:
 
   //! @brief init the weak pointer for the pathfinding navmesh
   //! @param spatial_grid_ptr
-  void init( const PathFinding::SpatialHashGridSharedPtr &spatial_grid_ptr ) { m_pathfinding_navmesh = spatial_grid_ptr; }
+  void init( const PathFinding::SpatialHashGridSharedPtr &spatial_grid_ptr ) { m_npc_navmesh = spatial_grid_ptr; }
 
   void render_ui_outlines();
   void render_ui_icons();
@@ -144,7 +144,7 @@ private:
 
   std::map<unsigned int, sf::Text> m_npc_list_text;
 
-  PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
+  PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
 
   sf::Time m_flash_wealth_ui_interval;
   sf::Time m_flash_cadaver_ui_interval;

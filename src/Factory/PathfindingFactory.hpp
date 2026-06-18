@@ -6,7 +6,7 @@
 namespace Game::Pathfinding::Factory
 {
 
-PathFinding::SpatialHashGridSharedPtr create_restricted_navmesh( entt::registry &reg );
+PathFinding::SpatialHashGridSharedPtr create_npc_navmesh( entt::registry &reg );
 PathFinding::SpatialHashGridSharedPtr create_player_navmesh( entt::registry &reg );
 PathFinding::SpatialHashGridSharedPtr create_open_navmesh( entt::registry &reg );
 

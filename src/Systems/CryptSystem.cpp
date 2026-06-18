@@ -474,8 +474,7 @@ void CryptSystem::create_room_borders( const Factory::UUIDEntityMap &uuid_map )
         Factory::remove_obstacle( reg(), pos_entt, true, uuid_map );
         decorate_interior_wall( pos_entt, pos_cmp, room_wall_type );
       }
-      if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
-        pathfinding_navmesh->remove( pos_entt, pos_cmp );
+      if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock() ) pathfinding_navmesh->remove( pos_entt, pos_cmp );
     }
   };
 
@@ -741,7 +740,7 @@ void CryptSystem::close_open_rooms( const Cmp::Position &player_pos_cmp )
 
 void CryptSystem::fill_closed_rooms( const Factory::UUIDEntityMap &uuid_map )
 {
-  PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock();
+  PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock();
   if ( not pathfinding_navmesh ) throw std::runtime_error( "CryptSystem::fill_closed_rooms() - unable to lock pathfinding navmesh" );
 
   for ( auto [closed_room_entt, closed_room_cmp] : reg().view<Cmp::CryptRoomClosed>().each() )
@@ -811,10 +810,7 @@ void CryptSystem::empty_open_rooms( const Factory::UUIDEntityMap &uuid_map )
       if ( not reg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
 
       Factory::remove_obstacle( reg(), pos_entt, true, uuid_map );
-      if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
-      {
-        pathfinding_navmesh->insert( pos_entt, pos_cmp );
-      }
+      if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock() ) { pathfinding_navmesh->insert( pos_entt, pos_cmp ); }
     }
 
     for ( auto [pos_entt, pos_cmp] : open_room_cmp.m_border_position_list )
@@ -828,7 +824,7 @@ void CryptSystem::empty_open_rooms( const Factory::UUIDEntityMap &uuid_map )
 
 void CryptSystem::add_lava_pit_open_rooms( const Cmp::Position &player_pos_cmp )
 {
-  PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock();
+  PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock();
   if ( not pathfinding_navmesh ) { throw std::runtime_error( "CryptSystem::add_lava_pit_open_rooms - Could not access SpatialHashGridSharedPtr" ); }
   auto open_room_view = reg().view<Cmp::CryptRoomOpen>();
   for ( auto [open_room_entt, open_room_cmp] : open_room_view.each() )
@@ -890,7 +886,7 @@ void CryptSystem::remove_lava_pit_open_rooms( const Cmp::Position &player_pos_cm
     for ( auto [lava_pit_entt, lava_pit_cmp] : lava_pit_view.each() )
     {
       if ( not open_room_cmp.findIntersection( lava_pit_cmp ) ) continue;
-      if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
+      if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock() )
       {
         Factory::destroy_crypt_lava_pit( reg(), lava_pit_entt, pathfinding_navmesh );
       }

@@ -114,7 +114,7 @@ void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
   check_player_mortality();
   check_timed_action_side_effects( dt );
 
-  if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
+  if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock() )
   {
     pathfinding_navmesh->update( Utils::Player::get_entity( reg() ), old_player_pos, Utils::Player::get_position( reg() ) );
   }
@@ -584,7 +584,7 @@ void PlayerSystem::check_player_max_fear_despair()
 
 void PlayerSystem::check_player_axe_npc_kill()
 {
-  PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock();
+  PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock();
   if ( not pathfinding_navmesh ) return;
 
   auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );

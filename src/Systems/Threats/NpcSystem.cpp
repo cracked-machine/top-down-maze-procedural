@@ -270,7 +270,7 @@ void NpcSystem::update_pathfinding( sf::Time dt )
     // Other NPCs — target is always the player; compute spawn check once for all
     const Cmp::Position player_pos = Utils::Player::get_position( reg() );
     const bool player_in_spawn = Utils::Player::is_in_spawn( reg(), player_pos );
-    if ( auto navmesh = m_pathfinding_navmesh.lock() )
+    if ( auto navmesh = m_npc_navmesh.lock() )
     {
       for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::NPC>().each() )
       {
@@ -376,7 +376,7 @@ void NpcSystem::update_movement( sf::Time dt )
     }
     else
     {
-      navmesh = m_pathfinding_navmesh.lock();
+      navmesh = m_npc_navmesh.lock();
       if ( not navmesh ) continue;
     }
     update_movement_for( *navmesh, npc_entt, dt );

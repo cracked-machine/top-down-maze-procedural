@@ -74,7 +74,7 @@ void CryptScene::on_init()
   m_sys.find<Sys::Store::Type::CryptSystem>().gen_crypt_initial_interior();
 
   // create navmeshes for pathfinding
-  m_pathfinding_navmesh = Pathfinding::Factory::create_restricted_navmesh( m_reg );
+  m_npc_navmesh = Pathfinding::Factory::create_npc_navmesh( m_reg );
   m_open_navmesh = Pathfinding::Factory::create_open_navmesh( m_reg );
   reinit_navmesh();
 
@@ -146,11 +146,11 @@ void CryptScene::do_update( sf::Time dt )
 
 void CryptScene::reinit_navmesh()
 {
-  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_pathfinding_navmesh, m_open_navmesh );
-  m_sys.find<Sys::Store::Type::PassageSystem>().init_nav_mesh( m_pathfinding_navmesh );
-  m_sys.find<Sys::Store::Type::CryptSystem>().init( m_pathfinding_navmesh );
-  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh, m_player_navmesh, m_open_navmesh );
-  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
+  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_npc_navmesh, m_open_navmesh );
+  m_sys.find<Sys::Store::Type::PassageSystem>().init_nav_mesh( m_npc_navmesh );
+  m_sys.find<Sys::Store::Type::CryptSystem>().init( m_npc_navmesh );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_npc_navmesh, m_player_navmesh, m_open_navmesh );
+  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_npc_navmesh );
 }
 
 entt::registry &CryptScene::registry() { return m_reg; }

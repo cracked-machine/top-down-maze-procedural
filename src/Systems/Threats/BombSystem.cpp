@@ -223,7 +223,7 @@ void BombSystem::update()
     if ( not anim_cmp.m_enabled ) { Factory::remove_npc_explosion( reg(), death_entt ); }
   }
 
-  PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock();
+  PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock();
   if ( not pathfinding_navmesh )
   {
     SPDLOG_WARN( "Unable to lock weakptr: pathfinding_navmesh" );

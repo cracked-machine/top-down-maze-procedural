@@ -39,10 +39,10 @@ public:
   BombSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief init the weak pointer for the pathfinding navmesh
-  //! @param pathfinding_navmesh
-  void init( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh, const PathFinding::SpatialHashGridSharedPtr &player_navmesh )
+  //! @param npc_navmesh
+  void init( const PathFinding::SpatialHashGridSharedPtr &npc_navmesh, const PathFinding::SpatialHashGridSharedPtr &player_navmesh )
   {
-    m_pathfinding_navmesh = pathfinding_navmesh;
+    m_npc_navmesh = npc_navmesh;
     m_player_navmesh = player_navmesh;
   }
 
@@ -64,7 +64,7 @@ public:
 private:
   const sf::Vector2f max_explosion_zone_size{ Constants::kGridSizePx.x * 3.f, Constants::kGridSizePx.y * 3.f };
 
-  PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
+  PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
   PathFinding::SpatialHashGridWeakPtr m_player_navmesh;
 };
 

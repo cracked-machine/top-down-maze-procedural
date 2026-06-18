@@ -43,7 +43,7 @@ void PassageSystem::update( [[maybe_unused]] sf::Time dt )
 
 void PassageSystem::init_nav_mesh( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh )
 {
-  m_pathfinding_navmesh = pathfinding_navmesh;
+  m_npc_navmesh = pathfinding_navmesh;
   m_passage_algos.cache_wall_components( reg() );
 }
 
@@ -450,7 +450,7 @@ void PassageSystem::remove_all_passage_blocks()
 
 void PassageSystem::empty_open_passages()
 {
-  PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock();
+  PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock();
   if ( not pathfinding_navmesh ) return;
 
   std::vector<std::pair<entt::entity, Cmp::Position>> obstacles_to_remove;
@@ -480,7 +480,7 @@ void PassageSystem::fill_all_passages()
   // Position view iteration is fully complete
   const Sprites::SpriteSheet &ss_main = m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.wall.int.main" );
   const Sprites::SpriteSheet &ss_cap = m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.wall.int.cap" );
-  PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock();
+  PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock();
 
   for ( auto [pos_entt, pos_cmp] : reg().view<Cmp::Position>().each() )
   {

@@ -29,8 +29,8 @@ public:
   void init_scene_data( const Scene::SceneMapSharedPtr &crypt_scene_data ) { m_crypt_scene_data = crypt_scene_data; }
 
   //! @brief init the weak pointer for the spatial grid
-  //! @param pathfinding_navmesh
-  void init_nav_mesh( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh );
+  //! @param npc_navmesh
+  void init_nav_mesh( const PathFinding::SpatialHashGridSharedPtr &npc_navmesh );
 
   void on_passage_event( Events::PassageEvent &event );
 
@@ -86,7 +86,7 @@ private:
                  sf::Vector2f map_size_pixel, ProcGen::OnePassagePerTargetRoom passage_limit, ProcGen::AllowDuplicatePassages duplicates_policy );
 
   //! @brief Used for NPC pathfinding
-  PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
+  PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
 
   //! @brief Holds data about the Crypt scene levelgen and static multiblock objects
   Scene::SceneMapWeakPtr m_crypt_scene_data;

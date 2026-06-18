@@ -33,7 +33,7 @@ public:
 
   //! @brief init the weak pointer for the spatial grid
   //! @param spatial_grid_ptr
-  void init( const PathFinding::SpatialHashGridSharedPtr &spatial_grid_ptr ) { m_pathfinding_navmesh = spatial_grid_ptr; }
+  void init( const PathFinding::SpatialHashGridSharedPtr &spatial_grid_ptr ) { m_npc_navmesh = spatial_grid_ptr; }
 
   //! @brief Initial maze setup. Called from Scene::on_enter()
   void setup();
@@ -188,7 +188,7 @@ private:
 
   sf::Clock m_priest_fear_clock;
 
-  PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
+  PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
 };
 
 } // namespace Game::Sys

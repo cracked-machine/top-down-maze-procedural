@@ -62,7 +62,7 @@ void ShopScene::on_init()
   m_reg.emplace<Cmp::ZOrderValue>( floor_entity, -16.f );
 
   // create navmeshes for pathfinding
-  m_pathfinding_navmesh = Pathfinding::Factory::create_restricted_navmesh( m_reg );
+  m_npc_navmesh = Pathfinding::Factory::create_npc_navmesh( m_reg );
   m_open_navmesh = Pathfinding::Factory::create_open_navmesh( m_reg );
   reinit_navmesh();
 
@@ -145,9 +145,9 @@ void ShopScene::close_overlay()
 
 void ShopScene::reinit_navmesh()
 {
-  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_pathfinding_navmesh, m_open_navmesh );
-  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh, m_player_navmesh, m_open_navmesh );
-  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
+  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_npc_navmesh, m_open_navmesh );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_npc_navmesh, m_player_navmesh, m_open_navmesh );
+  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_npc_navmesh );
 }
 
 entt::registry &ShopScene::registry() { return m_reg; }
