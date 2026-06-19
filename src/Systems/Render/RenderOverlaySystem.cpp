@@ -776,22 +776,18 @@ void RenderOverlaySystem::render_ui_entity_inspect()
 
 void RenderOverlaySystem::render_crypt_maze_timer( sf::Vector2f pos, unsigned int size )
 {
-  if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
+  auto &clock = Scene::CryptScene::get_maze_timer();
+  if ( clock.isRunning() )
   {
-
-    auto &clock = Scene::CryptScene::get_maze_timer();
-    if ( clock.isRunning() )
-    {
-      sf::Text clock_text( m_font, "", size );
-      std::stringstream ss;
-      ss << std::fixed << std::setprecision( 1 ) << 10.f - clock.getElapsedTime().asSeconds();
-      clock_text.setString( ss.str() );
-      clock_text.setPosition( { pos.x - ( clock_text.getLocalBounds().size.x / 2 ), pos.y } );
-      clock_text.setFillColor( sf::Color::Red );
-      clock_text.setOutlineColor( sf::Color::Black );
-      clock_text.setOutlineThickness( 2.f );
-      draw_screen( clock_text );
-    }
+    sf::Text clock_text( m_font, "", size );
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision( 1 ) << 10.f - clock.getElapsedTime().asSeconds();
+    clock_text.setString( ss.str() );
+    clock_text.setPosition( { pos.x - ( clock_text.getLocalBounds().size.x / 2 ), pos.y } );
+    clock_text.setFillColor( sf::Color::Red );
+    clock_text.setOutlineColor( sf::Color::Black );
+    clock_text.setOutlineThickness( 2.f );
+    draw_screen( clock_text );
   }
 }
 

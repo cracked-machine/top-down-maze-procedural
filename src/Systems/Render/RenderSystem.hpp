@@ -7,10 +7,12 @@
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <functional>
 
 #include <imgui.h>
 
@@ -96,6 +98,20 @@ protected:
   bool m_show_playernopath{ false };
   bool m_show_reserved{ false };
   bool m_shaders_enabled{ true };
+
+  //! @brief The render target reference. Initialised to the sf::RenderWindow.
+  std::reference_wrapper<sf::RenderTarget> m_current_target{ m_window };
+
+  //! @brief getter for `m_current_target`
+  //! @return sf::RenderTarget&
+  sf::RenderTarget &active_render_target() { return m_current_target; }
+
+  //! @brief Set the render target object to something other than sf::RenderWindow.
+  //! @param target
+  void set_render_target( sf::RenderTarget &target ) { m_current_target = target; }
+
+  //! @brief Restore render target back to sf::RenderWindow.
+  void restore_render_target() { m_current_target = m_window; }
 
   //! @brief Renders text to the screen with specified formatting and alignment options.
   //!

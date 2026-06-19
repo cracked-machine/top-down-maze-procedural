@@ -9,6 +9,8 @@
 #include <Utils/Constants.hpp>
 
 #include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/RenderTexture.hpp>
+#include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/System/Vector2.hpp>
 
@@ -26,12 +28,40 @@ class RenderOverlaySystem : public RenderSystem
 {
 public:
   RenderOverlaySystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-      : RenderSystem( reg, window, sprite_factory, sound_bank )
+      : RenderSystem( reg, window, sprite_factory, sound_bank ),
+        m_debug_overlay_tex( { 1, 1 } )
   {
     m_main_ui_data = std::make_unique<Render::UiData>( "res/ui/ui.json" );
     m_dbg_ui_data = std::make_unique<Render::UiData>( "res/ui/dbg.json" );
     m_shop_ui_data = std::make_unique<Render::UiData>( "res/ui/shop.json" );
   };
+
+  //! @brief Initialise the debug texture and use it to override the render target
+  //!        Call this before using draw_screen()/draw_world()
+  //! @param size
+  void begin_debug_overlay( sf::Vector2u size )
+  {
+    if ( m_debug_overlay_tex.getSize() != size ) { [[maybe_unused]] auto _ = m_debug_overlay_tex.resize( size ); }
+    m_debug_overlay_tex.clear( sf::Color::Transparent );
+    set_render_target( m_debug_overlay_tex );
+  }
+
+  //! @brief reset the render target and finialise the debug texture
+  //!        Call this after using draw_screen()/draw_world()
+  void end_debug_overlay()
+  {
+    restore_render_target();
+    m_debug_overlay_tex.display();
+    m_debug_overlay_ready = true;
+  }
+
+  //! @brief Render the debug texture to the window.
+  //!        Call this after using end_debug_overlay()
+  //! @param window
+  void draw_debug_overlay( sf::RenderWindow &window ) const
+  {
+    if ( m_debug_overlay_ready ) window.draw( sf::Sprite( m_debug_overlay_tex.getTexture() ) );
+  }
 
   //! @brief init the weak pointer for the pathfinding navmesh
   //! @param spatial_grid_ptr
@@ -67,61 +97,49 @@ public:
   template <typename Component>
   void render_square_for_entity( entt::entity entity, sf::Color square_color = sf::Color::Red, float square_thickness = 1.f )
   {
-    if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
+    auto *pos_cmp = reg().try_get<Cmp::Position>( entity );
+    auto requested_cmp = reg().try_get<Component>( entity );
+    if ( pos_cmp && requested_cmp )
     {
-      auto *pos_cmp = reg().try_get<Cmp::Position>( entity );
-      auto requested_cmp = reg().try_get<Component>( entity );
-      if ( pos_cmp && requested_cmp )
-      {
-        sf::RectangleShape rectangle;
-        rectangle.setSize( Constants::kGridSizePxF );
-        rectangle.setPosition( pos_cmp->position );
-        rectangle.setFillColor( sf::Color::Transparent );
-        rectangle.setOutlineColor( square_color );
-        rectangle.setOutlineThickness( square_thickness );
-        m_window.draw( rectangle );
-      }
+      sf::RectangleShape rectangle;
+      rectangle.setSize( Constants::kGridSizePxF );
+      rectangle.setPosition( pos_cmp->position );
+      rectangle.setFillColor( sf::Color::Transparent );
+      rectangle.setOutlineColor( square_color );
+      rectangle.setOutlineThickness( square_thickness );
+      draw_world( rectangle );
     }
   }
 
   template <typename Component>
   void render_square_for_vector2f_cmp( sf::Color square_color = sf::Color::Red, float square_thickness = 1.f )
   {
-    auto requested_view = reg().view<Component>();
-    for ( auto [entity, requested_cmp] : requested_view.each() )
+    for ( auto [entity, requested_cmp] : reg().view<Component>().each() )
     {
-      if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
-      {
-        if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), sf::FloatRect( requested_cmp, Constants::kGridSizePxF ) ) ) continue;
-
-        sf::RectangleShape rectangle;
-        rectangle.setSize( Constants::kGridSizePxF );
-        rectangle.setPosition( requested_cmp );
-        rectangle.setFillColor( sf::Color::Transparent );
-        rectangle.setOutlineColor( square_color );
-        rectangle.setOutlineThickness( square_thickness );
-        m_window.draw( rectangle );
-      }
+      if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), sf::FloatRect( requested_cmp, Constants::kGridSizePxF ) ) ) continue;
+      sf::RectangleShape rectangle;
+      rectangle.setSize( Constants::kGridSizePxF );
+      rectangle.setPosition( requested_cmp );
+      rectangle.setFillColor( sf::Color::Transparent );
+      rectangle.setOutlineColor( square_color );
+      rectangle.setOutlineThickness( square_thickness );
+      draw_world( rectangle );
     }
   }
 
   template <typename Component>
   void render_square_for_floatrect_cmp( sf::Color square_color = sf::Color::Red, float square_thickness = 1.f )
   {
-    auto requested_view = reg().view<Component>();
-    for ( auto [entity, requested_cmp] : requested_view.each() )
+    for ( auto [entity, requested_cmp] : reg().view<Component>().each() )
     {
-      if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
-      {
-        if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), requested_cmp ) ) continue;
-        sf::RectangleShape rectangle;
-        rectangle.setSize( requested_cmp.size );
-        rectangle.setPosition( requested_cmp.position );
-        rectangle.setFillColor( sf::Color::Transparent );
-        rectangle.setOutlineColor( square_color );
-        rectangle.setOutlineThickness( square_thickness );
-        draw_world( rectangle );
-      }
+      if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), requested_cmp ) ) continue;
+      sf::RectangleShape rectangle;
+      rectangle.setSize( requested_cmp.size );
+      rectangle.setPosition( requested_cmp.position );
+      rectangle.setFillColor( sf::Color::Transparent );
+      rectangle.setOutlineColor( square_color );
+      rectangle.setOutlineThickness( square_thickness );
+      draw_world( rectangle );
     }
   }
 
@@ -130,27 +148,29 @@ public:
   //! @brief event handlers for resuming system clocks
   void on_resume() override {}
 
+  //! @brief Layout data object for the main UI
   std::unique_ptr<Render::UiData> m_main_ui_data;
+  //! @brief Layout data object for the debug UI
   std::unique_ptr<Render::UiData> m_dbg_ui_data;
+  //! @brief Layout data object for the shop scene overlay
   std::unique_ptr<Render::UiData> m_shop_ui_data;
 
 private:
-  // restrict the debug data update to every 1 second (optimization)
-  const sf::Time m_debug_update_interval{ sf::milliseconds( 1000 ) };
-  sf::Clock m_debug_update_timer;
-
-  // overlay text
-  sf::Text m_distance_text{ m_font, "", 7 };
-
-  std::map<unsigned int, sf::Text> m_npc_list_text;
-
+  //! @brief Draw the debug ui to this texture.
+  sf::RenderTexture m_debug_overlay_tex;
+  //! @brief Signals when the texture is ready to be drawn to the sf::RenderWindow
+  bool m_debug_overlay_ready{ false };
+  //! @brief tracks the npc pathfinding navmesh i.e. where the NPC cannot move to
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
-
+  //! @brief Used to flash the UI wealth text
   sf::Time m_flash_wealth_ui_interval;
+  //! @brief Used to flash the UI cadaver text
   sf::Time m_flash_cadaver_ui_interval;
+  //! @brief Used to flash the UI inevntory text
   sf::Time m_flash_inventory_ui_interval;
+  //! @brief Used to flash the UI radius text
   sf::Time m_flash_radius_ui_interval;
-
+  //! @brief Screen flash frequency
   int m_ui_flash_factor{ 300 };
 };
 

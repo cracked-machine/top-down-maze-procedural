@@ -71,6 +71,8 @@ public:
   //! @brief This should be called by scene "on enter" functions.
   void init_world_view();
 
+  //! @brief Update the camera center on the player using lerp for smooth transform.
+  //! @param deltaTime
   void update_camera( sf::Time deltaTime );
 
 private:
@@ -131,15 +133,18 @@ private:
   //! @brief event handlers for resuming system clocks
   void on_resume() override {}
 
-  // optimize the debug overlay updates to every n milliseconds
-  const sf::Time m_debug_update_interval{ sf::milliseconds( 10 ) };
+  //! @brief Delay for updating the debug UI
+  const sf::Time m_debug_update_interval{ sf::milliseconds( 500 ) };
+  //! @brief The timer for managing the debug UI update delays
   sf::Clock m_debug_update_timer;
 
-  // compass arrow variables
-  float m_compass_scale{ 1.f };
+  //! @brief Time component of the sine wave for the compass arrow bouncing movement
   sf::Clock m_compass_osc_clock;
-  float m_compass_freq{ 4.0f }; // oscillations per second
+  //! @brief Frequency component of the sine wave for the compass arrow bouncing movement
+  float m_compass_freq{ 4.0f };
+  //! @brief Min range for the compass arrow dynamic resize
   float m_compass_min_scale{ 0.5f };
+  //! @brief Max range for the compass arrow dynamic resize
   float m_compass_max_scale{ 1.5f };
 
   //! @brief The z-order queue for rendering

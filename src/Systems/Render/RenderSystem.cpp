@@ -148,18 +148,20 @@ void RenderSystem::render_rectbounds( Cmp::RectBounds &bounds, sf::Color color )
 
 void RenderSystem::draw_screen( const sf::Drawable &drawable )
 {
-  const sf::View previous_view = m_window.getView();
-  m_window.setView( get_screen_view() );
-  m_window.draw( drawable );
-  m_window.setView( previous_view );
+  auto &target = active_render_target();
+  const sf::View previous_view = target.getView();
+  target.setView( m_window.getDefaultView() );
+  target.draw( drawable );
+  target.setView( previous_view );
 }
 
 void RenderSystem::draw_world( const sf::Drawable &drawable )
 {
-  const sf::View previous_view = m_window.getView();
-  m_window.setView( get_world_view() );
-  m_window.draw( drawable );
-  m_window.setView( previous_view );
+  auto &target = active_render_target();
+  const sf::View previous_view = target.getView();
+  target.setView( s_world_view );
+  target.draw( drawable );
+  target.setView( previous_view );
 }
 
 sf::View RenderSystem::s_world_view{};

@@ -117,7 +117,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   // re-populate the z-order queue with the latest entity/component data
   refresh_z_order_queue();
 
-  bool debug_tick = m_show_debug_stats && ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval );
+  bool debug_tick = m_show_debug_stats and ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval );
 
   // main render begin
   m_window.clear();
@@ -212,26 +212,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   // lava pit outline
   render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPit>( sf::Color( 16, 16, 16 ), 0.5f );
 
-  // debug: show crypt component boundaries
-  if ( m_show_debug_stats )
-  {
-
-    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
-    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
-    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomStart>( sf::Color::Blue, 1.f );
-    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomEnd>( sf::Color::Yellow, 1.f );
-    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomClosed>( sf::Color::Red, 1.f );
-    render_overlay_sys.render_square_for_vector2f_cmp<Cmp::CryptPassageBlock>( sf::Color::Black, 1.f );
-  }
-  if ( m_show_npcnopath )
-  {
-    for ( auto [entt, npcnopath_cmp, pos_cmp] : reg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
-    {
-      auto rectbounds = Cmp::RectBounds::scaled( pos_cmp.position, pos_cmp.size, 1.f );
-      render_rectbounds( rectbounds, sf::Color::Red );
-    }
-  }
-
+  // Debug overlays
   if ( m_show_npcnopath )
   {
     for ( auto [entt, npcnopath_cmp, pos_cmp] : reg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
@@ -276,7 +257,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
     }
   }
 
-  // float start_y_pos = 0;
+  // render normal game UI
   render_overlay_sys.render_ui_outlines();
   render_overlay_sys.render_ui_icons();
   render_overlay_sys.render_ui_inventory_icon();
@@ -288,8 +269,22 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   auto display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
   render_overlay_sys.render_crypt_maze_timer( { static_cast<float>( display_size.x ) / 2.f, 0.f }, 100 );
 
+  // these debug shapes are only drawn within the current view to prevent FPS drops
   if ( m_show_debug_stats )
   {
+    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
+    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
+    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomStart>( sf::Color::Blue, 1.f );
+    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomEnd>( sf::Color::Yellow, 1.f );
+    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomClosed>( sf::Color::Red, 1.f );
+    render_overlay_sys.render_square_for_vector2f_cmp<Cmp::CryptPassageBlock>( sf::Color::Black, 1.f );
+  }
+
+  // limit the update frequency to prevent FPS drops
+  if ( debug_tick )
+  {
+    render_overlay_sys.begin_debug_overlay( m_window.getSize() );
+
     render_overlay_sys.render_ui_misc_stats();
     render_overlay_sys.render_ui_zorder_list( m_zorder_queue_ );
     render_overlay_sys.render_ui_npc_list();
@@ -299,11 +294,12 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
       if ( not Utils::is_visible_in_view( get_screen_view(), pos_cmp ) ) continue;
       render_overlay_sys.render_square( pos_cmp.position, pos_cmp.size, sf::Color::Yellow );
     }
+
+    render_overlay_sys.end_debug_overlay();
     m_debug_update_timer.restart();
   }
 
-  // restart once after all debug blocks
-  if ( debug_tick ) { m_debug_update_timer.restart(); }
+  if ( m_show_debug_stats ) render_overlay_sys.draw_debug_overlay( m_window );
 
   m_window.display();
 }
@@ -347,39 +343,35 @@ void RenderGameSystem::init_world_view()
 void RenderGameSystem::update_camera( sf::Time deltaTime )
 {
 
-  // Get the player's current position
-  auto player_view = reg().view<Cmp::PlayerCharacter, Cmp::Position>();
-  for ( auto [entity, pc_cmp, pos_cmp] : player_view.each() )
+  // Use the player's current position as the target
+  auto target_pos = Utils::Player::get_position( reg() );
+
+  // Initialize camera position on first frame to avoid lerping from origin
+  if ( !m_camera_initialized )
   {
-    sf::Vector2f target_position = pos_cmp.position;
-
-    // Initialize camera position on first frame to avoid lerping from origin
-    if ( !m_camera_initialized )
-    {
-      m_camera_position = target_position;
-      m_camera_initialized = true;
-    }
-
-    // Smooth lerp toward target position
-    float dt = deltaTime.asSeconds();
-    auto camera_smooth_speed = Sys::PersistSystem::get<Cmp::Persist::CameraSmoothSpeed>( reg() ).get_value();
-    float t = 1.0f - std::exp( -camera_smooth_speed * dt ); // Exponential smoothing
-
-    m_camera_position.x += ( target_position.x - m_camera_position.x ) * t;
-    m_camera_position.y += ( target_position.y - m_camera_position.y ) * t;
-
-    // Snap to target if very close (prevents endless micro-adjustments)
-    constexpr float kSnapThreshold = 0.1f;
-    if ( std::abs( target_position.x - m_camera_position.x ) < kSnapThreshold &&
-         std::abs( target_position.y - m_camera_position.y ) < kSnapThreshold )
-    {
-      m_camera_position = target_position;
-    }
-
-    // Update the view center
-    sf::Vector2f view_center = m_camera_position + ( pos_cmp.size / 2.f );
-    s_world_view.setCenter( view_center );
+    m_camera_position = target_pos.position;
+    m_camera_initialized = true;
   }
+
+  // Smooth lerp toward target position
+  float dt = deltaTime.asSeconds();
+  auto camera_smooth_speed = Sys::PersistSystem::get<Cmp::Persist::CameraSmoothSpeed>( reg() ).get_value();
+  float t = 1.0f - std::exp( -camera_smooth_speed * dt ); // Exponential smoothing
+
+  m_camera_position.x += ( target_pos.position.x - m_camera_position.x ) * t;
+  m_camera_position.y += ( target_pos.position.y - m_camera_position.y ) * t;
+
+  // Snap to target if very close (prevents endless micro-adjustments)
+  constexpr float kSnapThreshold = 0.1f;
+  if ( std::abs( target_pos.position.x - m_camera_position.x ) < kSnapThreshold &&
+       std::abs( target_pos.position.y - m_camera_position.y ) < kSnapThreshold )
+  {
+    m_camera_position = target_pos.position;
+  }
+
+  // Update the view center
+  sf::Vector2f view_center = m_camera_position + ( target_pos.size / 2.f );
+  s_world_view.setCenter( view_center );
 }
 
 void RenderGameSystem::render_armed()
