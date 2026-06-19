@@ -316,8 +316,12 @@ void NpcSystem::update_pathfinding_for( PathFinding::SpatialHashGrid &navmesh, c
 
   if ( npc_type.contains( "sprite.ghost" ) ) query_compass = PathFinding::QueryCompass::BOTH;
 
+  // Snap goal to cell top-left: player moves sub-grid so can appear up to 31px into an
+  // adjacent cell, exceeding the 24px too_far threshold when NPC approaches from left/above.
+  Cmp::Position grid_target( Utils::snap_to_grid( target_pos.position, Utils::Rounding::TOWARDS_ZERO ), target_pos.size );
+
   std::vector<PathFinding::PathNode> path;
-  path = PathFinding::astar( reg(), navmesh, *npc_pos_cmp, target_pos, query_compass );
+  path = PathFinding::astar( reg(), navmesh, *npc_pos_cmp, grid_target, query_compass );
 
   SPDLOG_DEBUG( "{} pathsize: {}", static_cast<uint32_t>( npc_entity ), path.size() );
   if ( path.size() > 1 )
