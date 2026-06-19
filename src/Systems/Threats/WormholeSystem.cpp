@@ -27,6 +27,7 @@
 #include <Factory/LootFactory.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -163,13 +164,16 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
   Cmp::WormholeMultiBlock wormhole_block( random_pos.position, wormhole_ms.get_grid_size().componentWiseMul( Constants::kGridSizePx ) );
 
   auto obstacle_view = reg().view<Cmp::Position>();
+  auto navmesh = m_npc_navmesh.lock();
   for ( auto [entity, obstacle_pos] : obstacle_view.each() )
   {
     if ( obstacle_pos.findIntersection( wormhole_block ) )
     {
+      bool was_obstacle = reg().all_of<Cmp::NpcNoPathFinding>( entity );
       Factory::remove_obstacle( reg(), entity );
       Factory::destroy_loot_container( reg(), entity );
       Factory::destroy_npc_container( reg(), entity );
+      if ( was_obstacle && navmesh ) navmesh->insert( entity, obstacle_pos );
 
       SPDLOG_DEBUG( "Wormhole spawn: Destroying item at ({}, {})", obstacle_pos.position.x, obstacle_pos.position.y );
     }
@@ -281,8 +285,9 @@ void WormholeSystem::check_player_wormhole_collision()
           reg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{}, Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC>{}, 0 );
 
       Factory::remove_obstacle( reg(), new_spawn_entity );
+      if ( auto teleport_navmesh = m_npc_navmesh.lock() ) teleport_navmesh->insert( new_spawn_entity, new_spawn_pos_cmp );
       // clang-format off
-      reg().emplace_or_replace<Cmp::AnimData>( new_spawn_entity, Cmp::AnimData::Config{  
+      reg().emplace_or_replace<Cmp::AnimData>( new_spawn_entity, Cmp::AnimData::Config{
             .sprite_type = "sprite.graveyard.detonated",
             .enabled = true
       });

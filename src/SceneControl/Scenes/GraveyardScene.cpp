@@ -290,6 +290,7 @@ void GraveyardScene::reinit_navmesh()
   m_sys.find<Sys::Store::Type::BombSystem>().init( m_npc_navmesh, m_player_navmesh );
   m_sys.find<Sys::Store::Type::ActionSystem>().init( m_npc_navmesh, m_player_navmesh );
   m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_npc_navmesh, m_player_navmesh, m_open_navmesh );
+  m_sys.find<Sys::Store::Type::WormholeSystem>().init( m_npc_navmesh );
   m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_npc_navmesh );
 }
 

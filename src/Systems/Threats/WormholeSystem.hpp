@@ -2,6 +2,7 @@
 #define SRC_SYSTEMS_WORMHOLESYSTEM_HPP__
 
 #include <Components/Position.hpp>
+#include <PathFinding/SmartPointers.hpp>
 #include <entt/entity/fwd.hpp>
 
 #include <Systems/BaseSystem.hpp>
@@ -18,6 +19,8 @@ class WormholeSystem : public BaseSystem
 {
 public:
   WormholeSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+
+  void init( const PathFinding::SpatialHashGridSharedPtr &npc_navmesh ) { m_npc_navmesh = npc_navmesh; }
 
   //! @brief event handlers for pausing system clocks
   void on_pause() override;
@@ -44,6 +47,9 @@ public:
 
   // remove the wormhole entity
   void despawn_wormhole();
+
+private:
+  PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
 };
 
 } // namespace Game::Sys
