@@ -25,6 +25,7 @@
 
 #include <spdlog/spdlog.h>
 #include <stdexcept>
+#include <map>
 
 namespace Game::Sys
 {
@@ -245,31 +246,156 @@ void PassageSystem::cache_all_room_connections()
     SPDLOG_INFO( "Created cached region {},{} {},{}", new_region.position.x, new_region.position.y, new_region.size.x, new_region.size.y );
   }
 
-  // Do this first to guarantee success otherwise player cannot leave
+  // Do this first to guarantee success otherwise player cannot leave.
+  // This also marks exactly one closed room as all_doors_used — that becomes the BFS root.
   connect_end_room_to_nearest_closed_room();
+
+  // The closed room the end room just connected to is guaranteed reachable from the exit.
+  // Use it as the root for graph connectivity checks below.
+  entt::entity bfs_root = entt::null;
+  for ( auto [closed_room_entt, closed_room_cmp] : reg().view<Cmp::CryptRoomClosed>().each() )
+  {
+    if ( closed_room_cmp.are_all_doors_used() ) { bfs_root = closed_room_entt; break; }
+  }
 
   std::vector<Cmp::CryptPassageDirection> directions = { Cmp::CryptPassageDirection::WEST, Cmp::CryptPassageDirection::EAST,
                                                          Cmp::CryptPassageDirection::NORTH, Cmp::CryptPassageDirection::SOUTH };
 
+  // Shared helper: cache passage blocks and advance the passage ID.
+  auto cache_blocks = [&]( const std::vector<Cmp::CryptPassageBlock> &passage_blocks )
+  {
+    m_passage_algos.increment_passage_id();
+    for ( const auto &passage_block_cmp : passage_blocks )
+    {
+      for ( auto &[region, blocklist] : m_cached_passage_list )
+      {
+        if ( not sf::FloatRect( passage_block_cmp, Constants::kGridSizePxF ).findIntersection( region ) ) continue;
+        blocklist.push_back( passage_block_cmp );
+      }
+    }
+  };
+
+  // First pass: sparse connections — each room can only be targeted once, preserving dead-end rooms.
+  // Inline the find_passages loop so the target entity is visible here and can be added to the
+  // adjacency graph. Using find_passages would hide the target entity inside the template.
+  std::map<entt::entity, std::set<entt::entity>> adjacency;
+  if ( bfs_root != entt::null ) adjacency[bfs_root]; // ensure root has an entry even with no extra edges
+
   for ( auto [closed_room_entt, closed_room_cmp] : reg().view<Cmp::CryptRoomClosed>().each() )
   {
-    auto &current_room_cmp = closed_room_cmp;
     for ( auto &direction : directions )
     {
-      auto distances = find_room_distances<Cmp::CryptRoomClosed>( current_room_cmp.m_connectors[direction], world_area, { closed_room_entt } );
-      auto passage_blocks = find_passages<Cmp::CryptRoomClosed>( current_room_cmp.m_connectors[direction], distances, ProcGen::WalkingType::DRUNK,
-                                                                 map_size_pixel, ProcGen::OnePassagePerTargetRoom::YES,
-                                                                 ProcGen::AllowDuplicatePassages::NO );
-      if ( not passage_blocks.empty() ) m_passage_algos.increment_passage_id();
-
-      for ( auto &passage_block_cmp : passage_blocks )
+      auto distances = find_room_distances<Cmp::CryptRoomClosed>( closed_room_cmp.m_connectors[direction], world_area, { closed_room_entt } );
+      while ( not distances.empty() )
       {
-        for ( auto &[region, blocklist] : m_cached_passage_list )
+        auto [dist_val, target_entt] = distances.top();
+        distances.pop();
+        if ( not reg().valid( target_entt ) ) continue;
+        auto *target_cmp = reg().try_get<Cmp::CryptRoomClosed>( target_entt );
+        if ( not target_cmp ) continue;
+
+        auto passage_list = m_passage_algos.create_drunken_walk( reg(), closed_room_cmp.m_connectors[direction], *target_cmp,
+                                                                  map_size_pixel, { target_entt }, ProcGen::AllowDuplicatePassages::NO );
+        if ( not passage_list.empty() )
         {
-          if ( not sf::FloatRect( passage_block_cmp, Constants::kGridSizePxF ).findIntersection( region ) ) continue;
-          blocklist.push_back( passage_block_cmp );
+          target_cmp->set_all_doors_used( true );
+          adjacency[closed_room_entt].insert( target_entt );
+          adjacency[target_entt].insert( closed_room_entt ); // passages are traversable both ways
+          cache_blocks( passage_list );
+          break;
         }
       }
+    }
+  }
+
+  // BFS from the BFS root to find every room that is genuinely reachable from the exit.
+  // The earlier heuristic ("has any connection") missed disconnected sub-graphs where two
+  // isolated rooms connect to each other but not to the main graph (X→Y, Y→X cycle).
+  std::set<entt::entity> reachable;
+  if ( bfs_root != entt::null )
+  {
+    std::vector<entt::entity> bfs_queue = { bfs_root };
+    reachable.insert( bfs_root );
+    for ( std::size_t i = 0; i < bfs_queue.size(); ++i )
+    {
+      for ( auto neighbor : adjacency[bfs_queue[i]] )
+      {
+        if ( reachable.contains( neighbor ) ) continue;
+        reachable.insert( neighbor );
+        bfs_queue.push_back( neighbor );
+      }
+    }
+  }
+
+  // Second pass: rooms absent from the BFS-reachable set are disconnected islands (soft-lock).
+  // Connect each to the nearest reachable room; DOGLEG fallback handles edge-room walk failures.
+  std::vector<entt::entity> isolated_rooms;
+  for ( auto [closed_room_entt, closed_room_cmp] : reg().view<Cmp::CryptRoomClosed>().each() )
+  {
+    if ( not reachable.contains( closed_room_entt ) )
+      isolated_rooms.push_back( closed_room_entt );
+  }
+
+  if ( not isolated_rooms.empty() )
+  {
+    SPDLOG_WARN( "{} isolated rooms detected, adding minimal fallback connections", isolated_rooms.size() );
+    for ( auto [e, cmp] : reg().view<Cmp::CryptRoomClosed>().each() )
+      cmp.set_all_doors_used( false );
+
+    auto build_reachable_distances = [&]( const Cmp::CryptPassageDoor &door, entt::entity exclude ) -> ProcGen::MidPointDistanceQueue
+    {
+      ProcGen::MidPointDistanceQueue dist;
+      for ( auto [room_entt, room_cmp] : reg().view<Cmp::CryptRoomClosed>().each() )
+      {
+        if ( room_entt == exclude ) continue;
+        if ( not reachable.empty() && not reachable.contains( room_entt ) ) continue;
+        dist.emplace( Utils::Maths::getEuclideanDistance( door, room_cmp.getCenter() ), room_entt );
+      }
+      return dist;
+    };
+
+    for ( auto isolated_entt : isolated_rooms )
+    {
+      // Skip rooms that became reachable by propagation from a previously connected isolated room.
+      if ( reachable.contains( isolated_entt ) ) continue;
+
+      auto *isolated_cmp = reg().try_get<Cmp::CryptRoomClosed>( isolated_entt );
+      if ( not isolated_cmp ) continue;
+      bool connected = false;
+      for ( auto &direction : directions )
+      {
+        auto dist = build_reachable_distances( isolated_cmp->m_connectors[direction], isolated_entt );
+        auto passage_blocks = find_passages<Cmp::CryptRoomClosed>( isolated_cmp->m_connectors[direction], dist, ProcGen::WalkingType::DRUNK,
+                                                                   map_size_pixel, ProcGen::OnePassagePerTargetRoom::NO,
+                                                                   ProcGen::AllowDuplicatePassages::NO );
+        if ( not passage_blocks.empty() ) { cache_blocks( passage_blocks ); connected = true; break; }
+
+        // Drunken walk can fail for edge rooms (initial orthogonal steps exit map bounds).
+        // Dog-leg has no such constraint and creates a deterministic L-shaped path.
+        dist = build_reachable_distances( isolated_cmp->m_connectors[direction], isolated_entt );
+        passage_blocks = find_passages<Cmp::CryptRoomClosed>( isolated_cmp->m_connectors[direction], dist, ProcGen::WalkingType::DOGLEG,
+                                                              map_size_pixel, ProcGen::OnePassagePerTargetRoom::NO,
+                                                              ProcGen::AllowDuplicatePassages::NO );
+        if ( not passage_blocks.empty() ) { cache_blocks( passage_blocks ); connected = true; break; }
+      }
+      if ( connected )
+      {
+        // Propagate reachability through first-pass adjacency edges. Any room that was already
+        // connected to this room in the first pass is now reachable too, so it doesn't need its
+        // own second-pass passage — one bridge per disconnected component is enough.
+        reachable.insert( isolated_entt );
+        std::vector<entt::entity> propagate_queue = { isolated_entt };
+        for ( std::size_t i = 0; i < propagate_queue.size(); ++i )
+        {
+          for ( auto neighbor : adjacency[propagate_queue[i]] )
+          {
+            if ( reachable.contains( neighbor ) ) continue;
+            reachable.insert( neighbor );
+            propagate_queue.push_back( neighbor );
+          }
+        }
+      }
+      else { SPDLOG_ERROR( "Could not connect isolated room {} — dungeon may be soft-locked", entt::to_integral( isolated_entt ) ); }
     }
   }
 
