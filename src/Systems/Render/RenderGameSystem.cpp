@@ -388,8 +388,8 @@ void RenderGameSystem::render_armed()
     temp_square.setFillColor( sf::Color::Transparent );
     if ( armed_cmp.getElapsedWarningTime() > armed_cmp.m_warning_delay )
     {
-      temp_square.setOutlineColor( armed_cmp.m_armed_color );
-      temp_square.setFillColor( armed_cmp.m_armed_color );
+      temp_square.setOutlineColor( armed_cmp.m_armed_color_border );
+      temp_square.setFillColor( armed_cmp.m_armed_color_fill );
     }
     temp_square.setOutlineThickness( 1.f );
     draw_world( temp_square );

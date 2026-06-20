@@ -1,4 +1,22 @@
 {
+  "ArmedBlockColourBorder": {
+    "type": "sf::Color",
+    "value" : {
+      "r": 64,
+      "g": 64,
+      "b": 64,
+      "a": 255
+    }
+  },
+  "ArmedBlockColourFill": {
+    "type": "sf::Color",
+    "value" : {
+      "r": 64,
+      "g": 64,
+      "b": 64,
+      "a": 255
+    }
+  },
   "ArmedOffDelay": {
     "type": "float",
     "value": 0.05,

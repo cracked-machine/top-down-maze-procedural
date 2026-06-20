@@ -48,9 +48,9 @@ public:
 
   void render_title();
 
-  void render_settings_widgets( sf::Time globalDeltaTime, sf::FloatRect title_text_dimensions );
-  void render_settings( sf::Time globalDeltaTime );
-  void render_paused( sf::Time globalDeltaTime );
+  void render_settings_widgets( sf::Time dt, sf::FloatRect title_text_dimensions );
+  void render_settings( sf::Time dt );
+  void render_paused( sf::Time dt );
   void render_defeat_screen();
   void render_victory_screen( bool allow_continue );
 };

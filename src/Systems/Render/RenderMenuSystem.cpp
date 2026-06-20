@@ -53,6 +53,8 @@
 #include <Components/Player/PlayerCadaverCount.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/Player/PlayerWealth.hpp>
+#include <Persistent/ArmedBlockColourBorder.hpp>
+#include <Persistent/ArmedBlockColourFill.hpp>
 #include <Shaders/BaseShaderSprite.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
@@ -67,7 +69,6 @@
 
 #include "imgui-SFML.h"
 #include <imgui.h>
-#include <stdexcept>
 
 namespace Game::Sys
 {
@@ -94,17 +95,17 @@ void RenderMenuSystem::render_title()
     sf::Color txt_color{ 64, 96, 184 };
     sf::Color txt_outline_color{ 48, 48, 48 };
 
-    render_text( "The Shades Below", display_size.x / 20, { display_size.x * 0.25f, display_size.y * 0.25f }, Alignment::CENTER, 2.f,
-                 txt_outline_color );
+    render_text( "The Shades Below", static_cast<int>( display_size.x / 20 ), { display_size.x * 0.25f, display_size.y * 0.25f }, Alignment::CENTER,
+                 2.f, txt_outline_color );
 
-    render_text( "Press <Enter> key to start", display_size.x / 40, { display_size.x * 0.25f, display_size.y * 0.5f }, Alignment::CENTER, 3.f,
-                 txt_color );
+    render_text( "Press <Enter> key to start", static_cast<int>( display_size.x / 40 ), { display_size.x * 0.25f, display_size.y * 0.5f },
+                 Alignment::CENTER, 3.f, txt_color );
 
-    render_text( "Press <Q> key to quit", display_size.x / 40, { display_size.x * 0.25f, display_size.y * 0.5f + 100.f }, Alignment::CENTER, 3.f,
-                 txt_color );
+    render_text( "Press <Q> key to quit", static_cast<int>( display_size.x / 40 ), { display_size.x * 0.25f, ( display_size.y * 0.5f ) + 100.f },
+                 Alignment::CENTER, 3.f, txt_color );
 
-    render_text( "Press <S> key for settings", display_size.x / 40, { display_size.x * 0.25f, display_size.y * 0.5f + 200.f }, Alignment::CENTER, 3.f,
-                 txt_color );
+    render_text( "Press <S> key for settings", static_cast<int>( display_size.x / 40 ), { display_size.x * 0.25f, ( display_size.y * 0.5f ) + 200.f },
+                 Alignment::CENTER, 3.f, txt_color );
   }
 
   m_window.display();
@@ -122,13 +123,13 @@ void RenderMenuSystem::render_settings( sf::Time globalDeltaTime )
 
   sf::Text restore_text( m_font, "Press <R> key to restore defaults", display_size.x / 40 );
   restore_text.setFillColor( sf::Color::White );
-  auto restore_right_align_px = display_size.x - restore_text.getGlobalBounds().size.x - 10.f;
+  auto restore_right_align_px = static_cast<float>( display_size.x ) - restore_text.getGlobalBounds().size.x - 10.f;
   restore_text.setPosition( { restore_right_align_px, 30.f } );
   m_window.draw( restore_text );
 
   sf::Text exit_text( m_font, "Press <Esc> key to go back", display_size.x / 40 );
   exit_text.setFillColor( sf::Color::White );
-  auto exit_right_align_px = display_size.x - exit_text.getGlobalBounds().size.x - 10.f;
+  auto exit_right_align_px = static_cast<float>( display_size.x ) - exit_text.getGlobalBounds().size.x - 10.f;
   exit_text.setPosition( { exit_right_align_px, 80.f } );
   m_window.draw( exit_text );
 
@@ -141,11 +142,11 @@ void RenderMenuSystem::render_settings( sf::Time globalDeltaTime )
 const std::vector<sf::Vector2u> RenderMenuSystem::DisplaySettings::resolutions = { { 1920, 1080 }, { 1680, 1050 }, { 1600, 900 }, { 1440, 900 },
                                                                                    { 1366, 768 },  { 1280, 720 },  { 1024, 768 }, { 800, 600 } };
 
-void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::FloatRect title_bounds )
+void RenderMenuSystem::render_settings_widgets( sf::Time dt, sf::FloatRect title_text_dimensions )
 {
-  auto padding_px = 10;
+  auto padding_px = 10.f;
   // need to make sure we call Update() and Render() every frame
-  ImGui::SFML::Update( m_window, globalDeltaTime );
+  ImGui::SFML::Update( m_window, dt );
   ImGui::Begin( "Settings", nullptr, kImGuiWindowOptions );
   try
   {
@@ -153,15 +154,17 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
     auto &display_resolution = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
     const float kFontScaleFactor = 1280.f;
 
-    ImVec2 window_size = ImVec2( display_resolution.x - padding_px, display_resolution.y - ( title_bounds.size.y * 2 ) - padding_px );
+    ImVec2 window_size = ImVec2( static_cast<float>( display_resolution.x ) - padding_px,
+                                 static_cast<float>( display_resolution.y ) - ( title_text_dimensions.size.y * 2 ) - padding_px );
     ImGui::SetWindowSize( "Settings", window_size );
-    ImGui::SetWindowPos( "Settings", ImVec2( padding_px, title_bounds.size.y * 2 ) );
-    ImGui::SetWindowFontScale( display_resolution.x / kFontScaleFactor );
+    ImGui::SetWindowPos( "Settings", ImVec2( padding_px, title_text_dimensions.size.y * 2 ) );
+    ImGui::SetWindowFontScale( static_cast<float>( display_resolution.x ) / kFontScaleFactor );
 
     static int current_resolution = 0; // Default to first item
 
     // Capture resolutions by reference in the lambda
-    if ( ImGui::Combo( "Display Resolution", &current_resolution, DisplaySettings::get, nullptr, DisplaySettings::resolutions.size() ) )
+    if ( ImGui::Combo( "Display Resolution", &current_resolution, DisplaySettings::get, nullptr,
+                       static_cast<int>( DisplaySettings::resolutions.size() ) ) )
     {
       // Resolution changed - apply the selected resolution
       auto &display_resolution = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
@@ -206,6 +209,8 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
     Sys::PersistSystem::get<Cmp::Persist::FuseDelay>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::ArmedOnDelay>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::ArmedOffDelay>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::ArmedBlockColourBorder>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::ArmedBlockColourFill>( reg() ).render_widget();
 
     // Hazard Settings
     ImGui::SeparatorText( "Hazard Settings" );
@@ -273,24 +278,24 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
   ImGui::SFML::Render( m_window );
 }
 
-void RenderMenuSystem::render_paused( sf::Time globalDeltaTime )
+void RenderMenuSystem::render_paused( sf::Time dt )
 {
   // main render begin
   m_window.clear();
 
-  ImGui::SFML::Update( m_window, globalDeltaTime );
+  ImGui::SFML::Update( m_window, dt );
   ImGui::Begin( "PausedMenu", nullptr, kImGuiWindowOptions );
 
   sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
 
   sf::Text title_text( m_font, "Paused", 96 );
   title_text.setFillColor( sf::Color::White );
-  title_text.setPosition( { display_size.x / 4.f, 100.f } );
+  title_text.setPosition( { static_cast<float>( display_size.x ) / 4.f, 100.f } );
   m_window.draw( title_text );
 
   sf::Text start_text( m_font, "Press P to continue", 48 );
   start_text.setFillColor( sf::Color::White );
-  start_text.setPosition( { display_size.x / 4.f, 200.f } );
+  start_text.setPosition( { static_cast<float>( display_size.x ) / 4.f, 200.f } );
   m_window.draw( start_text );
 
   auto &music_volume = Sys::PersistSystem::get<Cmp::Persist::MusicVolume>( reg() );
@@ -316,12 +321,12 @@ void RenderMenuSystem::render_defeat_screen()
 
     sf::Text title_text( m_font, "You died...again!", 96 );
     title_text.setFillColor( sf::Color::White );
-    title_text.setPosition( { display_size.x / 4.f, 100.f } );
+    title_text.setPosition( { static_cast<float>( display_size.x ) / 4.f, 100.f } );
     m_window.draw( title_text );
 
     sf::Text start_text( m_font, "Press <R> key to continue", 48 );
     start_text.setFillColor( sf::Color::White );
-    start_text.setPosition( { display_size.x / 4.f, 200.f } );
+    start_text.setPosition( { static_cast<float>( display_size.x ) / 4.f, 200.f } );
     m_window.draw( start_text );
   }
 
@@ -338,14 +343,14 @@ void RenderMenuSystem::render_victory_screen( bool allow_continue )
 
   sf::Text title_text( m_font, "Level Complete!", 96 );
   title_text.setFillColor( sf::Color::White );
-  title_text.setPosition( { display_size.x / 4.f, 100.f } );
+  title_text.setPosition( { static_cast<float>( display_size.x ) / 4.f, 100.f } );
   m_window.draw( title_text );
 
   if ( allow_continue )
   {
     sf::Text start_text( m_font, "Press <R> key to continue", 48 );
     start_text.setFillColor( sf::Color::White );
-    start_text.setPosition( { display_size.x / 4.f, 200.f } );
+    start_text.setPosition( { static_cast<float>( display_size.x ) / 4.f, 200.f } );
     m_window.draw( start_text );
   }
 
@@ -354,12 +359,12 @@ void RenderMenuSystem::render_victory_screen( bool allow_continue )
 
   sf::Text cadaver_txt( m_font, "Cadaver count: " + std::to_string( cadaver_count.get_count() ), 24 );
   cadaver_txt.setFillColor( sf::Color::White );
-  cadaver_txt.setPosition( { display_size.x / 4.f, 500.f } );
+  cadaver_txt.setPosition( { static_cast<float>( display_size.x ) / 4.f, 500.f } );
   m_window.draw( cadaver_txt );
 
   sf::Text wealth_txt( m_font, "Player wealth: " + std::to_string( wealth.wealth ), 24 );
   wealth_txt.setFillColor( sf::Color::White );
-  wealth_txt.setPosition( { display_size.x / 4.f, 600.f } );
+  wealth_txt.setPosition( { static_cast<float>( display_size.x ) / 4.f, 600.f } );
   m_window.draw( wealth_txt );
 
   m_window.display();

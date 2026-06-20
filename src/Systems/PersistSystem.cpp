@@ -1,6 +1,5 @@
 
 
-#include <Persistent/RuinMaxCobwebs.hpp>
 #define JSON_NOEXCEPTION
 #include <fstream>
 #include <nlohmann/json.hpp>
@@ -61,6 +60,9 @@
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
 #include <Components/Persistent/WormholeSeed.hpp>
 #include <Events/LoadSettingsEvent.hpp>
+#include <Persistent/ArmedBlockColourBorder.hpp>
+#include <Persistent/ArmedBlockColourFill.hpp>
+#include <Persistent/RuinMaxCobwebs.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
@@ -92,6 +94,8 @@ void PersistSystem::initialize_type_registry()
   };
 
   // clang-format off
+  register_type.operator()<ArmedBlockColourFill>("ArmedBlockColourFill");
+  register_type.operator()<ArmedBlockColourBorder>("ArmedBlockColourBorder");
   register_type.operator()<ArmedOffDelay>("ArmedOffDelay");
   register_type.operator()<ArmedOnDelay>("ArmedOnDelay");
   register_type.operator()<BlastRadius>("BlastRadius");

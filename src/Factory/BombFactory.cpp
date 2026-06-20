@@ -8,6 +8,8 @@
 #include <Components/Position.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/BombFactory.hpp>
+#include <Persistent/ArmedBlockColourBorder.hpp>
+#include <Persistent/ArmedBlockColourFill.hpp>
 #include <Player/PlayerNoPath.hpp>
 #include <Systems/PersistSystem.hpp>
 
@@ -21,7 +23,9 @@ entt::entity create_armed( entt::registry &reg, entt::entity entity, Cmp::Armed:
 
   // get persistent settings
   // clang-format off
-  sf::Color color = sf::Color( 255, 10 + ( sequence * 10 ) % 155, 255, 64 );
+  auto armed_block_colour_border = Sys::PersistSystem::get<Cmp::Persist::ArmedBlockColourBorder>(reg);
+  auto armed_block_colour_fill = Sys::PersistSystem::get<Cmp::Persist::ArmedBlockColourFill>(reg);
+
   auto &fuse_delay = Sys::PersistSystem::get<Cmp::Persist::FuseDelay>( reg );
   auto &armed_on_delay = Sys::PersistSystem::get<Cmp::Persist::ArmedOnDelay>( reg );
   auto &armed_off_delay = Sys::PersistSystem::get<Cmp::Persist::ArmedOffDelay>( reg );
@@ -37,7 +41,8 @@ entt::entity create_armed( entt::registry &reg, entt::entity entity, Cmp::Armed:
       new_fuse_delay,
       new_warning_delay,
       (epi_center == Cmp::Armed::EpiCenter::YES) ? true : false,
-      color,
+      armed_block_colour_border,
+      armed_block_colour_fill,
       sequence,
       epi_center
     );

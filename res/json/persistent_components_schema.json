@@ -8,7 +8,7 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["float", "int", "bool", "string", "sf::Vector2f", "sf::Vector2u"],
+          "enum": ["float", "int", "bool", "string", "sf::Color", "sf::Vector2f", "sf::Vector2u"],
           "description": "The C++ data type of the persistent component"
         },
         "value": {
@@ -34,6 +34,18 @@
               "required": ["x", "y"],
               "additionalProperties": false,
               "description": "Vector2f value with x and y components"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "r": {"type": "integer", "minimum": 0, "maximum": 255},
+                "g": {"type": "integer", "minimum": 0, "maximum": 255},
+                "b": {"type": "integer", "minimum": 0, "maximum": 255},
+                "a": {"type": "integer", "minimum": 0, "maximum": 255}
+              },
+              "required": ["r", "g", "b", "a"],
+              "additionalProperties": false,
+              "description": "sf::Color value with r, g, b, a components"
             }
           ],
           "description": "The default value of the persistent component"
@@ -85,7 +97,7 @@
           "description": "Formmatter"
         }
       },
-      "required": ["type", "value", "min_value", "max_value"],
+      "required": ["type", "value"],
       "additionalProperties": false,
       "allOf": [
         {
@@ -99,7 +111,8 @@
               "value": {"type": "number"},
               "min_value": {"type": "number"},
               "max_value": {"type": "number"}
-            }
+            },
+            "required": ["value", "min_value", "max_value", "detail", "format"]
           }
         },
         {
@@ -113,7 +126,8 @@
               "value": {"type": "integer"},
               "min_value": {"type": "integer"},
               "max_value": {"type": "integer"}
-            }
+            },
+            "required": ["value", "min_value", "max_value", "detail", "format"]
           }
         },
         {
@@ -211,6 +225,28 @@
                   "y": {"type": "number"}
                 },
                 "required": ["x", "y"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {"const": "sf::Color"}
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "object",
+                "properties": {
+                  "r": {"type": "integer", "minimum": 0, "maximum": 255},
+                  "g": {"type": "integer", "minimum": 0, "maximum": 255},
+                  "b": {"type": "integer", "minimum": 0, "maximum": 255},
+                  "a": {"type": "integer", "minimum": 0, "maximum": 255}
+                },
+                "required": ["r", "g", "b", "a"],
                 "additionalProperties": false
               }
             }

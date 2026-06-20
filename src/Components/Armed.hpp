@@ -13,12 +13,13 @@ class Armed
 public:
   enum class EpiCenter { YES, NO };
 
-  Armed( sf::Time fuse_delay, sf::Time warning_delay, bool display_bomb_sprite, sf::Color armed_color, int index,
+  Armed( sf::Time fuse_delay, sf::Time warning_delay, bool display_bomb_sprite, sf::Color armed_color_border, sf::Color armed_color_fill, int index,
          EpiCenter epicenter = EpiCenter::NO )
       : m_fuse_delay( fuse_delay ),
         m_warning_delay( warning_delay ),
         m_display_bomb_sprite( display_bomb_sprite ),
-        m_armed_color( armed_color ),
+        m_armed_color_border( armed_color_border ),
+        m_armed_color_fill( armed_color_fill ),
         m_index( index ),
         m_epicenter( epicenter )
   {
@@ -29,7 +30,8 @@ public:
   sf::Time m_fuse_delay;
   sf::Time m_warning_delay;
   bool m_display_bomb_sprite;
-  sf::Color m_armed_color;
+  sf::Color m_armed_color_border;
+  sf::Color m_armed_color_fill;
   int m_index;
 
   sf::Time getElapsedFuseTime() const { return m_fuse_delay_clock.getElapsedTime(); }
