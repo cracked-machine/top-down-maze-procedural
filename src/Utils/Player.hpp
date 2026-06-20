@@ -52,6 +52,7 @@ bool is_in_spawn( entt::registry &reg, const Cmp::Position &player_pos_cmp );
 Cmp::PlayerCadaverCount &get_cadaver_count( entt::registry &reg );
 Cmp::TorchRadius &get_torch_radius( entt::registry &reg );
 Cmp::PlayerStats &get_player_stats( entt::registry &reg );
+sf::Clock &get_global_bomb_flash_clk( entt::registry &reg );
 
 } // namespace Game::Utils::Player
 

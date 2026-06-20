@@ -267,4 +267,14 @@ Cmp::PlayerStats &get_player_stats( entt::registry &reg )
   throw std::runtime_error( "Player entt has no component: Cmp::PlayerStats" );
 }
 
+sf::Clock &get_global_bomb_flash_clk( entt::registry &reg )
+{
+  auto player_view = reg.view<Cmp::PlayerCharacter>();
+  for ( auto [entt, player_cmp] : player_view.each() )
+  {
+    return player_cmp.m_global_bomb_flash_clk;
+  }
+  throw std::runtime_error( "Player entt has no component: Cmp::PlayerCharacter" );
+}
+
 } // namespace Game::Utils::Player

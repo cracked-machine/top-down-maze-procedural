@@ -20,7 +20,8 @@ public:
   PlayerCharacter( const PlayerCharacter &other )
       : has_active_bomb( other.has_active_bomb ),
         underwater( other.underwater ),
-        m_damage_cooldown_timer() // Reset clocks on copy
+        m_damage_cooldown_timer(),
+        m_global_bomb_flash_clk() // Reset clocks on copy
   {
   }
 
@@ -33,12 +34,15 @@ public:
       has_active_bomb = other.has_active_bomb;
       underwater = other.underwater;
       m_damage_cooldown_timer.restart();
+      m_global_bomb_flash_clk.reset();
     }
     return *this;
   }
 
   // Default constructor
   PlayerCharacter() = default;
+
+  sf::Clock m_global_bomb_flash_clk;
 };
 
 } // namespace Game::Cmp

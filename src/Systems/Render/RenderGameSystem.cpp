@@ -156,6 +156,27 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
       {
         render_overlay_sys.render_wear_level( reg().get<Cmp::InventoryWearLevel>( entity ).m_level, pos_cmp );
       }
+
+      if ( reg().any_of<Cmp::Armed>( entity ) )
+      {
+        const auto &armed_cmp = reg().get<Cmp::Armed>( entity );
+        sf::RectangleShape temp_square( Constants::kGridSizePxF );
+        temp_square.setPosition( pos_cmp.position );
+        temp_square.setOutlineColor( sf::Color::Transparent );
+        temp_square.setFillColor( sf::Color::Transparent );
+        if ( armed_cmp.getElapsedWarningTime() > armed_cmp.m_warning_delay )
+        {
+          const auto &flash_clk = Utils::Player::get_global_bomb_flash_clk( reg() );
+          const bool flash_on = ( flash_clk.getElapsedTime().asMilliseconds() / 500 ) % 2 == 0;
+          if ( flash_on )
+          {
+            temp_square.setOutlineColor( armed_cmp.m_armed_color_border );
+            temp_square.setFillColor( armed_cmp.m_armed_color_fill );
+          }
+        }
+        temp_square.setOutlineThickness( 1.f );
+        draw_world( temp_square );
+      }
     }
     else if ( reg().all_of<ShaderSpriteOwner>( entity ) )
     {
@@ -201,7 +222,6 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   }
 
   // finally render anything on top
-  render_armed();
   render_shockwaves();
   render_arrow_compass();
 
@@ -372,28 +392,6 @@ void RenderGameSystem::update_camera( sf::Time deltaTime )
   // Update the view center
   sf::Vector2f view_center = m_camera_position + ( target_pos.size / 2.f );
   s_world_view.setCenter( view_center );
-}
-
-void RenderGameSystem::render_armed()
-{
-  // render armed obstacles with debug outlines
-  auto armed_view = reg().view<Cmp::Armed, Cmp::Position>();
-  for ( auto [entity, armed_cmp, pos_cmp] : armed_view.each() )
-  {
-    if ( armed_cmp.m_display_bomb_sprite ) { safe_render_sprite_world( "sprite.item.bomb", pos_cmp, 0 ); }
-
-    sf::RectangleShape temp_square( Constants::kGridSizePxF );
-    temp_square.setPosition( pos_cmp.position );
-    temp_square.setOutlineColor( sf::Color::Transparent );
-    temp_square.setFillColor( sf::Color::Transparent );
-    if ( armed_cmp.getElapsedWarningTime() > armed_cmp.m_warning_delay )
-    {
-      temp_square.setOutlineColor( armed_cmp.m_armed_color_border );
-      temp_square.setFillColor( armed_cmp.m_armed_color_fill );
-    }
-    temp_square.setOutlineThickness( 1.f );
-    draw_world( temp_square );
-  }
 }
 
 void RenderGameSystem::render_shockwaves()

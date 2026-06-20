@@ -510,6 +510,7 @@ void RenderOverlaySystem::render_ui_zorder_list( std::vector<ZOrder> &zorder_que
 
   // clang-format off
   std::set<Sprites::SpriteMetaType> exclusions = {
+      "sprite.graveyard.wall.ext",
       "sprite.graveyard.wall.int.main",
       "sprite.graveyard.wall.int.cap",
       "sprite.ruin.wall.int",

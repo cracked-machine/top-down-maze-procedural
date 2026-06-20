@@ -80,7 +80,6 @@ private:
   bool m_camera_initialized{ false };
 
   //! @brief Renders the armed obstacles in the game world
-  void render_armed();
 
   //! @brief Used by CryptScene for Priest NPC weapon
   //! @param floormap

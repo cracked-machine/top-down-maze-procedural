@@ -1766,7 +1766,6 @@
         {
          "draworder":"topdown",
          "id":9,
-         "locked":true,
          "name":"multiblock",
          "objects":[
                 {
@@ -1844,7 +1843,7 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":752,
+                 "x":768,
                  "y":768
                 }, 
                 {
@@ -1871,7 +1870,7 @@
                  "visible":true,
                  "width":0,
                  "x":752,
-                 "y":800
+                 "y":816
                 }, 
                 {
                  "height":0,
@@ -1883,7 +1882,7 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":752,
+                 "x":784,
                  "y":816
                 }, 
                 {
@@ -1896,7 +1895,7 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":832,
+                 "x":816,
                  "y":752
                 }, 
                 {
@@ -1909,7 +1908,7 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":832,
+                 "x":800,
                  "y":768
                 }, 
                 {
@@ -1922,7 +1921,7 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":832,
+                 "x":816,
                  "y":784
                 }, 
                 {
@@ -1935,7 +1934,7 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":832,
+                 "x":816,
                  "y":816
                 }, 
                 {
@@ -1953,7 +1952,7 @@
                 }],
          "opacity":1,
          "type":"objectgroup",
-         "visible":false,
+         "visible":true,
          "x":0,
          "y":0
         }],

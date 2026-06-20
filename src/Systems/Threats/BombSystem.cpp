@@ -42,6 +42,7 @@
 #include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
 
+#include <algorithm>
 #include <optional>
 #include <spdlog/spdlog.h>
 
@@ -139,7 +140,7 @@ void BombSystem::arm_player_bomb()
       reg().emplace<Cmp::Position>( armed_epicenter_entity, destructable_pos_cmp.position, destructable_pos_cmp.size );
       place_concentric_bomb_pattern( armed_epicenter_entity, reg().get<Cmp::PlayerBlastRadius>( player_entt ).value );
       Factory::destroy_inventory( reg(), "sprite.item.bomb" );
-      // remove the used bomb carry item from the player inventory - Factory::createArmed drops a new bomb
+      Utils::Player::get_global_bomb_flash_clk( reg() ).restart();
     }
   }
 }
@@ -189,14 +190,14 @@ void BombSystem::place_concentric_bomb_pattern( const entt::entity &epicenter_en
         {
           SPDLOG_DEBUG( "Arming loot container entity {}", static_cast<int>( destructable_entity ) );
         }
-        layer_entities.push_back( { destructable_entity, grid_position } );
+        layer_entities.emplace_back( destructable_entity, grid_position );
       }
     }
     SPDLOG_DEBUG( "Layer {}: Found {} entities to arm", layer, layer_entities.size() );
 
     // clang-format off
     // Sort entities in clockwise order
-    std::sort( layer_entities.begin(), layer_entities.end(),
+    std::ranges::sort( layer_entities,
       [centerTile]( const auto &a, const auto &b )
       {
         // Calculate angles from center to points
@@ -386,6 +387,9 @@ void BombSystem::update()
     // Replace the armed position with a detonated sprite for visual effect - make sure its z-order is furthest back
     Factory::add_detonated( reg(), armed_entt, armed_pos_cmp );
   }
+
+  auto remaining_armed_view = reg().view<Cmp::Armed>();
+  if ( remaining_armed_view->empty() ) { Utils::Player::get_global_bomb_flash_clk( reg() ).reset(); }
 }
 
 } // namespace Game::Sys
