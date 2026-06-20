@@ -33,7 +33,7 @@ const vec3 TORCH_COLOR = WARM_ORANGE;
 const vec3 NIGHT_COLOR = vec3( 0.1, 0.1, 0.44 );
 
 const float TORCH_ALPHA = 0.25;
-const float NIGHT_ALPHA = 0.90;
+const float NIGHT_ALPHA = 0.80;
 
 // The max frequency of the torchlight flicker
 const float TORCH_EDGE_FLICKER_FREQ = 2.0;
@@ -42,7 +42,7 @@ const float TORCH_EDGE_FLICKER_PERCENT = 0.1;
 // Transition band width inside/outside of radius
 
 // depth of night static color
-const float NIGHT_STATIC_CONTRAST = 10.0;
+const float NIGHT_STATIC_CONTRAST = 20.0;
 
 // // NPC lighting
 // uniform int npc_count;
