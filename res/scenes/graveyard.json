@@ -1830,8 +1830,8 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":752,
-                 "y":752
+                 "x":800,
+                 "y":768
                 }, 
                 {
                  "height":0,
@@ -1845,97 +1845,6 @@
                  "width":0,
                  "x":768,
                  "y":768
-                }, 
-                {
-                 "height":0,
-                 "id":261,
-                 "name":"item.seeingstone",
-                 "opacity":1,
-                 "point":true,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":752,
-                 "y":784
-                }, 
-                {
-                 "height":0,
-                 "id":262,
-                 "name":"item.cryptkey",
-                 "opacity":1,
-                 "point":true,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":752,
-                 "y":816
-                }, 
-                {
-                 "height":0,
-                 "id":263,
-                 "name":"item.exitkey",
-                 "opacity":1,
-                 "point":true,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":784,
-                 "y":816
-                }, 
-                {
-                 "height":0,
-                 "id":264,
-                 "name":"item.relic1",
-                 "opacity":1,
-                 "point":true,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":816,
-                 "y":752
-                }, 
-                {
-                 "height":0,
-                 "id":265,
-                 "name":"item.relic2",
-                 "opacity":1,
-                 "point":true,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":800,
-                 "y":768
-                }, 
-                {
-                 "height":0,
-                 "id":266,
-                 "name":"item.relic3",
-                 "opacity":1,
-                 "point":true,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":816,
-                 "y":784
-                }, 
-                {
-                 "height":0,
-                 "id":267,
-                 "name":"item.relic4",
-                 "opacity":1,
-                 "point":true,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":816,
-                 "y":816
                 }, 
                 {
                  "height":0,

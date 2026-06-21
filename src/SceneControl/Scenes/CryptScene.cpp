@@ -12,6 +12,7 @@
 #include <Factory/ShaderFactory.hpp>
 #include <Inventory/PlayerInventorySlot.hpp>
 #include <Inventory/WorldItem.hpp>
+#include <Persistent/CryptShuffleTimeout.hpp>
 #include <Player/PlayerNoPath.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
@@ -103,7 +104,8 @@ void CryptScene::on_enter()
   player_pos.position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
 
   m_sys.find<Sys::Store::Type::CryptSystem>().setup();
-  get_maze_timer().restart();
+  const auto kCryptShuffleTimeout = Sys::PersistSystem::get<Cmp::Persist::CryptShuffleTimeout>( m_reg ).get_value();
+  Crypt::Factory::create_crypt_shuffle_timer( m_reg, kCryptShuffleTimeout );
 
   // prevent the player from wandering off before the scene has loaded
   auto &player_dir = Utils::Player::get_direction( m_reg );
@@ -114,7 +116,7 @@ void CryptScene::on_exit()
 {
   // Cleanup any resources or entities specific to the CryptScene
   SPDLOG_INFO( "Exiting {}", get_name() );
-  get_maze_timer().reset();
+  Crypt::Factory::destroy_crypt_shuffle_timer( m_reg );
 
   // Hide the sudden position update/camera pan behind a forced loading screen.
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
@@ -154,7 +156,5 @@ void CryptScene::reinit_navmesh()
 }
 
 entt::registry &CryptScene::registry() { return m_reg; }
-
-sf::Clock CryptScene::s_maze_timer;
 
 } // namespace Game::Scene

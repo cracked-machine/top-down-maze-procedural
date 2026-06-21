@@ -89,6 +89,14 @@
     "detail": "NPC Crypt Spawn Count",
     "format": "%d"
   },
+  "CryptShuffleTimeout": {
+    "type": "float",
+    "value": 20.0,
+    "min_value": 10.0,
+    "max_value": 40.0,
+    "detail": "Crypt Shuffke Timeout",
+    "format": "%.1f"
+  },
   "DiggingCooldownThreshold":{
     "type": "float",
     "value": 0.4,
@@ -202,7 +210,7 @@
   },
   "MusicVolume": {
     "type": "float",
-    "value": 0.0,
+    "value": 100.0,
     "min_value": 0.0,
     "max_value": 100.0,
     "detail": "Music Volume",
@@ -323,7 +331,7 @@
   },
   "PlayerMovementSpeed": {
     "type": "float",
-    "value": 100.0,
+    "value": 75.0,
     "min_value": 1.0,
     "max_value": 120.0,
     "detail": "Player Movement Speed",

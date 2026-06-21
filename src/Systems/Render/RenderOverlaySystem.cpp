@@ -22,6 +22,7 @@
 #include <Crypt/CryptPassageDoor.hpp>
 #include <Crypt/CryptRoomLavaPit.hpp>
 #include <Crypt/CryptRoomLavaPitCell.hpp>
+#include <Crypt/CryptShuffleTimer.hpp>
 #include <Exit.hpp>
 #include <FootStepTimer.hpp>
 #include <Inventory/FlashUICadaver.hpp>
@@ -34,6 +35,7 @@
 #include <Npc/NpcNoPathFinding.hpp>
 #include <PathFinding/AStar.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
+#include <Persistent/CryptShuffleTimeout.hpp>
 #include <Player/PlayerNoPath.hpp>
 #include <ReservedPosition.hpp>
 #include <Ruin/RuinCobweb.hpp>
@@ -777,18 +779,22 @@ void RenderOverlaySystem::render_ui_entity_inspect()
 
 void RenderOverlaySystem::render_crypt_maze_timer( sf::Vector2f pos, unsigned int size )
 {
-  auto &clock = Scene::CryptScene::get_maze_timer();
-  if ( clock.isRunning() )
+  const auto kCryptShuffleTimeout = Sys::PersistSystem::get<Cmp::Persist::CryptShuffleTimeout>( reg() ).get_value();
+
+  for ( auto [timer_entt, timer_cmp] : reg().view<Cmp::CryptShuffleTimer>().each() )
   {
-    sf::Text clock_text( m_font, "", size );
-    std::stringstream ss;
-    ss << std::fixed << std::setprecision( 1 ) << 10.f - clock.getElapsedTime().asSeconds();
-    clock_text.setString( ss.str() );
-    clock_text.setPosition( { pos.x - ( clock_text.getLocalBounds().size.x / 2 ), pos.y } );
-    clock_text.setFillColor( sf::Color::Red );
-    clock_text.setOutlineColor( sf::Color::Black );
-    clock_text.setOutlineThickness( 2.f );
-    draw_screen( clock_text );
+    if ( timer_cmp.isRunning() )
+    {
+      sf::Text clock_text( m_font, "", size );
+      std::stringstream ss;
+      ss << std::fixed << std::setprecision( 1 ) << kCryptShuffleTimeout - timer_cmp.getElapsedTime().asSeconds();
+      clock_text.setString( ss.str() );
+      clock_text.setPosition( { pos.x - ( clock_text.getLocalBounds().size.x / 2 ), pos.y } );
+      clock_text.setFillColor( sf::Color::Red );
+      clock_text.setOutlineColor( sf::Color::Black );
+      clock_text.setOutlineThickness( 2.f );
+      draw_screen( clock_text );
+    }
   }
 }
 

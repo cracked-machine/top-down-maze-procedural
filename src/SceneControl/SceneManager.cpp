@@ -2,6 +2,7 @@
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/Ruin/RuinObjectiveType.hpp>
+#include <Factory/CryptFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
 #include <SceneControl/IScene.hpp>
 #include <SceneControl/RegistryTransfer.hpp>
@@ -33,9 +34,6 @@ SceneManager::SceneManager( sf::RenderWindow &w, Audio::SoundBank &sound_bank, S
       m_sprite_factory( sprite_factory )
 {
   m_scenemanager_event_dispatcher.sink<Events::SceneManagerEvent>().connect<&SceneManager::handle_events>( this );
-
-  // clock is only displayed when running and we only want it displayed when in CryptScene
-  CryptScene::get_maze_timer().stop();
 }
 
 void SceneManager::update( sf::Time dt )

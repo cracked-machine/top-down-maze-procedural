@@ -20,7 +20,7 @@ class SpriteFactory;
 
 #include <entt/entity/fwd.hpp>
 
-namespace Game::Factory
+namespace Game::Crypt::Factory
 {
 
 entt::entity create_crypt_exit( entt::registry &reg, sf::Vector2f spawn_pos_px );
@@ -36,6 +36,9 @@ void add_spike_trap( entt::registry &reg, const entt::entity entt, const int pas
 entt::entity create_crypt_chest( entt::registry &reg, sf::Vector2f pos, Sprites::SpriteMetaType sprite_type, unsigned int sprite_idx, float zorder );
 void destroy_crypt_chest( entt::registry &reg, entt::entity entt );
 
-} // namespace Game::Factory
+void create_crypt_shuffle_timer( entt::registry &reg, float threshold );
+void destroy_crypt_shuffle_timer( entt::registry &reg );
+
+} // namespace Game::Crypt::Factory
 
 #endif // SRC_FACTORY_CRYPTFACTORY_HPP__

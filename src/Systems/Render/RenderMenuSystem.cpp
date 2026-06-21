@@ -55,6 +55,7 @@
 #include <Components/Player/PlayerWealth.hpp>
 #include <Persistent/ArmedBlockColourBorder.hpp>
 #include <Persistent/ArmedBlockColourFill.hpp>
+#include <Persistent/CryptShuffleTimeout.hpp>
 #include <Shaders/BaseShaderSprite.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
@@ -222,6 +223,7 @@ void RenderMenuSystem::render_settings_widgets( sf::Time dt, sf::FloatRect title
     Sys::PersistSystem::get<Cmp::Persist::CorruptionSeed>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::SinkholeSeed>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::RuinMaxCobwebs>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::CryptShuffleTimeout>( reg() ).render_widget();
 
     // Loot Settings
     ImGui::SeparatorText( "Loot Settings" );

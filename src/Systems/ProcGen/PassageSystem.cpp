@@ -23,9 +23,9 @@
 #include <Utils/Maths.hpp>
 #include <Utils/Player.hpp>
 
+#include <map>
 #include <spdlog/spdlog.h>
 #include <stdexcept>
-#include <map>
 
 namespace Game::Sys
 {
@@ -106,7 +106,7 @@ void PassageSystem::add_spike_traps()
   {
     if ( passage_ids_used.contains( static_cast<int>( pblock_cmp.m_passage_id ) ) ) continue;
     passage_ids_used.insert( static_cast<int>( pblock_cmp.m_passage_id ) );
-    Factory::add_spike_trap( reg(), pblock_entt, static_cast<int>( pblock_cmp.m_passage_id ) );
+    Crypt::Factory::add_spike_trap( reg(), pblock_entt, static_cast<int>( pblock_cmp.m_passage_id ) );
   }
 }
 
@@ -255,7 +255,11 @@ void PassageSystem::cache_all_room_connections()
   entt::entity bfs_root = entt::null;
   for ( auto [closed_room_entt, closed_room_cmp] : reg().view<Cmp::CryptRoomClosed>().each() )
   {
-    if ( closed_room_cmp.are_all_doors_used() ) { bfs_root = closed_room_entt; break; }
+    if ( closed_room_cmp.are_all_doors_used() )
+    {
+      bfs_root = closed_room_entt;
+      break;
+    }
   }
 
   std::vector<Cmp::CryptPassageDirection> directions = { Cmp::CryptPassageDirection::WEST, Cmp::CryptPassageDirection::EAST,
@@ -294,8 +298,8 @@ void PassageSystem::cache_all_room_connections()
         auto *target_cmp = reg().try_get<Cmp::CryptRoomClosed>( target_entt );
         if ( not target_cmp ) continue;
 
-        auto passage_list = m_passage_algos.create_drunken_walk( reg(), closed_room_cmp.m_connectors[direction], *target_cmp,
-                                                                  map_size_pixel, { target_entt }, ProcGen::AllowDuplicatePassages::NO );
+        auto passage_list = m_passage_algos.create_drunken_walk( reg(), closed_room_cmp.m_connectors[direction], *target_cmp, map_size_pixel,
+                                                                 { target_entt }, ProcGen::AllowDuplicatePassages::NO );
         if ( not passage_list.empty() )
         {
           target_cmp->set_all_doors_used( true );
@@ -332,8 +336,7 @@ void PassageSystem::cache_all_room_connections()
   std::vector<entt::entity> isolated_rooms;
   for ( auto [closed_room_entt, closed_room_cmp] : reg().view<Cmp::CryptRoomClosed>().each() )
   {
-    if ( not reachable.contains( closed_room_entt ) )
-      isolated_rooms.push_back( closed_room_entt );
+    if ( not reachable.contains( closed_room_entt ) ) isolated_rooms.push_back( closed_room_entt );
   }
 
   if ( not isolated_rooms.empty() )
@@ -368,7 +371,12 @@ void PassageSystem::cache_all_room_connections()
         auto passage_blocks = find_passages<Cmp::CryptRoomClosed>( isolated_cmp->m_connectors[direction], dist, ProcGen::WalkingType::DRUNK,
                                                                    map_size_pixel, ProcGen::OnePassagePerTargetRoom::NO,
                                                                    ProcGen::AllowDuplicatePassages::NO );
-        if ( not passage_blocks.empty() ) { cache_blocks( passage_blocks ); connected = true; break; }
+        if ( not passage_blocks.empty() )
+        {
+          cache_blocks( passage_blocks );
+          connected = true;
+          break;
+        }
 
         // Drunken walk can fail for edge rooms (initial orthogonal steps exit map bounds).
         // Dog-leg has no such constraint and creates a deterministic L-shaped path.
@@ -376,7 +384,12 @@ void PassageSystem::cache_all_room_connections()
         passage_blocks = find_passages<Cmp::CryptRoomClosed>( isolated_cmp->m_connectors[direction], dist, ProcGen::WalkingType::DOGLEG,
                                                               map_size_pixel, ProcGen::OnePassagePerTargetRoom::NO,
                                                               ProcGen::AllowDuplicatePassages::NO );
-        if ( not passage_blocks.empty() ) { cache_blocks( passage_blocks ); connected = true; break; }
+        if ( not passage_blocks.empty() )
+        {
+          cache_blocks( passage_blocks );
+          connected = true;
+          break;
+        }
       }
       if ( connected )
       {
@@ -596,7 +609,7 @@ void PassageSystem::empty_open_passages()
   }
   for ( auto &[entt, pos_cmp] : chests_to_remove )
   {
-    Factory::destroy_crypt_chest( reg(), entt );
+    Crypt::Factory::destroy_crypt_chest( reg(), entt );
     pathfinding_navmesh->insert( entt, pos_cmp );
   }
 }

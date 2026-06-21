@@ -1,5 +1,6 @@
 
 
+#include <Persistent/CryptShuffleTimeout.hpp>
 #define JSON_NOEXCEPTION
 #include <fstream>
 #include <nlohmann/json.hpp>
@@ -103,6 +104,7 @@ void PersistSystem::initialize_type_registry()
   register_type.operator()<BombDamage>("BombDamage");
   register_type.operator()<CameraSmoothSpeed>("CameraSmoothSpeed");
   register_type.operator()<CorruptionDamage>("CorruptionDamage");
+  register_type.operator()<CryptShuffleTimeout>("CryptShuffleTimeout");
   register_type.operator()<CryptNpcSpawnCount>("CryptNpcSpawnCount");
   register_type.operator()<DiggingCooldownThreshold>("DiggingCooldownThreshold");
   register_type.operator()<DiggingDamagePerHit>("DiggingDamagePerHit");

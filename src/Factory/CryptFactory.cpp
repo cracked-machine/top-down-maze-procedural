@@ -17,6 +17,7 @@
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Crypt/CryptShuffleTimer.hpp>
 #include <Exit.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Factory/MultiblockFactory.hpp>
@@ -27,7 +28,7 @@
 #include <Utils/Constants.hpp>
 #include <Utils/Random.hpp>
 
-namespace Game::Factory
+namespace Game::Crypt::Factory
 {
 
 entt::entity create_crypt_exit( entt::registry &reg, sf::Vector2f spawn_pos_px )
@@ -163,6 +164,18 @@ void add_spike_trap( entt::registry &reg, const entt::entity entt, const int pas
   //clang-format on
   reg.emplace_or_replace<Cmp::ZOrderValue>( spike_entt, position.y - 16.f ); // always behind player
   reg.emplace_or_replace<Cmp::CryptPassageSpikeTrap>( spike_entt, position, passage_id );
+}
+
+void create_crypt_shuffle_timer( entt::registry &reg, float threshold )
+{
+  auto entt = reg.create();
+  reg.emplace_or_replace<Cmp::CryptShuffleTimer>(entt, sf::seconds(threshold));
+}
+
+void destroy_crypt_shuffle_timer( entt::registry &reg )
+{
+  auto timer_view  = reg.view<Cmp::CryptShuffleTimer>();
+  if( not timer_view.empty() ) reg.destroy( timer_view.front());
 }
 
 } // namespace Game::Factory

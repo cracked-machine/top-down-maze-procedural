@@ -1,12 +1,13 @@
+#include <Components/Npc/Npc.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
-#include <Constants.hpp>
-#include <Npc/Npc.hpp>
 #include <PathFinding/AStar.hpp>
-#include <Player/PlayerCharacter.hpp>
 #include <SpatialHashGrid.hpp>
+#include <Utils/Constants.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Npc.hpp>
+
 #include <algorithm>
 #include <unordered_map>
 
@@ -37,7 +38,7 @@ std::vector<PathNode> astar( entt::registry &reg, const PathFinding::SpatialHash
     if ( ++nodesExpanded > kMaxNodes ) break; // goal unreachable, don't exhaust search space
 
     // Find PathNode with smallest f
-    auto currentIt = std::min_element( openList.begin(), openList.end(), []( const PathNode &a, const PathNode &b ) { return a.f() < b.f(); } );
+    auto currentIt = std::ranges::min_element( openList, []( const PathNode &a, const PathNode &b ) { return a.f() < b.f(); } );
     PathNode current = *currentIt;
     openList.erase( currentIt );
     closedList.emplace( current.pos, current );

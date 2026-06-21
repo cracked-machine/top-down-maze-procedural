@@ -59,16 +59,17 @@
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Stores/NpcStore.hpp>
+#include <Utils/Crypt.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
 #include <VoidPosition.hpp>
-#include <entt/entity/fwd.hpp>
 
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <entt/entity/fwd.hpp>
 #include <stdexcept>
 
 namespace Game::Sys
@@ -88,7 +89,7 @@ void CryptSystem::update()
 
   check_exit_collision();
 
-  if ( not m_maze_unlocked and Scene::CryptScene::is_maze_timer_expired() )
+  if ( not m_maze_unlocked and Crypt::Utils::is_crypt_shuffle_timer_expired( reg() ) )
   {
     //
     shuffle_rooms_passages();
@@ -144,7 +145,7 @@ void CryptSystem::shuffle_rooms_passages()
   add_lever_to_open_rooms();
 
   m_sound_bank.get_effect( "crypt_room_shuffle" ).play();
-  Scene::CryptScene::get_maze_timer().restart();
+  Crypt::Utils::restart_crypt_shuffle_timer( reg() );
 }
 
 void CryptSystem::unlock_objective_passage()
@@ -182,7 +183,7 @@ void CryptSystem::unlock_exit_passage()
   auto player_pos_cmp = Utils::Player::get_position( reg() );
 
   // if we unlocked the maze by picking up the cadaver, then cancel the timer
-  Scene::CryptScene::get_maze_timer().reset();
+  Crypt::Utils::stop_crypt_shuffle_timer( reg() );
   m_maze_unlocked = true;
 
   close_open_rooms( player_pos_cmp );
@@ -418,7 +419,7 @@ void CryptSystem::check_lever_activation()
         m_maze_unlocked = true;
 
         unlock_objective_passage();
-        Scene::CryptScene::get_maze_timer().reset();
+        Crypt::Utils::stop_crypt_shuffle_timer( reg() );
       }
       else { shuffle_rooms_passages(); }
     }
@@ -830,7 +831,7 @@ void CryptSystem::add_lava_pit_open_rooms( const Cmp::Position &player_pos_cmp )
   for ( auto [open_room_entt, open_room_cmp] : open_room_view.each() )
   {
     if ( open_room_cmp.findIntersection( player_pos_cmp ) ) continue; // skip occupied rooms
-    Factory::create_crypt_lava_pit( reg(), open_room_cmp, pathfinding_navmesh );
+    Crypt::Factory::create_crypt_lava_pit( reg(), open_room_cmp, pathfinding_navmesh );
   }
 }
 
@@ -888,7 +889,7 @@ void CryptSystem::remove_lava_pit_open_rooms( const Cmp::Position &player_pos_cm
       if ( not open_room_cmp.findIntersection( lava_pit_cmp ) ) continue;
       if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock() )
       {
-        Factory::destroy_crypt_lava_pit( reg(), lava_pit_entt, pathfinding_navmesh );
+        Crypt::Factory::destroy_crypt_lava_pit( reg(), lava_pit_entt, pathfinding_navmesh );
       }
     }
   }
@@ -902,7 +903,7 @@ void CryptSystem::check_lava_pit_collision()
   for ( auto [lava_cell_entt, lava_cell_cmp] : reg().view<Cmp::CryptRoomLavaPitCell>().each() )
   {
     if ( not player_hitbox.findIntersection( lava_cell_cmp ) ) continue;
-    Scene::CryptScene::stop_maze_timer();
+    Crypt::Utils::stop_crypt_shuffle_timer( reg() );
     get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::IGNITED, lava_cell_cmp ) );
   }
 }
@@ -958,7 +959,7 @@ void CryptSystem::check_spike_trap_collision()
 
     Cmp::Position spike_trap_hitbox( spike_trap_cmp, Constants::kGridSizePxF );
     if ( not player_hitbox.findIntersection( spike_trap_hitbox ) ) continue;
-    Scene::CryptScene::stop_maze_timer();
+    Crypt::Utils::stop_crypt_shuffle_timer( reg() );
     get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SKEWERED, spike_trap_hitbox ) );
   }
 }
@@ -1088,7 +1089,7 @@ void CryptSystem::add_chest_to_open_rooms( const Cmp::Position &player_pos_cmp )
       float zorder = selected_pos.y() + m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.chest" ).get_zorder( 0 );
 
       Factory::remove_obstacle( reg(), selected_entt, true );
-      Factory::create_crypt_chest( reg(), selected_pos.position, "sprite.crypt.chest", 0, zorder );
+      Crypt::Factory::create_crypt_chest( reg(), selected_pos.position, "sprite.crypt.chest", 0, zorder );
       SPDLOG_DEBUG( "Added chest to position: {},{}", selected_pos.position.x, selected_pos.position.y );
     }
   }
@@ -1105,7 +1106,7 @@ void CryptSystem::add_lever_to_open_rooms()
   Cmp::RandomInt room_position_picker( 0, static_cast<int>( internal_room_entts.size() ) - 1 );
   auto selected_entt = internal_room_entts[room_position_picker.gen()];
   auto room_pos = reg().get<Cmp::Position>( selected_entt );
-  Factory::create_crypt_lever( reg(), room_pos.position, lever_sprite_type, disabled_lever_sprite_idx, zorder );
+  Crypt::Factory::create_crypt_lever( reg(), room_pos.position, lever_sprite_type, disabled_lever_sprite_idx, zorder );
   SPDLOG_DEBUG( "Added lever to position: {},{}", room_pos.position.x, room_pos.position.y );
 }
 
@@ -1118,7 +1119,7 @@ void CryptSystem::remove_lever_open_rooms( const Cmp::Position &player_pos_cmp )
       if ( not open_room_cmp.findIntersection( lever_pos_cmp ) ) continue;
       if ( open_room_cmp.findIntersection( player_pos_cmp ) ) continue;
 
-      Factory::destroy_crypt_lever( reg(), lever_entt );
+      Crypt::Factory::destroy_crypt_lever( reg(), lever_entt );
     }
   }
 }
@@ -1147,7 +1148,7 @@ void CryptSystem::remove_chest_open_rooms( const Cmp::Position &player_pos_cmp )
       }
     }
 
-    if ( not player_in_same_room ) { Factory::destroy_crypt_chest( reg(), chest_entt ); }
+    if ( not player_in_same_room ) { Crypt::Factory::destroy_crypt_chest( reg(), chest_entt ); }
   }
 }
 
@@ -1156,7 +1157,7 @@ void CryptSystem::remove_all_levers()
   for ( auto [lever_entt, lever_cmp, lever_pos_cmp] : reg().view<Cmp::CryptLever, Cmp::Position>().each() )
 
   {
-    Factory::destroy_crypt_lever( reg(), lever_entt );
+    Crypt::Factory::destroy_crypt_lever( reg(), lever_entt );
   }
 }
 
@@ -1164,7 +1165,7 @@ void CryptSystem::remove_all_chests()
 {
   for ( auto [chest_entt, chest_cmp, chest_pos_cmp] : reg().view<Cmp::CryptChest, Cmp::Position>().each() )
   {
-    Factory::destroy_crypt_chest( reg(), chest_entt );
+    Crypt::Factory::destroy_crypt_chest( reg(), chest_entt );
   }
 }
 

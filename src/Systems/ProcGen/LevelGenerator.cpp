@@ -116,7 +116,7 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
       auto entity = Factory::create_world_pos( reg(), new_pos );
       Factory::add_spawn_area( reg(), entity, m_sprite_factory, new_pos.y - 16.0f );
     }
-    else if ( tile == scene_data.exit_tile_id() ) { Factory::create_crypt_exit( reg(), new_pos ); }
+    else if ( tile == scene_data.exit_tile_id() ) { Crypt::Factory::create_crypt_exit( reg(), new_pos ); }
     else if ( tile == scene_data.reserved_tile_id() ) { Factory::add_reservedposition( reg(), new_pos ); }
   }
 
