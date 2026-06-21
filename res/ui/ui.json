@@ -8,7 +8,7 @@
          "name":"overlay",
          "objects":[
                 {
-                 "height":360,
+                 "height":380,
                  "id":1,
                  "name":"status_outline",
                  "opacity":1,
@@ -114,7 +114,7 @@
                  "visible":true,
                  "width":0,
                  "x":50,
-                 "y":250
+                 "y":290
                 }, 
                 {
                  "height":0,
@@ -143,7 +143,7 @@
                  "visible":true,
                  "width":0,
                  "x":50,
-                 "y":290
+                 "y":330
                 }, 
                 {
                  "height":0,
@@ -172,7 +172,7 @@
                  "visible":true,
                  "width":0,
                  "x":50,
-                 "y":330
+                 "y":370
                 }, 
                 {
                  "height":0,
@@ -196,7 +196,7 @@
                  "visible":true,
                  "width":0,
                  "x":120,
-                 "y":250
+                 "y":290
                 }, 
                 {
                  "height":0,
@@ -220,7 +220,7 @@
                  "visible":true,
                  "width":0,
                  "x":120,
-                 "y":290
+                 "y":330
                 }, 
                 {
                  "height":0,
@@ -244,7 +244,7 @@
                  "visible":true,
                  "width":0,
                  "x":120,
-                 "y":330
+                 "y":370
                 }, 
                 {
                  "height":20,
@@ -430,6 +430,42 @@
                  "width":0,
                  "x":40,
                  "y":130
+                }, 
+                {
+                 "height":20,
+                 "id":32,
+                 "name":"toxicity_meter",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"ui_meter",
+                 "visible":true,
+                 "width":150,
+                 "x":140,
+                 "y":240
+                }, 
+                {
+                 "height":0,
+                 "id":33,
+                 "name":"toxicity_txt",
+                 "opacity":1,
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"font_size",
+                         "type":"int",
+                         "value":30
+                        }, 
+                        {
+                         "name":"value",
+                         "type":"string",
+                         "value":"toxicity"
+                        }],
+                 "rotation":0,
+                 "type":"ui_text",
+                 "visible":true,
+                 "width":0,
+                 "x":40,
+                 "y":230
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -438,7 +474,7 @@
          "y":0
         }],
  "nextlayerid":3,
- "nextobjectid":32,
+ "nextobjectid":34,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.1",

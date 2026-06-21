@@ -144,19 +144,25 @@ void RenderOverlaySystem::render_ui_meters()
     else if ( meter.name == "fear_meter" )
     {
       meter_value = static_cast<float>( Utils::Player::get_player_stats( reg() ).fear() );
-      meter_inner_color = sf::Color::Blue;
+      meter_inner_color = sf::Color::Yellow;
       should_render = true;
     }
     else if ( meter.name == "infamy_meter" )
     {
       meter_value = static_cast<float>( Utils::Player::get_player_stats( reg() ).infamy() );
-      meter_inner_color = sf::Color::Green;
+      meter_inner_color = sf::Color::Magenta;
       should_render = true;
     }
     else if ( meter.name == "despair_meter" )
     {
       meter_value = static_cast<float>( Utils::Player::get_player_stats( reg() ).despair() );
-      meter_inner_color = sf::Color::Yellow;
+      meter_inner_color = sf::Color::Blue;
+      should_render = true;
+    }
+    else if ( meter.name == "toxicity_meter" )
+    {
+      meter_value = static_cast<float>( Utils::Player::get_player_stats( reg() ).toxicity() );
+      meter_inner_color = sf::Color::Green;
       should_render = true;
     }
     else if ( meter.name == "inventory_meter" )
