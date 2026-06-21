@@ -1,7 +1,7 @@
 #include <Components/Crypt/CryptShuffleTimer.hpp>
 #include <Utils/Crypt.hpp>
 
-namespace Game::Crypt::Utils
+namespace Game::Utils::Crypt
 {
 
 void restart_crypt_shuffle_timer( entt::registry &reg )
@@ -29,4 +29,4 @@ bool is_crypt_shuffle_timer_expired( entt::registry &reg )
   return true;
 }
 
-} // namespace Game::Crypt::Utils
+} // namespace Game::Utils::Crypt
