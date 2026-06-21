@@ -1,8 +1,10 @@
+#include <Components/Inventory/PlayerInventorySlot.hpp>
+#include <Components/Particle/ShockWave.hpp>
+#include <Components/Persistent/NpcShockwaveSpeed.hpp>
+#include <Components/Position.hpp>
 #include <Factory/ParticleFactory.hpp>
-#include <Inventory/PlayerInventorySlot.hpp>
-#include <Particle/ShockWave.hpp>
-#include <Persistent/NpcShockwaveSpeed.hpp>
 #include <Systems/PersistSystem.hpp>
+
 #include <entt/entity/fwd.hpp>
 
 namespace Game::Particle::Factory

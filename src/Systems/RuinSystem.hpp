@@ -2,13 +2,11 @@
 #define SRC_SYSTEMS_RUINSYSTEM_HPP_
 
 #include <Components/Ruin/RuinFloorAccess.hpp>
-
-#include <SFML/Graphics/Rect.hpp>
-#include <SpatialHashGrid.hpp>
+#include <Sprites/SpriteMetaType.hpp>
 #include <Systems/BaseSystem.hpp>
 
-#include <Sprites/SpriteMetaType.hpp>
 #include <future>
+
 namespace Game::Sprites
 {
 class SpriteSheet;
@@ -21,6 +19,11 @@ class RuinStairsLowerMultiBlock;
 class RuinStairsUpperMultiBlock;
 class RuinStairsBalustradeMultiBlock;
 } // namespace Game::Cmp
+
+namespace Pathfinding
+{
+class SpatialHashGrid;
+} // namespace Pathfinding
 
 namespace Game::Sys
 {

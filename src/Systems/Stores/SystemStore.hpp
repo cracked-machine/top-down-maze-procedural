@@ -1,10 +1,6 @@
 #ifndef SRC_SYSTEMS_SYSTEMSTORE_HPP_
 #define SRC_SYSTEMS_SYSTEMSTORE_HPP_
 
-#include <Systems/ParticleSystem.hpp>
-#include <Systems/RuinSystem.hpp>
-
-#include <Systems/Threats/LightningSystem.hpp>
 #include <entt/fwd.hpp>
 #include <map>
 #include <memory>
@@ -52,6 +48,8 @@ class SinkHoleHazardSystem;
 class ShaderSystem;
 class ShockwaveSystem;
 class ShopSystem;
+class LightningSystem;
+class RuinSystem;
 class WormholeSystem;
 
 class Store
