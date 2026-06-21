@@ -31,6 +31,7 @@
 
 #include <entt/entity/entity.hpp>
 #include <spdlog/spdlog.h>
+#include <utility>
 
 namespace Game::Factory
 {
@@ -43,7 +44,7 @@ void create_npc_container( entt::registry &reg, entt::entity entt, Cmp::Position
   reg.emplace_or_replace<Cmp::NpcContainer>( entt );
   // clang-format off
   reg.emplace_or_replace<Cmp::AnimData>( entt, Cmp::AnimData::Config{ 
-        .sprite_type = sprite_type, 
+        .sprite_type = std::move(sprite_type), 
         .frame_index_offset = sprite_tile_idx,
         .enabled = true
   });
@@ -108,120 +109,60 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
   reg.emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
   reg.emplace_or_replace<Cmp::Direction>( new_pos_entity, sf::Vector2f{ 0, 0 } );
   reg.emplace_or_replace<Cmp::UUID>( new_pos_entity, Cmp::UUID::generate() );
+  auto npc_cmp = Sys::NpcStore::instance().get_item( npc_type );
+  reg.emplace_or_replace<Cmp::NPC>( new_pos_entity, npc_cmp );
 
-  SPDLOG_DEBUG( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), npc_type, pos_cmp->position.x,
-                pos_cmp->position.y );
+  // clang-format off
+  reg.emplace_or_replace<Cmp::AnimData>( new_pos_entity, Cmp::AnimData::Config{ 
+        .sprite_type = npc_cmp.sprite_type_list.front(), 
+        .framerate = npc_cmp.m_frame_rate,
+        .enabled = true
+  });
+  // clang-format on
+
+  SPDLOG_DEBUG( "Spawned NPC {} ({}) at position ({}, {})", static_cast<int>( new_pos_entity ), npc_type, pos_cmp->position.x, pos_cmp->position.y );
 
   if ( npc_type == "npc.ghost" )
   {
-    auto npc_cmp = Sys::NpcStore::instance().get_item( npc_type );
-    reg.emplace_or_replace<Cmp::NPC>( new_pos_entity, npc_cmp );
-
-    // clang-format off
-    reg.emplace_or_replace<Cmp::AnimData>( new_pos_entity, Cmp::AnimData::Config{ 
-          .sprite_type = npc_cmp.sprite_type_list.front(), 
-          .framerate = npc_cmp.m_frame_rate,
-          .enabled = true
-    });
-    // clang-format on
-
     reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
-
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
   }
   else if ( npc_type == "npc.skeleton" )
   {
-    auto npc_cmp = Sys::NpcStore::instance().get_item( "npc.skeleton" );
-    reg.emplace_or_replace<Cmp::NPC>( new_pos_entity, npc_cmp );
-
-    // clang-format off
-    reg.emplace_or_replace<Cmp::AnimData>( new_pos_entity, Cmp::AnimData::Config{ 
-          .sprite_type = npc_cmp.sprite_type_list.front(), 
-          .framerate = npc_cmp.m_frame_rate,
-          .enabled = true
-    });
-    // clang-format on
-
     reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
-
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
-
     Factory::destroy_npc_container( reg, position_entity );
   }
   else if ( npc_type == "npc.priest" )
   {
-    auto npc_cmp = Sys::NpcStore::instance().get_item( npc_type );
-    reg.emplace_or_replace<Cmp::NPC>( new_pos_entity, npc_cmp );
-
-    // clang-format off
-    reg.emplace_or_replace<Cmp::AnimData>( new_pos_entity, Cmp::AnimData::Config{ 
-          .sprite_type = npc_cmp.sprite_type_list.front(), 
-          .framerate = npc_cmp.m_frame_rate,
-          .enabled = true
-    });
-    // clang-format on
-
     reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
-
     reg.emplace_or_replace<Cmp::NpcShockwaveTimer>( new_pos_entity );
     Factory::create_shockwave( reg, new_pos_entity );
-
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
   }
   else if ( npc_type == "npc.witch" )
   {
-    auto npc_cmp = Sys::NpcStore::instance().get_item( npc_type );
-    reg.emplace_or_replace<Cmp::NPC>( new_pos_entity, npc_cmp );
-
-    // clang-format off
-    reg.emplace_or_replace<Cmp::AnimData>( new_pos_entity, Cmp::AnimData::Config{ 
-          .sprite_type = npc_cmp.sprite_type_list.front(), 
-          .framerate = npc_cmp.m_frame_rate,
-          .enabled = true
-    });
-    // clang-format on
-
     reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
-
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
   }
   else if ( npc_type == "npc.wisp" )
   {
-    auto npc_cmp = Sys::NpcStore::instance().get_item( npc_type );
-    reg.emplace_or_replace<Cmp::NPC>( new_pos_entity, npc_cmp );
-
-    // clang-format off
-    reg.emplace_or_replace<Cmp::AnimData>( new_pos_entity, Cmp::AnimData::Config{ 
-          .sprite_type = npc_cmp.sprite_type_list.front(), 
-          .framerate = npc_cmp.m_frame_rate,
-          .enabled = true
-    });
-    // clang-format on 
-
     reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
     reg.emplace_or_replace<Cmp::Direction>( new_pos_entity, sf::Vector2f{ 1, 1 } );
     reg.emplace_or_replace<Cmp::NpcFriendly>( new_pos_entity );
-
+  }
+  else if ( npc_type == "npc.spider" )
+  {
+    reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
+    reg.emplace_or_replace<Cmp::Direction>( new_pos_entity, sf::Vector2f{ 1, 1 } );
   }
   else if ( npc_type == "npc.drknox" )
   {
-    auto npc_cmp = Sys::NpcStore::instance().get_item( npc_type );
-    reg.emplace_or_replace<Cmp::NPC>( new_pos_entity, npc_cmp );
-
-    // clang-format off
-    reg.emplace_or_replace<Cmp::AnimData>( new_pos_entity, Cmp::AnimData::Config{ 
-          .sprite_type = npc_cmp.sprite_type_list.front(), 
-          .framerate = npc_cmp.m_frame_rate,
-          .enabled = false
-    });
-    // clang-format on
-
     reg.emplace_or_replace<Cmp::NpcFriendly>( new_pos_entity );
-
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
   }
@@ -260,6 +201,7 @@ entt::entity create_npc_explosion( entt::registry &reg, Cmp::Position npc_pos_cm
   auto npc_death_entity = reg.create();
   reg.emplace<Cmp::Position>( npc_death_entity, npc_pos_cmp.position, npc_pos_cmp.size );
   reg.emplace_or_replace<Cmp::DeathPosition>( npc_death_entity, npc_pos_cmp.position, npc_pos_cmp.size );
+
   // clang-format off
   reg.emplace_or_replace<Cmp::AnimData>( npc_death_entity, Cmp::AnimData::Config{ 
         .sprite_type = "sprite.death.anim.explosion", 
@@ -268,6 +210,7 @@ entt::entity create_npc_explosion( entt::registry &reg, Cmp::Position npc_pos_cm
         .anim_type =  Cmp::AnimType::ONESHOTRESET
   });
   // clang-format on
+
   reg.emplace_or_replace<Cmp::ZOrderValue>( npc_death_entity, npc_pos_cmp.position.y );
   return npc_death_entity;
 }

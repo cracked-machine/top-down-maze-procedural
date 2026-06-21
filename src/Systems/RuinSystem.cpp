@@ -31,10 +31,12 @@
 #include <Factory/NpcFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/RuinFactory.hpp>
+#include <Persistent/RuinMaxSpiders.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Stats/BaseAction.hpp>
 #include <Stats/CollisionAction.hpp>
+#include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/RuinSystem.hpp>
 #include <Systems/Stores/NpcStore.hpp>
@@ -483,37 +485,75 @@ void RuinSystem::reset_player_curse()
   m_curse_activation_future = std::future<void>{}; // allow re-entrant scene to trigger the future again
 }
 
-void RuinSystem::check_create_witch( entt::registry &reg, sf::FloatRect scene_dimensions )
+void RuinSystem::create_spiders( sf::FloatRect scene_boundary )
 {
-
-  auto has_collision = [&]( Cmp::RectBounds pos )
+  auto has_collision = [&]( const Cmp::RectBounds &pos )
   {
-    if ( Utils::Collision::check_cmp<Cmp::RuinBookcase>( reg, pos ) ) { return true; }
-    if ( Utils::Collision::check_cmp<Cmp::NpcNoPathFinding>( reg, pos ) ) { return true; }
-    if ( Utils::Collision::check_cmp<Cmp::RuinStairsSegment>( reg, pos ) ) { return true; }
+    if ( Utils::Collision::check_cmp<Cmp::NpcNoPathFinding>( reg(), pos ) ) { return true; }
+    if ( Utils::Collision::check_cmp<Cmp::RuinStairsSegment>( reg(), pos ) ) { return true; }
+    if ( Utils::Collision::check_cmp<Cmp::ReservedPosition>( reg(), pos ) ) { return true; }
 
-    // ensure bookcase is inside scene
-    if ( not Cmp::RectBounds::scaled( pos.position(), pos.size(), 1.5f ).findIntersection( scene_dimensions ) ) { return true; }
+    // ensure spider is inside scene
+    if ( not Cmp::RectBounds::scaled( pos.position(), pos.size(), 1.5f ).findIntersection( scene_boundary ) ) { return true; }
+    return false;
+  };
+
+  const auto kMaxSpiderCount = Sys::PersistSystem::get<Cmp::Persist::RuinMaxSpiders>( m_reg ).get_value();
+
+  // keep tryng to add spiders until we hit our target or exceed max attempts.
+  int max_attempts = 100;
+  for ( auto _ : std::views::iota( 0, max_attempts ) )
+  {
+    size_t spiders_count = 0;
+    for ( auto [npc_entt, npc_cmp, npc_sprite_cmp] : reg().view<Cmp::NPC, Cmp::AnimData>().each() )
+    {
+      if ( npc_sprite_cmp.m_sprite_type == "sprite.spider" ) { spiders_count++; }
+    }
+    if ( spiders_count >= kMaxSpiderCount ) break;
+
+    for ( auto _ : std::views::iota( uint16_t{ 0 }, kMaxSpiderCount ) )
+    {
+      auto [rnd_entt, rnd_pos_cmp] = Utils::Rnd::get_random_position( reg(), {}, {} );
+      if ( has_collision( Cmp::RectBounds::scaled( rnd_pos_cmp.position, rnd_pos_cmp.size, 1 ) ) ) continue;
+
+      auto new_spider_entity = reg().create();
+      Cmp::Position position_cmp = reg().emplace<Cmp::Position>( new_spider_entity, rnd_pos_cmp.position, rnd_pos_cmp.size );
+      [[maybe_unused]] Cmp::ZOrderValue zorder_cmp = reg().emplace<Cmp::ZOrderValue>( new_spider_entity, position_cmp.position.y );
+      Factory::create_npc( reg(), new_spider_entity, "npc.spider" );
+    }
+  }
+}
+
+void RuinSystem::check_create_witch( sf::FloatRect scene_boundary )
+{
+  auto has_collision = [&]( const Cmp::RectBounds &pos )
+  {
+    if ( Utils::Collision::check_cmp<Cmp::RuinBookcase>( reg(), pos ) ) { return true; }
+    if ( Utils::Collision::check_cmp<Cmp::NpcNoPathFinding>( reg(), pos ) ) { return true; }
+    if ( Utils::Collision::check_cmp<Cmp::RuinStairsSegment>( reg(), pos ) ) { return true; }
+
+    // ensure spider is inside scene
+    if ( not Cmp::RectBounds::scaled( pos.position(), pos.size(), 1.5f ).findIntersection( scene_boundary ) ) { return true; }
     return false;
   };
 
   bool witch_exists = false;
-  for ( auto [npc_entt, npc_cmp, npc_sprite_cmp] : reg.view<Cmp::NPC, Cmp::AnimData>().each() )
+  for ( auto [npc_entt, npc_cmp, npc_sprite_cmp] : reg().view<Cmp::NPC, Cmp::AnimData>().each() )
   {
     if ( npc_sprite_cmp.m_sprite_type == "sprite.witch" ) { witch_exists = true; }
   }
+
   if ( not witch_exists )
   {
-
     for ( auto _ : std::views::iota( 0, 100 ) )
     {
-      auto [rnd_entt, rnd_pos_cmp] = Utils::Rnd::get_random_position( reg, {}, {} );
+      auto [rnd_entt, rnd_pos_cmp] = Utils::Rnd::get_random_position( reg(), {}, {} );
       if ( has_collision( Cmp::RectBounds::scaled( rnd_pos_cmp.position, rnd_pos_cmp.size, 1 ) ) ) continue;
 
-      auto new_witch_entity = reg.create();
-      Cmp::Position position_cmp = reg.emplace<Cmp::Position>( new_witch_entity, rnd_pos_cmp.position, rnd_pos_cmp.size );
-      [[maybe_unused]] Cmp::ZOrderValue zorder_cmp = reg.emplace<Cmp::ZOrderValue>( new_witch_entity, position_cmp.position.y );
-      Factory::create_npc( reg, new_witch_entity, "npc.witch" );
+      auto new_witch_entity = reg().create();
+      Cmp::Position position_cmp = reg().emplace<Cmp::Position>( new_witch_entity, rnd_pos_cmp.position, rnd_pos_cmp.size );
+      [[maybe_unused]] Cmp::ZOrderValue zorder_cmp = reg().emplace<Cmp::ZOrderValue>( new_witch_entity, position_cmp.position.y );
+      Factory::create_npc( reg(), new_witch_entity, "npc.witch" );
       break;
     }
   }

@@ -362,6 +362,14 @@
     "detail": "RuinMaxCobwebs",
     "format": "%d"
   },
+  "RuinMaxSpiders": {
+    "type": "int",
+    "value": 5,
+    "min_value": 1,
+    "max_value": 10,
+    "detail": "RuinMaxSpiders",
+    "format": "%d"
+  },
   "RuinProcGenInitChance": {
     "type": "float",
     "value": 1.0,

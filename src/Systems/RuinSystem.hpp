@@ -61,9 +61,14 @@ public:
   void check_puzzle_status();
 
   //! @brief Create a witch entt if none exist
+  //! @param reg s
+  //! @param scene_boundary
+  void check_create_witch( sf::FloatRect scene_boundary );
+
+  //! @brief Create spider NPCs using Cmp::Persist::RuinMaxSpiders as a limit.
   //! @param reg
-  //! @param spawn_position
-  void check_create_witch( entt::registry &reg, sf::FloatRect scene_dimensions );
+  //! @param scene_boundary
+  void create_spiders( sf::FloatRect scene_boundary );
 
   //! @brief One time, one shot function that asynchronously enables player curse and then sleeps for N seconds.
   //!        This allows for cinematic pause after curse activation.

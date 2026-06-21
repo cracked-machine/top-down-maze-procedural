@@ -36,6 +36,7 @@
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <SceneControl/SceneInputRouter.hpp>
 #include <Stats/BaseAction.hpp>
+#include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Stores/SystemStore.hpp>
 #include <Utils/Player.hpp>

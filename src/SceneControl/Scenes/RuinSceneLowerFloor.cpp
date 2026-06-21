@@ -30,16 +30,16 @@
 #include <Systems/FootstepSystem.hpp>
 #include <Systems/HolyWellSystem.hpp>
 #include <Systems/LootSystem.hpp>
+#include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
-#include <Systems/ParticleSystem.hpp>
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/ProcGen/CellAutomataSystem.hpp>
-#include <Systems/RuinSystem.hpp>
 #include <Systems/ProcGen/DLASystem.hpp>
 #include <Systems/ProcGen/LevelGenerator.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
+#include <Systems/RuinSystem.hpp>
 #include <Systems/Stores/SystemStore.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 #include <Utils/Constants.hpp>
@@ -204,7 +204,9 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
   bool is_player_cursed = m_sys.find<Sys::Store::Type::RuinSystem>().check_activate_player_curse( map_size_pixel );
   if ( is_player_cursed )
   {
-    m_sys.find<Store::Type::RuinSystem>().check_create_witch( m_reg, sf::FloatRect( { 0, 0 }, map_size_pixel ) );
+    // m_sys.find<Store::Type::RuinSystem>().check_create_witch( m_reg, sf::FloatRect( { 0, 0 }, map_size_pixel ) );
+    auto scene_dimensions = sf::FloatRect( { 0, 0 }, map_size_pixel );
+    m_sys.find<Store::Type::RuinSystem>().create_spiders( scene_dimensions );
     // Factory::Shader::add_curse( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
   }
 

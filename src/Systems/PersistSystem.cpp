@@ -1,6 +1,7 @@
 
 
 #include <Persistent/CryptShuffleTimeout.hpp>
+#include <Persistent/RuinMaxSpiders.hpp>
 #define JSON_NOEXCEPTION
 #include <fstream>
 #include <nlohmann/json.hpp>
@@ -141,6 +142,7 @@ void PersistSystem::initialize_type_registry()
   register_type.operator()<PlayerStartPosition>("PlayerStartPosition");
   register_type.operator()<PostPullMovementDelay>("PostPullMovementDelay");
   register_type.operator()<RuinMaxCobwebs>("RuinMaxCobwebs");
+  register_type.operator()<RuinMaxSpiders>("RuinMaxSpiders");
   register_type.operator()<RuinProcGenInitChance>("RuinProcGenInitChance");
   register_type.operator()<RuinProcGenMaxIterations>("RuinProcGenMaxIterations");
   register_type.operator()<RuinProcGenBirthThreshold>("RuinProcGenBirthThreshold");

@@ -15,7 +15,7 @@ public:
   {
   }
 
-  [[nodiscard]] std::string class_name() const override { return "BombBonus"; }
+  [[nodiscard]] std::string class_name() const override { return "RuinMaxCobwebs"; }
   [[nodiscard]] const std::string get_detail() const override { return ""; }
 };
 
