@@ -1,4 +1,5 @@
 #include <Audio/SoundBank.hpp>
+#include <Components/Direction.hpp>
 #include <Components/Exit.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
@@ -237,10 +238,22 @@ void RuinSystem::check_movement_slowdowns()
   }
 
   // Apply or remove penalty
-  if ( slowdown_penalty > 0.0f ) { reg().emplace_or_replace<Cmp::PlayerSpeedPenalty>( player_entt, slowdown_penalty ); }
+  auto &sfx = m_sound_bank.get_effect( "cobweb_movement" );
+  bool player_moving = ( Utils::Player::get_direction( reg() ) != sf::Vector2f( 0.f, 0.f ) );
+
+  if ( slowdown_penalty > 0.0f )
+  {
+    reg().emplace_or_replace<Cmp::PlayerSpeedPenalty>( player_entt, slowdown_penalty );
+    if ( player_moving )
+    {
+      if ( sfx.getStatus() != sf::Sound::Status::Playing ) sfx.play();
+    }
+    else { sfx.stop(); }
+  }
   else
   {
     if ( reg().any_of<Cmp::PlayerSpeedPenalty>( player_entt ) ) { reg().remove<Cmp::PlayerSpeedPenalty>( player_entt ); }
+    sfx.stop();
   }
 }
 

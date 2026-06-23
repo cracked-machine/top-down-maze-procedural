@@ -229,6 +229,7 @@ void NpcSystem::update_animation()
 void NpcSystem::update_sfx()
 {
   bool any_skeleton_moving = false;
+  bool any_spider_moving = false;
 
   for ( auto [npc_entt, npc_cmp, npc_dir_cmp, anim_cmp] : reg().view<Cmp::NPC, Cmp::Direction, Cmp::AnimData>().each() )
   {
@@ -240,14 +241,29 @@ void NpcSystem::update_sfx()
         break;
       }
     }
+    else if ( anim_cmp.m_sprite_type.contains( "sprite.spider" ) )
+    {
+      if ( npc_dir_cmp != sf::Vector2f{ 0.0f, 0.0f } )
+      {
+        any_spider_moving = true;
+        break;
+      }
+    }
   }
 
-  auto &sfx = m_sound_bank.get_effect( "skeleton_moving" );
+  auto &skeleton_sfx = m_sound_bank.get_effect( "skeleton_moving" );
   if ( any_skeleton_moving )
   {
-    if ( sfx.getStatus() != sf::Sound::Status::Playing ) { sfx.play(); }
+    if ( skeleton_sfx.getStatus() != sf::Sound::Status::Playing ) { skeleton_sfx.play(); }
   }
-  else { sfx.stop(); }
+  else { skeleton_sfx.stop(); }
+
+  auto &spider_sfx = m_sound_bank.get_effect( "spider_moving" );
+  if ( any_spider_moving )
+  {
+    if ( spider_sfx.getStatus() != sf::Sound::Status::Playing ) { spider_sfx.play(); }
+  }
+  else { spider_sfx.stop(); }
 }
 
 void NpcSystem::update_pathfinding( sf::Time dt )
