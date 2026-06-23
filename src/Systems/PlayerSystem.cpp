@@ -204,6 +204,8 @@ void PlayerSystem::move_obstacle( const sf::FloatRect &target_position )
     {
       Utils::Player::get_position( reg() ).position = player_dest_position.position();
 
+      m_sound_bank.get_effect( "crypt_open" ).play();
+
       // move the obstacle
       selected_pos_cmp.position += player_velocity.position();
       reg().remove<Cmp::SelectedPosition>( selected_entt );

@@ -105,6 +105,8 @@ private:
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
 
   sf::Time m_shadowhand_action_effects_time;
+
+  bool m_puzzle_solved{ false };
 };
 } // namespace Game::Sys
 

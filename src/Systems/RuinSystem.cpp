@@ -146,6 +146,10 @@ void RuinSystem::check_puzzle_status()
       reg().remove<Cmp::NpcNoPathFinding>( gate_entt );
       reg().remove<Cmp::PlayerNoPath>( gate_entt );
     }
+
+    auto &sfx = m_sound_bank.get_effect( "secret" );
+    if ( not m_puzzle_solved ) { sfx.play(); }
+    m_puzzle_solved = true;
   }
   else
   {
@@ -162,6 +166,7 @@ void RuinSystem::check_puzzle_status()
       reg().emplace_or_replace<Cmp::NpcNoPathFinding>( gate_entt );
       reg().emplace_or_replace<Cmp::PlayerNoPath>( gate_entt );
     }
+    m_puzzle_solved = false;
   }
 }
 
