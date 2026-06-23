@@ -228,7 +228,13 @@ void PlayerSystem::move_obstacle( const sf::FloatRect &target_position )
       auto rune_view = reg().view<Cmp::RuneMarking, Cmp::Position, Cmp::ZOrderValue, Cmp::AnimData>();
       for ( auto [rune_entt, rune_cmp, rune_pos_cmp, rune_zorder_cmp, rune_anim_cmp] : rune_view.each() )
       {
-        // Check if ANY obstacle (not just the moved one) is on this rune
+        // Check if ANY obstacle (not just the moved one) is on this rune.
+        // Undo the visual y offset so intersection uses the logical rune position —
+        // without this, a block sliding up leaves an 8px phantom overlap that
+        // prevents deactivation.
+        float check_offset = rune_cmp.active ? 8.f : 0.f;
+        rune_pos_cmp.position.y += check_offset;
+
         bool any_obstacle_on_rune = false;
         auto obstacle_view = reg().view<Cmp::Obstacle, Cmp::Position>();
         for ( auto [obs_entt, obstacle_cmp, obstacle_pos_cmp] : obstacle_view.each() )
@@ -240,9 +246,16 @@ void PlayerSystem::move_obstacle( const sf::FloatRect &target_position )
           }
         }
 
+        rune_pos_cmp.position.y -= check_offset;
+
         if ( any_obstacle_on_rune != rune_cmp.active )
         {
           const std::string sprite_type = any_obstacle_on_rune ? "sprite.ruin.runemarking.active" : "sprite.ruin.runemarking.inactive";
+
+          // shift the rune on the y-axis to adjust for the front-facing perspective
+          if ( any_obstacle_on_rune ) { rune_pos_cmp.position.y -= 8.f; }
+          else { rune_pos_cmp.position.y += 8.f; }
+
           float zorder = m_sprite_factory.get_spritesheet_by_type( sprite_type ).get_zorder( 0 );
           rune_zorder_cmp.setZOrder( zorder );
           rune_anim_cmp.m_sprite_type = sprite_type;
