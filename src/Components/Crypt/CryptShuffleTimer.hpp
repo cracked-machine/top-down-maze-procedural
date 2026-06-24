@@ -4,14 +4,16 @@
 namespace Game::Cmp
 {
 
-class CryptShuffleTimer : public sf::Clock
+class CryptShuffleTimer
 {
 public:
-  CryptShuffleTimer( sf::Time timeout )
-      : m_timeout( timeout )
+  explicit CryptShuffleTimer( sf::Time timeout )
+      : m_elapsed( sf::Time::Zero ),
+        m_timeout( timeout )
   {
   }
 
+  sf::Time m_elapsed;
   sf::Time m_timeout;
 };
 

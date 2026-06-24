@@ -1,9 +1,12 @@
 #ifndef SRC_SYSTEMS_CRYPTSYSTEM_HPP__
 #define SRC_SYSTEMS_CRYPTSYSTEM_HPP__
 
+#include <Crypt.hpp>
 #include <Events/CryptRoomEvent.hpp>
+#include <Events/PauseClocksEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
 
+#include <Events/ResumeClocksEvent.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <PathFinding/SmartPointers.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -29,6 +32,8 @@ public:
     // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
     std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&CryptSystem::on_player_action>( this );
     std::ignore = get_systems_event_queue().sink<Events::CryptRoomEvent>().connect<&CryptSystem::on_room_event>( this );
+    std::ignore = get_systems_event_queue().sink<Events::PauseClocksEvent>().connect<&Sys::CryptSystem::on_pause>( this );
+    std::ignore = get_systems_event_queue().sink<Events::ResumeClocksEvent>().connect<&Sys::CryptSystem::on_resume>( this );
   }
 
   //! @brief init the weak pointer for the spatial grid
@@ -39,7 +44,7 @@ public:
   void setup();
 
   //! @brief Frame update. Called from Scene::do_update()
-  void update();
+  void update( sf::Time dt );
 
   //! @brief Handle player action events
   //! @param event

@@ -1,11 +1,10 @@
+#include <Audio/SoundBank.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
+#include <Components/Persistent/MusicVolume.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/ResumeClocksEvent.hpp>
-#include <SceneControl/Scenes/PausedMenuScene.hpp>
-
-#include <Audio/SoundBank.hpp>
-#include <Components/Persistent/MusicVolume.hpp>
 #include <SceneControl/Events/ProcessPausedMenuSceneInputEvent.hpp>
+#include <SceneControl/Scenes/PausedMenuScene.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderMenuSystem.hpp>
@@ -30,6 +29,8 @@ void PausedMenuScene::on_exit()
 {
   SPDLOG_INFO( "Exiting {}", get_name() );
   auto &persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
+
+  // save the state because there are UI controls for volume.
   persistent_sys.save_state();
 
   Sys::PersistSystem::get_systems_event_queue().trigger( Events::ResumeClocksEvent() );

@@ -20,9 +20,9 @@
 #include <Systems/CryptSystem.hpp>
 #include <Systems/FootstepSystem.hpp>
 #include <Systems/LootSystem.hpp>
+#include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
-#include <Systems/ParticleSystem.hpp>
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/ProcGen/LevelGenerator.hpp>
 #include <Systems/ProcGen/PassageSystem.hpp>
@@ -101,12 +101,15 @@ void CryptScene::on_enter()
 
   m_sys.find<Sys::Store::Type::RenderGameSystem>().init_world_view();
 
-  auto &player_pos = Utils::Player::get_position( m_reg );
-  player_pos.position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
-
-  m_sys.find<Sys::Store::Type::CryptSystem>().setup();
-  const auto kCryptShuffleTimeout = Sys::PersistSystem::get<Cmp::Persist::CryptShuffleTimeout>( m_reg ).get_value();
-  Crypt::Factory::create_crypt_shuffle_timer( m_reg, kCryptShuffleTimeout );
+  if ( m_just_spawned )
+  {
+    auto &player_pos = Utils::Player::get_position( m_reg );
+    player_pos.position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
+    m_just_spawned = false;
+    m_sys.find<Sys::Store::Type::CryptSystem>().setup();
+    const auto kCryptShuffleTimeout = Sys::PersistSystem::get<Cmp::Persist::CryptShuffleTimeout>( m_reg ).get_value();
+    Crypt::Factory::create_crypt_shuffle_timer( m_reg, kCryptShuffleTimeout );
+  }
 
   // prevent the player from wandering off before the scene has loaded
   auto &player_dir = Utils::Player::get_direction( m_reg );
@@ -130,7 +133,7 @@ void CryptScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::NpcSystem>().update( dt );
   m_sys.find<Sys::Store::Type::FootstepSystem>().update();
   m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision();
-  m_sys.find<Sys::Store::Type::CryptSystem>().update();
+  m_sys.find<Sys::Store::Type::CryptSystem>().update( dt );
   m_sys.find<Sys::Store::Type::ShockwaveSystem>().check_shockwave_player_collision();
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
   m_sys.find<Sys::Store::Type::PassageSystem>().update( dt );

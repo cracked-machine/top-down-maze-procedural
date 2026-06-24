@@ -77,8 +77,12 @@ void HolyWellScene::on_enter()
 
   m_sys.find<Sys::Store::Type::RenderGameSystem>().init_world_view();
 
-  auto &player_pos = Utils::Player::get_position( m_reg );
-  player_pos.position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
+  if ( m_just_spawned )
+  {
+    auto &player_pos = Utils::Player::get_position( m_reg );
+    player_pos.position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
+    m_just_spawned = false;
+  }
 
   // prevent the player from wandering off before the scene has loaded
   auto &player_dir = Utils::Player::get_direction( m_reg );

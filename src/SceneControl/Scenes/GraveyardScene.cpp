@@ -209,10 +209,11 @@ void GraveyardScene::on_enter()
     player_pos.position = player_last_graveyard_pos->position;
     SPDLOG_INFO( "Player re-entered graveyard at position ({}, {})", player_pos.position.x, player_pos.position.y );
   }
-  else
+  else if ( m_just_spawned )
   {
     player_pos.position = sf::Vector2f( Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg ) );
     SPDLOG_INFO( "Player entered graveyard at position ({}, {})", player_pos.position.x, player_pos.position.y );
+    m_just_spawned = false;
   }
 
   // prevent the player from wandering off before the scene has loaded

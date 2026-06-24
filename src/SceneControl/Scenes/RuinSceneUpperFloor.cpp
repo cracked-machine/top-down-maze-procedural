@@ -25,14 +25,14 @@
 #include <Systems/CryptSystem.hpp>
 #include <Systems/HolyWellSystem.hpp>
 #include <Systems/LootSystem.hpp>
+#include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
-#include <Systems/ParticleSystem.hpp>
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/ProcGen/LevelGenerator.hpp>
-#include <Systems/RuinSystem.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
+#include <Systems/RuinSystem.hpp>
 #include <Systems/Stores/SystemStore.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 #include <Utils/Constants.hpp>
@@ -117,8 +117,12 @@ void RuinSceneUpperFloor::on_enter()
   auto &player_dir = Utils::Player::get_direction( m_reg );
   player_dir = Cmp::Direction{ { 0.f, 0.f } };
 
-  auto &player_pos = Utils::Player::get_position( m_reg );
-  player_pos.position = Utils::snap_to_grid( player_pos.position );
+  if ( m_just_spawned )
+  {
+    auto &player_pos = Utils::Player::get_position( m_reg );
+    player_pos.position = Utils::snap_to_grid( player_pos.position );
+    m_just_spawned = false;
+  }
 
   auto player_entt = Utils::Player::get_entity( m_reg );
   m_reg.emplace_or_replace<Cmp::PlayerRuinLocation>( player_entt, Cmp::PlayerRuinLocation::Floor::UPPER );

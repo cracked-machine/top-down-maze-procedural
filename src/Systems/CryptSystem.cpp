@@ -84,8 +84,10 @@ void CryptSystem::setup()
   }
 }
 
-void CryptSystem::update()
+void CryptSystem::update( sf::Time dt )
 {
+  if ( m_maze_unlocked ) { Crypt::Factory::destroy_crypt_shuffle_timer( reg() ); }
+  else { Utils::Crypt::update_crypt_shuffle_timer( reg(), dt ); }
 
   check_exit_collision();
 
@@ -145,7 +147,7 @@ void CryptSystem::shuffle_rooms_passages()
   add_lever_to_open_rooms();
 
   m_sound_bank.get_effect( "crypt_room_shuffle" ).play();
-  Utils::Crypt::restart_crypt_shuffle_timer( reg() );
+  Utils::Crypt::reset_crypt_shuffle_timer( reg() );
 }
 
 void CryptSystem::unlock_objective_passage()
@@ -183,7 +185,6 @@ void CryptSystem::unlock_exit_passage()
   auto player_pos_cmp = Utils::Player::get_position( reg() );
 
   // if we unlocked the maze by picking up the cadaver, then cancel the timer
-  Utils::Crypt::stop_crypt_shuffle_timer( reg() );
   m_maze_unlocked = true;
 
   close_open_rooms( player_pos_cmp );
@@ -419,7 +420,7 @@ void CryptSystem::check_lever_activation()
         m_maze_unlocked = true;
 
         unlock_objective_passage();
-        Utils::Crypt::stop_crypt_shuffle_timer( reg() );
+        Utils::Crypt::reset_crypt_shuffle_timer( reg() );
       }
       else { shuffle_rooms_passages(); }
     }
@@ -903,7 +904,7 @@ void CryptSystem::check_lava_pit_collision()
   for ( auto [lava_cell_entt, lava_cell_cmp] : reg().view<Cmp::CryptRoomLavaPitCell>().each() )
   {
     if ( not player_hitbox.findIntersection( lava_cell_cmp ) ) continue;
-    Utils::Crypt::stop_crypt_shuffle_timer( reg() );
+    Utils::Crypt::reset_crypt_shuffle_timer( reg() );
     get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::IGNITED, lava_cell_cmp ) );
   }
 }
@@ -959,7 +960,7 @@ void CryptSystem::check_spike_trap_collision()
 
     Cmp::Position spike_trap_hitbox( spike_trap_cmp, Constants::kGridSizePxF );
     if ( not player_hitbox.findIntersection( spike_trap_hitbox ) ) continue;
-    Utils::Crypt::stop_crypt_shuffle_timer( reg() );
+    Utils::Crypt::reset_crypt_shuffle_timer( reg() );
     get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SKEWERED, spike_trap_hitbox ) );
   }
 }

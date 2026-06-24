@@ -151,8 +151,12 @@ void RuinSceneLowerFloor::on_enter()
   switch ( m_entry_mode )
   {
     case EntryMode::FROM_DOOR: {
-      SPDLOG_INFO( "Player entering from door" );
-      player_pos.position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
+      if ( m_just_spawned )
+      {
+        SPDLOG_INFO( "Player entering from door" );
+        player_pos.position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
+        m_just_spawned = false;
+      }
       break;
     }
     case EntryMode::FROM_UPPER_FLOOR: {

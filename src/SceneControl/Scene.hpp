@@ -46,6 +46,7 @@ protected:
   PathFinding::SpatialHashGridSharedPtr m_player_navmesh;
   PathFinding::SpatialHashGridSharedPtr m_open_navmesh;
   SceneMapSharedPtr m_scene_data;
+  bool m_just_spawned{ true };
 
 private:
   entt::dispatcher &m_nav_event_dispatcher;

@@ -85,9 +85,13 @@ void ShopScene::on_enter()
 
   m_sys.find<Sys::Store::Type::RenderGameSystem>().init_world_view();
 
-  auto &player_pos = Utils::Player::get_position( m_reg );
-  player_pos.position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
-  SPDLOG_INFO( "player_start_pos_px: {},{}", player_pos.position.x, player_pos.position.y );
+  if ( m_just_spawned )
+  {
+    auto &player_pos = Utils::Player::get_position( m_reg );
+    player_pos.position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
+    SPDLOG_INFO( "player_start_pos_px: {},{}", player_pos.position.x, player_pos.position.y );
+    m_just_spawned = false;
+  }
 }
 
 void ShopScene::on_exit()

@@ -19,6 +19,7 @@
 #include <Components/RectBounds.hpp>
 #include <Components/Shop/ShopInventory.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Crypt.hpp>
 #include <Crypt/CryptPassageDoor.hpp>
 #include <Crypt/CryptRoomLavaPit.hpp>
 #include <Crypt/CryptRoomLavaPitCell.hpp>
@@ -789,11 +790,11 @@ void RenderOverlaySystem::render_crypt_maze_timer( sf::Vector2f pos, unsigned in
 
   for ( auto [timer_entt, timer_cmp] : reg().view<Cmp::CryptShuffleTimer>().each() )
   {
-    if ( timer_cmp.isRunning() )
+    if ( not Utils::Crypt::is_crypt_shuffle_timer_expired( reg() ) )
     {
       sf::Text clock_text( m_font, "", size );
       std::stringstream ss;
-      ss << std::fixed << std::setprecision( 1 ) << kCryptShuffleTimeout - timer_cmp.getElapsedTime().asSeconds();
+      ss << std::fixed << std::setprecision( 1 ) << kCryptShuffleTimeout - timer_cmp.m_elapsed.asSeconds();
       clock_text.setString( ss.str() );
       clock_text.setPosition( { pos.x - ( clock_text.getLocalBounds().size.x / 2 ), pos.y } );
       clock_text.setFillColor( sf::Color::Red );
