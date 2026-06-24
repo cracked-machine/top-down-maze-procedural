@@ -1720,7 +1720,7 @@
     "sprite.ruin.stairs.balustrade": {
       "spritesheet": {
         "displayname": "sprite.ruin.stairs.balustrade",
-        "zorder": [-5],
+        "zorder": [-4],
         "texture_path": "res/textures/ruin.png",
         "sprite_indices": [56],
         "sprites_per_sequence": 1,
