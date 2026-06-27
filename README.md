@@ -1,3 +1,7 @@
+
+You play a victorian grave digger who has become lost in a limbo dimension... a city of the dead. You must dig your way through obstacles to find the exit. The exit must be unlocked using items found in the surrounding graves. To survive in this world you can find plants that be used or consumed. Some may help you, others may not. You can sell your ill-gotten wares to surgeons of dubious ethics once you exit the level.
+
+
 # Build System
 
 This project is setup to build on a linux system but cross-compile for a windows target via MinGW. The mingw version is tied to the Debian release. Rather than put out-of-date info here please check the Dockerfile and then look up that package version [here](https://packages.debian.org/search?keywords=g%2B%2B-mingw-w64-x86-64&searchon=names&suite=all&section=all).  
@@ -112,32 +116,58 @@ This tells the base template class `Scene` to call the ProcessCryptSceneInputEve
 
 ## Sprite Factory
 
+Sprite sheets are loaded using the [SpriteFactory](src/Factory/SpriteFactory.cpp) from [spritesheet_metadata.json](res/json/spritesheet_metadata.json). This supports both single block (16x16) and multi-block sprites (some multiple of 16x16). Each entry in the JSON file must have a unique name. This is used by the SpriteFactory to create the sprite and serves as a key to retrieve the sprite later on. 
+
+| property | description |
+|:-|:-|
+|display_name|Cosmetic name used in the game UI|
+|texture_path|The texture file that contains the sprite artwork. e.g. png|
+|sprite_indices|The 16x16 grid index location for each sprite that should be loaded from the texture file.|
+|zorder|Each sprite index can have an independent zorder value. If you set the value to zero then the y-axis position is used.|
+|grid_size|Multi-block setting. The width and height of the sprite in 16x16 grid size.|
+|sprites_per_frame|For single-block sprites this should be set to 1. For multi-block sprites this should be set to the product of the `grid_size` width and height|
+|sprites_per_sequence|Animation setting. To enable animation this should match the length of the `sprite_indices` field. To disable animation set it to 1.|
+
+## Particle System
+
+The particle system uses the standard [emit/simulate/render](https://en.wikipedia.org/wiki/Particle_system) design. The top level [ParticleSystem](src/Systems/ParticleSystem.hpp) takes any class derived from [ParticleSpriteBase](src/Components/Particle/ParticleSpriteBase.hpp). This uses a strategy pattern to allow custom emission/simulation/rendering implementations via a common interface. Example implementations for flames, smoke, etc can be found in the [src/Components/Particle](src/Components/Particle) directory.
+
+## Pathfinding
+
+Pathfinding for NPCs uses the [A* search](https://en.wikipedia.org/wiki/A*_search_algorithm) algorithm. This is an efficient algorithm that combines BFS with a heuristic to avoid redundant search paths. The algorithm implementation can be found in [src/PathFinding/AStar.hpp](src/PathFinding/AStar.hpp). 
+
+To avoid querying all positions in the ECS registry, the game level is tracked using a [spatial hash grid](src/PathFinding/SpatialHashGrid.hpp). This stores the valid positions for path finding, but is used elsewhere for O(1) lookup. The hash grid works by using the x/y coordinate as a key to store/lookup a bucket of entities at that position.  Finding the nearest neighbour to any game position then becomes a trivial operation. 
+
 ## Scene Manager
 
-## Random Level Generation
+See [src/SceneControl](src/SceneControl)
 
-### Finding the nearest neighbours
+The [Scene Manager](src/SceneControl/SceneManager.hpp) allows the transition from one game scene to another. For example, TitleScene > GraveyardScene > CryptScene > GameOverScene > TitleScene.
 
-We need to find the neighbour of a given obstacle block. This is useful for our Cellular Autonomy algorithm but is also useful when we want to destroy neighbouring blocks (placing a bomb or using a pickaxe, for example)
+Scenes are managed using a [stack](src/SceneControl/SceneStack.hpp). The scene at the top of the stack is the active scene. When a scene is pushed onto the stack the SceneManager will run its `on_init` member function to initialise the scene. Depending on the type of scene it may also call `on_enter`. The engine will call `on_update` for the active scene every frame. When the player exits the scene (or dies) the scene is popped off the stack and the SceneManager can optionally call the `on_exit` function. 
 
+In order to provide some state persistence it is necessary to clone some ECS registry components when transitioning between scenes. This is done using the [RegistryTransfer](src/SceneControl/RegistryTransfer.cpp). This is done in the `RegistryTransfer::init_missing_cmp_storages` method. 
 
-We could search every entity that has an obstacle and then search every other entity that owns an obstacle, and see if they are near. However this would be `O(n2)` complexity and would scale very poorly. A better option would be to use the order of creation and the index to find its left neighbour (N-1), right neighbour, top neighbour (N + y), etc.. 
+## Player stat system
 
-![alt text](ANS.svg)
+The player has a number of [stats](src/Components/Stats/PlayerStats.hpp) that can be positively or negatively affected during gameplay. These are
 
-Unfortunately, the `entt` registry is not a contiguous container so we cannot simply iterate through the registry. Instead we can pushback the entity id into a vector after each one is created. 
+- Health
+- Fear
+- Despair
+- Infamy
+- Toxicity
 
-We can then use that contiguous vector to represent the grid entities in a single dimension. The resulting algorithm iterates through the grid entities and for each grid entity, it performs a constant amount of work (checking exactly 8 potential neighbors). 
-This worked well. The complexity is O(1) and so is incredably fast and scaled well. Typcially a grid of ~5000 entities complete in just a few milliseconds.
+Every NPC and Item in the game has a set of action modifiers that contain the values to modify each player stat. For example, when the player picks up a certain item the CarryAction action modifies the player stats. Each action object can be found in the [src/Components/Stats](src/Components/Stats) directory. The NPC and Item stats are loaded into a store from [res/json/npc.json](res/json/npc.json) and [res/json/items.json](res/json/items.json). The stores can be found in [src/Systems/Stores](src/Systems/Stores)
 
-A note about storing the entity id outside of the registry: One should not use `entt::entt_traits<entt::entity>::to_entity(entity)` to get the raw integral value of an entity. This is an internal helper and is not guaranteed to be stable or portable.
-The correct and safe way is `entt::entt_traits<entt::entity>::to_integral(entity)`, which always returns the underlying uint32_t (or whatever type is used).
+## Procedural Generation and Tiled application.
 
-When the registry is cleared, entity values may be recycled or invalidated, so using to_entity can yield undefined or corrupted results, especially if it’s not meant for external use.
-Always use `to_integral` for serialization, logging, or storing entity IDs outside the registry. This will prevent corruption and ensure your entity IDs remain valid across restarts and registry clears.
+The boundary of each level and static items are defined using the [Tiled](https://www.mapeditor.org/) application. This allows quick modification in a JSON format, which is then loaded into the game using [src/Utils/JsonDeserializer.hpp](src/Utils/JsonDeserializer.hpp) 
+The Tiled input files can be found in [res/scenes](res/scenes). 
 
-## JSON
+The randomly placed items within the game - obstacles, plants, etc... - are procedurally generated. Therefore each play has a unique layout. The following algorithms are employed:
+- Cell Automata (GameOfLife) is used for the Graveyard scenes. The player is required to clear a path through the generated level.
+ - Diffusion-limited aggregation is used for the Ruin scenes. The player must push/pull blocks to complete a puzzle.
+ - Drunken walk is used for the Crypt Scenes. This creates meandering passageways between the rooms. 
 
-To add Sprite types, edit the res/json/sprite_metadata_schema.json file
-and then update the mapping function (string_to_sprite_type) in src/sprite/sprite_factory.cpp
-
+Implemtations can be found in [src/Systems/ProcGen](src/Systems/ProcGen)
