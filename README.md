@@ -1,12 +1,19 @@
 
-You play a victorian grave digger who has become lost in a limbo dimension... a city of the dead. You must dig your way through obstacles to find the exit. The exit must be unlocked using items found in the surrounding graves. To survive in this world you can find plants that be used or consumed. Some may help you, others may not. You can sell your ill-gotten wares to surgeons of dubious ethics once you exit the level.
+You play a victorian grave digger who has become lost in a limbo dimension... a city of the dead. You must dig your way through obstacles to find the exit. The exit must be unlocked using items found in the surrounding graves. To survive in this world you can find plants that be used or consumed. Some may help you, others may not. You can sell your ill-gotten wares to surgeons of dubious ethics once you exit the level. 
 
+# Game Engine
+
+This uses a custom game engine using OpenGL/SFML3. The engine is managed using an [Entity Component System](https://en.wikipedia.org/wiki/Entity_component_system) architecture via the [Entt](https://github.com/skypjack/entt) library. 
 
 # Build System
 
-This project is setup to build on a linux system but cross-compile for a windows target via MinGW. The mingw version is tied to the Debian release. Rather than put out-of-date info here please check the Dockerfile and then look up that package version [here](https://packages.debian.org/search?keywords=g%2B%2B-mingw-w64-x86-64&searchon=names&suite=all&section=all).  
+The project is built using GCC and CMake. 
 
-You can determine the CRT by running objdump on the binary output:
+The build environment runs within a [docker container](.devcontainer/Dockerfile). All third party libraries are built from source. 
+
+This project is setup to build on a linux system and cross-compile for a windows target via [MinGW](https://packages.debian.org/search?keywords=g%2B%2B-mingw-w64-x86-64&searchon=names&suite=all&section=all).  
+
+You can determine the C-Runtime (CRT) by running objdump on the binary output:
 
 ```
 x86_64-w64-mingw32-objdump -p build-x86_64-w64-mingw32/bin/ProceduralMaze.exe | grep -iE 'msvcrt|ucrt|vcruntime|api-ms-win-crt'
@@ -20,11 +27,9 @@ Engine.cpp:58 - Renderer: AMD Radeon RX 7900 GRE
 Engine.cpp:59 - Vendor: ATI Technologies Inc.
 ```
 
-This project should be run on a Linux PC. The cross-compiled output binary for Windows can be found in `build-x86_64-w64-mingw32/bin` and the native output binary for Linux is `build-x86_64-linux-gnu/bin`.
+This project should be built on a Linux PC. The cross-compiled output binary for Windows can be found in `build-x86_64-w64-mingw32/bin` and the native output binary for Linux is `build-x86_64-linux-gnu/bin`.
 
-The project ius configured to use VSCode remote extensions. This means you can run the build on a Linux PC from a Windows PC over SSH. You can build it natively from Linux if you wish but obviously if you want to test the cross-compiled windows binary you will need a Windows PC as well. Also note that this project is intended to be used from a Windows PC so of you run it directly in VSCode on Linux the task.json are not tested. 
-
-
+The project is configured to use VSCode remote extensions. This means you can run the build on a Linux PC from a Windows PC over SSH. You can build it natively from Linux if you wish but obviously if you want to test the cross-compiled windows binary you will need a Windows PC as well. Also note that this project is intended to be used from a Windows PC so of you run it directly in VSCode on Linux the task.json are not tested. 
 
 ## Samba
 
