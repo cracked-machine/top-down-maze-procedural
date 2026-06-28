@@ -581,6 +581,8 @@ void NpcSystem::update_shockwaves( sf::Time dt )
       if ( created_shockwave )
       {
         Particle::Factory::add_shockwave( reg(), "particle.shockwave.priest", npc_uuid_cmp, npc_pos_cmp.getCenter(), 50000 );
+        m_sound_bank.get_effect( "emit_shockwave_low" ).play();
+        m_sound_bank.get_effect( "emit_shockwave_high" ).play();
       }
 
       // update the shockwave position so that it follows NPC
