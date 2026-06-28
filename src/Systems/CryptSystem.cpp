@@ -98,7 +98,7 @@ void CryptSystem::update( sf::Time dt )
   }
 
   // check collisions with lava pit
-  if ( not Utils::getSystemCmp( reg() ).collisions_disabled )
+  if ( not Utils::get_system_cmp( reg() ).collisions_disabled )
   {
     check_lava_pit_collision();
     check_spike_trap_collision();
@@ -550,7 +550,7 @@ void CryptSystem::create_initial_closed_rooms( sf::Vector2u map_grid_size )
     bool overlaps_existing = false;
 
     // make sure new_room area does not fall outside map_grid_size
-    if ( not Utils::isInBounds( new_room.position, new_room.size, map_grid_size ) ) { overlaps_existing = true; }
+    if ( not Utils::is_in_bounds( new_room.position, new_room.size, map_grid_size ) ) { overlaps_existing = true; }
 
     // check for intersection with existing rooms
     if ( not overlaps_existing )

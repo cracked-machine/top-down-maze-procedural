@@ -36,6 +36,7 @@
 #include <Systems/Threats/NpcSystem.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Player.hpp>
+#include <Utils/Utils.hpp>
 
 #include <SFML/Audio/Sound.hpp>
 

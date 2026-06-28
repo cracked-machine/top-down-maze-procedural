@@ -4,6 +4,7 @@
 #include <Components/Position.hpp>
 #include <Factory/ParticleFactory.hpp>
 #include <Systems/PersistSystem.hpp>
+#include <Utils/Player.hpp>
 
 #include <entt/entity/fwd.hpp>
 

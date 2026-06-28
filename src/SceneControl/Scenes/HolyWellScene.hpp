@@ -6,7 +6,6 @@
 #include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
 #include <Sprites/VertexFloor.hpp>
-#include <Utils/Utils.hpp>
 
 // clang-format off
 namespace Game::Sys { class Store; }

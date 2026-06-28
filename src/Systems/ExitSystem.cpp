@@ -15,7 +15,6 @@
 #include <Components/System.hpp>
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
-#include <Utils/Constants.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
@@ -23,6 +22,7 @@
 #include <Systems/ExitSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Utils/Constants.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
@@ -118,7 +118,7 @@ void ExitSystem::check_exit_collision()
     if ( pc_pos_cmp.findIntersection( exit_pos_cmp ) )
     {
       SPDLOG_INFO( "Player reached the exit zone!" );
-      Utils::getSystemCmp( reg() ).level_complete = true;
+      Utils::get_system_cmp( reg() ).level_complete = true;
       m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::LEVEL_COMPLETE );
       Factory::remove_player_last_graveyard_pos( reg() );
     }

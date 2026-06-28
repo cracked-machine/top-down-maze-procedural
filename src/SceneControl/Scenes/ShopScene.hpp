@@ -6,7 +6,6 @@
 #include <SceneControl/Events/ProcessShopSceneInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
 #include <Sprites/VertexFloor.hpp>
-#include <Utils/Utils.hpp>
 
 #include <SFML/System/Vector2.hpp>
 

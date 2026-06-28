@@ -1,10 +1,10 @@
 #ifndef SRC_UTILS_RANDOM_HPP__
 #define SRC_UTILS_RANDOM_HPP__
 
-#include <Components/Crypt/CryptRoomClosed.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
+
 #include <SFML/Graphics/Rect.hpp>
 #include <cstddef>
 #include <entt/entity/registry.hpp>

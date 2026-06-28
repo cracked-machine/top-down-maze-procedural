@@ -7,7 +7,6 @@
 #include <Components/Particle/Smoke.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Systems/Stores/SystemStore.hpp>
-#include <Utils/Player.hpp>
 
 #include <SFML/System/Vector2.hpp>
 #include <entt/entity/fwd.hpp>

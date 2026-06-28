@@ -1,12 +1,9 @@
 #ifndef SRC_UTILS_UTILS_HPP__
 #define SRC_UTILS_UTILS_HPP__
 
-#include <Components/Position.hpp>
-#include <Components/RectBounds.hpp>
-#include <SFML/Graphics/Rect.hpp>
-#include <SFML/System/Vector2.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #include <Utils/Constants.hpp>
+
 #include <entt/entity/fwd.hpp>
 #include <optional>
 
@@ -19,6 +16,7 @@ class View;
 
 namespace Game::Cmp
 {
+class Position;
 class RectBounds;
 class PlayerHealth;
 class PlayerWealth;
@@ -34,10 +32,11 @@ class LerpPosition;
 namespace Game::Utils
 {
 
+//! @brief
 enum class Rounding { TOWARDS_ZERO, AWAY_ZERO, NEAREST };
 
 // Pure utility functions - no registry needed
-bool isInBounds( const sf::Vector2f &position, const sf::Vector2f &size, const sf::Vector2u &map_grid_size );
+bool is_in_bounds( const sf::Vector2f &position, const sf::Vector2f &size, const sf::Vector2u &map_grid_size );
 sf::FloatRect snap_to_grid( const sf::FloatRect &position, Rounding rounding = Rounding::NEAREST ) noexcept;
 sf::Vector2f snap_to_grid( const sf::Vector2f &position, Rounding rounding = Rounding::NEAREST ) noexcept;
 sf::FloatRect snap_to_grid( const Cmp::Position &position, Rounding rounding ) noexcept;
@@ -45,20 +44,23 @@ sf::FloatRect get_mouse_bounds_in_gameview( const sf::RenderWindow &window, cons
 entt::entity get_world_pos_entt( entt::registry &reg, Cmp::Position match );
 
 // Entity/registry utility functions - declarations only
-std::optional<sf::Vector2f> getPixelPosition( entt::registry &registry, entt::entity entity );
+std::optional<sf::Vector2f> get_pixel_position( entt::registry &registry, entt::entity entity );
 bool is_graveyard_exit_locked( entt::registry &reg );
 
-Cmp::System &getSystemCmp( entt::registry &reg );
+//! @brief Get the system cmp object
+//! @param reg
+//! @return Cmp::System&
+Cmp::System &get_system_cmp( entt::registry &reg );
 
 //! @brief Get the Grid Position object
 //! @param entity The entity to get the grid position for.
 //! @tparam Signedness The signedness of the grid position coordinates (int or unsigned int).
 //! @return std::optional<sf::Vector2<Signedness>>
 template <typename Signedness>
-std::optional<sf::Vector2<Signedness>> getGridPosition( entt::registry &registry, entt::entity entity );
+std::optional<sf::Vector2<Signedness>> get_grid_position( entt::registry &registry, entt::entity entity );
 
-extern template std::optional<sf::Vector2<int>> getGridPosition( entt::registry &, entt::entity );
-extern template std::optional<sf::Vector2<unsigned int>> getGridPosition( entt::registry &, entt::entity );
+extern template std::optional<sf::Vector2<int>> get_grid_position( entt::registry &, entt::entity );
+extern template std::optional<sf::Vector2<unsigned int>> get_grid_position( entt::registry &, entt::entity );
 
 } // namespace Game::Utils
 

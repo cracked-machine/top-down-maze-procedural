@@ -4,9 +4,6 @@
 #include <Components/Crypt/CryptPassageDoor.hpp>
 #include <Components/Crypt/CryptRoomBase.hpp>
 #include <SFML/Graphics/Rect.hpp>
-#include <SFML/System/Vector2.hpp>
-#include <Utils/Utils.hpp>
-
 namespace Game::Cmp
 {
 

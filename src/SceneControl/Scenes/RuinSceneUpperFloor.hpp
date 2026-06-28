@@ -7,7 +7,6 @@
 #include <SceneControl/Scene.hpp>
 #include <Sprites/VertexFloor.hpp>
 #include <Systems/Stores/SystemStore.hpp>
-#include <Utils/Utils.hpp>
 
 namespace Game::Scene
 {

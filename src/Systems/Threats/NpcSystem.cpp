@@ -93,7 +93,7 @@ void NpcSystem::update( sf::Time dt )
   update_sfx();
   update_movement( dt );
 
-  if ( not Utils::getSystemCmp( reg() ).collisions_disabled )
+  if ( not Utils::get_system_cmp( reg() ).collisions_disabled )
   {
     check_once_collision();
     check_timed_collision( dt );

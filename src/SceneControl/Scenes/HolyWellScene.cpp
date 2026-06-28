@@ -24,6 +24,7 @@
 #include <Systems/Threats/NpcSystem.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Player.hpp>
+#include <Utils/Utils.hpp>
 
 namespace Game::Scene
 {

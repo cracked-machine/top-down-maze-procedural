@@ -149,18 +149,18 @@ void BombSystem::place_concentric_bomb_pattern( const entt::entity &epicenter_en
 {
   constexpr int kZOrderOffset = 64;
 
-  SPDLOG_INFO( "Recursive call {}", depth );
+  SPDLOG_DEBUG( "Recursive call {}", depth );
   constexpr int kMaxRecursionDepth = 10;
   if ( depth >= kMaxRecursionDepth ) return;
 
   // Validate epicenter entity
-  if ( !reg().valid( epicenter_entity ) ) return;
+  if ( not reg().valid( epicenter_entity ) ) return;
 
   // Skip if this entity is already armed (prevents re-processing)
   if ( reg().any_of<Cmp::Armed>( epicenter_entity ) ) return;
 
-  auto grid_pos_opt = Utils::getGridPosition<int>( reg(), epicenter_entity );
-  if ( !grid_pos_opt.has_value() ) return;
+  auto grid_pos_opt = Utils::get_grid_position<int>( reg(), epicenter_entity );
+  if ( not grid_pos_opt.has_value() ) return;
   sf::Vector2i centerTile = grid_pos_opt.value();
 
   // Mark epicenter as armed FIRST before any recursive processing
@@ -181,7 +181,7 @@ void BombSystem::place_concentric_bomb_pattern( const entt::entity &epicenter_en
     {
       if ( destructable_entity == epicenter_entity || reg().any_of<Cmp::Armed>( destructable_entity ) ) continue;
 
-      sf::Vector2i grid_position = Utils::getGridPosition<int>( reg(), destructable_entity ).value();
+      sf::Vector2i grid_position = Utils::get_grid_position<int>( reg(), destructable_entity ).value();
       int distance_from_center = Utils::Maths::getChebyshevDistance( grid_position, centerTile );
 
       if ( distance_from_center == layer )

@@ -20,10 +20,9 @@
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Threats/HazardFieldSystem.hpp>
+#include <Systems/Threats/HazardTraits.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
-
-#include <Systems/Threats/HazardTraits.hpp>
 
 namespace Game::Sys
 {
@@ -44,7 +43,7 @@ sf::Vector2f HazardFieldSystem<HazardType>::update()
   add_hazard_cell = update_hazard_field();
   check_npc_hazard_field_collision();
 
-  if ( not Utils::getSystemCmp( reg() ).collisions_disabled ) { check_player_hazard_field_collision(); }
+  if ( not Utils::get_system_cmp( reg() ).collisions_disabled ) { check_player_hazard_field_collision(); }
 
   return add_hazard_cell;
 }

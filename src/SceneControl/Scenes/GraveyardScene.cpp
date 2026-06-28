@@ -21,6 +21,7 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinBuildingMultiBlock.hpp>
 #include <Components/UUID.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/ParticleFactory.hpp>
 #include <Factory/PathfindingFactory.hpp>
@@ -65,9 +66,7 @@
 #include <Utils/Constants.hpp>
 #include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>
-#include <Utils/Utils.hpp>
 
-#include <Components/ZOrderValue.hpp>
 #include <cmath>
 
 namespace Game::Scene

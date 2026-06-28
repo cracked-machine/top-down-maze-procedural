@@ -104,7 +104,7 @@ void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
   {
     check_player_can_push( dt );
     check_player_can_pull( dt );
-    update_player_position( dt, Utils::getSystemCmp( reg() ).collisions_disabled );
+    update_player_position( dt, Utils::get_system_cmp( reg() ).collisions_disabled );
     update_player_animation();
 
     Utils::Player::get_zorder( reg() ).setZOrder( Utils::Player::get_position( reg() ).position.y );

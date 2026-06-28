@@ -3,13 +3,15 @@
 #include <Components/Crypt/CryptRoomEnd.hpp>
 #include <Components/Crypt/CryptRoomOpen.hpp>
 #include <Components/Random.hpp>
-#include <array>
+#include <Components/RectBounds.hpp>
 #include <Components/Wall.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <Systems/ProcGen/PassageAlgorithms.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Player.hpp>
+#include <Utils/Utils.hpp>
+#include <array>
 
 namespace Game::Sys::ProcGen
 {
@@ -110,7 +112,7 @@ std::vector<Cmp::CryptPassageBlock> PassageAlogirthms::create_drunken_walk( entt
   float max_y = std::min( map_size_pixel.y,
                           std::max( start.y + Constants::kGridSizePxF.y, end_bounds.position.y + end_bounds.size.y ) + kMinSpacing );
   sf::FloatRect walk_bounds( sf::Vector2f( min_x, min_y ), sf::Vector2f( max_x - min_x, max_y - min_y ) );
-  const float walk_right  = max_x - Constants::kGridSizePxF.x;
+  const float walk_right = max_x - Constants::kGridSizePxF.x;
   const float walk_bottom = max_y - Constants::kGridSizePxF.y;
 
   // cache open room rects once before the walk
@@ -168,8 +170,7 @@ std::vector<Cmp::CryptPassageBlock> PassageAlogirthms::create_drunken_walk( entt
           else
             chosen_direction = ( target_distance.y > 0 ) ? sf::Vector2f( 0.f, 1.f ) : sf::Vector2f( 0.f, -1.f );
         }
-        else if ( random_choice < kRouletteSameDirectionThreshold &&
-                  ( last_move_direction.x != 0.f || last_move_direction.y != 0.f ) )
+        else if ( random_choice < kRouletteSameDirectionThreshold && ( last_move_direction.x != 0.f || last_move_direction.y != 0.f ) )
         {
           chosen_direction = last_move_direction;
         }
@@ -180,8 +181,8 @@ std::vector<Cmp::CryptPassageBlock> PassageAlogirthms::create_drunken_walk( entt
       candidate_pos.position.x = current_pos.position.x + chosen_magnitude.x;
       candidate_pos.position.y = current_pos.position.y + chosen_magnitude.y;
 
-      if ( candidate_pos.position.x < min_x || candidate_pos.position.x > walk_right ||
-           candidate_pos.position.y < min_y || candidate_pos.position.y > walk_bottom )
+      if ( candidate_pos.position.x < min_x || candidate_pos.position.x > walk_right || candidate_pos.position.y < min_y ||
+           candidate_pos.position.y > walk_bottom )
       {
         step_attempts++;
         continue;

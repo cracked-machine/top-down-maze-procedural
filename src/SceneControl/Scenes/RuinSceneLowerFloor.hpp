@@ -3,14 +3,12 @@
 
 #include <Audio/SoundBank.hpp>
 #include <Factory/SpriteFactory.hpp>
-#include <SFML/System/Vector2.hpp>
 #include <SceneControl/Events/ProcessRuinSceneLowerInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
+#include <Sprites/SpriteMetaType.hpp>
 #include <Sprites/VertexFloor.hpp>
 #include <Systems/Stores/SystemStore.hpp>
-#include <Utils/Utils.hpp>
 
-#include <Sprites/SpriteMetaType.hpp>
 namespace Game::Sprites
 {
 class SpriteSheet;

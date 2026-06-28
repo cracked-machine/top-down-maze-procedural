@@ -1,13 +1,12 @@
 #ifndef SRC_SCENECONTROL_SCENES_GRAVEYARDSCENE_HPP__
 #define SRC_SCENECONTROL_SCENES_GRAVEYARDSCENE_HPP__
 
-#include <SFML/System/Time.hpp>
 #include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
-
 #include <Sprites/VertexFloor.hpp>
 #include <Systems/BaseSystem.hpp>
-#include <Utils/Utils.hpp>
+
+#include <SFML/System/Time.hpp>
 
 // clang-format off
 namespace Game::Sys { class Store; }

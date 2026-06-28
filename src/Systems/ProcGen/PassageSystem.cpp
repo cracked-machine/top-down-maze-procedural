@@ -11,7 +11,7 @@
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Random.hpp>
 #include <Components/System.hpp>
-#include <Utils/Constants.hpp>
+#include <Components/UUID.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
@@ -19,10 +19,11 @@
 #include <Systems/BaseSystem.hpp>
 #include <Systems/Events/PassageEvent.hpp>
 #include <Systems/ProcGen/PassageSystem.hpp>
-#include <Components/UUID.hpp>
+#include <Utils/Constants.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Player.hpp>
 
+#include <Utils/Utils.hpp>
 #include <map>
 #include <spdlog/spdlog.h>
 #include <stdexcept>
@@ -645,7 +646,7 @@ void PassageSystem::fill_all_passages()
   }
 
   // Player squish check — done once after all walls are placed
-  if ( not Utils::getSystemCmp( reg() ).collisions_disabled )
+  if ( not Utils::get_system_cmp( reg() ).collisions_disabled )
   {
     if ( not m_passage_block_grid.at( Utils::Player::get_position( reg() ) ).empty() )
     {

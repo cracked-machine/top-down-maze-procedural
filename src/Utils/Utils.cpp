@@ -22,7 +22,6 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/View.hpp>
 #include <SFML/Window/Mouse.hpp>
-#include <Sprites/SpriteSheet.hpp>
 #include <cmath>
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
@@ -31,7 +30,7 @@
 namespace Game::Utils
 {
 
-bool isInBounds( const sf::Vector2f &position, const sf::Vector2f &size, const sf::Vector2u &map_grid_size )
+bool is_in_bounds( const sf::Vector2f &position, const sf::Vector2f &size, const sf::Vector2u &map_grid_size )
 {
   float map_width = static_cast<float>( map_grid_size.x ) * Constants::kGridSizePxF.x;
   float map_height = static_cast<float>( map_grid_size.y ) * Constants::kGridSizePxF.y;
@@ -148,9 +147,9 @@ sf::Vector2f snap_to_grid( const sf::Vector2f &position, Rounding rounding ) noe
 //!
 //! @param entity The entity to get the pixel position for.
 //! @return std::optional<sf::Vector2f>
-std::optional<sf::Vector2f> getPixelPosition( entt::registry &registry, entt::entity entity )
+std::optional<sf::Vector2f> get_pixel_position( entt::registry &registry, entt::entity entity )
 {
-  auto pos = registry.try_get<Cmp::Position>( entity );
+  auto *pos = registry.try_get<Cmp::Position>( entity );
   if ( pos ) { return ( *pos ).position; }
   return std::nullopt;
 }
@@ -165,7 +164,7 @@ bool is_graveyard_exit_locked( entt::registry &reg )
   throw std::runtime_error( "No exit was found in the game!" );
 }
 
-Cmp::System &getSystemCmp( entt::registry &reg )
+Cmp::System &get_system_cmp( entt::registry &reg )
 {
   entt::entity system_entt = entt::null;
   Cmp::System *system_cmp = nullptr;
@@ -194,20 +193,20 @@ sf::FloatRect get_mouse_bounds_in_gameview( const sf::RenderWindow &window, cons
 //! @return std::optional<sf::Vector2<Signedness>>
 template <typename Signedness>
 
-std::optional<sf::Vector2<Signedness>> getGridPosition( entt::registry &registry, entt::entity entity )
+std::optional<sf::Vector2<Signedness>> get_grid_position( entt::registry &registry, entt::entity entity )
 {
-  auto pos = registry.try_get<Cmp::Position>( entity );
+  auto *pos = registry.try_get<Cmp::Position>( entity );
   if ( pos )
   {
     return std::optional<sf::Vector2<Signedness>>{ { static_cast<Signedness>( pos->position.x / Constants::kGridSizePx.x ),
                                                      static_cast<Signedness>( pos->position.y / Constants::kGridSizePx.y ) } };
   }
-  else { SPDLOG_ERROR( "Entity {} does not have a Position component", static_cast<int>( entity ) ); }
+  SPDLOG_ERROR( "Entity {} does not have a Position component", static_cast<int>( entity ) );
   return std::nullopt;
 }
 
-template std::optional<sf::Vector2<int>> getGridPosition( entt::registry &, entt::entity );
-template std::optional<sf::Vector2<unsigned int>> getGridPosition( entt::registry &, entt::entity );
+template std::optional<sf::Vector2<int>> get_grid_position( entt::registry &, entt::entity );
+template std::optional<sf::Vector2<unsigned int>> get_grid_position( entt::registry &, entt::entity );
 
 entt::entity get_world_pos_entt( entt::registry &reg, Cmp::Position match )
 {
