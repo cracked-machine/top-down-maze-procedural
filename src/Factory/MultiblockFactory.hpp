@@ -194,10 +194,21 @@ void add_multiblock_with_segments( entt::registry &reg, sf::Vector2f position, c
 
   for ( auto [mb_entt, mb_cmp, mb_zorder_cmp] : reg.view<MULTIBLOCK, Cmp::ZOrderValue>().each() )
   {
-    // Use the non-zero function arg, or the non-zero json value, or fallback to the sprite y-axis
-    if ( zorder != 0 ) { mb_zorder_cmp.setZOrder( zorder ); }
-    else if ( ms.get_zorder( ms_index ) != 0 ) { mb_zorder_cmp.setZOrder( ms.get_zorder( ms_index ) ); }
-    else { mb_zorder_cmp.setZOrder( mb_zorder_cmp.getZOrder() ); }
+    if ( zorder != 0 )
+    {
+      // Use the function param if explicitly set
+      mb_zorder_cmp.setZOrder( zorder );
+    }
+    else if ( ms.get_zorder( ms_index ) != 0 )
+    {
+      // Use the y-axis position plus the json zorder value
+      mb_zorder_cmp.setZOrder( static_cast<sf::FloatRect>( mb_cmp ).position.y + ms.get_zorder( ms_index ) );
+    }
+    else
+    {
+      // fallback to the y-axis position only
+      mb_zorder_cmp.setZOrder( static_cast<sf::FloatRect>( mb_cmp ).position.y );
+    }
   }
 }
 
