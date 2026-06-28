@@ -20,6 +20,10 @@ public:
   //! @param sound_bank
   ShockwaveSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
+  //! @brief Update Priest NPC shockwave
+  //! @param dt
+  void update( sf::Time dt );
+
   //! @brief Remove segments that intersect with a rectangle
   //! @param rect
   //! @param shockwave
@@ -34,6 +38,14 @@ public:
   void on_resume() override {};
 
 private:
+  //! @brief
+  sf::Clock shockwave_update_clock;
+
+  //! @brief Check if shockwave has collided with an obstacle and needs to be segmented.
+  //! @param shockwave_entity
+  //! @param shockwave
+  void check_shockwave_obstacle_collision( entt::entity shockwave_entity, Cmp::NpcShockwave &shockwave );
+
   //! @brief Check if the player position intersects with the shockwave segments. Knockback player if there is a collision.
   //! @param reg
   //! @param shockwave

@@ -114,7 +114,7 @@ RegistryTransfer::RegCopy RegistryTransfer::copy_reg( IScene &scene, Scene::RegC
       // Skip player entity (already copied above)
       if ( source_registry.any_of<Cmp::PlayerCharacter>( entity ) ) { continue; }
 
-      // Skip blacklisted components
+      // Skip transfer on deny list components
       if ( source_registry.any_of<Cmp::ReservedPosition, Cmp::Obstacle, Cmp::Armable, Cmp::NpcNoPathFinding, Cmp::FootStepTimer, Cmp::FootStepAlpha,
                                   Cmp::CryptRoomOpen, Cmp::CryptRoomClosed, Cmp::CryptRoomStart, Cmp::CryptRoomEnd, Cmp::CryptPassageBlock,
                                   Cmp::CryptLever, Cmp::CryptObjectiveMultiBlock, Cmp::VoidPosition>( entity ) )

@@ -13,7 +13,7 @@ This uses a custom game engine using OpenGL/SFML3. The engine is managed using a
 
 The project is built using GCC and CMake. 
 
-The build environment runs within a [docker container](.devcontainer/Dockerfile). All third party libraries are built from source. 
+The build environment runs within a [docker container](https://github.com/cracked-machine/TheShadesBelow/tree/main/.devcontainer/Dockerfile). All third party libraries are built from source. 
 
 This project is setup to build on a linux system and cross-compile for a windows target via [MinGW](https://packages.debian.org/search?keywords=g%2B%2B-mingw-w64-x86-64&searchon=names&suite=all&section=all).  
 

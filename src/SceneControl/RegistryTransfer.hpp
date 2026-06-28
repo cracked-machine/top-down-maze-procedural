@@ -119,7 +119,7 @@ public:
   }
 
 private:
-  //! @brief Ensure all known player component storages exist in the given registry
+  //! @brief Allow transfer on allow list components. Ensure all known player component storages exist in the given registry
   //! @param registry
   void init_missing_cmp_storages( entt::registry &registry );
 

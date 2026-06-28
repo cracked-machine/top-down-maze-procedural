@@ -74,24 +74,22 @@ NpcSystem::NpcSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::Sp
 void NpcSystem::update( sf::Time dt )
 {
 
-  // run skelton activation checks at 5Hz
-  static constexpr float kBonesInterval = 0.20f;
-  m_bones_accumulator += dt;
-  if ( m_bones_accumulator.asSeconds() >= kBonesInterval )
+  static constexpr float kContainerInterval = 0.20f;
+  m_container_timer += dt;
+  if ( m_container_timer.asSeconds() >= kContainerInterval )
   {
-    check_bones_reanimation();
-    m_bones_accumulator = sf::Time::Zero;
+    check_npc_container_collision();
+    m_container_timer = sf::Time::Zero;
   }
 
   update_pathfinding( dt );
 
-  // run animation checks at 20Hz
-  static constexpr float kAnimationInterval = 0.05f;
-  m_animation_accumulator += dt;
-  if ( m_animation_accumulator.asSeconds() >= kAnimationInterval )
+  static constexpr float kAnimInterval = 0.05f;
+  m_anim_timer += dt;
+  if ( m_anim_timer.asSeconds() >= kAnimInterval )
   {
     update_animation();
-    m_animation_accumulator = sf::Time::Zero;
+    m_anim_timer = sf::Time::Zero;
   }
   update_sfx();
   update_movement( dt );
@@ -101,11 +99,9 @@ void NpcSystem::update( sf::Time dt )
     check_once_collision();
     check_timed_collision( dt );
   }
-
-  update_shockwaves( dt );
 }
 
-void NpcSystem::check_bones_reanimation()
+void NpcSystem::check_npc_container_collision()
 {
 
   auto player_pos = Utils::Player::get_position( reg() );
@@ -268,9 +264,9 @@ void NpcSystem::update_sfx()
 
 void NpcSystem::update_pathfinding( sf::Time dt )
 {
-  static constexpr float kScanInterval = 0.10f;
-  m_scan_accumulator += dt;
-  if ( m_scan_accumulator.asSeconds() >= kScanInterval )
+  static constexpr float kPathfindingInterval = 0.10f;
+  m_pathfinding_timer += dt;
+  if ( m_pathfinding_timer.asSeconds() >= kPathfindingInterval )
   {
     // Wisp NPCs — driven from NpcTarget view, no inner loop needed
     if ( auto navmesh = m_open_navmesh.lock() )
@@ -302,7 +298,7 @@ void NpcSystem::update_pathfinding( sf::Time dt )
       }
     }
 
-    m_scan_accumulator = sf::Time::Zero;
+    m_pathfinding_timer = sf::Time::Zero;
   }
 }
 void NpcSystem::update_pathfinding_for( PathFinding::SpatialHashGrid &navmesh, const Cmp::Position &target_pos, entt::entity npc_entity,
@@ -566,95 +562,6 @@ void NpcSystem::find_pushback_position( const Cmp::Direction &npc_direction )
   if ( Utils::Collision::check_cmp<Cmp::CryptObjectiveSegment>( reg(), new_pos_rect ) ) return;
 
   player_pos.position = new_position;
-}
-
-void NpcSystem::update_shockwaves( sf::Time dt )
-{
-  // emit shockwaves from each NPC
-  for ( auto [npc_entt, npc_cmp, anim_cmp, npc_pos_cmp, npc_uuid_cmp] : reg().view<Cmp::NPC, Cmp::AnimData, Cmp::Position, Cmp::UUID>().each() )
-  {
-    if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), npc_pos_cmp ) ) continue;
-    if ( anim_cmp.m_sprite_type == "sprite.priest" )
-    {
-      // cooldown is handled in Factory function via Cmp::NpcShockwaveTimer per NPC
-      auto created_shockwave = Factory::create_shockwave( reg(), npc_entt );
-      if ( created_shockwave )
-      {
-        Particle::Factory::add_shockwave( reg(), "particle.shockwave.priest", npc_uuid_cmp, npc_pos_cmp.getCenter(), 50000 );
-        m_sound_bank.get_effect( "emit_shockwave_low" ).play();
-        m_sound_bank.get_effect( "emit_shockwave_high" ).play();
-      }
-
-      // update the shockwave position so that it follows NPC
-      Particle::Factory::update_position( reg(), npc_uuid_cmp, npc_pos_cmp.getCenter() );
-    }
-  }
-
-  // Invert the interval - larger values = faster updates, smaller values = slower updates
-  auto speed_value = Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveSpeed>( reg() ).get_value();
-  auto max_radius = Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveMaxRadius>( reg() );
-
-  for ( auto entt : reg().view<Cmp::NpcShockwave>() )
-  {
-    auto &sw_cmp = reg().get<Cmp::NpcShockwave>( entt );
-    float current_radius = sw_cmp.sprite.get_radius();
-
-    // Exponential scaling - shockwave accelerates as it grows
-    // This creates a natural acceleration that maintains the visual impression of constant speed as the circumference grows.
-    float normalized_radius = current_radius / max_radius.get_value();
-    float speed_multiplier = 1.0f + ( normalized_radius * normalized_radius ); // Quadratic acceleration
-    float new_radius = current_radius + ( speed_value * speed_multiplier * dt.asSeconds() );
-    sw_cmp.sprite.set_radius( new_radius );
-
-    check_shockwave_obstacle_collision( entt, sw_cmp );
-
-    if ( new_radius > max_radius.get_value() ) { reg().destroy( entt ); }
-  }
-  shockwave_update_clock.restart();
-
-  // Particle::Factory::delete_expired_particle_sprites( reg(), "particle.shockwave.priest" );
-}
-
-void NpcSystem::check_shockwave_obstacle_collision( [[maybe_unused]] entt::entity shockwave_entity, Cmp::NpcShockwave &shockwave )
-{
-  auto obstacle_view = reg().view<Cmp::Obstacle, Cmp::Position, Cmp::AnimData>();
-
-  for ( auto [obstacle_entity, obstacle_cmp, obstacle_pos, sprite_anim] : obstacle_view.each() )
-  {
-    // Check if this is the specific obstacle type and index we care about
-    if ( ( sprite_anim.m_sprite_type == "sprite.crypt.wall.int.main" && sprite_anim.getFrameIndexOffset() == 1 ) or
-         ( sprite_anim.m_sprite_type == "sprite.crypt.wall.int.main" && sprite_anim.getFrameIndexOffset() == 0 ) )
-    {
-      sf::FloatRect obstacle_rect( obstacle_pos.position, obstacle_pos.size );
-
-      SPDLOG_DEBUG( "Checking obstacle at ({}, {}) size ({}, {}) against shockwave at ({}, {}) radius {}", obstacle_rect.position.x,
-                    obstacle_rect.position.y, obstacle_rect.size.x, obstacle_rect.size.y, shockwave.sprite.getPosition().x,
-                    shockwave.sprite.getPosition().y, shockwave.sprite.getRadius() );
-
-      // Calculate distance from circle center to rectangle
-      sf::Vector2f circle_center = shockwave.sprite.get_position();
-      float circle_radius = shockwave.sprite.get_radius();
-
-      // Find closest point on rectangle to circle center
-      sf::Vector2f closest_point;
-      closest_point.x = std::max( obstacle_rect.position.x, std::min( circle_center.x, obstacle_rect.position.x + obstacle_rect.size.x ) );
-      closest_point.y = std::max( obstacle_rect.position.y, std::min( circle_center.y, obstacle_rect.position.y + obstacle_rect.size.y ) );
-
-      // Calculate distance from circle center to closest point
-      sf::Vector2f diff = circle_center - closest_point;
-      float distance = std::sqrt( ( diff.x * diff.x ) + ( diff.y * diff.y ) );
-
-      // Check if circle intersects with rectangle (accounting for outline thickness)
-      float effective_radius = circle_radius + ( shockwave.sprite.get_outline_thickness() / 2.0f );
-
-      if ( distance <= effective_radius )
-      {
-        SPDLOG_DEBUG( "Shockwave INTERSECTS with obstacle (distance: {}, effective_radius: {})", distance, effective_radius );
-        Sys::ShockwaveSystem::remove_intersecting_segments( obstacle_rect, shockwave );
-      }
-      else { SPDLOG_DEBUG( "Shockwave does NOT intersect with obstacle (distance: {}, effective_radius: {})", distance, effective_radius ); }
-    }
-  }
 }
 
 } // namespace Game::Sys
