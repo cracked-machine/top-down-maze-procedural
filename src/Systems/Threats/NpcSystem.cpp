@@ -1,22 +1,29 @@
 #include <Audio/SoundBank.hpp>
-#include <Collision.hpp>
 #include <Components/Altar/AltarSegment.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Crypt/CryptSegment.hpp>
 #include <Components/Direction.hpp>
 #include <Components/FootStepTimer.hpp>
+#include <Components/Grave/GraveSegment.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcContainer.hpp>
+#include <Components/Npc/NpcFriendly.hpp>
+#include <Components/Npc/NpcLerpSpeed.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Npc/NpcShockwave.hpp>
+#include <Components/Npc/NpcTarget.hpp>
 #include <Components/Obstacle.hpp>
+#include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/Persistent/NpcActivateScale.hpp>
 #include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
+#include <Components/PlantObstacle.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerMortality.hpp>
+#include <Components/Position.hpp>
+#include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/SpawnArea.hpp>
 #include <Components/System.hpp>
@@ -29,17 +36,9 @@
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ParticleFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
-#include <Grave/GraveSegment.hpp>
-#include <Npc/NpcFriendly.hpp>
-#include <Npc/NpcLerpSpeed.hpp>
-#include <Npc/NpcTarget.hpp>
 #include <PathFinding/AStar.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
-#include <Persistent/DisplayResolution.hpp>
-#include <Position.hpp>
-#include <Random.hpp>
 #include <Ruin/RuinSegment.hpp>
-#include <SFML/Audio/Sound.hpp>
 #include <Stats/BaseAction.hpp>
 #include <Stats/CollisionAction.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -47,6 +46,7 @@
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 #include <Systems/Threats/ShockwaveSystem.hpp>
+#include <Utils/Collision.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Npc.hpp>
@@ -55,9 +55,9 @@
 #include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
 
+#include <SFML/Audio/Sound.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Time.hpp>
-#include <algorithm>
 #include <spdlog/spdlog.h>
 #include <typeindex>
 
@@ -554,6 +554,7 @@ void NpcSystem::find_pushback_position( const Cmp::Direction &npc_direction )
   // make sure player isnt knocked into an obstacle or multiblock
   auto new_pos_rect = Cmp::RectBounds::scaled( new_position, Constants::kGridSizePxF, 1.f );
   if ( Utils::Collision::check_cmp<Cmp::Obstacle>( reg(), new_pos_rect ) ) return;
+  if ( Utils::Collision::check_cmp<Cmp::PlantObstacle>( reg(), new_pos_rect ) ) return;
   if ( Utils::Collision::check_cmp<Cmp::Wall>( reg(), new_pos_rect ) ) return;
   if ( Utils::Collision::check_cmp<Cmp::AltarSegment>( reg(), new_pos_rect ) ) return;
   if ( Utils::Collision::check_cmp<Cmp::GraveSegment>( reg(), new_pos_rect ) ) return;
