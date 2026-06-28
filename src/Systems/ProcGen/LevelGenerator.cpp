@@ -1,4 +1,3 @@
-#include <Collision.hpp>
 #include <Components/Altar/AltarMultiBlock.hpp>
 #include <Components/Altar/AltarSegment.hpp>
 #include <Components/Crypt/CryptInteriorMultiBlock.hpp>
@@ -20,19 +19,24 @@
 #include <Components/Persistent/GraveNumMultiplier.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/Persistent/MaxNumCrypts.hpp>
+#include <Components/PlantObstacle.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
+#include <Components/Ruin/RuinCobweb.hpp>
+#include <Components/Ruin/RuinGateSegment.hpp>
 #include <Components/Ruin/RuinHexagramMultiBlock.hpp>
 #include <Components/Ruin/RuinHexagramSegment.hpp>
 #include <Components/Ruin/RuinSegment.hpp>
 #include <Components/Ruin/RuinStairsBalustradeMultiBlock.hpp>
+#include <Components/Ruin/RuinStairsGateMultiBlock.hpp>
 #include <Components/Ruin/RuinStairsLowerMultiBlock.hpp>
 #include <Components/Ruin/RuinStairsUpperMultiBlock.hpp>
 #include <Components/Ruin/RuneMarking.hpp>
 #include <Components/SpawnArea.hpp>
 #include <Components/Wall.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <Events/CreateItemEvent.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Factory/MultiblockFactory.hpp>
@@ -43,15 +47,13 @@
 #include <Factory/RuinFactory.hpp>
 #include <Factory/WallFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
-#include <PlantObstacle.hpp>
-#include <Ruin/RuinCobweb.hpp>
-#include <Ruin/RuinGateSegment.hpp>
-#include <Ruin/RuinStairsGateMultiBlock.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
+#include <Systems/ProcGen/LevelGenerator.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Utils/Collision.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>
@@ -59,12 +61,9 @@
 #include <Utils/Utils.hpp>
 
 #include <SFML/System/Vector2.hpp>
-#include <ZOrderValue.hpp>
 #include <memory>
 #include <ranges>
 #include <spdlog/spdlog.h>
-
-#include <Systems/ProcGen/LevelGenerator.hpp>
 
 namespace Game::Sys::ProcGen
 {

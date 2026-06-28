@@ -9,7 +9,9 @@
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/Player/PlayerMortality.hpp>
+#include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
+#include <Components/Stats/BaseAction.hpp>
 #include <Components/System.hpp>
 #include <Events/BuyShopItemEvent.hpp>
 #include <Events/CryptRoomEvent.hpp>
@@ -21,7 +23,6 @@
 #include <Events/SaveSettingsEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
 #include <Factory/PlayerFactory.hpp>
-#include <Player/PlayerWealth.hpp>
 #include <SceneControl/Events/ProcessCryptSceneInputEvent.hpp>
 #include <SceneControl/Events/ProcessGameoverSceneInputEvent.hpp>
 #include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
@@ -35,7 +36,6 @@
 #include <SceneControl/Events/ProcessTitleSceneInputEvent.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <SceneControl/SceneInputRouter.hpp>
-#include <Stats/BaseAction.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Stores/SystemStore.hpp>

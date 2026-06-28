@@ -3,8 +3,10 @@
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/DestroyedObstacle.hpp>
+#include <Components/Direction.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
+#include <Components/LastDirection.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/Moveable.hpp>
 #include <Components/Npc/Npc.hpp>
@@ -15,13 +17,13 @@
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <Components/PlantObstacle.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Player/PlayerNoPath.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SelectedPosition.hpp>
+#include <Components/UUID.hpp>
 #include <Components/ZOrderValue.hpp>
-#include <Constants.hpp>
-#include <Direction.hpp>
 #include <Events/CreateItemEvent.hpp>
 #include <Events/DropInventoryEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
@@ -30,18 +32,16 @@
 #include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
-#include <LastDirection.hpp>
-#include <Optimizations.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
-#include <Player/PlayerNoPath.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Systems/ActionSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Stores/ItemStore.hpp>
-#include <UUID.hpp>
+#include <Utils/Constants.hpp>
 #include <Utils/Maths.hpp>
+#include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
 

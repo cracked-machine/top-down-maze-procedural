@@ -1,22 +1,23 @@
-#include <AbsoluteAlpha.hpp>
-#include <Collision.hpp>
+#include <Components/AbsoluteAlpha.hpp>
 #include <Components/AnimData.hpp>
+#include <Components/Npc/Npc.hpp>
+#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Obstacle.hpp>
+#include <Components/Player/PlayerNoPath.hpp>
 #include <Components/Position.hpp>
+#include <Components/RectBounds.hpp>
+#include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinBookcase.hpp>
 #include <Components/Ruin/RuinCobweb.hpp>
 #include <Components/ZOrderValue.hpp>
-#include <Constants.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/RuinFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
-#include <Npc/Npc.hpp>
-#include <Npc/NpcNoPathFinding.hpp>
-#include <Obstacle.hpp>
-#include <Player/PlayerNoPath.hpp>
-#include <RectBounds.hpp>
-#include <ReservedPosition.hpp>
 #include <Systems/Stores/NpcStore.hpp>
+#include <Utils/Collision.hpp>
+#include <Utils/Constants.hpp>
 #include <Utils/Random.hpp>
+
 #include <entt/entity/registry.hpp>
 
 namespace Game::Factory

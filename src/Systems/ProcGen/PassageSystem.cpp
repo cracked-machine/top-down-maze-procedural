@@ -11,7 +11,7 @@
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Random.hpp>
 #include <Components/System.hpp>
-#include <Constants.hpp>
+#include <Utils/Constants.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
@@ -19,7 +19,7 @@
 #include <Systems/BaseSystem.hpp>
 #include <Systems/Events/PassageEvent.hpp>
 #include <Systems/ProcGen/PassageSystem.hpp>
-#include <UUID.hpp>
+#include <Components/UUID.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Player.hpp>
 

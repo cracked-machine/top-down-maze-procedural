@@ -1,11 +1,11 @@
 #ifndef SRC_COMPONENTS_CRYPTROOMEND_HPP
 #define SRC_COMPONENTS_CRYPTROOMEND_HPP
 
-#include <Crypt/CryptPassageDoor.hpp>
-#include <Crypt/CryptRoomBase.hpp>
+#include <Components/Crypt/CryptPassageDoor.hpp>
+#include <Components/Crypt/CryptRoomBase.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <Utils.hpp>
+#include <Utils/Utils.hpp>
 
 namespace Game::Cmp
 {

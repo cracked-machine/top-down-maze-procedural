@@ -3,7 +3,7 @@
 
 #include <Shaders/IShaderSprite.hpp>
 #include <Systems/BaseSystem.hpp>
-#include <ZOrderValue.hpp>
+#include <Components/ZOrderValue.hpp>
 namespace Game::Sys
 {
 

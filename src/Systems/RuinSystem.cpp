@@ -3,6 +3,7 @@
 #include <Components/Exit.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Persistent/RuinMaxSpiders.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerCurse.hpp>
 #include <Components/Player/PlayerMortality.hpp>
@@ -23,6 +24,8 @@
 #include <Components/Ruin/RuinStairsSegment.hpp>
 #include <Components/Ruin/RuinStairsUpperMultiBlock.hpp>
 #include <Components/Ruin/RuneMarking.hpp>
+#include <Components/Stats/BaseAction.hpp>
+#include <Components/Stats/CollisionAction.hpp>
 #include <Components/System.hpp>
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -32,11 +35,8 @@
 #include <Factory/NpcFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/RuinFactory.hpp>
-#include <Persistent/RuinMaxSpiders.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Sprites/SpriteSheet.hpp>
-#include <Stats/BaseAction.hpp>
-#include <Stats/CollisionAction.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/RuinSystem.hpp>

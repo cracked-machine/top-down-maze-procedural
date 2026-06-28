@@ -1,6 +1,6 @@
 #include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/RectBounds.hpp>
-#include <Optimizations.hpp>
+#include <Utils/Optimizations.hpp>
 #include <Shaders/DarkModeShader.hpp>
 #include <Shaders/DrippingBloodShader.hpp>
 #include <Shaders/FloodWaterShader.hpp>

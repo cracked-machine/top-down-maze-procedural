@@ -1,13 +1,13 @@
 #ifndef SRC_FACTORY_SHADERFACTORY_HPP_
 #define SRC_FACTORY_SHADERFACTORY_HPP_
 
-#include <Persistent/DisplayResolution.hpp>
+#include <Components/Persistent/DisplayResolution.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <Shaders/DarkModeShader.hpp>
 #include <Shaders/FloodWaterShader.hpp>
 #include <Shaders/MistShader.hpp>
 #include <Shaders/NightStaticShader.hpp>
 #include <Systems/ShaderSystem.hpp>
-#include <ZOrderValue.hpp>
 
 namespace Game::Factory::Shader
 {

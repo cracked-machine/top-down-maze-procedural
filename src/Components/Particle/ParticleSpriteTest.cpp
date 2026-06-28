@@ -1,4 +1,4 @@
-#include <Particle/ParticleSpriteTest.hpp>
+#include <Components/Particle/ParticleSpriteTest.hpp>
 
 #include <random>
 

@@ -1,7 +1,7 @@
 #ifndef SRC_CMP_PARTICLE_PARTICLESPRITETEST_HPP_
 #define SRC_CMP_PARTICLE_PARTICLESPRITETEST_HPP_
 
-#include <Particle/ParticleSpriteBase.hpp>
+#include <Components/Particle/ParticleSpriteBase.hpp>
 #include <SFML/Graphics/BlendMode.hpp>
 #include <Systems/ParticleSystem.hpp>
 

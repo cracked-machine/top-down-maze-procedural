@@ -1,15 +1,15 @@
-#include <Player.hpp>
-#include <Player/PlayerCadaverCount.hpp>
-#include <Player/PlayerWealth.hpp>
-#include <SFML/System/Time.hpp>
-#include <SceneControl/Scenes/LevelCompleteScene.hpp>
-
 #include <Audio/SoundBank.hpp>
+#include <Components/Player/PlayerCadaverCount.hpp>
+#include <Components/Player/PlayerWealth.hpp>
 #include <SceneControl/Events/ProcessLevelCompleteSceneInputEvent.hpp>
+#include <SceneControl/Scenes/LevelCompleteScene.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/Render/RenderMenuSystem.hpp>
 #include <Systems/Stores/SystemStore.hpp>
+#include <Utils/Player.hpp>
+
+#include <SFML/System/Time.hpp>
 
 namespace Game::Scene
 {

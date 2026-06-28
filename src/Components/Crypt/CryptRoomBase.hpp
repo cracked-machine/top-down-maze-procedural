@@ -1,9 +1,9 @@
 #ifndef SRC_CMP_CRYPT_CRYPTROOMBASE_
 #define SRC_CMP_CRYPT_CRYPTROOMBASE_
 
-#include <Crypt/CryptPassageDoor.hpp>
+#include <Components/Crypt/CryptPassageDoor.hpp>
 #include <SFML/Graphics/Rect.hpp>
-#include <Utils.hpp>
+#include <Utils/Utils.hpp>
 
 namespace Game::Cmp
 {

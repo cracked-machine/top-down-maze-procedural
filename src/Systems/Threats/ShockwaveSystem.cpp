@@ -1,21 +1,21 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/Npc/NpcShockwave.hpp>
 #include <Components/Obstacle.hpp>
+#include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
+#include <Components/Persistent/NpcShockwaveSpeed.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Stats/ProjectileAction.hpp>
 #include <Components/System.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ParticleFactory.hpp>
-#include <Optimizations.hpp>
-#include <Persistent/NpcShockwaveMaxRadius.hpp>
-#include <Persistent/NpcShockwaveSpeed.hpp>
 #include <Sprites/Shockwave.hpp>
-#include <Stats/ProjectileAction.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Stores/NpcStore.hpp>
 #include <Utils/Maths.hpp>
+#include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
 

@@ -1,8 +1,8 @@
 #ifndef SRC_INVENTORY_CARRYITEM_HPP_
 #define SRC_INVENTORY_CARRYITEM_HPP_
 
+#include <Components/Stats/BaseAction.hpp>
 #include <Sprites/SpriteMetaType.hpp>
-#include <Stats/BaseAction.hpp>
 
 #include <typeindex>
 #include <unordered_map>

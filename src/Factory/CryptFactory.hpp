@@ -9,7 +9,7 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/Wall.hpp>
 #include <Factory/ObstacleFactory.hpp>
-#include <SpatialHashGrid.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 
 namespace Game::Sprites

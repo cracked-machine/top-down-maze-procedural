@@ -1,8 +1,8 @@
 #ifndef SRC_PATHFINDING_ASTAR_HPP_
 #define SRC_PATHFINDING_ASTAR_HPP_
 
-#include <Position.hpp>
-#include <SpatialHashGrid.hpp>
+#include <Components/Position.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <entt/entity/entity.hpp>
 
 /// Main class

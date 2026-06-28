@@ -3,7 +3,7 @@
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Factory/LootFactory.hpp>
-#include <SpatialHashGrid.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Utils/Random.hpp>
 

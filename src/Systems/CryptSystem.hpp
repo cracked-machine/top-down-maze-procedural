@@ -1,7 +1,7 @@
 #ifndef SRC_SYSTEMS_CRYPTSYSTEM_HPP__
 #define SRC_SYSTEMS_CRYPTSYSTEM_HPP__
 
-#include <Crypt.hpp>
+#include <Utils/Crypt.hpp>
 #include <Events/CryptRoomEvent.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>

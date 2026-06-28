@@ -1,7 +1,7 @@
 #ifndef SRC_CMPS_PLAYER_PLAYERCURSE_HPP_
 #define SRC_CMPS_PLAYER_PLAYERCURSE_HPP_
 
-#include <Random.hpp>
+#include <Components/Random.hpp>
 namespace Game::Cmp
 {
 

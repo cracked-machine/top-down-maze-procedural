@@ -3,7 +3,7 @@
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <PathFinding/AStar.hpp>
-#include <SpatialHashGrid.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Npc.hpp>

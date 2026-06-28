@@ -1,9 +1,9 @@
-#include <Constants.hpp>
+#include <Utils/Constants.hpp>
 #include <Factory/ObstacleFactory.hpp>
-#include <Random.hpp>
+#include <Components/Random.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <SpatialHashGrid.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <Systems/ProcGen/DLASystem.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Utils.hpp>

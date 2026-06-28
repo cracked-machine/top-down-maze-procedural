@@ -1,15 +1,15 @@
+#include <Components/Crypt/CryptRoomLavaPit.hpp>
+#include <Components/Crypt/CryptRoomLavaPitCell.hpp>
+#include <Components/Npc/Npc.hpp>
+#include <Components/Persistent/DisplayResolution.hpp>
+#include <Components/Player/TorchRadius.hpp>
 #include <Components/Position.hpp>
-#include <Constants.hpp>
-#include <Crypt/CryptRoomLavaPit.hpp>
-#include <Crypt/CryptRoomLavaPitCell.hpp>
-#include <Npc/Npc.hpp>
-#include <Optimizations.hpp>
-#include <Persistent/DisplayResolution.hpp>
-#include <Player/TorchRadius.hpp>
 #include <Shaders/UniformBuilder.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Utils/Constants.hpp>
+#include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>
 
 #include <Shaders/NightStaticShader.hpp>

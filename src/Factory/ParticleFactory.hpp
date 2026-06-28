@@ -1,15 +1,15 @@
 #ifndef SRC_FACTORY_PARTICLEFACTORY_HPP_
 #define SRC_FACTORY_PARTICLEFACTORY_HPP_
 
+#include <Components/Particle/Flame.hpp>
+#include <Components/Particle/ParticleSpriteTest.hpp>
+#include <Components/Particle/ShockWave.hpp>
+#include <Components/Particle/Smoke.hpp>
 #include <Components/ZOrderValue.hpp>
-#include <Particle/Flame.hpp>
-#include <Particle/ParticleSpriteTest.hpp>
-#include <Particle/ShockWave.hpp>
-#include <Particle/Smoke.hpp>
-#include <SFML/System/Vector2.hpp>
 #include <Systems/Stores/SystemStore.hpp>
 #include <Utils/Player.hpp>
 
+#include <SFML/System/Vector2.hpp>
 #include <entt/entity/fwd.hpp>
 
 namespace Game::Particle::Factory

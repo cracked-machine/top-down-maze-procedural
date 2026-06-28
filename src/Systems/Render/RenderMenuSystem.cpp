@@ -1,5 +1,7 @@
 
 
+#include <Components/Persistent/ArmedBlockColourBorder.hpp>
+#include <Components/Persistent/ArmedBlockColourFill.hpp>
 #include <Components/Persistent/ArmedOffDelay.hpp>
 #include <Components/Persistent/ArmedOnDelay.hpp>
 #include <Components/Persistent/BlastRadius.hpp>
@@ -9,6 +11,7 @@
 #include <Components/Persistent/CorruptionDamage.hpp>
 #include <Components/Persistent/CorruptionSeed.hpp>
 #include <Components/Persistent/CryptNpcSpawnCount.hpp>
+#include <Components/Persistent/CryptShuffleTimeout.hpp>
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
@@ -42,6 +45,7 @@
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Components/Persistent/PostPullMovementDelay.hpp>
 #include <Components/Persistent/RuinMaxCobwebs.hpp>
+#include <Components/Persistent/RuinMaxSpiders.hpp>
 #include <Components/Persistent/RuinProcGenBirthThreshold.hpp>
 #include <Components/Persistent/RuinProcGenInitChance.hpp>
 #include <Components/Persistent/RuinProcGenMaxIterations.hpp>
@@ -53,10 +57,6 @@
 #include <Components/Player/PlayerCadaverCount.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/Player/PlayerWealth.hpp>
-#include <Persistent/ArmedBlockColourBorder.hpp>
-#include <Persistent/ArmedBlockColourFill.hpp>
-#include <Persistent/CryptShuffleTimeout.hpp>
-#include <Persistent/RuinMaxSpiders.hpp>
 #include <Shaders/BaseShaderSprite.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>

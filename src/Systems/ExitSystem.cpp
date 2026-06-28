@@ -15,7 +15,7 @@
 #include <Components/System.hpp>
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
-#include <Constants.hpp>
+#include <Utils/Constants.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlayerFactory.hpp>

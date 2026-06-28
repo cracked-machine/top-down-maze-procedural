@@ -1,9 +1,11 @@
 #ifndef __SYSTEMS_RENDER_SYSTEM_HPP__
 #define __SYSTEMS_RENDER_SYSTEM_HPP__
 
-#include <Persistent/DisplayResolution.hpp>
+#include <Components/Font.hpp>
+#include <Components/Persistent/DisplayResolution.hpp>
+#include <Factory/SpriteFactory.hpp>
 #include <Shaders/TitleScreenShader.hpp>
-#include <entt/entity/fwd.hpp>
+#include <Systems/BaseSystem.hpp>
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -12,14 +14,9 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <entt/entity/fwd.hpp>
 #include <functional>
-
 #include <imgui.h>
-
-#include <Components/Font.hpp>
-
-#include <Factory/SpriteFactory.hpp>
-#include <Systems/BaseSystem.hpp>
 
 namespace Game::Cmp
 {

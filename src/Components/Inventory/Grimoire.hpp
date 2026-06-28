@@ -1,7 +1,7 @@
 #ifndef SRC_CMPS_INVENTORY_GRIMOIRE_HPP
 #define SRC_CMPS_INVENTORY_GRIMOIRE_HPP
 
-#include <Inventory/WorldItem.hpp>
+#include <Components/Inventory/WorldItem.hpp>
 #include <Systems/Stores/ItemStore.hpp>
 
 namespace Game::Cmp

@@ -1,7 +1,7 @@
 #ifndef SRC_SYSTEM_PARTICLESPRITEBASE_HPP_
 #define SRC_SYSTEM_PARTICLESPRITEBASE_HPP_
 
-#include <Particle/ParticleConcepts.hpp>
+#include <Components/Particle/ParticleConcepts.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <random>

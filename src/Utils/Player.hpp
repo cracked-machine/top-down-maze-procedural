@@ -1,10 +1,10 @@
 #ifndef SRC_UTILS_PLAYER_HPP_
 #define SRC_UTILS_PLAYER_HPP_
 
-#include <AbsoluteAlpha.hpp>
+#include <Components/AbsoluteAlpha.hpp>
 #include <Components/AnimData.hpp>
+#include <Components/Stats/PlayerStats.hpp>
 #include <Sprites/SpriteMetaType.hpp>
-#include <Stats/PlayerStats.hpp>
 
 namespace Game::Cmp
 {

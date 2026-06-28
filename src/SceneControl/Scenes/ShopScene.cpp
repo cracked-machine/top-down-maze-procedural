@@ -1,19 +1,16 @@
 #include <Audio/SoundBank.hpp>
+#include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Shop/ShopInventory.hpp>
 #include <Components/System.hpp>
-#include <Constants.hpp>
-
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/PathfindingFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
-#include <Npc/NpcNoPathFinding.hpp>
-#include <Player.hpp>
 #include <SceneControl/Events/ProcessShopSceneInputEvent.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <SceneControl/Scenes/ShopScene.hpp>
-#include <Shop/ShopInventory.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/CryptSystem.hpp>
 #include <Systems/FootstepSystem.hpp>
@@ -28,6 +25,8 @@
 #include <Systems/ShopSystem.hpp>
 #include <Systems/Stores/SystemStore.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
+#include <Utils/Constants.hpp>
+#include <Utils/Player.hpp>
 
 namespace Game::Scene
 {

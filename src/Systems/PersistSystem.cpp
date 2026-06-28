@@ -1,12 +1,14 @@
 
 
-#include <Persistent/CryptShuffleTimeout.hpp>
-#include <Persistent/RuinMaxSpiders.hpp>
+#include <Components/Persistent/CryptShuffleTimeout.hpp>
+#include <Components/Persistent/RuinMaxSpiders.hpp>
 #define JSON_NOEXCEPTION
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
+#include <Components/Persistent/ArmedBlockColourBorder.hpp>
+#include <Components/Persistent/ArmedBlockColourFill.hpp>
 #include <Components/Persistent/ArmedOffDelay.hpp>
 #include <Components/Persistent/ArmedOnDelay.hpp>
 #include <Components/Persistent/BlastRadius.hpp>
@@ -50,6 +52,7 @@
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Persistent/PostPullMovementDelay.hpp>
+#include <Components/Persistent/RuinMaxCobwebs.hpp>
 #include <Components/Persistent/RuinProcGenBirthThreshold.hpp>
 #include <Components/Persistent/RuinProcGenInitChance.hpp>
 #include <Components/Persistent/RuinProcGenMaxIterations.hpp>
@@ -62,9 +65,6 @@
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
 #include <Components/Persistent/WormholeSeed.hpp>
 #include <Events/LoadSettingsEvent.hpp>
-#include <Persistent/ArmedBlockColourBorder.hpp>
-#include <Persistent/ArmedBlockColourFill.hpp>
-#include <Persistent/RuinMaxCobwebs.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>

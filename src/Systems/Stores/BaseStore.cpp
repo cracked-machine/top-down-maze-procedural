@@ -1,12 +1,12 @@
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/Random.hpp>
+#include <Components/Stats/BaseAction.hpp>
 #include <Components/Stats/BuryAction.hpp>
 #include <Components/Stats/CarryAction.hpp>
 #include <Components/Stats/ConsumeAction.hpp>
 #include <Components/Stats/DestroyAction.hpp>
 #include <Components/Stats/SacrificeAction.hpp>
 #include <Components/Stats/SpawnAction.hpp>
-#include <Stats/BaseAction.hpp>
 #include <Systems/Stores/BaseStore.hpp>
 
 #include <fstream>

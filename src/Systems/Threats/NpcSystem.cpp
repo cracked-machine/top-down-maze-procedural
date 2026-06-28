@@ -1,6 +1,7 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/Altar/AltarSegment.hpp>
 #include <Components/AnimData.hpp>
+#include <Components/Crypt/CryptObjectiveSegment.hpp>
 #include <Components/Crypt/CryptSegment.hpp>
 #include <Components/Direction.hpp>
 #include <Components/FootStepTimer.hpp>
@@ -25,22 +26,21 @@
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
+#include <Components/Ruin/RuinSegment.hpp>
 #include <Components/SpawnArea.hpp>
+#include <Components/Stats/BaseAction.hpp>
+#include <Components/Stats/CollisionAction.hpp>
 #include <Components/System.hpp>
 #include <Components/UUID.hpp>
 #include <Components/Wall.hpp>
 #include <Components/Wormhole/WormholeJump.hpp>
 #include <Components/ZOrderValue.hpp>
-#include <Crypt/CryptObjectiveSegment.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ParticleFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
 #include <PathFinding/AStar.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
-#include <Ruin/RuinSegment.hpp>
-#include <Stats/BaseAction.hpp>
-#include <Stats/CollisionAction.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -59,7 +59,6 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Time.hpp>
 #include <spdlog/spdlog.h>
-#include <typeindex>
 
 namespace Game::Sys
 {

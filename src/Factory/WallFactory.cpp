@@ -1,16 +1,17 @@
 #include <Components/AnimData.hpp>
+#include <Components/NoMoveDest.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerNoPath.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/WallFactory.hpp>
-#include <NoMoveDest.hpp>
-#include <Player/PlayerCharacter.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Utils/Constants.hpp>
+
 #include <entt/entity/registry.hpp>
 
 namespace Game::Factory

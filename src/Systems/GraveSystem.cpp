@@ -1,6 +1,6 @@
 
+#include <Components/Stats/SpawnAction.hpp>
 #include <Events/CreateItemEvent.hpp>
-#include <Stats/SpawnAction.hpp>
 #include <Systems/Stores/ItemStore.hpp>
 #include <typeindex>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO

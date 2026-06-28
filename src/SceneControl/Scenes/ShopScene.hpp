@@ -1,13 +1,14 @@
 #ifndef SRC_SCENECONTROL_SCENES_SHOPSCENE_HPP_
 #define SRC_SCENECONTROL_SCENES_SHOPSCENE_HPP_
 
+#include <Components/Shop/ShopInventory.hpp>
 #include <Factory/SpriteFactory.hpp>
-#include <SFML/System/Vector2.hpp>
 #include <SceneControl/Events/ProcessShopSceneInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
-#include <Shop/ShopInventory.hpp>
 #include <Sprites/VertexFloor.hpp>
 #include <Utils/Utils.hpp>
+
+#include <SFML/System/Vector2.hpp>
 
 // clang-format off
 namespace Game::Sys { class Store; }

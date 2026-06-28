@@ -1,8 +1,12 @@
 #include <Audio/SoundBank.hpp>
+#include <Components/Inventory/PlayerInventorySlot.hpp>
+#include <Components/Inventory/WorldItem.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Persistent/CryptShuffleTimeout.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
+#include <Components/Player/PlayerNoPath.hpp>
 #include <Components/System.hpp>
 #include <Events/CryptRoomEvent.hpp>
 #include <Factory/CryptFactory.hpp>
@@ -10,10 +14,6 @@
 #include <Factory/PathfindingFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/ShaderFactory.hpp>
-#include <Inventory/PlayerInventorySlot.hpp>
-#include <Inventory/WorldItem.hpp>
-#include <Persistent/CryptShuffleTimeout.hpp>
-#include <Player/PlayerNoPath.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Systems/AnimSystem.hpp>

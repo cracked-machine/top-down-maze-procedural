@@ -1,4 +1,4 @@
-#include <SpatialHashGrid.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 
 #include <Components/Position.hpp>
 

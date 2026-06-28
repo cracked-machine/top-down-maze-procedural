@@ -1,13 +1,14 @@
 
-#include <Inventory/WorldItem.hpp>
-#include <Optimizations.hpp>
-#include <Position.hpp>
-#include <Utils/Constants.hpp>
+#include <Components/Inventory/WorldItem.hpp>
+#include <Components/Position.hpp>
+#include <Components/UUID.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
-#include <UUID.hpp>
-#include <ZOrderValue.hpp>
+#include <Utils/Constants.hpp>
+#include <Utils/Optimizations.hpp>
+
 #include <entt/entity/fwd.hpp>
 
 namespace Game::Sys

@@ -2,7 +2,7 @@
 #define SRC_SYSTEM_THREATS_LIGHTNINGSYSTEM_HPP_
 
 #include <Events/LightningEvent.hpp>
-#include <LightningStrike.hpp>
+#include <Components/LightningStrike.hpp>
 #include <Systems/BaseSystem.hpp>
 
 namespace Game::Cmp

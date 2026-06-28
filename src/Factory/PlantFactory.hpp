@@ -2,7 +2,7 @@
 #define SRC_FACTORY_PLANTFACTORY_HPP_
 
 #include <Components/Position.hpp>
-#include <SpatialHashGrid.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 
 namespace Game::Sprites

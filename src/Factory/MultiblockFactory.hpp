@@ -18,17 +18,17 @@
 #include <Components/HolyWell/HolyWellMultiBlock.hpp>
 #include <Components/HolyWell/HolyWellSegment.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Player/PlayerNoPath.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinBuildingMultiBlock.hpp>
 #include <Components/Ruin/RuinEntrance.hpp>
 #include <Components/Ruin/RuinSegment.hpp>
 #include <Components/Ruin/RuinStairsSegment.hpp>
+#include <Components/UUID.hpp>
 #include <Components/ZOrderValue.hpp>
-#include <Player/PlayerNoPath.hpp>
-#include <SpatialHashGrid.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <Systems/BaseSystem.hpp>
-#include <UUID.hpp>
 #include <Utils/Constants.hpp>
 #include <entt/fwd.hpp>
 

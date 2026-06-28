@@ -1,7 +1,7 @@
 #ifndef SRC_CMPS_STATS_PLAYERSTATS_HPP_
 #define SRC_CMPS_STATS_PLAYERSTATS_HPP_
 
-#include <Stats/BaseAction.hpp>
+#include <Components/Stats/BaseAction.hpp>
 namespace Game::Cmp
 {
 

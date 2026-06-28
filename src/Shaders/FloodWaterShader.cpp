@@ -1,4 +1,4 @@
-#include <Persistent/DisplayResolution.hpp>
+#include <Components/Persistent/DisplayResolution.hpp>
 #include <Shaders/FloodWaterShader.hpp>
 #include <Shaders/MistShader.hpp>
 #include <Shaders/UniformBuilder.hpp>

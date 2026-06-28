@@ -1,7 +1,7 @@
 #ifndef SRC_COMPONENTS_CRYPTROOMOPEN_HPP
 #define SRC_COMPONENTS_CRYPTROOMOPEN_HPP
 
-#include <Crypt/CryptRoomBase.hpp>
+#include <Components/Crypt/CryptRoomBase.hpp>
 
 namespace Game::Cmp
 {

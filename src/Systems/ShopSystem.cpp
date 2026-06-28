@@ -1,7 +1,7 @@
+#include <Components/Persistent/ShopMaxItems.hpp>
+#include <Components/Persistent/ShopMaxPrice.hpp>
+#include <Components/Persistent/ShopMinPrice.hpp>
 #include <Events/DropInventoryEvent.hpp>
-#include <Persistent/ShopMaxItems.hpp>
-#include <Persistent/ShopMaxPrice.hpp>
-#include <Persistent/ShopMinPrice.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Stores/ItemStore.hpp>
 #include <Systems/Stores/SystemStore.hpp>

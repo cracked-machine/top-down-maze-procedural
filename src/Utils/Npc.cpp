@@ -1,9 +1,10 @@
-#include <FootStepTimer.hpp>
-#include <Npc.hpp>
-#include <Npc/Npc.hpp>
-#include <Player/PlayerCharacter.hpp>
-#include <Position.hpp>
+#include <Components/FootStepTimer.hpp>
+#include <Components/Npc/Npc.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Position.hpp>
 #include <Sprites/SpriteMetaType.hpp>
+#include <Utils/Npc.hpp>
+
 #include <entt/entity/fwd.hpp>
 #include <source_location>
 #include <stdexcept>

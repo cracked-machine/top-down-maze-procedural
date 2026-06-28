@@ -1,5 +1,3 @@
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
-
 #include <Audio/SoundBank.hpp>
 #include <Components/Exit.hpp>
 #include <Components/HolyWell/HolyWellEntrance.hpp>
@@ -9,13 +7,13 @@
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
+#include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/Wall.hpp>
 #include <Events/DropInventoryEvent.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
-#include <Player/PlayerWealth.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Systems/HolyWellSystem.hpp>

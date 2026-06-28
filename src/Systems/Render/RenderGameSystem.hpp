@@ -2,9 +2,8 @@
 #define __SYS_RENDERGAMESYSTEM_HPP__
 
 #include <Components/AnimData.hpp>
-#include <Inventory/ScryingBall.hpp>
-#include <Persistent/DisplayResolution.hpp>
-
+#include <Components/Inventory/ScryingBall.hpp>
+#include <Components/Persistent/DisplayResolution.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Constants.hpp>

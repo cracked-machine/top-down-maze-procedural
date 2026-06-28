@@ -1,7 +1,7 @@
 #ifndef SRC_PATHFINDING_SPATIALHASHGRID_HPP_
 #define SRC_PATHFINDING_SPATIALHASHGRID_HPP_
 
-#include <Constants.hpp>
+#include <Utils/Constants.hpp>
 
 #include <entt/entt.hpp>
 #include <unordered_map>

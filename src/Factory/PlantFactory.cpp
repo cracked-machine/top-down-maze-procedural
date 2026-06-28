@@ -5,15 +5,15 @@
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/PlantObstacle.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Player/PlayerNoPath.hpp>
+#include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/PlantFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
-#include <Player/PlayerNoPath.hpp>
-#include <Position.hpp>
-#include <SpatialHashGrid.hpp>
-#include <Utils.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <Utils/Random.hpp>
+#include <Utils/Utils.hpp>
 
 namespace Game::Factory
 {

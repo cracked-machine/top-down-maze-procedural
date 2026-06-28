@@ -1,5 +1,8 @@
 CompileFlags:
   CompilationDatabase: build-x86_64-w64-mingw32
+  Remove:
+    - -m*
+    - -f*
   Add:
     - -isystem/workspaces/top-down-maze-procedural/build-x86_64-w64-mingw32/_deps/spdlog-src/include
     - -isystem/workspaces/top-down-maze-procedural/build-x86_64-w64-mingw32/_deps/sfml-src/include
@@ -10,8 +13,5 @@ CompileFlags:
     - -isystem/workspaces/top-down-maze-procedural/inc/Components
     - -isystem/workspaces/top-down-maze-procedural/inc/Sprites
     - -isystem/workspaces/top-down-maze-procedural/inc/Logging
-  Remove:
-    - -m*
-    - -f*
 Index:
   Background: Build

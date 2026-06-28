@@ -1,14 +1,14 @@
 #ifndef SRC_SYSTEMS_PARTICLESYSTEM_HPP_
 #define SRC_SYSTEMS_PARTICLESYSTEM_HPP_
 
+#include <Components/Particle/ParticleSpriteBase.hpp>
+#include <Components/UUID.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <Events/ParticleEvents.hpp>
-#include <Particle/ParticleSpriteBase.hpp>
 #include <Systems/BaseSystem.hpp>
-#include <UUID.hpp>
-#include <ZOrderValue.hpp>
-#include <utility>
 
 #include <spdlog/spdlog.h>
+#include <utility>
 
 namespace Game::Sys
 {

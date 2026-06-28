@@ -1,7 +1,7 @@
 #ifndef __CMP_RECTBOUNDS_HPP__
 #define __CMP_RECTBOUNDS_HPP__
 
-#include <Position.hpp>
+#include <Components/Position.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 

@@ -1,23 +1,24 @@
 #include <Audio/SoundBank.hpp>
+#include <Components/LightningStrike.hpp>
+#include <Components/Persistent/LightningDamage.hpp>
+#include <Components/Player/PlayerMortality.hpp>
+#include <Components/Position.hpp>
+#include <Components/Random.hpp>
+#include <Components/Stats/BaseAction.hpp>
+#include <Components/UUID.hpp>
 #include <Events/LightningEvent.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/ParticleFactory.hpp>
-#include <LightningStrike.hpp>
-#include <Persistent/LightningDamage.hpp>
-#include <Player.hpp>
-#include <Player/PlayerMortality.hpp>
-#include <Position.hpp>
-#include <Random.hpp>
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/Vertex.hpp>
-#include <Stats/BaseAction.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/LightningSystem.hpp>
-#include <UUID.hpp>
 #include <Utils/Maths.hpp>
+#include <Utils/Player.hpp>
+
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Vertex.hpp>
 
 namespace Game::Sys
 {

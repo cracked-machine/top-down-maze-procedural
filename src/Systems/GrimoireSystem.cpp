@@ -1,6 +1,7 @@
+#include <Components/Inventory/Grimoire.hpp>
 #include <Events/PlayerActionEvent.hpp>
-#include <Inventory/Grimoire.hpp>
 #include <Systems/GrimoireSystem.hpp>
+
 #include <entt/entity/registry.hpp>
 #include <entt/entity/view.hpp>
 

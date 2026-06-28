@@ -14,6 +14,8 @@
 #include <Components/Persistent/NpcShockwaveResolution.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/ReservedPosition.hpp>
+#include <Components/Stats/DestroyAction.hpp>
+#include <Components/Stats/SpawnAction.hpp>
 #include <Components/UUID.hpp>
 #include <Factory/Factory.hpp>
 #include <Factory/LootFactory.hpp>
@@ -21,8 +23,6 @@
 #include <Factory/ParticleFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Sprites/SpriteSheet.hpp>
-#include <Stats/DestroyAction.hpp>
-#include <Stats/SpawnAction.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Stores/NpcStore.hpp>

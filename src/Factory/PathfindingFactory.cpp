@@ -1,9 +1,9 @@
+#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Player/PlayerNoPath.hpp>
 #include <Components/Position.hpp>
 #include <Factory/PathfindingFactory.hpp>
-#include <Npc/NpcNoPathFinding.hpp>
+#include <PathFinding/SmartPointers.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
-#include <Player/PlayerNoPath.hpp>
-#include <SmartPointers.hpp>
 
 namespace Game::Pathfinding::Factory
 {

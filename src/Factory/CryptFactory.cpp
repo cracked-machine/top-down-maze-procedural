@@ -10,22 +10,22 @@
 #include <Components/Crypt/CryptRoomLavaPitCell.hpp>
 #include <Components/Crypt/CryptRoomOpen.hpp>
 #include <Components/Crypt/CryptRoomStart.hpp>
+#include <Components/Crypt/CryptShuffleTimer.hpp>
+#include <Components/Exit.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Player/PlayerNoPath.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
+#include <Components/ReservedPosition.hpp>
 #include <Components/ZOrderValue.hpp>
-#include <Crypt/CryptShuffleTimer.hpp>
-#include <Exit.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Factory/MultiblockFactory.hpp>
-#include <Player.hpp>
-#include <Player/PlayerNoPath.hpp>
-#include <ReservedPosition.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Utils/Constants.hpp>
+#include <Utils/Player.hpp>
 #include <Utils/Random.hpp>
 
 namespace Game::Crypt::Factory

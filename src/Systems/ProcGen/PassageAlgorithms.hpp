@@ -1,9 +1,9 @@
 #ifndef SRC_SYSTEMS_PROCGEN_PASSAGEALGO_HPP_
 #define SRC_SYSTEMS_PROCGEN_PASSAGEALGO_HPP_
 
-#include <Crypt/CryptPassageBlock.hpp>
-#include <Crypt/CryptPassageDoor.hpp>
-#include <Direction.hpp>
+#include <Components/Crypt/CryptPassageBlock.hpp>
+#include <Components/Crypt/CryptPassageDoor.hpp>
+#include <Components/Direction.hpp>
 
 #include <Systems/ProcGen/PassageCache.hpp>
 #include <optional>

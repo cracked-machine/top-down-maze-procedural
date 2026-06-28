@@ -132,20 +132,8 @@ target_link_libraries(${TARGET} PRIVATE
     nlohmann_json::nlohmann_json
     stdc++exp
 )
-target_include_directories(${TARGET} SYSTEM PRIVATE 
+target_include_directories(${TARGET} SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_SOURCE_DIR}/src/Logging
-    ${CMAKE_SOURCE_DIR}/src/Debug
-    ${CMAKE_SOURCE_DIR}/src/Logging
-    ${CMAKE_SOURCE_DIR}/src/Components
-    ${CMAKE_SOURCE_DIR}/src/Utils
-    ${CMAKE_SOURCE_DIR}/src/PathFinding
-
-    ${CMAKE_SOURCE_DIR}/inc
-    ${CMAKE_SOURCE_DIR}/inc/Systems
-    ${CMAKE_SOURCE_DIR}/inc/Components
-    ${CMAKE_SOURCE_DIR}/inc/Sprites
-    ${CMAKE_SOURCE_DIR}/inc/Logging
     ${FETCHCONTENT_BASE_DIR}/imgui-src
     $<$<STREQUAL:${TARGET_TRIPLET},x86_64-w64-mingw32>:/usr/x86_64-w64-mingw32/include/GL/>
 )

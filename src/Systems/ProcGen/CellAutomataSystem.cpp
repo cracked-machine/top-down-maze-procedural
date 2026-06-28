@@ -1,10 +1,9 @@
+#include <Components/Moveable.hpp>
+#include <Components/Obstacle.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Factory/ObstacleFactory.hpp>
-#include <Moveable.hpp>
-#include <Obstacle.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
-
-#include <Player/PlayerCharacter.hpp>
 #include <Systems/ProcGen/CellAutomataSystem.hpp>
 
 #include <spdlog/spdlog.h>

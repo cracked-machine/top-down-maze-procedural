@@ -1,12 +1,12 @@
-#include <Stats/BuryAction.hpp>
-#include <Stats/CarryAction.hpp>
-#include <Stats/CollisionAction.hpp>
-#include <Stats/ConsumeAction.hpp>
-#include <Stats/DestroyAction.hpp>
-#include <Stats/ProjectileAction.hpp>
-#include <Stats/ProximityAction.hpp>
-#include <Stats/SacrificeAction.hpp>
-#include <Stats/SpawnAction.hpp>
+#include <Components/Stats/BuryAction.hpp>
+#include <Components/Stats/CarryAction.hpp>
+#include <Components/Stats/CollisionAction.hpp>
+#include <Components/Stats/ConsumeAction.hpp>
+#include <Components/Stats/DestroyAction.hpp>
+#include <Components/Stats/ProjectileAction.hpp>
+#include <Components/Stats/ProximityAction.hpp>
+#include <Components/Stats/SacrificeAction.hpp>
+#include <Components/Stats/SpawnAction.hpp>
 #include <Systems/Stores/NpcStore.hpp>
 
 #include <nlohmann/json.hpp>

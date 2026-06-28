@@ -1,4 +1,4 @@
-#include <Particle/ShockWave.hpp>
+#include <Components/Particle/ShockWave.hpp>
 
 #include <random>
 

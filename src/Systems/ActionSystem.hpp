@@ -3,7 +3,7 @@
 
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Events/PlayerActionEvent.hpp>
-#include <SpatialHashGrid.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <SFML/Audio/AudioResource.hpp>

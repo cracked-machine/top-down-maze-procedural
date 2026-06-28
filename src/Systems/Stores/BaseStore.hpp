@@ -3,8 +3,8 @@
 
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/Random.hpp>
+#include <Components/Stats/BaseAction.hpp>
 #include <Sprites/SpriteMetaType.hpp>
-#include <Stats/BaseAction.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <filesystem>

@@ -1,17 +1,17 @@
 
 #include <Audio/SoundBank.hpp>
 #include <Components/AnimData.hpp>
+#include <Components/Inventory/Explosive.hpp>
+#include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
+#include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Position.hpp>
+#include <Components/ReservedPosition.hpp>
+#include <Components/UUID.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <Events/CreateItemEvent.hpp>
-#include <Inventory/Explosive.hpp>
-#include <Inventory/InventoryWearLevel.hpp>
-#include <Npc/NpcNoPathFinding.hpp>
-#include <ReservedPosition.hpp>
 #include <Systems/ItemSystem.hpp>
 #include <Systems/Stores/ItemStore.hpp>
-#include <UUID.hpp>
-#include <ZOrderValue.hpp>
 
 namespace Game::Sys
 {

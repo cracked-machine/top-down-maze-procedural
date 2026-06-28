@@ -1,5 +1,5 @@
-#include <Player.hpp>
-#include <Stats/BaseAction.hpp>
+#include <Components/Stats/BaseAction.hpp>
+#include <Utils/Player.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>

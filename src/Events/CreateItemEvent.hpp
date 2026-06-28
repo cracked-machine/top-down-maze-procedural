@@ -1,7 +1,7 @@
 #ifndef SRC_EVENTS_CREATEITEMEVENT_HPP_
 #define SRC_EVENTS_CREATEITEMEVENT_HPP_
 
-#include <Position.hpp>
+#include <Components/Position.hpp>
 #include <utility>
 
 namespace Game::Events

@@ -3,7 +3,7 @@
 
 #include <Components/Persistent/EffectsVolume.hpp>
 
-#include <Constants.hpp>
+#include <Utils/Constants.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 

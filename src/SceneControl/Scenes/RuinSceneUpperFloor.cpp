@@ -1,4 +1,5 @@
 #include <Audio/SoundBank.hpp>
+#include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerCurse.hpp>
@@ -16,8 +17,6 @@
 #include <Factory/RuinFactory.hpp>
 #include <Factory/ShaderFactory.hpp>
 #include <Factory/WallFactory.hpp>
-#include <Inventory/PlayerInventorySlot.hpp>
-#include <SFML/Audio/Sound.hpp>
 #include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <SceneControl/Scenes/RuinSceneUpperFloor.hpp>
@@ -37,6 +36,8 @@
 #include <Systems/Threats/NpcSystem.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Player.hpp>
+
+#include <SFML/Audio/Sound.hpp>
 
 namespace Game::Scene
 {

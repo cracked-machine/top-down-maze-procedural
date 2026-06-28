@@ -3,6 +3,11 @@
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
+#include <Components/Persistent/RuinMaxCobwebs.hpp>
+#include <Components/Persistent/RuinProcGenBirthThreshold.hpp>
+#include <Components/Persistent/RuinProcGenInitChance.hpp>
+#include <Components/Persistent/RuinProcGenMaxIterations.hpp>
+#include <Components/Persistent/RuinProcGenSurvivalThreshold.hpp>
 #include <Components/Player/PlayerCurse.hpp>
 #include <Components/Player/PlayerRuinLocation.hpp>
 #include <Components/Ruin/RuinFloorAccess.hpp>
@@ -16,11 +21,6 @@
 #include <Factory/RuinFactory.hpp>
 #include <Factory/ShaderFactory.hpp>
 #include <Factory/WallFactory.hpp>
-#include <Persistent/RuinMaxCobwebs.hpp>
-#include <Persistent/RuinProcGenBirthThreshold.hpp>
-#include <Persistent/RuinProcGenInitChance.hpp>
-#include <Persistent/RuinProcGenMaxIterations.hpp>
-#include <Persistent/RuinProcGenSurvivalThreshold.hpp>
 #include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <SceneControl/Scenes/RuinSceneLowerFloor.hpp>

@@ -6,7 +6,7 @@
 #include <PathFinding/SmartPointers.hpp>
 #include <SceneControl/Scene.hpp>
 #include <SceneControl/SmartPointers.hpp>
-#include <SpatialHashGrid.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/ProcGen/PassageAlgorithms.hpp>
 

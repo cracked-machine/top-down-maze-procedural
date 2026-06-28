@@ -1,7 +1,7 @@
 #ifndef SCR_UTILS_CRYPT_HPP_
 #define SCR_UTILS_CRYPT_HPP_
 
-#include <Crypt/CryptShuffleTimer.hpp>
+#include <Components/Crypt/CryptShuffleTimer.hpp>
 namespace Game::Utils::Crypt
 {
 

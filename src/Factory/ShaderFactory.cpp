@@ -1,5 +1,5 @@
+#include <Components/Persistent/DisplayResolution.hpp>
 #include <Factory/ShaderFactory.hpp>
-#include <Persistent/DisplayResolution.hpp>
 #include <Shaders/DrippingBloodShader.hpp>
 #include <Shaders/TitleScreenShader.hpp>
 

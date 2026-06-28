@@ -2,15 +2,15 @@
 #include <Components/Armed.hpp>
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Persistent/ArmedBlockColourBorder.hpp>
+#include <Components/Persistent/ArmedBlockColourFill.hpp>
 #include <Components/Persistent/ArmedOffDelay.hpp>
 #include <Components/Persistent/ArmedOnDelay.hpp>
 #include <Components/Persistent/FuseDelay.hpp>
+#include <Components/Player/PlayerNoPath.hpp>
 #include <Components/Position.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/BombFactory.hpp>
-#include <Persistent/ArmedBlockColourBorder.hpp>
-#include <Persistent/ArmedBlockColourFill.hpp>
-#include <Player/PlayerNoPath.hpp>
 #include <Systems/PersistSystem.hpp>
 
 #include <Systems/BaseSystem.hpp>
