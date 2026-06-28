@@ -1,5 +1,5 @@
-#ifndef SRC_SCENECONTROL_SCENES_SHOPSCENE_HPP_
-#define SRC_SCENECONTROL_SCENES_SHOPSCENE_HPP_
+#ifndef SRC_SCENECONTROL_SCENES_SHOPSCENE_HPP__
+#define SRC_SCENECONTROL_SCENES_SHOPSCENE_HPP__
 
 #include <Components/Shop/ShopInventory.hpp>
 #include <Factory/SpriteFactory.hpp>
@@ -56,4 +56,4 @@ private:
 
 } // namespace Game::Scene
 
-#endif // SRC_SCENECONTROL_SCENES_SHOPSCENE_HPP_
+#endif // SRC_SCENECONTROL_SCENES_SHOPSCENE_HPP__

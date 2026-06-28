@@ -1,5 +1,5 @@
-#ifndef SRC_SPRITES_TILEMAP_HPP_
-#define SRC_SPRITES_TILEMAP_HPP_
+#ifndef SRC_SPRITES_VERTEXFLOOR_HPP__
+#define SRC_SPRITES_VERTEXFLOOR_HPP__
 
 #include <SceneControl/SmartPointers.hpp>
 
@@ -38,4 +38,4 @@ private:
 
 } // namespace Game::Sprites::Containers
 
-#endif // SRC_SPRITES_TILEMAP_HPP_
+#endif // SRC_SPRITES_VERTEXFLOOR_HPP__

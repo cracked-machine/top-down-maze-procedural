@@ -1,5 +1,5 @@
-#ifndef SRC_FACTORY_MULTIBLOCKFACTORY_HPP
-#define SRC_FACTORY_MULTIBLOCKFACTORY_HPP
+#ifndef SRC_FACTORY_MULTIBLOCKFACTORY_HPP__
+#define SRC_FACTORY_MULTIBLOCKFACTORY_HPP__
 
 #include <Components/Altar/AltarMultiBlock.hpp>
 #include <Components/Altar/AltarSegment.hpp>
@@ -214,4 +214,4 @@ void add_multiblock_with_segments( entt::registry &reg, sf::Vector2f position, c
 
 } // namespace Game::Factory
 
-#endif // SRC_FACTORY_MULTIBLOCKFACTORY_HPP
+#endif // SRC_FACTORY_MULTIBLOCKFACTORY_HPP__

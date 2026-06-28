@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_NPCSTORE_HPP_
-#define SRC_SYSTEMS_NPCSTORE_HPP_
+#ifndef SRC_SYSTEMS_STORES_NPCSTORE_HPP__
+#define SRC_SYSTEMS_STORES_NPCSTORE_HPP__
 
 #include <Components/Npc/Npc.hpp>
 #include <Sprites/SpriteMetaType.hpp>
@@ -21,4 +21,4 @@ public:
 
 } // namespace Game::Sys
 
-#endif // SRC_SYSTEMS_NPCSTORE_HPP_
+#endif // SRC_SYSTEMS_STORES_NPCSTORE_HPP__

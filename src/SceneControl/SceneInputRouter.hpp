@@ -1,5 +1,5 @@
-#ifndef __INPUT_EVENT_HANDLER_HPP__
-#define __INPUT_EVENT_HANDLER_HPP__
+#ifndef SRC_SCENECONTROL_SCENEINPUTROUTER_HPP__
+#define SRC_SCENECONTROL_SCENEINPUTROUTER_HPP__
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -64,4 +64,4 @@ private:
 
 } // namespace Game::Sys
 
-#endif // __INPUT_EVENT_HANDLER_HPP__
+#endif // SRC_SCENECONTROL_SCENEINPUTROUTER_HPP__

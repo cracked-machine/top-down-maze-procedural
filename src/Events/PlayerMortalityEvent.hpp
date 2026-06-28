@@ -1,5 +1,5 @@
-#ifndef SRC_EVENTS_PLAYERMORTALITYEVENT_
-#define SRC_EVENTS_PLAYERMORTALITYEVENT_
+#ifndef SRC_EVENTS_PLAYERMORTALITYEVENT_HPP__
+#define SRC_EVENTS_PLAYERMORTALITYEVENT_HPP__
 
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Position.hpp>
@@ -22,4 +22,4 @@ public:
 
 } // namespace Game::Events
 
-#endif // SRC_EVENTS_PLAYERMORTALITYEVENT_
+#endif // SRC_EVENTS_PLAYERMORTALITYEVENT_HPP__

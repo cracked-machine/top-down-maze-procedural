@@ -1,5 +1,5 @@
-#ifndef __CMP_RESERVED_POSITION_HPP__
-#define __CMP_RESERVED_POSITION_HPP__
+#ifndef SRC_COMPONENTS_RESERVEDPOSITION_HPP__
+#define SRC_COMPONENTS_RESERVEDPOSITION_HPP__
 
 #include <entt/entity/fwd.hpp>
 
@@ -22,4 +22,4 @@ public:
 
 } // namespace Game::Cmp
 
-#endif // __CMP_RESERVED_POSITION_HPP__
+#endif // SRC_COMPONENTS_RESERVEDPOSITION_HPP__

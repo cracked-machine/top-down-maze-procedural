@@ -1,5 +1,5 @@
-#ifndef __SYS_RENDERGAMESYSTEM_HPP__
-#define __SYS_RENDERGAMESYSTEM_HPP__
+#ifndef SRC_SYSTEMS_RENDER_RENDERGAMESYSTEM_HPP__
+#define SRC_SYSTEMS_RENDER_RENDERGAMESYSTEM_HPP__
 
 #include <Components/AnimData.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
@@ -152,4 +152,4 @@ private:
 
 } // namespace Game::Sys
 
-#endif // __SYS_RENDERGAMESYSTEM_HPP__
+#endif // SRC_SYSTEMS_RENDER_RENDERGAMESYSTEM_HPP__

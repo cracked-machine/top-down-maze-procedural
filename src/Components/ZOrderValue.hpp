@@ -1,5 +1,5 @@
-#ifndef SRC_COMPONENTS_ZORDERVALUE_HPP_
-#define SRC_COMPONENTS_ZORDERVALUE_HPP_
+#ifndef SRC_COMPONENTS_ZORDERVALUE_HPP__
+#define SRC_COMPONENTS_ZORDERVALUE_HPP__
 
 namespace Game::Cmp
 {
@@ -18,4 +18,4 @@ private:
 };
 
 } // namespace Game::Cmp
-#endif // SRC_COMPONENTS_ZORDERVALUE_HPP_
+#endif // SRC_COMPONENTS_ZORDERVALUE_HPP__

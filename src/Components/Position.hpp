@@ -1,5 +1,5 @@
-#ifndef __COMPONENTS_POSITION_HPP__
-#define __COMPONENTS_POSITION_HPP__
+#ifndef SRC_COMPONENTS_POSITION_HPP__
+#define SRC_COMPONENTS_POSITION_HPP__
 
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -21,4 +21,4 @@ public:
 
 } // namespace Game::Cmp
 
-#endif // __COMPONENTS_POSITION_HPP__
+#endif // SRC_COMPONENTS_POSITION_HPP__

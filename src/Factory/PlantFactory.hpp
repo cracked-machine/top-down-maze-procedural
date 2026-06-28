@@ -1,5 +1,5 @@
-#ifndef SRC_FACTORY_PLANTFACTORY_HPP_
-#define SRC_FACTORY_PLANTFACTORY_HPP_
+#ifndef SRC_FACTORY_PLANTFACTORY_HPP__
+#define SRC_FACTORY_PLANTFACTORY_HPP__
 
 #include <Components/Position.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
@@ -23,4 +23,4 @@ entt::entity create_plant_obstacle( entt::registry &reg, Cmp::Position pos_cmp, 
 
 } // namespace Game::Factory
 
-#endif // SRC_FACTORY_PLANTFACTORY_HPP_
+#endif // SRC_FACTORY_PLANTFACTORY_HPP__

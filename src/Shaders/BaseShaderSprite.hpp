@@ -1,5 +1,5 @@
-#ifndef __SPRITES_BASEFRAGMENTSHADER_HPP__
-#define __SPRITES_BASEFRAGMENTSHADER_HPP__
+#ifndef SRC_SHADERS_BASESHADERSPRITE_HPP__
+#define SRC_SHADERS_BASESHADERSPRITE_HPP__
 
 #include <Shaders/IShaderSprite.hpp>
 
@@ -104,4 +104,4 @@ private:
 
 } // namespace Game::Sprites
 
-#endif // __SPRITES_BASEFRAGMENTSHADER_HPP__
+#endif // SRC_SHADERS_BASESHADERSPRITE_HPP__

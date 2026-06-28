@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_PASSAGESYSTEM_HPP_
-#define SRC_SYSTEMS_PASSAGESYSTEM_HPP_
+#ifndef SRC_SYSTEMS_PROCGEN_PASSAGESYSTEM_HPP__
+#define SRC_SYSTEMS_PROCGEN_PASSAGESYSTEM_HPP__
 
 #include <Components/Crypt/CryptRoomClosed.hpp>
 #include <Components/Crypt/CryptRoomOpen.hpp>
@@ -147,4 +147,4 @@ PassageSystem::find_room_distances<Cmp::CryptRoomClosed>(
 
 } // namespace Game::Sys
 
-#endif // SRC_SYSTEMS_PASSAGESYSTEM_HPP_
+#endif // SRC_SYSTEMS_PROCGEN_PASSAGESYSTEM_HPP__

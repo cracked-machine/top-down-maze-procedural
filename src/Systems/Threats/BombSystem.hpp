@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_BOMBSYSTEM_HPP__
-#define SRC_SYSTEMS_BOMBSYSTEM_HPP__
+#ifndef SRC_SYSTEMS_THREATS_BOMBSYSTEM_HPP__
+#define SRC_SYSTEMS_THREATS_BOMBSYSTEM_HPP__
 
 #include <Components/Persistent/EffectsVolume.hpp>
 
@@ -70,4 +70,4 @@ private:
 
 } // namespace Game::Sys
 
-#endif // SRC_SYSTEMS_BOMBSYSTEM_HPP__
+#endif // SRC_SYSTEMS_THREATS_BOMBSYSTEM_HPP__

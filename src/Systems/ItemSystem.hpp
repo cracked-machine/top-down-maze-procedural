@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_ITEMSYSTEM_HPP_
-#define SRC_SYSTEMS_ITEMSYSTEM_HPP_
+#ifndef SRC_SYSTEMS_ITEMSYSTEM_HPP__
+#define SRC_SYSTEMS_ITEMSYSTEM_HPP__
 
 #include <Events/CreateItemEvent.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -32,4 +32,4 @@ public:
 
 } // namespace Game::Sys
 
-#endif // SRC_SYSTEMS_ITEMSYSTEM_HPP_
+#endif // SRC_SYSTEMS_ITEMSYSTEM_HPP__

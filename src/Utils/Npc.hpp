@@ -1,5 +1,5 @@
-#ifndef SRC_UTILS_NPC_HPP_
-#define SRC_UTILS_NPC_HPP_
+#ifndef SRC_UTILS_NPC_HPP__
+#define SRC_UTILS_NPC_HPP__
 
 #include <Sprites/SpriteMetaType.hpp>
 #include <source_location>
@@ -18,4 +18,4 @@ Sprites::SpriteMetaType get_sprite_type( entt::registry &reg, entt::entity npc_e
 
 } // namespace Game::Utils::Npc
 
-#endif // SRC_UTILS_NPC_HPP_
+#endif // SRC_UTILS_NPC_HPP__

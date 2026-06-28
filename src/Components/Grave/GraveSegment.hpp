@@ -1,5 +1,5 @@
-#ifndef __CMP__GRAVE_SEGMENT_HPP__
-#define __CMP__GRAVE_SEGMENT_HPP__
+#ifndef SRC_COMPONENTS_GRAVE_GRAVESEGMENT_HPP__
+#define SRC_COMPONENTS_GRAVE_GRAVESEGMENT_HPP__
 
 namespace Game::Cmp
 {
@@ -23,4 +23,4 @@ private:
 
 } // namespace Game::Cmp
 
-#endif // __CMP__GRAVE_SEGMENT_HPP__
+#endif // SRC_COMPONENTS_GRAVE_GRAVESEGMENT_HPP__

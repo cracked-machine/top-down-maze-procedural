@@ -1,5 +1,5 @@
-#ifndef SRC_INVENTORY_CARRYITEM_HPP_
-#define SRC_INVENTORY_CARRYITEM_HPP_
+#ifndef SRC_COMPONENTS_INVENTORY_WORLDITEM_HPP__
+#define SRC_COMPONENTS_INVENTORY_WORLDITEM_HPP__
 
 #include <Components/Stats/BaseAction.hpp>
 #include <Sprites/SpriteMetaType.hpp>
@@ -40,4 +40,4 @@ public:
 
 } // namespace Game::Cmp
 
-#endif // SRC_INVENTORY_CARRYITEM_HPP_
+#endif // SRC_COMPONENTS_INVENTORY_WORLDITEM_HPP__

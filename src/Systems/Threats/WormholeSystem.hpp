@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_WORMHOLESYSTEM_HPP__
-#define SRC_SYSTEMS_WORMHOLESYSTEM_HPP__
+#ifndef SRC_SYSTEMS_THREATS_WORMHOLESYSTEM_HPP__
+#define SRC_SYSTEMS_THREATS_WORMHOLESYSTEM_HPP__
 
 #include <Components/Position.hpp>
 #include <PathFinding/SmartPointers.hpp>
@@ -54,4 +54,4 @@ private:
 
 } // namespace Game::Sys
 
-#endif // SRC_SYSTEMS_WORMHOLESYSTEM_HPP__
+#endif // SRC_SYSTEMS_THREATS_WORMHOLESYSTEM_HPP__

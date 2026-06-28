@@ -1,5 +1,5 @@
-#ifndef SRC_CMPS_INVENTORY_GRIMOIRE_HPP
-#define SRC_CMPS_INVENTORY_GRIMOIRE_HPP
+#ifndef SRC_COMPONENTS_INVENTORY_GRIMOIRE_HPP__
+#define SRC_COMPONENTS_INVENTORY_GRIMOIRE_HPP__
 
 #include <Components/Inventory/WorldItem.hpp>
 #include <Systems/Stores/ItemStore.hpp>
@@ -28,4 +28,4 @@ public:
 
 } // namespace Game::Cmp
 
-#endif // SRC_CMPS_INVENTORY_GRIMOIRE_HPP
+#endif // SRC_COMPONENTS_INVENTORY_GRIMOIRE_HPP__

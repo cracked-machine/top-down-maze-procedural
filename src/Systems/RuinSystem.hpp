@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_RUINSYSTEM_HPP_
-#define SRC_SYSTEMS_RUINSYSTEM_HPP_
+#ifndef SRC_SYSTEMS_RUINSYSTEM_HPP__
+#define SRC_SYSTEMS_RUINSYSTEM_HPP__
 
 #include <Components/Ruin/RuinFloorAccess.hpp>
 #include <Sprites/SpriteMetaType.hpp>
@@ -110,4 +110,4 @@ private:
 };
 } // namespace Game::Sys
 
-#endif // SRC_SYSTEMS_RUINSYSTEM_HPP_
+#endif // SRC_SYSTEMS_RUINSYSTEM_HPP__

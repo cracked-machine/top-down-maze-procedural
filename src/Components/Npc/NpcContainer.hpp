@@ -1,5 +1,5 @@
-#ifndef __COMPONENTS_NPCCONTAINER_HPP__
-#define __COMPONENTS_NPCCONTAINER_HPP__
+#ifndef SRC_COMPONENTS_NPC_NPCCONTAINER_HPP__
+#define SRC_COMPONENTS_NPC_NPCCONTAINER_HPP__
 
 namespace Game::Cmp
 {
@@ -12,4 +12,4 @@ struct NpcContainer
 
 } // namespace Game::Cmp
 
-#endif // __COMPONENTS_NPCCONTAINER_HPP__
+#endif // SRC_COMPONENTS_NPC_NPCCONTAINER_HPP__

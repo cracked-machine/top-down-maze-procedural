@@ -1,5 +1,5 @@
-#ifndef __COMPONENTS_FONT_HPP__
-#define __COMPONENTS_FONT_HPP__
+#ifndef SRC_COMPONENTS_FONT_HPP__
+#define SRC_COMPONENTS_FONT_HPP__
 
 #include <SFML/Graphics/Font.hpp>
 
@@ -14,4 +14,4 @@ public:
 
 } // namespace Game::Cmp
 
-#endif // __COMPONENTS_FONT_HPP__
+#endif // SRC_COMPONENTS_FONT_HPP__

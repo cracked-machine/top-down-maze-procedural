@@ -1,5 +1,5 @@
-#ifndef SRC_CMPS_PLANTOBSTACLE_HPP_
-#define SRC_CMPS_PLANTOBSTACLE_HPP_
+#ifndef SRC_COMPONENTS_PLANTOBSTACLE_HPP__
+#define SRC_COMPONENTS_PLANTOBSTACLE_HPP__
 
 namespace Game::Cmp
 {
@@ -13,4 +13,4 @@ struct PlantObstacle
 
 } // namespace Game::Cmp
 
-#endif // SRC_CMPS_PLANTOBSTACLE_HPP_
+#endif // SRC_COMPONENTS_PLANTOBSTACLE_HPP__

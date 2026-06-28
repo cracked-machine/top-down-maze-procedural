@@ -1,5 +1,5 @@
-#ifndef SCENE_LEVELCOMPLETE_SCENE_HPP_
-#define SCENE_LEVELCOMPLETE_SCENE_HPP_
+#ifndef SRC_SCENECONTROL_SCENES_LEVELCOMPLETESCENE_HPP__
+#define SRC_SCENECONTROL_SCENES_LEVELCOMPLETESCENE_HPP__
 
 #include <SceneControl/Events/ProcessLevelCompleteSceneInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
@@ -40,4 +40,4 @@ private:
 
 } // namespace Game::Scene
 
-#endif // SCENE_LEVELCOMPLETE_SCENE_HPP_
+#endif // SRC_SCENECONTROL_SCENES_LEVELCOMPLETESCENE_HPP__

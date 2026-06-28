@@ -1,5 +1,5 @@
-#ifndef __COMPONENTS_RANDOM_HPP__
-#define __COMPONENTS_RANDOM_HPP__
+#ifndef SRC_COMPONENTS_RANDOM_HPP__
+#define SRC_COMPONENTS_RANDOM_HPP__
 
 #include <random>
 
@@ -80,4 +80,4 @@ using RandomFloat = Random<float>;
 
 } // namespace Game::Cmp
 
-#endif // __COMPONENTS_RANDOM_HPP__
+#endif // SRC_COMPONENTS_RANDOM_HPP__

@@ -1,5 +1,5 @@
-#ifndef __CMP_FOOTSTEP_ALPHA_HPP__
-#define __CMP_FOOTSTEP_ALPHA_HPP__
+#ifndef SRC_COMPONENTS_FOOTSTEPALPHA_HPP__
+#define SRC_COMPONENTS_FOOTSTEPALPHA_HPP__
 
 #include <SFML/System/Clock.hpp>
 
@@ -13,4 +13,4 @@ struct FootStepAlpha
 
 } // namespace Game::Cmp
 
-#endif // __CMP_FOOTSTEP_ALPHA_HPP__
+#endif // SRC_COMPONENTS_FOOTSTEPALPHA_HPP__

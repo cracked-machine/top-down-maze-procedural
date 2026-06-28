@@ -1,5 +1,5 @@
-#ifndef __CMP_NPC_DEATH_POSITION_HPP__
-#define __CMP_NPC_DEATH_POSITION_HPP__
+#ifndef SRC_COMPONENTS_DEATHPOSITION_HPP__
+#define SRC_COMPONENTS_DEATHPOSITION_HPP__
 
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -18,4 +18,4 @@ public:
 
 } // namespace Game::Cmp
 
-#endif // __CMP_NPC_DEATH_POSITION_HPP__
+#endif // SRC_COMPONENTS_DEATHPOSITION_HPP__

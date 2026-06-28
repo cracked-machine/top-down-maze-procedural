@@ -1,5 +1,5 @@
-#ifndef __COMPONENTS_DISPLAY_SIZE_HPP__
-#define __COMPONENTS_DISPLAY_SIZE_HPP__
+#ifndef SRC_COMPONENTS_DISPLAYSIZE_HPP__
+#define SRC_COMPONENTS_DISPLAYSIZE_HPP__
 
 #include <SFML/System/Vector2.hpp>
 
@@ -13,4 +13,4 @@ struct DisplaySize
 
 } // namespace Game::Cmp
 
-#endif // __COMPONENTS_DISPLAY_SIZE_HPP__
+#endif // SRC_COMPONENTS_DISPLAYSIZE_HPP__

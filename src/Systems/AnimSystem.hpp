@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_ANIMSYSTEM_HPP
-#define SRC_SYSTEMS_ANIMSYSTEM_HPP
+#ifndef SRC_SYSTEMS_ANIMSYSTEM_HPP__
+#define SRC_SYSTEMS_ANIMSYSTEM_HPP__
 
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/ResumeClocksEvent.hpp>
@@ -46,4 +46,4 @@ private:
 
 } // namespace Game::Sys
 
-#endif // SRC_SYSTEMS_ANIMSYSTEM_HPP
+#endif // SRC_SYSTEMS_ANIMSYSTEM_HPP__

@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_PROCGEN_PASSAGECACHE_HPP_
-#define SRC_SYSTEMS_PROCGEN_PASSAGECACHE_HPP_
+#ifndef SRC_SYSTEMS_PROCGEN_PASSAGECACHE_HPP__
+#define SRC_SYSTEMS_PROCGEN_PASSAGECACHE_HPP__
 
 #include <Components/Crypt/CryptPassageBlock.hpp>
 #include <cstddef>
@@ -41,4 +41,4 @@ private:
 
 } // namespace Game::Sys::ProcGen
 
-#endif // SRC_SYSTEMS_PROCGEN_PASSAGECACHE_HPP_
+#endif // SRC_SYSTEMS_PROCGEN_PASSAGECACHE_HPP__

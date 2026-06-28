@@ -1,5 +1,5 @@
-#ifndef SRC_SPRITES_SPRITESMETATYPE_HPP_
-#define SRC_SPRITES_SPRITESMETATYPE_HPP_
+#ifndef SRC_SPRITES_SPRITEMETATYPE_HPP__
+#define SRC_SPRITES_SPRITEMETATYPE_HPP__
 
 namespace Game::Sprites
 {
@@ -8,4 +8,4 @@ using SpriteMetaType = std::string;
 
 } // namespace Game::Sprites
 
-#endif // SRC_SPRITES_SPRITESMETATYPE_HPP_
+#endif // SRC_SPRITES_SPRITEMETATYPE_HPP__

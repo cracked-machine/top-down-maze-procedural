@@ -1,5 +1,5 @@
-#ifndef SRC_UTILS_REGISTRY_HPP_
-#define SRC_UTILS_REGISTRY_HPP_
+#ifndef SRC_UTILS_COLLISION_HPP__
+#define SRC_UTILS_COLLISION_HPP__
 
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
@@ -49,4 +49,4 @@ bool check_pos( entt::registry &reg, Cmp::RectBounds pos, std::function<bool( co
 
 } // namespace Game::Utils::Collision
 
-#endif // SRC_UTILS_REGISTRY_HPP_
+#endif // SRC_UTILS_COLLISION_HPP__

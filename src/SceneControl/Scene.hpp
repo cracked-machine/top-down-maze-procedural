@@ -1,5 +1,5 @@
-#ifndef SRC_SCENECONTROL_SCENE_HPP_
-#define SRC_SCENECONTROL_SCENE_HPP_
+#ifndef SRC_SCENECONTROL_SCENE_HPP__
+#define SRC_SCENECONTROL_SCENE_HPP__
 
 #include <PathFinding/SmartPointers.hpp>
 #include <SceneControl/IScene.hpp>
@@ -54,4 +54,4 @@ private:
 
 } // namespace Game::Scene
 
-#endif // SRC_SCENECONTROL_SCENE_HPP_
+#endif // SRC_SCENECONTROL_SCENE_HPP__

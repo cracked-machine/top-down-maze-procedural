@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_PROCGEN_PASSAGEALGO_HPP_
-#define SRC_SYSTEMS_PROCGEN_PASSAGEALGO_HPP_
+#ifndef SRC_SYSTEMS_PROCGEN_PASSAGEALGORITHMS_HPP__
+#define SRC_SYSTEMS_PROCGEN_PASSAGEALGORITHMS_HPP__
 
 #include <Components/Crypt/CryptPassageBlock.hpp>
 #include <Components/Crypt/CryptPassageDoor.hpp>
@@ -70,4 +70,4 @@ private:
 
 } // namespace Game::Sys::ProcGen
 
-#endif // SRC_SYSTEMS_PROCGEN_PASSAGEALGO_HPP_
+#endif // SRC_SYSTEMS_PROCGEN_PASSAGEALGORITHMS_HPP__

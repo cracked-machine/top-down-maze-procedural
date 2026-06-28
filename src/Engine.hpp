@@ -1,5 +1,5 @@
-#ifndef __ENGINE_HPP__
-#define __ENGINE_HPP__
+#ifndef SRC_ENGINE_HPP__
+#define SRC_ENGINE_HPP__
 
 #include "imgui-SFML.h"
 #include <SFML/Audio/Sound.hpp>
@@ -113,4 +113,4 @@ private:
 
 } // namespace Game
 
-#endif // __ENGINE_HPP__
+#endif // SRC_ENGINE_HPP__

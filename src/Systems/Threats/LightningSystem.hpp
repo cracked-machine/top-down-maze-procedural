@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEM_THREATS_LIGHTNINGSYSTEM_HPP_
-#define SRC_SYSTEM_THREATS_LIGHTNINGSYSTEM_HPP_
+#ifndef SRC_SYSTEMS_THREATS_LIGHTNINGSYSTEM_HPP__
+#define SRC_SYSTEMS_THREATS_LIGHTNINGSYSTEM_HPP__
 
 #include <Events/LightningEvent.hpp>
 #include <Components/LightningStrike.hpp>
@@ -63,4 +63,4 @@ private:
 
 } // namespace Game::Sys
 
-#endif // SRC_SYSTEM_THREATS_LIGHTNINGSYSTEM_HPP_
+#endif // SRC_SYSTEMS_THREATS_LIGHTNINGSYSTEM_HPP__

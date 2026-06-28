@@ -1,5 +1,5 @@
-#ifndef SRC_CMPS_UUID_HPP_
-#define SRC_CMPS_UUID_HPP_
+#ifndef SRC_COMPONENTS_UUID_HPP__
+#define SRC_COMPONENTS_UUID_HPP__
 
 #include <algorithm>
 #include <functional>
@@ -64,4 +64,4 @@ struct std::hash<Game::Cmp::UUID>
   }
 };
 
-#endif // SRC_CMPS_UUID_HPP_
+#endif // SRC_COMPONENTS_UUID_HPP__

@@ -1,5 +1,5 @@
-#ifndef __SPRITES_FLOODERWATERSHADER_HPP__
-#define __SPRITES_FLOODERWATERSHADER_HPP__
+#ifndef SRC_SHADERS_FLOODWATERSHADER_HPP__
+#define SRC_SHADERS_FLOODWATERSHADER_HPP__
 
 #include <SFML/System/Time.hpp>
 
@@ -27,4 +27,4 @@ public:
 
 } // namespace Game::Sprites
 
-#endif // __SPRITES_FLOODERWATERSHADER_HPP__
+#endif // SRC_SHADERS_FLOODWATERSHADER_HPP__

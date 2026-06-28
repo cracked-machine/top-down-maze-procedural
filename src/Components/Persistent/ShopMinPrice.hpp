@@ -1,5 +1,5 @@
-#ifndef SRC_CMPS_PERSISTENT_SHOPMINPRICE_HPP_
-#define SRC_CMPS_PERSISTENT_SHOPMINPRICE_HPP_
+#ifndef SRC_COMPONENTS_PERSISTENT_SHOPMINPRICE_HPP__
+#define SRC_COMPONENTS_PERSISTENT_SHOPMINPRICE_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
 #include <cstdint>
@@ -21,4 +21,4 @@ public:
 
 } // namespace Game::Cmp::Persist
 
-#endif // SRC_CMPS_PERSISTENT_SHOPMINPRICE_HPP_
+#endif // SRC_COMPONENTS_PERSISTENT_SHOPMINPRICE_HPP__

@@ -1,5 +1,5 @@
-#ifndef SCENE_PAUSEDMENUSCENE_HPP_
-#define SCENE_PAUSEDMENUSCENE_HPP_
+#ifndef SRC_SCENECONTROL_SCENES_PAUSEDMENUSCENE_HPP__
+#define SRC_SCENECONTROL_SCENES_PAUSEDMENUSCENE_HPP__
 
 #include <SceneControl/Events/ProcessPausedMenuSceneInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
@@ -39,4 +39,4 @@ private:
 
 } // namespace Game::Scene
 
-#endif // SCENE_PAUSEDMENUSCENE_HPP_
+#endif // SRC_SCENECONTROL_SCENES_PAUSEDMENUSCENE_HPP__

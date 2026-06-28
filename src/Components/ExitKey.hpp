@@ -1,5 +1,5 @@
-#ifndef SRC_CMPS_EXITKEY_HPP_
-#define SRC_CMPS_EXITKEY_HPP_
+#ifndef SRC_COMPONENTS_EXITKEY_HPP__
+#define SRC_COMPONENTS_EXITKEY_HPP__
 
 namespace Game::Cmp
 {
@@ -11,4 +11,4 @@ struct ExitKey
 
 } // namespace Game::Cmp
 
-#endif // SRC_CMPS_EXITKEY_HPP_
+#endif // SRC_COMPONENTS_EXITKEY_HPP__

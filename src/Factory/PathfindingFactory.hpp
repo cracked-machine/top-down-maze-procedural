@@ -1,5 +1,5 @@
-#ifndef SRC_FACTORY_PATHFINDINGFACTORY_HPP_
-#define SRC_FACTORY_PATHFINDINGFACTORY_HPP_
+#ifndef SRC_FACTORY_PATHFINDINGFACTORY_HPP__
+#define SRC_FACTORY_PATHFINDINGFACTORY_HPP__
 
 #include <PathFinding/SmartPointers.hpp>
 
@@ -12,4 +12,4 @@ PathFinding::SpatialHashGridSharedPtr create_open_navmesh( entt::registry &reg )
 
 } // namespace Game::Pathfinding::Factory
 
-#endif // SRC_FACTORY_PATHFINDINGFACTORY_HPP_
+#endif // SRC_FACTORY_PATHFINDINGFACTORY_HPP__

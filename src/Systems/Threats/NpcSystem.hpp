@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_NPCSYSTEM_HPP__
-#define SRC_SYSTEMS_NPCSYSTEM_HPP__
+#ifndef SRC_SYSTEMS_THREATS_NPCSYSTEM_HPP__
+#define SRC_SYSTEMS_THREATS_NPCSYSTEM_HPP__
 
 #include <Systems/BaseSystem.hpp>
 
@@ -138,4 +138,4 @@ private:
 
 } // namespace Game::Sys
 
-#endif // SRC_SYSTEMS_NPCSYSTEM_HPP__
+#endif // SRC_SYSTEMS_THREATS_NPCSYSTEM_HPP__

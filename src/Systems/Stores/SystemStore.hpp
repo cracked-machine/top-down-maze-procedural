@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_SYSTEMSTORE_HPP_
-#define SRC_SYSTEMS_SYSTEMSTORE_HPP_
+#ifndef SRC_SYSTEMS_STORES_SYSTEMSTORE_HPP__
+#define SRC_SYSTEMS_STORES_SYSTEMSTORE_HPP__
 
 #include <entt/fwd.hpp>
 #include <map>
@@ -162,4 +162,4 @@ template<> struct Store::SystemTraits<Store::Type::WormholeSystem>         { usi
 
 } // namespace Game::Sys
 
-#endif // SRC_SYSTEMS_SYSTEMSTORE_HPP_
+#endif // SRC_SYSTEMS_STORES_SYSTEMSTORE_HPP__

@@ -1,5 +1,5 @@
-#ifndef __CMP_WORMHOLEJUMP_HPP__
-#define __CMP_WORMHOLEJUMP_HPP__
+#ifndef SRC_COMPONENTS_WORMHOLE_WORMHOLEJUMP_HPP__
+#define SRC_COMPONENTS_WORMHOLE_WORMHOLEJUMP_HPP__
 
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
@@ -16,4 +16,4 @@ public:
 
 } // namespace Game::Cmp
 
-#endif // __CMP_WORMHOLEJUMP_HPP__
+#endif // SRC_COMPONENTS_WORMHOLE_WORMHOLEJUMP_HPP__

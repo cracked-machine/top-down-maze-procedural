@@ -1,5 +1,5 @@
-#ifndef SCENE_GAMEOVERSCENE_HPP_
-#define SCENE_GAMEOVERSCENE_HPP_
+#ifndef SRC_SCENECONTROL_SCENES_GAMEOVERSCENE_HPP__
+#define SRC_SCENECONTROL_SCENES_GAMEOVERSCENE_HPP__
 
 #include <SceneControl/Events/ProcessGameoverSceneInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
@@ -39,4 +39,4 @@ private:
 
 } // namespace Game::Scene
 
-#endif // SCENE_GAMEOVERSCENE_HPP_
+#endif // SRC_SCENECONTROL_SCENES_GAMEOVERSCENE_HPP__

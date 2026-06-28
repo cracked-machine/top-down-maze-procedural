@@ -1,5 +1,5 @@
-#ifndef __CMP_ARMABLE_HPP__
-#define __CMP_ARMABLE_HPP__
+#ifndef SRC_COMPONENTS_ARMABLE_HPP__
+#define SRC_COMPONENTS_ARMABLE_HPP__
 
 namespace Game::Cmp
 {
@@ -12,4 +12,4 @@ struct Armable
 
 } // namespace Game::Cmp
 
-#endif // __CMP_ARMABLE_HPP__
+#endif // SRC_COMPONENTS_ARMABLE_HPP__

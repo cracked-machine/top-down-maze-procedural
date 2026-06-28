@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_ITEMSTORE_HPP_
-#define SRC_SYSTEMS_ITEMSTORE_HPP_
+#ifndef SRC_SYSTEMS_STORES_ITEMSTORE_HPP__
+#define SRC_SYSTEMS_STORES_ITEMSTORE_HPP__
 
 #include <Sprites/SpriteMetaType.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -20,4 +20,4 @@ public:
 
 } // namespace Game::Sys
 
-#endif // SRC_SYSTEMS_ITEMSTORE_HPP_
+#endif // SRC_SYSTEMS_STORES_ITEMSTORE_HPP__

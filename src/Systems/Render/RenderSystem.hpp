@@ -1,5 +1,5 @@
-#ifndef __SYSTEMS_RENDER_SYSTEM_HPP__
-#define __SYSTEMS_RENDER_SYSTEM_HPP__
+#ifndef SRC_SYSTEMS_RENDER_RENDERSYSTEM_HPP__
+#define SRC_SYSTEMS_RENDER_RENDERSYSTEM_HPP__
 
 #include <Components/Font.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
@@ -152,4 +152,4 @@ protected:
 
 } // namespace Game::Sys
 
-#endif // __SYSTEMS_RENDER_SYSTEM_HPP__
+#endif // SRC_SYSTEMS_RENDER_RENDERSYSTEM_HPP__

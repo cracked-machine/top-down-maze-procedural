@@ -1,5 +1,5 @@
-#ifndef __CMP_PERSIST_CAMERASMOOTHSPEED_HPP__
-#define __CMP_PERSIST_CAMERASMOOTHSPEED_HPP__
+#ifndef SRC_COMPONENTS_PERSISTENT_CAMERASMOOTHSPEED_HPP__
+#define SRC_COMPONENTS_PERSISTENT_CAMERASMOOTHSPEED_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
 
@@ -20,4 +20,4 @@ struct CameraSmoothSpeed : BasePersistent<float>
 
 } // namespace Game::Cmp::Persist
 
-#endif
+#endif // SRC_COMPONENTS_PERSISTENT_CAMERASMOOTHSPEED_HPP__

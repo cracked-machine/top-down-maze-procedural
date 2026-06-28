@@ -1,5 +1,5 @@
-#ifndef __COMPONENTS_ARMED_HPP__
-#define __COMPONENTS_ARMED_HPP__
+#ifndef SRC_COMPONENTS_ARMED_HPP__
+#define SRC_COMPONENTS_ARMED_HPP__
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Clock.hpp>
@@ -46,4 +46,4 @@ private:
 
 } // namespace Game::Cmp
 
-#endif // __COMPONENTS_ARMED_HPP__
+#endif // SRC_COMPONENTS_ARMED_HPP__

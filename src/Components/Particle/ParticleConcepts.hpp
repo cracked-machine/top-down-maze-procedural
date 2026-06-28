@@ -1,5 +1,5 @@
-#ifndef SRC_CMPS_PARTICLE_PARTICLECONCEPTS_HPP_
-#define SRC_CMPS_PARTICLE_PARTICLECONCEPTS_HPP_
+#ifndef SRC_COMPONENTS_PARTICLE_PARTICLECONCEPTS_HPP__
+#define SRC_COMPONENTS_PARTICLE_PARTICLECONCEPTS_HPP__
 
 #include <SFML/Graphics/Vertex.hpp>
 #include <SFML/System/Time.hpp>
@@ -30,4 +30,4 @@ concept ParticleConcept = std::derived_from<TParticle, IParticle> && HasParticle
 
 } // namespace Game::Cmp::Particle
 
-#endif // SRC_CMPS_PARTICLE_PARTICLECONCEPTS_HPP_
+#endif // SRC_COMPONENTS_PARTICLE_PARTICLECONCEPTS_HPP__

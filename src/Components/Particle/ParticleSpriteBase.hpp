@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEM_PARTICLESPRITEBASE_HPP_
-#define SRC_SYSTEM_PARTICLESPRITEBASE_HPP_
+#ifndef SRC_COMPONENTS_PARTICLE_PARTICLESPRITEBASE_HPP__
+#define SRC_COMPONENTS_PARTICLE_PARTICLESPRITEBASE_HPP__
 
 #include <Components/Particle/ParticleConcepts.hpp>
 #include <SFML/System/Time.hpp>
@@ -482,4 +482,4 @@ private:
 };
 } // namespace Game::Cmp::Particle
 
-#endif // SRC_SYSTEM_PARTICLESPRITEBASE_HPP_
+#endif // SRC_COMPONENTS_PARTICLE_PARTICLESPRITEBASE_HPP__

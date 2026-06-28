@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_EVENTS_PASSAGEEVENT_HPP_
-#define SRC_SYSTEMS_EVENTS_PASSAGEEVENT_HPP_
+#ifndef SRC_SYSTEMS_EVENTS_PASSAGEEVENT_HPP__
+#define SRC_SYSTEMS_EVENTS_PASSAGEEVENT_HPP__
 
 #include <entt/entity/entity.hpp>
 
@@ -38,4 +38,4 @@ public:
 
 } // namespace Game::Events
 
-#endif // SRC_SYSTEMS_EVENTS_PASSAGEEVENT_HPP_
+#endif // SRC_SYSTEMS_EVENTS_PASSAGEEVENT_HPP__

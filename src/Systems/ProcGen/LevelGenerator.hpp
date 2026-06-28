@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_PROCGEN_LevelGenerator_HPP_
-#define SRC_SYSTEMS_PROCGEN_LevelGenerator_HPP_
+#ifndef SRC_SYSTEMS_PROCGEN_LEVELGENERATOR_HPP__
+#define SRC_SYSTEMS_PROCGEN_LEVELGENERATOR_HPP__
 
 #include <PathFinding/SmartPointers.hpp>
 #include <Sprites/SpriteMetaType.hpp>
@@ -100,4 +100,4 @@ private:
 
 } // namespace Game::Sys::ProcGen
 
-#endif // SRC_SYSTEMS_PROCGEN_LevelGenerator_HPP_
+#endif // SRC_SYSTEMS_PROCGEN_LEVELGENERATOR_HPP__

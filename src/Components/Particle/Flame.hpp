@@ -1,5 +1,5 @@
-#ifndef SRC_CMP_PARTICLE_FLAME_HPP_
-#define SRC_CMP_PARTICLE_FLAME_HPP_
+#ifndef SRC_COMPONENTS_PARTICLE_FLAME_HPP__
+#define SRC_COMPONENTS_PARTICLE_FLAME_HPP__
 
 #include <Components/Particle/ParticleSpriteBase.hpp>
 
@@ -35,4 +35,4 @@ public:
 
 } // namespace Game::Cmp::Particle
 
-#endif // SRC_CMP_PARTICLE_FLAME_HPP_
+#endif // SRC_COMPONENTS_PARTICLE_FLAME_HPP__

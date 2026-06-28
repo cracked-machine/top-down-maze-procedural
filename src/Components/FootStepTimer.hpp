@@ -1,5 +1,5 @@
-#ifndef __CMP_FOOTSTEPTIMER_HPP__
-#define __CMP_FOOTSTEPTIMER_HPP__
+#ifndef SRC_COMPONENTS_FOOTSTEPTIMER_HPP__
+#define SRC_COMPONENTS_FOOTSTEPTIMER_HPP__
 
 #include <SFML/System/Clock.hpp>
 
@@ -13,4 +13,4 @@ struct FootStepTimer
 
 } // namespace Game::Cmp
 
-#endif // __CMP_FOOTSTEPTIMER_HPP__
+#endif // SRC_COMPONENTS_FOOTSTEPTIMER_HPP__

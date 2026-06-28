@@ -1,5 +1,5 @@
-#ifndef SRC_SPRITES_CIRCLESEGMENT_
-#define SRC_SPRITES_CIRCLESEGMENT_
+#ifndef SRC_SPRITES_CIRCLESEGMENT_HPP__
+#define SRC_SPRITES_CIRCLESEGMENT_HPP__
 
 #include <vector>
 
@@ -72,4 +72,4 @@ private:
 
 } // namespace Game::Sprites
 
-#endif // SRC_SPRITES_CIRCLESEGMENT_
+#endif // SRC_SPRITES_CIRCLESEGMENT_HPP__

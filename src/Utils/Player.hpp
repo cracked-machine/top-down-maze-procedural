@@ -1,5 +1,5 @@
-#ifndef SRC_UTILS_PLAYER_HPP_
-#define SRC_UTILS_PLAYER_HPP_
+#ifndef SRC_UTILS_PLAYER_HPP__
+#define SRC_UTILS_PLAYER_HPP__
 
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AnimData.hpp>
@@ -56,4 +56,4 @@ sf::Clock &get_global_bomb_flash_clk( entt::registry &reg );
 
 } // namespace Game::Utils::Player
 
-#endif // SRC_UTILS_PLAYER_HPP_
+#endif // SRC_UTILS_PLAYER_HPP__

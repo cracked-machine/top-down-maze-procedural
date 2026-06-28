@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_SHADERSYSTEM_HPP_
-#define SRC_SYSTEMS_SHADERSYSTEM_HPP_
+#ifndef SRC_SYSTEMS_SHADERSYSTEM_HPP__
+#define SRC_SYSTEMS_SHADERSYSTEM_HPP__
 
 #include <Shaders/IShaderSprite.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -50,4 +50,4 @@ private:
 
 } // namespace Game::Sys
 
-#endif // SRC_SYSTEMS_SHADERSYSTEM_HPP_
+#endif // SRC_SYSTEMS_SHADERSYSTEM_HPP__

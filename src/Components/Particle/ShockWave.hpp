@@ -1,5 +1,5 @@
-#ifndef SRC_CMP_PARTICLE_SHOCKWAVE_HPP_
-#define SRC_CMP_PARTICLE_SHOCKWAVE_HPP_
+#ifndef SRC_COMPONENTS_PARTICLE_SHOCKWAVE_HPP__
+#define SRC_COMPONENTS_PARTICLE_SHOCKWAVE_HPP__
 
 #include <Components/Particle/ParticleSpriteBase.hpp>
 #include <SFML/Graphics/BlendMode.hpp>
@@ -32,4 +32,4 @@ public:
 
 } // namespace Game::Cmp::Particle
 
-#endif // SRC_CMP_PARTICLE_SHOCKWAVE_HPP_
+#endif // SRC_COMPONENTS_PARTICLE_SHOCKWAVE_HPP__

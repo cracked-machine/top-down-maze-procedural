@@ -1,5 +1,5 @@
-#ifndef __CMP_NPC_LERP_SPEED_HPP__
-#define __CMP_NPC_LERP_SPEED_HPP__
+#ifndef SRC_COMPONENTS_NPC_NPCLERPSPEED_HPP__
+#define SRC_COMPONENTS_NPC_NPCLERPSPEED_HPP__
 
 namespace Game::Cmp
 {
@@ -11,4 +11,4 @@ struct NpcLerpSpeed
 
 } // namespace Game::Cmp
 
-#endif // __CMP_NPC_LERP_SPEED_HPP__
+#endif // SRC_COMPONENTS_NPC_NPCLERPSPEED_HPP__

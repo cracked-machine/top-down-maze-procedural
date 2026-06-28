@@ -1,5 +1,5 @@
-#ifndef SCENE_CRYPTSCENE_HPP_
-#define SCENE_CRYPTSCENE_HPP_
+#ifndef SRC_SCENECONTROL_SCENES_CRYPTSCENE_HPP__
+#define SRC_SCENECONTROL_SCENES_CRYPTSCENE_HPP__
 
 #include <SceneControl/Events/ProcessCryptSceneInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
@@ -49,4 +49,4 @@ private:
 
 } // namespace Game::Scene
 
-#endif // SCENE_CRYPTSCENE_HPP_
+#endif // SRC_SCENECONTROL_SCENES_CRYPTSCENE_HPP__

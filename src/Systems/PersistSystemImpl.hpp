@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_PERSISTENT_SYSTEM_IMPL_HPP
-#define SRC_SYSTEMS_PERSISTENT_SYSTEM_IMPL_HPP
+#ifndef SRC_SYSTEMS_PERSISTSYSTEMIMPL_HPP__
+#define SRC_SYSTEMS_PERSISTSYSTEMIMPL_HPP__
 
 #include "PersistSystem.hpp"
 
@@ -53,4 +53,4 @@ void PersistSystem::register_types( const std::string &name )
 
 } // namespace Game::Sys
 
-#endif // SRC_SYSTEMS_PERSISTENT_SYSTEM_IMPL_HPP
+#endif // SRC_SYSTEMS_PERSISTSYSTEMIMPL_HPP__

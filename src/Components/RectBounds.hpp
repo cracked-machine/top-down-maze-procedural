@@ -1,5 +1,5 @@
-#ifndef __CMP_RECTBOUNDS_HPP__
-#define __CMP_RECTBOUNDS_HPP__
+#ifndef SRC_COMPONENTS_RECTBOUNDS_HPP__
+#define SRC_COMPONENTS_RECTBOUNDS_HPP__
 
 #include <Components/Position.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -140,4 +140,4 @@ private:
 
 } // namespace Game::Cmp
 
-#endif // __CMP_RECTBOUNDS_HPP__
+#endif // SRC_COMPONENTS_RECTBOUNDS_HPP__

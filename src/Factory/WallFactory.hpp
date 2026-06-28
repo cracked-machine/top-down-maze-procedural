@@ -1,5 +1,5 @@
-#ifndef SRC_FACTORY_WALLFACTORY_HPP_
-#define SRC_FACTORY_WALLFACTORY_HPP_
+#ifndef SRC_FACTORY_WALLFACTORY_HPP__
+#define SRC_FACTORY_WALLFACTORY_HPP__
 #include <entt/entity/fwd.hpp>
 
 #include <SFML/System/Vector2.hpp>
@@ -21,4 +21,4 @@ void add_solid_npc( entt::registry &reg, sf::FloatRect rect );
 void add_no_move_dest( entt::registry &reg, sf::FloatRect rect );
 } // namespace Game::Factory
 
-#endif // SRC_FACTORY_WALLFACTORY_HPP_
+#endif // SRC_FACTORY_WALLFACTORY_HPP__

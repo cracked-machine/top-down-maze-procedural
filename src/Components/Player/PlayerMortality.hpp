@@ -1,5 +1,5 @@
-#ifndef __CMP_PLAYERMORTALITY_HPP__
-#define __CMP_PLAYERMORTALITY_HPP__
+#ifndef SRC_COMPONENTS_PLAYER_PLAYERMORTALITY_HPP__
+#define SRC_COMPONENTS_PLAYER_PLAYERMORTALITY_HPP__
 
 #include <cstdint>
 namespace Game::Cmp
@@ -57,4 +57,4 @@ public:
 
 } // namespace Game::Cmp
 
-#endif // __CMP_PLAYERMORTALITY_HPP__
+#endif // SRC_COMPONENTS_PLAYER_PLAYERMORTALITY_HPP__

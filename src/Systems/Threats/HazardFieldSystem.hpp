@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_HAZARDFIELDSYSTEM_HPP__
-#define SRC_SYSTEMS_HAZARDFIELDSYSTEM_HPP__
+#ifndef SRC_SYSTEMS_THREATS_HAZARDFIELDSYSTEM_HPP__
+#define SRC_SYSTEMS_THREATS_HAZARDFIELDSYSTEM_HPP__
 
 #include <Utils/Random.hpp>
 #include <entt/entity/fwd.hpp>
@@ -91,4 +91,4 @@ private:
 
 } // namespace Game::Sys
 
-#endif // SRC_SYSTEMS_HAZARDFIELDSYSTEM_HPP__
+#endif // SRC_SYSTEMS_THREATS_HAZARDFIELDSYSTEM_HPP__

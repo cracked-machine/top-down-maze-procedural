@@ -1,5 +1,5 @@
-#ifndef SRC_CMP_PERSISTENT_MAXNUMCRYPTS_HPP__
-#define SRC_CMP_PERSISTENT_MAXNUMCRYPTS_HPP__
+#ifndef SRC_COMPONENTS_PERSISTENT_MAXNUMCRYPTS_HPP__
+#define SRC_COMPONENTS_PERSISTENT_MAXNUMCRYPTS_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
 namespace Game::Cmp::Persist
@@ -18,4 +18,4 @@ public:
 
 } // namespace Game::Cmp::Persist
 
-#endif // SRC_CMP_PERSISTENT_MAXNUMCRYPTS_HPP__
+#endif // SRC_COMPONENTS_PERSISTENT_MAXNUMCRYPTS_HPP__

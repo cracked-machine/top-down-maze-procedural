@@ -1,5 +1,5 @@
-#ifndef __CMP_PLAYER_ANIM_FRAMERATE_HPP__
-#define __CMP_PLAYER_ANIM_FRAMERATE_HPP__
+#ifndef SRC_COMPONENTS_PERSISTENT_PLAYERANIMFRAMERATE_HPP__
+#define SRC_COMPONENTS_PERSISTENT_PLAYERANIMFRAMERATE_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
 #include <SFML/System/Time.hpp>
@@ -21,4 +21,4 @@ public:
 
 } // namespace Game::Cmp::Persist
 
-#endif // __CMP_PLAYER_ANIM_FRAMERATE_HPP__
+#endif // SRC_COMPONENTS_PERSISTENT_PLAYERANIMFRAMERATE_HPP__

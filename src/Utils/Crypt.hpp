@@ -1,5 +1,5 @@
-#ifndef SCR_UTILS_CRYPT_HPP_
-#define SCR_UTILS_CRYPT_HPP_
+#ifndef SRC_UTILS_CRYPT_HPP__
+#define SRC_UTILS_CRYPT_HPP__
 
 #include <Components/Crypt/CryptShuffleTimer.hpp>
 namespace Game::Utils::Crypt
@@ -12,4 +12,4 @@ Cmp::CryptShuffleTimer &get_shuffle_timer();
 
 } // namespace Game::Utils::Crypt
 
-#endif // SCR_UTILS_CRYPT_HPP_
+#endif // SRC_UTILS_CRYPT_HPP__

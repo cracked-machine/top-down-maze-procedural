@@ -1,5 +1,5 @@
-#ifndef MUSIC_ITEM_HPP
-#define MUSIC_ITEM_HPP
+#ifndef SRC_AUDIO_MUSICITEM_HPP__
+#define SRC_AUDIO_MUSICITEM_HPP__
 
 #include <SFML/Audio/Music.hpp>
 
@@ -16,4 +16,4 @@ struct MusicData
 
 } // namespace Game::Audio
 
-#endif // MUSIC_ITEM_HPP
+#endif // SRC_AUDIO_MUSICITEM_HPP__

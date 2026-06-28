@@ -1,5 +1,5 @@
-#ifndef __CMP_PC_DAMAGE_DELAY_HPP__
-#define __CMP_PC_DAMAGE_DELAY_HPP__
+#ifndef SRC_COMPONENTS_PERSISTENT_PCDAMAGEDELAY_HPP__
+#define SRC_COMPONENTS_PERSISTENT_PCDAMAGEDELAY_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
 namespace Game::Cmp::Persist
@@ -18,4 +18,4 @@ public:
 
 } // namespace Game::Cmp::Persist
 
-#endif // __CMP_PC_DAMAGE_DELAY_HPP__
+#endif // SRC_COMPONENTS_PERSISTENT_PCDAMAGEDELAY_HPP__

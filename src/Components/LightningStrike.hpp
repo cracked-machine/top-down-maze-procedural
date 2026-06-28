@@ -1,5 +1,5 @@
-#ifndef SRC_CMPS_LIGHTNINGSTRIKE_HPP_
-#define SRC_CMPS_LIGHTNINGSTRIKE_HPP_
+#ifndef SRC_COMPONENTS_LIGHTNINGSTRIKE_HPP__
+#define SRC_COMPONENTS_LIGHTNINGSTRIKE_HPP__
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Vertex.hpp>
@@ -34,4 +34,4 @@ struct LightningStrike
 
 } // namespace Game::Cmp
 
-#endif // SRC_CMPS_LIGHTNINGSTRIKE_HPP_
+#endif // SRC_COMPONENTS_LIGHTNINGSTRIKE_HPP__

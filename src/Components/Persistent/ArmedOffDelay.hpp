@@ -1,5 +1,5 @@
-#ifndef __CMP__ARMEDOFFDELAY_HPP__
-#define __CMP__ARMEDOFFDELAY_HPP__
+#ifndef SRC_COMPONENTS_PERSISTENT_ARMEDOFFDELAY_HPP__
+#define SRC_COMPONENTS_PERSISTENT_ARMEDOFFDELAY_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
 namespace Game::Cmp::Persist
@@ -20,4 +20,4 @@ public:
 
 } // namespace Game::Cmp::Persist
 
-#endif // __CMP__ARMEDOFFDELAY_HPP__
+#endif // SRC_COMPONENTS_PERSISTENT_ARMEDOFFDELAY_HPP__

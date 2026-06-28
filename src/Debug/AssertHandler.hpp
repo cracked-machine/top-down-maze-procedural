@@ -1,5 +1,5 @@
-#ifndef DEBUG_ASSERT_HANDLER_HPP
-#define DEBUG_ASSERT_HANDLER_HPP
+#ifndef SRC_DEBUG_ASSERTHANDLER_HPP__
+#define SRC_DEBUG_ASSERTHANDLER_HPP__
 
 #include <csignal>
 #include <cstdlib>
@@ -28,4 +28,4 @@ void stack_trace();
     if ( !( condition ) ) { ::Debug::assert_handler( #condition, msg, __FILE__, __LINE__ ); }                                                        \
   } while ( 0 )
 
-#endif // DEBUG_ASSERT_HANDLER_HPP
+#endif // SRC_DEBUG_ASSERTHANDLER_HPP__

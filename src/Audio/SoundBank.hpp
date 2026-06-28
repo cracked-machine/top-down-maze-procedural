@@ -1,5 +1,5 @@
-#ifndef __SYS__FXSYSTEM_HPP__
-#define __SYS__FXSYSTEM_HPP__
+#ifndef SRC_AUDIO_SOUNDBANK_HPP__
+#define SRC_AUDIO_SOUNDBANK_HPP__
 
 #include <Audio/EffectsItem.hpp>
 #include <Audio/MusicItem.hpp>
@@ -27,4 +27,4 @@ private:
 
 } // namespace Game::Audio
 
-#endif // __SYS__FXSYSTEM_HPP__
+#endif // SRC_AUDIO_SOUNDBANK_HPP__

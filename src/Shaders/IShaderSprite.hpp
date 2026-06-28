@@ -1,5 +1,5 @@
-#ifndef SRC_SHADERS_ISHADERSPRITE_HPP_
-#define SRC_SHADERS_ISHADERSPRITE_HPP_
+#ifndef SRC_SHADERS_ISHADERSPRITE_HPP__
+#define SRC_SHADERS_ISHADERSPRITE_HPP__
 
 namespace Game::Sprites
 {
@@ -25,4 +25,4 @@ protected:
 
 } // namespace Game::Sprites
 
-#endif // SRC_SHADERS_ISHADERSPRITE_HPP_
+#endif // SRC_SHADERS_ISHADERSPRITE_HPP__

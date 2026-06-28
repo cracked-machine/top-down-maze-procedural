@@ -1,5 +1,5 @@
-#ifndef SRC_CMPS_ANIMDATA_HPP_
-#define SRC_CMPS_ANIMDATA_HPP_
+#ifndef SRC_COMPONENTS_ANIMDATA_HPP__
+#define SRC_COMPONENTS_ANIMDATA_HPP__
 
 #include <SFML/System/Time.hpp>
 #include <Sprites/SpriteMetaType.hpp>
@@ -72,4 +72,4 @@ private:
 
 } // namespace Game::Cmp
 
-#endif // SRC_CMPS_ANIMDATA_HPP_
+#endif // SRC_COMPONENTS_ANIMDATA_HPP__

@@ -1,5 +1,5 @@
-#ifndef SRC_CMPS_NPCSHOCKWAVE_
-#define SRC_CMPS_NPCSHOCKWAVE_
+#ifndef SRC_COMPONENTS_NPC_NPCSHOCKWAVE_HPP__
+#define SRC_COMPONENTS_NPC_NPCSHOCKWAVE_HPP__
 
 #include <Sprites/Shockwave.hpp>
 
@@ -20,4 +20,4 @@ public:
 
 } // namespace Game::Cmp
 
-#endif // SRC_CMPS_NPCSHOCKWAVE_
+#endif // SRC_COMPONENTS_NPC_NPCSHOCKWAVE_HPP__

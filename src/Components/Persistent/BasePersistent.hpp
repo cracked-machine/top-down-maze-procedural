@@ -1,5 +1,5 @@
-#ifndef __CMP_BASEPERSISTENT_HPP__
-#define __CMP_BASEPERSISTENT_HPP__
+#ifndef SRC_COMPONENTS_PERSISTENT_BASEPERSISTENT_HPP__
+#define SRC_COMPONENTS_PERSISTENT_BASEPERSISTENT_HPP__
 
 #include <Components/Persistent/IBasePersistent.hpp>
 
@@ -62,4 +62,4 @@ protected:
 
 } // namespace Game::Cmp::Persist
 
-#endif // __CMP_BASEPERSISTENT_HPP__
+#endif // SRC_COMPONENTS_PERSISTENT_BASEPERSISTENT_HPP__

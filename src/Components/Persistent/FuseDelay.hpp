@@ -1,5 +1,5 @@
-#ifndef __CMP_FUSEDELAY_HPP__
-#define __CMP_FUSEDELAY_HPP__
+#ifndef SRC_COMPONENTS_PERSISTENT_FUSEDELAY_HPP__
+#define SRC_COMPONENTS_PERSISTENT_FUSEDELAY_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
 #include <SFML/System/Time.hpp>
@@ -19,4 +19,4 @@ public:
 };
 
 } // namespace Game::Cmp::Persist
-#endif // __CMP_FUSEDELAY_HPP__
+#endif // SRC_COMPONENTS_PERSISTENT_FUSEDELAY_HPP__

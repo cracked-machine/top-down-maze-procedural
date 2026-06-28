@@ -1,5 +1,5 @@
-#ifndef SRC_FACTORY_PLAYERFACTORY_HPP
-#define SRC_FACTORY_PLAYERFACTORY_HPP
+#ifndef SRC_FACTORY_PLAYERFACTORY_HPP__
+#define SRC_FACTORY_PLAYERFACTORY_HPP__
 
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
@@ -27,4 +27,4 @@ void remove_player_last_graveyard_pos( entt::registry &reg );
 
 } // namespace Game::Factory
 
-#endif // SRC_FACTORY_PLAYERFACTORY_HPP
+#endif // SRC_FACTORY_PLAYERFACTORY_HPP__

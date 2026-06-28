@@ -1,5 +1,5 @@
-#ifndef SRC_UTILS_CONSTANTS_HPP_
-#define SRC_UTILS_CONSTANTS_HPP_
+#ifndef SRC_UTILS_CONSTANTS_HPP__
+#define SRC_UTILS_CONSTANTS_HPP__
 
 #include <SFML/System/Vector2.hpp>
 
@@ -15,4 +15,4 @@ inline static std::filesystem::path res_dir( "res" );
 
 } // namespace Game::Constants
 
-#endif //  SRC_UTILS_CONSTANTS_HPP_
+#endif // SRC_UTILS_CONSTANTS_HPP__

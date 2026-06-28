@@ -1,5 +1,5 @@
-#ifndef SRC_UTILS_JSONDESERIALIZER_HPP_
-#define SRC_UTILS_JSONDESERIALIZER_HPP_
+#ifndef SRC_UTILS_JSONDESERIALIZER_HPP__
+#define SRC_UTILS_JSONDESERIALIZER_HPP__
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -44,4 +44,4 @@ private:
 
 } // namespace Game::Utils
 
-#endif // SRC_UTILS_JSONDESERIALIZER_HPP_
+#endif // SRC_UTILS_JSONDESERIALIZER_HPP__

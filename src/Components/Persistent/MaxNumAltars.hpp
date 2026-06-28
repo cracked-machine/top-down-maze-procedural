@@ -1,5 +1,5 @@
-#ifndef __CMP_MAXNUMALTARS_HPP__
-#define __CMP_MAXNUMALTARS_HPP__
+#ifndef SRC_COMPONENTS_PERSISTENT_MAXNUMALTARS_HPP__
+#define SRC_COMPONENTS_PERSISTENT_MAXNUMALTARS_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
 namespace Game::Cmp::Persist
@@ -18,4 +18,4 @@ public:
 
 } // namespace Game::Cmp::Persist
 
-#endif // __CMP_MAXNUMALTARS_HPP__
+#endif // SRC_COMPONENTS_PERSISTENT_MAXNUMALTARS_HPP__

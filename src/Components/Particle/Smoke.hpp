@@ -1,5 +1,5 @@
-#ifndef SRC_CMP_PARTICLE_SMOKEWISP_HPP_
-#define SRC_CMP_PARTICLE_SMOKEWISP_HPP_
+#ifndef SRC_COMPONENTS_PARTICLE_SMOKE_HPP__
+#define SRC_COMPONENTS_PARTICLE_SMOKE_HPP__
 
 #include <Components/Particle/ParticleSpriteBase.hpp>
 
@@ -36,4 +36,4 @@ public:
 
 } // namespace Game::Cmp::Particle
 
-#endif // SRC_CMP_PARTICLE_SMOKEWISP_HPP_
+#endif // SRC_COMPONENTS_PARTICLE_SMOKE_HPP__

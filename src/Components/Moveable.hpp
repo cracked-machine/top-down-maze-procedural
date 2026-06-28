@@ -1,5 +1,5 @@
-#ifndef SRC_CMPS_MOVEABLE_HPP_
-#define SRC_CMPS_MOVEABLE_HPP_
+#ifndef SRC_COMPONENTS_MOVEABLE_HPP__
+#define SRC_COMPONENTS_MOVEABLE_HPP__
 
 namespace Game::Cmp
 {
@@ -12,4 +12,4 @@ struct Moveable
 
 } // namespace Game::Cmp
 
-#endif // SRC_CMPS_MOVEABLE_HPP_
+#endif // SRC_COMPONENTS_MOVEABLE_HPP__

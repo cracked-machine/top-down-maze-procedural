@@ -1,5 +1,5 @@
-#ifndef __COMPONENTS_SYSTEM_HPP__
-#define __COMPONENTS_SYSTEM_HPP__
+#ifndef SRC_COMPONENTS_SYSTEM_HPP__
+#define SRC_COMPONENTS_SYSTEM_HPP__
 
 namespace Game::Cmp
 {
@@ -20,4 +20,4 @@ public:
 
 } // namespace Game::Cmp
 
-#endif // __COMPONENTS_SYSTEM_HPP__
+#endif // SRC_COMPONENTS_SYSTEM_HPP__

@@ -1,5 +1,5 @@
-#ifndef __CMP_EFFECTSVOLUME_HPP__
-#define __CMP_EFFECTSVOLUME_HPP__
+#ifndef SRC_COMPONENTS_PERSISTENT_EFFECTSVOLUME_HPP__
+#define SRC_COMPONENTS_PERSISTENT_EFFECTSVOLUME_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
 
@@ -19,4 +19,4 @@ public:
 
 } // namespace Game::Cmp::Persist
 
-#endif // __CMP_EFFECTSVOLUME_HPP__
+#endif // SRC_COMPONENTS_PERSISTENT_EFFECTSVOLUME_HPP__

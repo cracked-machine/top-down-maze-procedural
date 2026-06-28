@@ -1,5 +1,5 @@
-#ifndef SRC_EVENTS_PARTICLEEVENTS_HPP_
-#define SRC_EVENTS_PARTICLEEVENTS_HPP_
+#ifndef SRC_EVENTS_PARTICLEEVENTS_HPP__
+#define SRC_EVENTS_PARTICLEEVENTS_HPP__
 
 namespace Game::Events
 {
@@ -16,4 +16,4 @@ struct RestartParticleSpriteEvent
 
 } // namespace Game::Events
 
-#endif // SRC_EVENTS_PARTICLEEVENTS_HPP_
+#endif // SRC_EVENTS_PARTICLEEVENTS_HPP__

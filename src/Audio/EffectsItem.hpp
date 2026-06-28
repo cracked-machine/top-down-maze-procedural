@@ -1,5 +1,5 @@
-#ifndef EFFECTS_ITEM_HPP
-#define EFFECTS_ITEM_HPP
+#ifndef SRC_AUDIO_EFFECTSITEM_HPP__
+#define SRC_AUDIO_EFFECTSITEM_HPP__
 
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
@@ -37,4 +37,4 @@ struct EffectsData
 
 } // namespace Game::Audio
 
-#endif // EFFECTS_ITEM_HPP
+#endif // SRC_AUDIO_EFFECTSITEM_HPP__

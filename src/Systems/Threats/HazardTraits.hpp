@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_HAZARDTRAITS_HPP__
-#define SRC_SYSTEMS_HAZARDTRAITS_HPP__
+#ifndef SRC_SYSTEMS_THREATS_HAZARDTRAITS_HPP__
+#define SRC_SYSTEMS_THREATS_HAZARDTRAITS_HPP__
 
 #include <Components/Hazard/CorruptionCell.hpp>
 #include <Components/Hazard/SinkholeCell.hpp>
@@ -40,4 +40,4 @@ struct HazardTraits<Cmp::CorruptionCell>
 
 } // namespace Game::Sys
 
-#endif // SRC_SYSTEMS_HAZARDTRAITS_HPP__
+#endif // SRC_SYSTEMS_THREATS_HAZARDTRAITS_HPP__

@@ -1,5 +1,5 @@
-#ifndef SRC_SPRITES_SPRITEFACTORY_HPP_
-#define SRC_SPRITES_SPRITEFACTORY_HPP_
+#ifndef SRC_FACTORY_SPRITEFACTORY_HPP__
+#define SRC_FACTORY_SPRITEFACTORY_HPP__
 
 #include <Sprites/SpriteSheet.hpp>
 
@@ -84,4 +84,4 @@ private:
 
 } // namespace Game::Sprites
 
-#endif // SRC_SPRITES_SPRITEFACTORY_HPP_
+#endif // SRC_FACTORY_SPRITEFACTORY_HPP__

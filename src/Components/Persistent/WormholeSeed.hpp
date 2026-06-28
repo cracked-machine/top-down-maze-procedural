@@ -1,5 +1,5 @@
-#ifndef __CMP_WORMHOLESEED_HPP__
-#define __CMP_WORMHOLESEED_HPP__
+#ifndef SRC_COMPONENTS_PERSISTENT_WORMHOLESEED_HPP__
+#define SRC_COMPONENTS_PERSISTENT_WORMHOLESEED_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
 
@@ -20,4 +20,4 @@ public:
 
 } // namespace Game::Cmp::Persist
 
-#endif // __CMP_WORMHOLESEED_HPP__
+#endif // SRC_COMPONENTS_PERSISTENT_WORMHOLESEED_HPP__

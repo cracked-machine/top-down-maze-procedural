@@ -1,5 +1,5 @@
-#ifndef SCENE_TITLESCENE_HPP_
-#define SCENE_TITLESCENE_HPP_
+#ifndef SRC_SCENECONTROL_SCENES_TITLESCENE_HPP__
+#define SRC_SCENECONTROL_SCENES_TITLESCENE_HPP__
 
 #include <SceneControl/Events/ProcessTitleSceneInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
@@ -39,4 +39,4 @@ private:
 
 } // namespace Game::Scene
 
-#endif // SCENE_TITLESCENE_HPP_
+#endif // SRC_SCENECONTROL_SCENES_TITLESCENE_HPP__

@@ -1,5 +1,5 @@
-#ifndef SRC_FACTORY_NPCFACTORY_HPP
-#define SRC_FACTORY_NPCFACTORY_HPP
+#ifndef SRC_FACTORY_NPCFACTORY_HPP__
+#define SRC_FACTORY_NPCFACTORY_HPP__
 
 #include <Components/Position.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
@@ -43,4 +43,4 @@ std::vector<entt::entity> gen_npc_containers( entt::registry &reg, Sprites::Spri
 
 } // namespace Game::Factory
 
-#endif // SRC_FACTORY_NPCFACTORY_HPP
+#endif // SRC_FACTORY_NPCFACTORY_HPP__

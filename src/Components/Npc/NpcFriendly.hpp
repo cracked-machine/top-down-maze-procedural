@@ -1,5 +1,5 @@
-#ifndef SRC_CMPS_NPC_NPCFRIENDLY_HPP__
-#define SRC_CMPS_NPC_NPCFRIENDLY_HPP__
+#ifndef SRC_COMPONENTS_NPC_NPCFRIENDLY_HPP__
+#define SRC_COMPONENTS_NPC_NPCFRIENDLY_HPP__
 
 namespace Game::Cmp
 {
@@ -11,4 +11,4 @@ struct NpcFriendly
 
 } // namespace Game::Cmp
 
-#endif // SRC_CMPS_NPC_NPCFRIENDLY_HPP__
+#endif // SRC_COMPONENTS_NPC_NPCFRIENDLY_HPP__

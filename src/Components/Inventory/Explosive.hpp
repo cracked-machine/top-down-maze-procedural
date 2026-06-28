@@ -1,5 +1,5 @@
-#ifndef SRC_CMP_EXPLOSIVE_HPP_
-#define SRC_CMP_EXPLOSIVE_HPP_
+#ifndef SRC_COMPONENTS_INVENTORY_EXPLOSIVE_HPP__
+#define SRC_COMPONENTS_INVENTORY_EXPLOSIVE_HPP__
 
 namespace Game::Cmp
 {
@@ -11,4 +11,4 @@ struct Explosive
 
 } // namespace Game::Cmp
 
-#endif // SRC_CMP_EXPLOSIVE_HPP_
+#endif // SRC_COMPONENTS_INVENTORY_EXPLOSIVE_HPP__

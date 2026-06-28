@@ -1,5 +1,5 @@
-#ifndef SCENE_SCENEMANAGER_HPP_
-#define SCENE_SCENEMANAGER_HPP_
+#ifndef SRC_SCENECONTROL_SCENEMANAGER_HPP__
+#define SRC_SCENECONTROL_SCENEMANAGER_HPP__
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -132,4 +132,4 @@ private:
 
 } // namespace Game::Scene
 
-#endif // SCENE_SCENEMANAGER_HPP_
+#endif // SRC_SCENECONTROL_SCENEMANAGER_HPP__

@@ -1,5 +1,5 @@
-#ifndef SCENE_GRAVEYARDSCENE_HPP_
-#define SCENE_GRAVEYARDSCENE_HPP_
+#ifndef SRC_SCENECONTROL_SCENES_GRAVEYARDSCENE_HPP__
+#define SRC_SCENECONTROL_SCENES_GRAVEYARDSCENE_HPP__
 
 #include <SFML/System/Time.hpp>
 #include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
@@ -53,4 +53,4 @@ private:
 
 } // namespace Game::Scene
 
-#endif // SCENE_GRAVEYARDSCENE_HPP_
+#endif // SRC_SCENECONTROL_SCENES_GRAVEYARDSCENE_HPP__

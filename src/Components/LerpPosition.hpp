@@ -1,5 +1,5 @@
-#ifndef __CMP_LERPPOSITION_HPP__
-#define __CMP_LERPPOSITION_HPP__
+#ifndef SRC_COMPONENTS_LERPPOSITION_HPP__
+#define SRC_COMPONENTS_LERPPOSITION_HPP__
 
 #include <SFML/System/Vector2.hpp>
 
@@ -25,4 +25,4 @@ struct LerpPosition
 
 } // namespace Game::Cmp
 
-#endif // __CMP_LERPPOSITION_HPP__
+#endif // SRC_COMPONENTS_LERPPOSITION_HPP__

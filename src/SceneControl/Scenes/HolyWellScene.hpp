@@ -1,5 +1,5 @@
-#ifndef SCENE_HOLYWELLSCENE_HPP_
-#define SCENE_HOLYWELLSCENE_HPP_
+#ifndef SRC_SCENECONTROL_SCENES_HOLYWELLSCENE_HPP__
+#define SRC_SCENECONTROL_SCENES_HOLYWELLSCENE_HPP__
 
 #include <Factory/SpriteFactory.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -48,4 +48,4 @@ private:
 
 } // namespace Game::Scene
 
-#endif // SCENE_HOLYWELLSCENE_HPP_
+#endif // SRC_SCENECONTROL_SCENES_HOLYWELLSCENE_HPP__

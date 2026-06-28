@@ -1,5 +1,5 @@
-#ifndef SRC_FACTORY_BOMB_FACTORY_HPP
-#define SRC_FACTORY_BOMB_FACTORY_HPP
+#ifndef SRC_FACTORY_BOMBFACTORY_HPP__
+#define SRC_FACTORY_BOMBFACTORY_HPP__
 
 #include <Components/Armed.hpp>
 #include <Components/Position.hpp>
@@ -17,4 +17,4 @@ void add_detonated( entt::registry &reg, entt::entity armed_entity, Cmp::Positio
 
 } // namespace Game::Factory
 
-#endif // SRC_FACTORY_BOMB_FACTORY_HPP
+#endif // SRC_FACTORY_BOMBFACTORY_HPP__

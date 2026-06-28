@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEM_RENDER_UIDATA_HPP_
-#define SRC_SYSTEM_RENDER_UIDATA_HPP_
+#ifndef SRC_SYSTEMS_RENDER_UIDATA_HPP__
+#define SRC_SYSTEMS_RENDER_UIDATA_HPP__
 
 #include <Sprites/SpriteMetaType.hpp>
 #include <Utils/JsonDeserializer.hpp>
@@ -63,4 +63,4 @@ public:
 
 } // namespace Game::Render
 
-#endif // SRC_SYSTEM_RENDER_UIDATA_HPP_
+#endif // SRC_SYSTEMS_RENDER_UIDATA_HPP__

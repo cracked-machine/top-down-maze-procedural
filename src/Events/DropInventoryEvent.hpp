@@ -1,5 +1,5 @@
-#ifndef SRC_EVENTS_DROPINVENTORYEVENT_
-#define SRC_EVENTS_DROPINVENTORYEVENT_
+#ifndef SRC_EVENTS_DROPINVENTORYEVENT_HPP__
+#define SRC_EVENTS_DROPINVENTORYEVENT_HPP__
 
 namespace Game::Events
 {
@@ -12,4 +12,4 @@ struct DropInventoryEvent
 
 } // namespace Game::Events
 
-#endif // SRC_EVENTS_DROPINVENTORYEVENT_
+#endif // SRC_EVENTS_DROPINVENTORYEVENT_HPP__

@@ -1,5 +1,5 @@
-#ifndef SRC_EVENTS_PLAYERACTIONEVENT_HPP_
-#define SRC_EVENTS_PLAYERACTIONEVENT_HPP_
+#ifndef SRC_EVENTS_PLAYERACTIONEVENT_HPP__
+#define SRC_EVENTS_PLAYERACTIONEVENT_HPP__
 
 namespace Game::Events
 {
@@ -20,4 +20,4 @@ struct PlayerActionEvent
 
 } // namespace Game::Events
 
-#endif // SRC_EVENTS_PLAYERACTIONEVENT_HPP_
+#endif // SRC_EVENTS_PLAYERACTIONEVENT_HPP__

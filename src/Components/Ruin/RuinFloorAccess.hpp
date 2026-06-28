@@ -1,5 +1,5 @@
-#ifndef SRC_CMPS_RUIN_RUINFLOORACCESS_HPP_
-#define SRC_CMPS_RUIN_RUINFLOORACCESS_HPP_
+#ifndef SRC_COMPONENTS_RUIN_RUINFLOORACCESS_HPP__
+#define SRC_COMPONENTS_RUIN_RUINFLOORACCESS_HPP__
 
 #include <Components/Position.hpp>
 namespace Game::Cmp
@@ -20,4 +20,4 @@ public:
 
 } // namespace Game::Cmp
 
-#endif // SRC_CMPS_RUIN_RUINFLOORACCESS_HPP_
+#endif // SRC_COMPONENTS_RUIN_RUINFLOORACCESS_HPP__

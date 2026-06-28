@@ -1,5 +1,5 @@
-#ifndef __LOGGING_BASICLOGGER_HPP__
-#define __LOGGING_BASICLOGGER_HPP__
+#ifndef SRC_LOGGING_BASICLOGCONTROLLER_HPP__
+#define SRC_LOGGING_BASICLOGCONTROLLER_HPP__
 
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/callback_sink.h>
@@ -72,4 +72,4 @@ private:
 
 } // namespace Game::Logging
 
-#endif // __LOGGING_BASICLOGGER_HPP__
+#endif // SRC_LOGGING_BASICLOGCONTROLLER_HPP__

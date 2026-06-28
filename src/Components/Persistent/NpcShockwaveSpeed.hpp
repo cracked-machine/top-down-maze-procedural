@@ -1,5 +1,5 @@
-#ifndef SRC_CMPS_PERSISTENT_NPCSHOCKWAVESPEED_
-#define SRC_CMPS_PERSISTENT_NPCSHOCKWAVESPEED_
+#ifndef SRC_COMPONENTS_PERSISTENT_NPCSHOCKWAVESPEED_HPP__
+#define SRC_COMPONENTS_PERSISTENT_NPCSHOCKWAVESPEED_HPP__
 
 #include <Components/Npc/NpcShockwave.hpp>
 #include <Components/Persistent/BasePersistent.hpp>
@@ -21,4 +21,4 @@ public:
 
 } // namespace Game::Cmp::Persist
 
-#endif // SRC_CMPS_PERSISTENT_NPCSHOCKWAVESPEED_
+#endif // SRC_COMPONENTS_PERSISTENT_NPCSHOCKWAVESPEED_HPP__

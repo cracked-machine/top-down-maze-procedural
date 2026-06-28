@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_RENDER_RENDERBUFFER_HPP_
-#define SRC_SYSTEMS_RENDER_RENDERBUFFER_HPP_
+#ifndef SRC_SPRITES_VERTEXSPRITE_HPP__
+#define SRC_SPRITES_VERTEXSPRITE_HPP__
 
 #include <SFML/Graphics/RenderTexture.hpp>
 #include <SFML/Graphics/Sprite.hpp>
@@ -54,4 +54,4 @@ private:
 
 } // namespace Game::Sys
 
-#endif // SRC_SYSTEMS_RENDER_RENDERBUFFER_HPP_
+#endif // SRC_SPRITES_VERTEXSPRITE_HPP__

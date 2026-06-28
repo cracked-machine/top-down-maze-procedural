@@ -1,5 +1,5 @@
-#ifndef SRC_CMPS_STATS_BASEACTION_HPP_
-#define SRC_CMPS_STATS_BASEACTION_HPP_
+#ifndef SRC_COMPONENTS_STATS_BASEACTION_HPP__
+#define SRC_COMPONENTS_STATS_BASEACTION_HPP__
 
 namespace Game::Cmp
 {
@@ -73,4 +73,4 @@ private:
 
 } // namespace Game::Cmp
 
-#endif // SRC_CMPS_STATS_BASEACTION_HPP_
+#endif // SRC_COMPONENTS_STATS_BASEACTION_HPP__

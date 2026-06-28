@@ -1,5 +1,5 @@
-#ifndef _PERSISTENT_WEAPONS_DEGRADE_PER_HIT_HPP__
-#define _PERSISTENT_WEAPONS_DEGRADE_PER_HIT_HPP__
+#ifndef SRC_COMPONENTS_PERSISTENT_WEAPONDEGRADEPERHIT_HPP__
+#define SRC_COMPONENTS_PERSISTENT_WEAPONDEGRADEPERHIT_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
 
@@ -18,4 +18,4 @@ struct WeaponDegradePerHit : public BasePersistent<float>
 
 } // namespace Game::Cmp::Persist
 
-#endif // _PERSISTENT_WEAPONS_DEGRADE_PER_HIT_HPP__
+#endif // SRC_COMPONENTS_PERSISTENT_WEAPONDEGRADEPERHIT_HPP__

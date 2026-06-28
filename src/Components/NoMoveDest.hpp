@@ -1,5 +1,5 @@
-#ifndef SRC_CMPS_NOMOVEDEST_HPP_
-#define SRC_CMPS_NOMOVEDEST_HPP_
+#ifndef SRC_COMPONENTS_NOMOVEDEST_HPP__
+#define SRC_COMPONENTS_NOMOVEDEST_HPP__
 
 namespace Game::Cmp
 {
@@ -12,4 +12,4 @@ struct NoMoveDest
 
 } // namespace Game::Cmp
 
-#endif // SRC_CMPS_NOMOVEDEST_HPP_
+#endif // SRC_COMPONENTS_NOMOVEDEST_HPP__

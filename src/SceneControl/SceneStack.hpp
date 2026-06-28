@@ -1,5 +1,5 @@
-#ifndef SRC_SCENE_SCENESTACK_HPP_
-#define SRC_SCENE_SCENESTACK_HPP_
+#ifndef SRC_SCENECONTROL_SCENESTACK_HPP__
+#define SRC_SCENECONTROL_SCENESTACK_HPP__
 
 #include <SceneControl/IScene.hpp>
 
@@ -76,4 +76,4 @@ private:
 
 } // namespace Game::Scene
 
-#endif // SRC_SCENE_SCENESTACK_HPP_
+#endif // SRC_SCENECONTROL_SCENESTACK_HPP__

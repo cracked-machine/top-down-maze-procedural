@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_ActionSystem_HPP__
-#define SRC_SYSTEMS_ActionSystem_HPP__
+#ifndef SRC_SYSTEMS_ACTIONSYSTEM_HPP__
+#define SRC_SYSTEMS_ACTIONSYSTEM_HPP__
 
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Events/PlayerActionEvent.hpp>
@@ -81,4 +81,4 @@ private:
 };
 } // namespace Game::Sys
 
-#endif // SRC_SYSTEMS_ActionSystem_HPP__
+#endif // SRC_SYSTEMS_ACTIONSYSTEM_HPP__

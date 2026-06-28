@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_BASESTORE_HPP_
-#define SRC_SYSTEMS_BASESTORE_HPP_
+#ifndef SRC_SYSTEMS_STORES_BASESTORE_HPP__
+#define SRC_SYSTEMS_STORES_BASESTORE_HPP__
 
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/Random.hpp>
@@ -91,4 +91,4 @@ Derived *StoreSingleton<Derived, StoreValue>::s_instance = nullptr;
 
 } // namespace Game::Sys
 
-#endif // SRC_SYSTEMS_BASESTORE_HPP_
+#endif // SRC_SYSTEMS_STORES_BASESTORE_HPP__

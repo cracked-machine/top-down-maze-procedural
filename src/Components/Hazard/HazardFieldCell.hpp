@@ -1,5 +1,5 @@
-#ifndef __CMP_HAZARDFIELDCELL_HPP__
-#define __CMP_HAZARDFIELDCELL_HPP__
+#ifndef SRC_COMPONENTS_HAZARD_HAZARDFIELDCELL_HPP__
+#define SRC_COMPONENTS_HAZARD_HAZARDFIELDCELL_HPP__
 
 namespace Game::Cmp
 {
@@ -16,4 +16,4 @@ struct HazardFieldCell
 
 } // namespace Game::Cmp
 
-#endif // __CMP_HAZARDFIELDCELL_HPP__
+#endif // SRC_COMPONENTS_HAZARD_HAZARDFIELDCELL_HPP__

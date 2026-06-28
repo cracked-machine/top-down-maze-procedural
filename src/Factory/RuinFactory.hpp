@@ -1,5 +1,5 @@
-#ifndef SRC_FACTORY_RUINFACTORY_HPP_
-#define SRC_FACTORY_RUINFACTORY_HPP_
+#ifndef SRC_FACTORY_RUINFACTORY_HPP__
+#define SRC_FACTORY_RUINFACTORY_HPP__
 
 #include <SFML/System/Vector2.hpp>
 #include <entt/entity/fwd.hpp>
@@ -28,4 +28,4 @@ void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, con
 
 } // namespace Game::Factory
 
-#endif // SRC_FACTORY_RUINFACTORY_HPP_
+#endif // SRC_FACTORY_RUINFACTORY_HPP__

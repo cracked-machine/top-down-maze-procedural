@@ -1,5 +1,5 @@
-#ifndef SRC_CMPS_SHOP_SHOPINVENTORY_HPP__
-#define SRC_CMPS_SHOP_SHOPINVENTORY_HPP__
+#ifndef SRC_COMPONENTS_SHOP_SHOPINVENTORY_HPP__
+#define SRC_COMPONENTS_SHOP_SHOPINVENTORY_HPP__
 
 #include <Sprites/SpriteMetaType.hpp>
 #include <Utils/Constants.hpp>
@@ -28,4 +28,4 @@ public:
 
 } // namespace Game::Cmp
 
-#endif // SRC_CMPS_SHOP_SHOPINVENTORY_HPP__
+#endif // SRC_COMPONENTS_SHOP_SHOPINVENTORY_HPP__

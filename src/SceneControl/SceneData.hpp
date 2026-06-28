@@ -1,5 +1,5 @@
-#ifndef SRC_SCENECONTROL_SCENEDATA_HPP_
-#define SRC_SCENECONTROL_SCENEDATA_HPP_
+#ifndef SRC_SCENECONTROL_SCENEDATA_HPP__
+#define SRC_SCENECONTROL_SCENEDATA_HPP__
 
 #include <Sprites/SpriteMetaType.hpp>
 #include <Utils/JsonDeserializer.hpp>
@@ -158,4 +158,4 @@ private:
 
 } // namespace Game::Scene
 
-#endif // SRC_SCENECONTROL_SCENEDATA_HPP_
+#endif // SRC_SCENECONTROL_SCENEDATA_HPP__

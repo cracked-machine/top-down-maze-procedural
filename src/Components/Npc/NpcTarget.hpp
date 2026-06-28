@@ -1,5 +1,5 @@
-#ifndef SRC_CMPS_NPC_NPCTARGET_HPP_
-#define SRC_CMPS_NPC_NPCTARGET_HPP_
+#ifndef SRC_COMPONENTS_NPC_NPCTARGET_HPP__
+#define SRC_COMPONENTS_NPC_NPCTARGET_HPP__
 
 #include <Components/Position.hpp>
 
@@ -18,4 +18,4 @@ struct NpcTarget
 
 } // namespace Game::Cmp
 
-#endif // SRC_CMPS_NPC_NPCTARGET_HPP_
+#endif // SRC_COMPONENTS_NPC_NPCTARGET_HPP__

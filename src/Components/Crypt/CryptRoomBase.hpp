@@ -1,5 +1,5 @@
-#ifndef SRC_CMP_CRYPT_CRYPTROOMBASE_
-#define SRC_CMP_CRYPT_CRYPTROOMBASE_
+#ifndef SRC_COMPONENTS_CRYPT_CRYPTROOMBASE_HPP__
+#define SRC_COMPONENTS_CRYPT_CRYPTROOMBASE_HPP__
 
 #include <Components/Crypt/CryptPassageDoor.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -85,4 +85,4 @@ public:
 
 } // namespace Game::Cmp
 
-#endif // SRC_CMP_CRYPT_CRYPTROOMBASE_
+#endif // SRC_COMPONENTS_CRYPT_CRYPTROOMBASE_HPP__

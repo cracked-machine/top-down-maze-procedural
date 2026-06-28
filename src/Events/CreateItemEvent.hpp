@@ -1,5 +1,5 @@
-#ifndef SRC_EVENTS_CREATEITEMEVENT_HPP_
-#define SRC_EVENTS_CREATEITEMEVENT_HPP_
+#ifndef SRC_EVENTS_CREATEITEMEVENT_HPP__
+#define SRC_EVENTS_CREATEITEMEVENT_HPP__
 
 #include <Components/Position.hpp>
 #include <utility>
@@ -26,4 +26,4 @@ struct CreateItemEvent
 
 } // namespace Game::Events
 
-#endif // SRC_EVENTS_CREATEITEMEVENT_HPP_
+#endif // SRC_EVENTS_CREATEITEMEVENT_HPP__

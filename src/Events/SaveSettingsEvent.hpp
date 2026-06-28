@@ -1,5 +1,5 @@
-#ifndef __EVENTS_SAVE_SETTINGS_EVENT_HPP__
-#define __EVENTS_SAVE_SETTINGS_EVENT_HPP__
+#ifndef SRC_EVENTS_SAVESETTINGSEVENT_HPP__
+#define SRC_EVENTS_SAVESETTINGSEVENT_HPP__
 
 namespace Game::Events
 {
@@ -15,4 +15,4 @@ struct SaveSettingsEvent
 
 } // namespace Game::Events
 
-#endif // __EVENTS_SAVE_SETTINGS_EVENT_HPP__
+#endif // SRC_EVENTS_SAVESETTINGSEVENT_HPP__

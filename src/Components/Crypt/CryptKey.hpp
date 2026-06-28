@@ -1,5 +1,5 @@
-#ifndef SRC_CMPS_CRYPTKEY_HPP_
-#define SRC_CMPS_CRYPTKEY_HPP_
+#ifndef SRC_COMPONENTS_CRYPT_CRYPTKEY_HPP__
+#define SRC_COMPONENTS_CRYPT_CRYPTKEY_HPP__
 
 namespace Game::Cmp
 {
@@ -11,4 +11,4 @@ struct CryptKey
 
 } // namespace Game::Cmp
 
-#endif // SRC_CMPS_CRYPTKEY_HPP_
+#endif // SRC_COMPONENTS_CRYPT_CRYPTKEY_HPP__

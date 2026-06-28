@@ -1,5 +1,5 @@
-#ifndef SRC_FACTORY_OBSTACLEFACTORY_HPP
-#define SRC_FACTORY_OBSTACLEFACTORY_HPP
+#ifndef SRC_FACTORY_OBSTACLEFACTORY_HPP__
+#define SRC_FACTORY_OBSTACLEFACTORY_HPP__
 
 #include <Components/Position.hpp>
 #include <Components/UUID.hpp>
@@ -47,4 +47,4 @@ void remove_obstacle( entt::registry &reg, entt::entity search_entt, bool delete
 
 } // namespace Game::Factory
 
-#endif // SRC_FACTORY_OBSTACLEFACTORY_HPP
+#endif // SRC_FACTORY_OBSTACLEFACTORY_HPP__

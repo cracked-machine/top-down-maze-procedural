@@ -1,5 +1,5 @@
-#ifndef __SPRITES_TITLESCREENSHADER_HPP__
-#define __SPRITES_TITLESCREENSHADER_HPP__
+#ifndef SRC_SHADERS_TITLESCREENSHADER_HPP__
+#define SRC_SHADERS_TITLESCREENSHADER_HPP__
 
 #include <SFML/System/Time.hpp>
 
@@ -31,4 +31,4 @@ public:
 
 } // namespace Game::Sprites
 
-#endif // __SPRITES_TITLESCREENSHADER_HPP__
+#endif // SRC_SHADERS_TITLESCREENSHADER_HPP__

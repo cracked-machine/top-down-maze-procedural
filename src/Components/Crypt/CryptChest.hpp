@@ -1,5 +1,5 @@
-#ifndef SRC_COMPONENTS_CRYPTCHEST_HPP_
-#define SRC_COMPONENTS_CRYPTCHEST_HPP_
+#ifndef SRC_COMPONENTS_CRYPT_CRYPTCHEST_HPP__
+#define SRC_COMPONENTS_CRYPT_CRYPTCHEST_HPP__
 
 namespace Game::Cmp
 {
@@ -11,4 +11,4 @@ struct CryptChest
 
 } // namespace Game::Cmp
 
-#endif //  SRC_COMPONENTS_CRYPTCHEST_HPP_
+#endif // SRC_COMPONENTS_CRYPT_CRYPTCHEST_HPP__

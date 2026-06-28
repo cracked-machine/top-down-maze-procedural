@@ -1,5 +1,5 @@
-#ifndef SRC_COMPONENTS_CRYPTROOMEND_HPP
-#define SRC_COMPONENTS_CRYPTROOMEND_HPP
+#ifndef SRC_COMPONENTS_CRYPT_CRYPTROOMEND_HPP__
+#define SRC_COMPONENTS_CRYPT_CRYPTROOMEND_HPP__
 
 #include <Components/Crypt/CryptPassageDoor.hpp>
 #include <Components/Crypt/CryptRoomBase.hpp>
@@ -27,4 +27,4 @@ public:
 
 } // namespace Game::Cmp
 
-#endif // SRC_COMPONENTS_CRYPTROOMEND_HPP
+#endif // SRC_COMPONENTS_CRYPT_CRYPTROOMEND_HPP__

@@ -1,5 +1,5 @@
-#ifndef SRC_FACTORY_ALTARFACTORY_HPP_
-#define SRC_FACTORY_ALTARFACTORY_HPP_
+#ifndef SRC_FACTORY_ALTARFACTORY_HPP__
+#define SRC_FACTORY_ALTARFACTORY_HPP__
 
 #include <Components/Position.hpp>
 #include <Sprites/SpriteMetaType.hpp>
@@ -12,4 +12,4 @@ void create_altar_sacrifice_anim( entt::registry &reg, Cmp::Position pos, Sprite
 
 } // namespace Game::Factory
 
-#endif // SRC_FACTORY_ALTARFACTORY_HPP_
+#endif // SRC_FACTORY_ALTARFACTORY_HPP__

@@ -1,5 +1,5 @@
-#ifndef SRC_CMPS_VOIDPOSITION_HPP_
-#define SRC_CMPS_VOIDPOSITION_HPP_
+#ifndef SRC_COMPONENTS_VOIDPOSITION_HPP__
+#define SRC_COMPONENTS_VOIDPOSITION_HPP__
 
 #include <entt/entity/fwd.hpp>
 
@@ -28,4 +28,4 @@ public:
 
 } // namespace Game::Cmp
 
-#endif // SRC_CMPS_VOIDPOSITION_HPP_
+#endif // SRC_COMPONENTS_VOIDPOSITION_HPP__

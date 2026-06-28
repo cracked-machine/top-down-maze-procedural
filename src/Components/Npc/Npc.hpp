@@ -1,5 +1,5 @@
-#ifndef __COMPONENTS_NPC_HPP__
-#define __COMPONENTS_NPC_HPP__
+#ifndef SRC_COMPONENTS_NPC_NPC_HPP__
+#define SRC_COMPONENTS_NPC_NPC_HPP__
 
 #include <Components/Stats/BaseAction.hpp>
 #include <Sprites/SpriteMetaType.hpp>
@@ -47,4 +47,4 @@ public:
 };
 } // namespace Game::Cmp
 
-#endif // __COMPONENTS_NPC_HPP__
+#endif // SRC_COMPONENTS_NPC_NPC_HPP__

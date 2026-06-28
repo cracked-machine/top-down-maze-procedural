@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_PERSISTENT_SYSTEM_HPP
-#define SRC_SYSTEMS_PERSISTENT_SYSTEM_HPP
+#ifndef SRC_SYSTEMS_PERSISTSYSTEM_HPP__
+#define SRC_SYSTEMS_PERSISTSYSTEM_HPP__
 
 #include <Components/Persistent/IBasePersistent.hpp>
 #include <Events/LoadSettingsEvent.hpp>
@@ -125,4 +125,4 @@ private:
 
 } // namespace Game::Sys
 
-#endif // SRC_SYSTEMS_PERSISTENT_SYSTEM_HPP
+#endif // SRC_SYSTEMS_PERSISTSYSTEM_HPP__

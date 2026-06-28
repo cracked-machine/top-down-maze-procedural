@@ -1,5 +1,5 @@
-#ifndef __COMPONENTS_OBSTACLE_HPP__
-#define __COMPONENTS_OBSTACLE_HPP__
+#ifndef SRC_COMPONENTS_OBSTACLE_HPP__
+#define SRC_COMPONENTS_OBSTACLE_HPP__
 
 namespace Game::Cmp
 {
@@ -12,4 +12,4 @@ struct Obstacle
 
 } // namespace Game::Cmp
 
-#endif // __COMPONENTS_OBSTACLE_HPP__
+#endif // SRC_COMPONENTS_OBSTACLE_HPP__

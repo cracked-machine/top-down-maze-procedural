@@ -1,5 +1,5 @@
-#ifndef SRC_CMPS_PLAYER_PLAYERCURSE_HPP_
-#define SRC_CMPS_PLAYER_PLAYERCURSE_HPP_
+#ifndef SRC_COMPONENTS_PLAYER_PLAYERCURSE_HPP__
+#define SRC_COMPONENTS_PLAYER_PLAYERCURSE_HPP__
 
 #include <Components/Random.hpp>
 namespace Game::Cmp
@@ -35,4 +35,4 @@ struct PlayerCurse
 };
 } // namespace Game::Cmp
 
-#endif // SRC_CMPS_PLAYER_PLAYERCURSE_HPP_
+#endif // SRC_COMPONENTS_PLAYER_PLAYERCURSE_HPP__

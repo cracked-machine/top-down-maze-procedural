@@ -1,5 +1,5 @@
-#ifndef __CMP_PLAYERWEALTH_HPP__
-#define __CMP_PLAYERWEALTH_HPP__
+#ifndef SRC_COMPONENTS_PLAYER_PLAYERWEALTH_HPP__
+#define SRC_COMPONENTS_PLAYER_PLAYERWEALTH_HPP__
 
 #include <cstdint>
 namespace Game::Cmp
@@ -19,4 +19,4 @@ public:
 
 } // namespace Game::Cmp
 
-#endif // __CMP_PLAYERWEALTH_HPP__
+#endif // SRC_COMPONENTS_PLAYER_PLAYERWEALTH_HPP__

@@ -1,5 +1,5 @@
-#ifndef SRC_FACTORY_SHADERFACTORY_HPP_
-#define SRC_FACTORY_SHADERFACTORY_HPP_
+#ifndef SRC_FACTORY_SHADERFACTORY_HPP__
+#define SRC_FACTORY_SHADERFACTORY_HPP__
 
 #include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -21,4 +21,4 @@ void add_curse( Sys::ShaderSystem &shader_sys, sf::Vector2f map_size_pixel );
 
 } // namespace Game::Factory::Shader
 
-#endif // SRC_FACTORY_SHADERFACTORY_HPP_
+#endif // SRC_FACTORY_SHADERFACTORY_HPP__

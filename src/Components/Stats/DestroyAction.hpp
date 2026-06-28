@@ -1,5 +1,5 @@
-#ifndef SRC_CMPS_STATS_DESTROYACTION_HPP_
-#define SRC_CMPS_STATS_DESTROYACTION_HPP_
+#ifndef SRC_COMPONENTS_STATS_DESTROYACTION_HPP__
+#define SRC_COMPONENTS_STATS_DESTROYACTION_HPP__
 
 #include <Components/Stats/BaseAction.hpp>
 
@@ -21,4 +21,4 @@ private:
 
 } // namespace Game::Cmp
 
-#endif // SRC_CMPS_STATS_DESTROYACTION_HPP_
+#endif // SRC_COMPONENTS_STATS_DESTROYACTION_HPP__

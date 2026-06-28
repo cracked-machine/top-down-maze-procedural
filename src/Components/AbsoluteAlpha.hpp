@@ -1,5 +1,5 @@
-#ifndef INC_COMPONENTS_ABSOLUTEALPHA_HPP
-#define INC_COMPONENTS_ABSOLUTEALPHA_HPP
+#ifndef SRC_COMPONENTS_ABSOLUTEALPHA_HPP__
+#define SRC_COMPONENTS_ABSOLUTEALPHA_HPP__
 
 #include <SFML/System/Vector2.hpp>
 #include <cstdint>
@@ -26,4 +26,4 @@ private:
 
 } // namespace Game::Cmp
 
-#endif // INC_COMPONENTS_ABSOLUTEALPHA_HPP
+#endif // SRC_COMPONENTS_ABSOLUTEALPHA_HPP__

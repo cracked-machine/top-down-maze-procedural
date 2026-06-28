@@ -1,5 +1,5 @@
-#ifndef SRC_EVENTS_CRYPTROOMEVENT_HPP_
-#define SRC_EVENTS_CRYPTROOMEVENT_HPP_
+#ifndef SRC_EVENTS_CRYPTROOMEVENT_HPP__
+#define SRC_EVENTS_CRYPTROOMEVENT_HPP__
 
 namespace Game::Events
 {
@@ -18,4 +18,4 @@ public:
 
 } // namespace Game::Events
 
-#endif // SRC_EVENTS_CRYPTROOMEVENT_HPP_
+#endif // SRC_EVENTS_CRYPTROOMEVENT_HPP__

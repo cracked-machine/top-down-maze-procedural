@@ -1,5 +1,5 @@
-#ifndef SRC_SPRITES_SHOCKWAVE_
-#define SRC_SPRITES_SHOCKWAVE_
+#ifndef SRC_SPRITES_SHOCKWAVE_HPP__
+#define SRC_SPRITES_SHOCKWAVE_HPP__
 
 #include <Sprites/CircleSegment.hpp>
 #include <Utils/Constants.hpp>
@@ -114,4 +114,4 @@ private:
 
 } // namespace Game::Sprites
 
-#endif // SRC_SPRITES_SHOCKWAVE_
+#endif // SRC_SPRITES_SHOCKWAVE_HPP__

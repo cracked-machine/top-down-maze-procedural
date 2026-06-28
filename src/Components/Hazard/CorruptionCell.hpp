@@ -1,5 +1,5 @@
-#ifndef __COMPONENTS_CORRUPTION_CELL_HPP__
-#define __COMPONENTS_CORRUPTION_CELL_HPP__
+#ifndef SRC_COMPONENTS_HAZARD_CORRUPTIONCELL_HPP__
+#define SRC_COMPONENTS_HAZARD_CORRUPTIONCELL_HPP__
 
 #include <Components/Hazard/HazardFieldCell.hpp>
 
@@ -12,4 +12,4 @@ struct CorruptionCell : public HazardFieldCell
 
 } // namespace Game::Cmp
 
-#endif // __COMPONENTS_CORRUPTION_CELL_HPP__
+#endif // SRC_COMPONENTS_HAZARD_CORRUPTIONCELL_HPP__

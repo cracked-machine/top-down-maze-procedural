@@ -1,5 +1,5 @@
-#ifndef __CMP_IBASEPERSISTENT_HPP__
-#define __CMP_IBASEPERSISTENT_HPP__
+#ifndef SRC_COMPONENTS_PERSISTENT_IBASEPERSISTENT_HPP__
+#define SRC_COMPONENTS_PERSISTENT_IBASEPERSISTENT_HPP__
 
 #include <nlohmann/json_fwd.hpp>
 #include <string>
@@ -79,4 +79,4 @@ public:
 
 } // namespace Game::Cmp::Persist
 
-#endif // __CMP_IBASEPERSISTENT_HPP__
+#endif // SRC_COMPONENTS_PERSISTENT_IBASEPERSISTENT_HPP__

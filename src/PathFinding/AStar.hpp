@@ -1,5 +1,5 @@
-#ifndef SRC_PATHFINDING_ASTAR_HPP_
-#define SRC_PATHFINDING_ASTAR_HPP_
+#ifndef SRC_PATHFINDING_ASTAR_HPP__
+#define SRC_PATHFINDING_ASTAR_HPP__
 
 #include <Components/Position.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
@@ -67,4 +67,4 @@ std::vector<PathNode> astar( entt::registry &reg, const PathFinding::SpatialHash
 
 } // namespace Game::PathFinding
 
-#endif // SRC_PATHFINDING_ASTAR_HPP_
+#endif // SRC_PATHFINDING_ASTAR_HPP__

@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_GRIMOIRESYSTEM_HPP
-#define SRC_SYSTEMS_GRIMOIRESYSTEM_HPP
+#ifndef SRC_SYSTEMS_GRIMOIRESYSTEM_HPP__
+#define SRC_SYSTEMS_GRIMOIRESYSTEM_HPP__
 
 #include <Events/PlayerActionEvent.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -31,4 +31,4 @@ private:
 
 } // namespace Game::Sys
 
-#endif // SRC_SYSTEMS_GRIMOIRESYSTEM_HPP
+#endif // SRC_SYSTEMS_GRIMOIRESYSTEM_HPP__

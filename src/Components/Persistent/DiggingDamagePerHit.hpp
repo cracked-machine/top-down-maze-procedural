@@ -1,5 +1,5 @@
-#ifndef _PERSISTENT_DIGGING_DAMAGE_PER_HIT_HPP__
-#define _PERSISTENT_DIGGING_DAMAGE_PER_HIT_HPP__
+#ifndef SRC_COMPONENTS_PERSISTENT_DIGGINGDAMAGEPERHIT_HPP__
+#define SRC_COMPONENTS_PERSISTENT_DIGGINGDAMAGEPERHIT_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
 
@@ -19,4 +19,4 @@ struct DiggingDamagePerHit : public BasePersistent<uint8_t>
 
 } // namespace Game::Cmp::Persist
 
-#endif // _PERSISTENT_DIGGING_DAMAGE_PER_HIT_HPP__
+#endif // SRC_COMPONENTS_PERSISTENT_DIGGINGDAMAGEPERHIT_HPP__

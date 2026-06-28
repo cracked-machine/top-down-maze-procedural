@@ -1,5 +1,5 @@
-#ifndef SRC_UTILS_OPT_HPP__
-#define SRC_UTILS_OPT_HPP__
+#ifndef SRC_UTILS_OPTIMIZATIONS_HPP__
+#define SRC_UTILS_OPTIMIZATIONS_HPP__
 
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/View.hpp>
@@ -51,4 +51,4 @@ constexpr inline bool is_visible_in_view( const sf::View &view, const sf::FloatR
 
 } // namespace Game::Utils
 
-#endif // SRC_UTILS_OPT_HPP__
+#endif // SRC_UTILS_OPTIMIZATIONS_HPP__

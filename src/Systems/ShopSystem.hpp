@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_SHOPSYSTEM_HPP_
-#define SRC_SYSTEMS_SHOPSYSTEM_HPP_
+#ifndef SRC_SYSTEMS_SHOPSYSTEM_HPP__
+#define SRC_SYSTEMS_SHOPSYSTEM_HPP__
 
 #include <Components/HolyWell/HolyWellMultiBlock.hpp>
 #include <Components/Shop/ShopInventory.hpp>
@@ -57,4 +57,4 @@ private:
 
 } // namespace Game::Sys
 
-#endif // SRC_SYSTEMS_SHOPSYSTEM_HPP_
+#endif // SRC_SYSTEMS_SHOPSYSTEM_HPP__

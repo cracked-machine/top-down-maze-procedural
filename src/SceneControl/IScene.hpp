@@ -1,5 +1,5 @@
-#ifndef SCENE_ISCENE_HPP_
-#define SCENE_ISCENE_HPP_
+#ifndef SRC_SCENECONTROL_ISCENE_HPP__
+#define SRC_SCENECONTROL_ISCENE_HPP__
 
 #include <SFML/System/Time.hpp>
 #include <entt/entity/fwd.hpp>
@@ -39,4 +39,4 @@ protected:
 
 } // namespace Game::Scene
 
-#endif // SCENE_ISCENE_HPP_
+#endif // SRC_SCENECONTROL_ISCENE_HPP__

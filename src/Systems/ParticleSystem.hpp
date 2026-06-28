@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_PARTICLESYSTEM_HPP_
-#define SRC_SYSTEMS_PARTICLESYSTEM_HPP_
+#ifndef SRC_SYSTEMS_PARTICLESYSTEM_HPP__
+#define SRC_SYSTEMS_PARTICLESYSTEM_HPP__
 
 #include <Components/Particle/ParticleSpriteBase.hpp>
 #include <Components/UUID.hpp>
@@ -86,4 +86,4 @@ private:
 
 } // namespace Game::Sys
 
-#endif // SRC_SYSTEMS_PARTICLESYSTEM_HPP_
+#endif // SRC_SYSTEMS_PARTICLESYSTEM_HPP__

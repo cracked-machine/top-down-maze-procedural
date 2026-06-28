@@ -1,5 +1,5 @@
-#ifndef SRC_PATHFINDING_SMARTPOITNER_HPP_
-#define SRC_PATHFINDING_SMARTPOITNER_HPP_
+#ifndef SRC_PATHFINDING_SMARTPOINTERS_HPP__
+#define SRC_PATHFINDING_SMARTPOINTERS_HPP__
 
 namespace Game::PathFinding
 {
@@ -11,4 +11,4 @@ using SpatialHashGridUniquePtr = std::unique_ptr<PathFinding::SpatialHashGrid>;
 
 } // namespace Game::PathFinding
 
-#endif // SRC_PATHFINDING_SMARTPOITNER_HPP_
+#endif // SRC_PATHFINDING_SMARTPOINTERS_HPP__

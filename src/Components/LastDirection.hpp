@@ -1,5 +1,5 @@
-#ifndef __COMPONENTS_LASTDIRECTION_HPP__
-#define __COMPONENTS_LASTDIRECTION_HPP__
+#ifndef SRC_COMPONENTS_LASTDIRECTION_HPP__
+#define SRC_COMPONENTS_LASTDIRECTION_HPP__
 
 #include <SFML/System/Vector2.hpp>
 
@@ -30,4 +30,4 @@ public:
 
 } // namespace Game::Cmp
 
-#endif // __COMPONENTS_LASTDIRECTION_HPP__
+#endif // SRC_COMPONENTS_LASTDIRECTION_HPP__

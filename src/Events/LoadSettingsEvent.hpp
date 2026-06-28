@@ -1,5 +1,5 @@
-#ifndef SRC_EVENTS_LOADSETTINGSEVENT_HPP_
-#define SRC_EVENTS_LOADSETTINGSEVENT_HPP_
+#ifndef SRC_EVENTS_LOADSETTINGSEVENT_HPP__
+#define SRC_EVENTS_LOADSETTINGSEVENT_HPP__
 
 namespace Game::Events
 {
@@ -11,4 +11,4 @@ struct LoadSettingsEvent
 
 } // namespace Game::Events
 
-#endif // SRC_EVENTS_LOADSETTINGSEVENT_HPP_
+#endif // SRC_EVENTS_LOADSETTINGSEVENT_HPP__

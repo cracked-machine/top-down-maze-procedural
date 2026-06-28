@@ -1,5 +1,5 @@
-#ifndef __COMPONENTS_LOOT_HPP__
-#define __COMPONENTS_LOOT_HPP__
+#ifndef SRC_COMPONENTS_LOOT_HPP__
+#define SRC_COMPONENTS_LOOT_HPP__
 
 #include <Factory/SpriteFactory.hpp>
 
@@ -13,4 +13,4 @@ struct Loot
 };
 
 } // namespace Game::Cmp
-#endif // __COMPONENTS_LOOT_HPP__
+#endif // SRC_COMPONENTS_LOOT_HPP__

@@ -1,5 +1,5 @@
-#ifndef SRC_FACTORY_PARTICLEFACTORY_HPP_
-#define SRC_FACTORY_PARTICLEFACTORY_HPP_
+#ifndef SRC_FACTORY_PARTICLEFACTORY_HPP__
+#define SRC_FACTORY_PARTICLEFACTORY_HPP__
 
 #include <Components/Particle/Flame.hpp>
 #include <Components/Particle/ParticleSpriteTest.hpp>
@@ -27,4 +27,4 @@ void update_position( entt::registry &reg, Cmp::UUID uuid_cmp, sf::Vector2f pos 
 
 } // namespace Game::Particle::Factory
 
-#endif // SRC_FACTORY_PARTICLEFACTORY_HPP_
+#endif // SRC_FACTORY_PARTICLEFACTORY_HPP__

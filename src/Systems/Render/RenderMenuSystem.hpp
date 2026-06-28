@@ -1,5 +1,5 @@
-#ifndef __SYS_RENDERMENUSYSTEM_HPP__
-#define __SYS_RENDERMENUSYSTEM_HPP__
+#ifndef SRC_SYSTEMS_RENDER_RENDERMENUSYSTEM_HPP__
+#define SRC_SYSTEMS_RENDER_RENDERMENUSYSTEM_HPP__
 
 #include <Shaders/TitleScreenShader.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -57,4 +57,4 @@ public:
 
 } // namespace Game::Sys
 
-#endif // __SYS_RENDERMENUSYSTEM_HPP__
+#endif // SRC_SYSTEMS_RENDER_RENDERMENUSYSTEM_HPP__

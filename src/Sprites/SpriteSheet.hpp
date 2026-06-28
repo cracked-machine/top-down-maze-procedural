@@ -1,5 +1,5 @@
-#ifndef SRC_SPRITES_MULTISPRITE_HPP_
-#define SRC_SPRITES_MULTISPRITE_HPP_
+#ifndef SRC_SPRITES_SPRITESHEET_HPP__
+#define SRC_SPRITES_SPRITESHEET_HPP__
 
 #include <Sprites/SpriteMetaType.hpp>
 
@@ -156,4 +156,4 @@ private:
 
 } // namespace Game::Sprites
 
-#endif // SRC_SPRITES_MULTISPRITE_HPP_
+#endif // SRC_SPRITES_SPRITESHEET_HPP__

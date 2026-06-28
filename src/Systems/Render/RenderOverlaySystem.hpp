@@ -1,5 +1,5 @@
-#ifndef __SYS_RENDEROVERSYSTEM_HPP__
-#define __SYS_RENDEROVERSYSTEM_HPP__
+#ifndef SRC_SYSTEMS_RENDER_RENDEROVERLAYSYSTEM_HPP__
+#define SRC_SYSTEMS_RENDER_RENDEROVERLAYSYSTEM_HPP__
 
 #include <Components/Position.hpp>
 #include <Utils/Optimizations.hpp>
@@ -176,4 +176,4 @@ private:
 
 } // namespace Game::Sys
 
-#endif // __SYS_RENDEROVERSYSTEM_HPP__
+#endif // SRC_SYSTEMS_RENDER_RENDEROVERLAYSYSTEM_HPP__
