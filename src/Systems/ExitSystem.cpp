@@ -1,6 +1,8 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Exit.hpp>
+#include <Components/Grave/GraveExitMultiBlock.hpp>
+#include <Components/Grave/GraveExitSegment.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Persistent/ExitKeyRequirement.hpp>
@@ -16,6 +18,7 @@
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/PlayerActionEvent.hpp>
+#include <Factory/MultiblockFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
@@ -51,23 +54,17 @@ void ExitSystem::spawn_exit()
   // Remove the existing wall obstacle first
   Factory::remove_obstacle( reg(), rand_entity, true );
 
-  const auto &ss_main = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.exit.main" );
-  const auto &ss_cap = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.exit.cap" );
-  auto uuid = Cmp::UUID::generate();
+  const auto &grave_exit_ss = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.exit.locked" );
+  Factory::add_multiblock_with_segments<Cmp::GraveExitMultiBlock, Cmp::GraveExitSegment>( reg(), rand_pos_cmp.position, grave_exit_ss );
 
-  Factory::add_obstacle( reg(), rand_entity );
-  reg().emplace_or_replace<Cmp::Exit>( rand_entity, true );
-  Factory::decorate_obstacle( reg(), rand_entity, rand_pos_cmp, ss_main, 0 );
-  reg().emplace_or_replace<Cmp::UUID>( rand_entity, uuid );
+  // place the exit cmp at the bottom centre of the Cmp::GraveExitMultiBlock
+  sf::Vector2f door_grid_pos( ( grave_exit_ss.get_grid_size().width / 2 ), grave_exit_ss.get_grid_size().height - 2 );
 
-  auto cap_entt = reg().create();
-  Cmp::Position cap_position( { rand_pos_cmp.x(), rand_pos_cmp.y() - Constants::kGridSizePxF.y }, Constants::kGridSizePxF );
-  reg().emplace_or_replace<Cmp::Position>( cap_entt, cap_position );
-  Factory::decorate_obstacle( reg(), cap_entt, cap_position, ss_cap, 0, rand_pos_cmp.y(), false );
-  reg().emplace_or_replace<Cmp::UUID>( cap_entt, uuid );
-  reg().emplace_or_replace<Cmp::ReservedPosition>( cap_entt );
-
-  reg().emplace_or_replace<Cmp::ReservedPosition>( rand_entity );
+  auto exit_entt = reg().create();
+  auto door_px_pos = sf::Vector2f( rand_pos_cmp.x() + ( door_grid_pos.x * Constants::kGridSizePxF.x ),
+                                   rand_pos_cmp.y() + ( door_grid_pos.y * Constants::kGridSizePxF.y ) );
+  reg().emplace_or_replace<Cmp::Position>( exit_entt, door_px_pos, Constants::kGridSizePxF );
+  reg().emplace_or_replace<Cmp::Exit>( exit_entt, true );
 
   SPDLOG_INFO( "Exit spawned at position ({}, {})", rand_pos_cmp.position.x, rand_pos_cmp.position.y );
 }
@@ -80,30 +77,43 @@ void ExitSystem::on_player_action( Events::PlayerActionEvent ev )
 
 void ExitSystem::check_player_can_unlock_exit()
 {
+  auto [inv_entt, inv_type] = Utils::Player::get_inventory_type( reg() );
+  if ( not inv_type.contains( "exitkey" ) ) return;
 
-  auto exit_view = reg().view<Cmp::Exit, Cmp::Position>();
-  for ( auto [entity, exit_cmp, exit_pos_cmp] : exit_view.each() )
+  auto player_pos = Utils::Player::get_position( reg() );
+  auto player_hitbox = Cmp::RectBounds::scaled( player_pos, 2.f );
+
+  // assume player should be behind the exit multiblock
+  for ( auto [exit_mb_entt, exit_mb_cmp, anim_cmp] : reg().view<Cmp::GraveExitMultiBlock, Cmp::AnimData>().each() )
   {
-    auto player_pos = Utils::Player::get_position( reg() );
-    auto player_hitbox = Cmp::RectBounds::scaled( player_pos, 5.f );
-    auto [found_entt, found_carryitem_type] = Utils::Player::get_inventory_type( reg() );
-    if ( player_hitbox.findIntersection( exit_pos_cmp ) and found_carryitem_type.contains( "exitkey" ) )
+    // const auto &grave_exit_ss = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.exit.unlocked" );
+    reg().emplace_or_replace<Cmp::ZOrderValue>( exit_mb_entt, exit_mb_cmp.position.y + ( 5 * Constants::kGridSizePxF.y ) );
+  }
+
+  for ( auto [entity, exit_cmp, exit_pos_cmp] : reg().view<Cmp::Exit, Cmp::Position>().each() )
+  {
+    if ( not player_hitbox.findIntersection( exit_pos_cmp ) ) continue;
+
+    exit_cmp.m_locked = false;
+
+    for ( auto [exit_mb_entt, exit_mb_cmp, anim_cmp] : reg().view<Cmp::GraveExitMultiBlock, Cmp::AnimData>().each() )
     {
-      exit_cmp.m_locked = false;
-      Factory::remove_obstacle( reg(), entity, true );
+      if ( not exit_pos_cmp.findIntersection( exit_mb_cmp ) ) continue;
+      anim_cmp.m_sprite_type = "sprite.graveyard.exit.unlocked";
+      // if we are near exit then place exit multiblock behind the player
+      reg().emplace_or_replace<Cmp::ZOrderValue>( exit_mb_entt, exit_mb_cmp.position.y - 16.f );
 
-      // clang-format off
-      reg().emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 
-            .sprite_type = "sprite.graveyard.exit.unlocked",
-            .enabled = true
-      });
-      // clang-format on
-
-      reg().emplace_or_replace<Cmp::ZOrderValue>( entity, exit_pos_cmp.position.y );
-      reg().remove<Cmp::PlayerNoPath>( entity );
-      if ( m_sound_bank.get_effect( "secret" ).getStatus() == sf::Sound::Status::Stopped ) m_sound_bank.get_effect( "secret" ).play();
-      Factory::destroy_inventory( reg(), "sprite.item.exitkey" );
+      // remove all blocking so player can exit
+      for ( auto [entity, pos_cmp] : reg().view<Cmp::Position>().each() )
+      {
+        if ( not exit_pos_cmp.findIntersection( pos_cmp ) ) continue;
+        reg().remove<Cmp::PlayerNoPath>( entity );
+      }
+      break;
     }
+
+    if ( m_sound_bank.get_effect( "secret" ).getStatus() == sf::Sound::Status::Stopped ) m_sound_bank.get_effect( "secret" ).play();
+    Factory::destroy_inventory( reg(), "sprite.item.exitkey" );
   }
 }
 

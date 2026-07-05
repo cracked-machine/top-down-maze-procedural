@@ -1,30 +1,25 @@
 {
   "sprites": {
-    "sprite.graveyard.exit.main": {
+    "sprite.graveyard.exit.locked": {
       "spritesheet": {
-        "displayname": "exit.main",
+        "displayname": "exit.locked",
         "zorder": [0],
-        "texture_path": "res/textures/graveyard.png",
-        "sprite_indices": [48],
+        "texture_path": "res/textures/landmarks.png",
+        "sprite_indices": [500],
+        "solid_mask": [
+          false,false,false,false,false,
+          false,false,false,false,false,
+          false,false,false,false,false,
+          false,false,false,false,false,
+          true,true,true,true,true,
+          true,true,true,true,true,
+          false,false,false,false,false
+        ],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
-    "sprite.graveyard.exit.cap": {
-      "spritesheet": {
-        "displayname": "exit.cap",
-        "zorder": [0 ],
-        "texture_path": "res/textures/graveyard.png",
-        "sprite_indices": [38],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
+          "width": 5,
+          "height": 7
         }
       }
     },
@@ -32,13 +27,22 @@
       "spritesheet": {
         "displayname": "exit.unlocked",
         "zorder": [0],
-        "texture_path": "res/textures/graveyard.png",
-        "sprite_indices": [9],
+        "texture_path": "res/textures/landmarks.png",
+        "sprite_indices": [505],
+        "solid_mask": [
+          false,false,false,false,false,
+          false,false,false,false,false,
+          false,false,false,false,false,
+          false,false,false,false,false,
+          true,true,true,true,true,
+          true,true,true,true,true,
+          false,false,false,false,false
+        ],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "width": 5,
+          "height": 7
         }
       }
     },

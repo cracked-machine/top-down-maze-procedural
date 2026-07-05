@@ -118,11 +118,11 @@ void GraveyardScene::on_init()
   auto &level_gen = m_sys.find<Sys::Store::Type::LevelGenerator>();
   level_gen.reset();
   level_gen.build_scene_from_data( *m_scene_data );
+  m_sys.find<Sys::Store::Type::ExitSystem>().spawn_exit();
   level_gen.gen_graveyard_exterior_multiblocks();
   Factory::gen_loot_containers( m_reg, m_sprite_factory, map_size_grid );
   Factory::gen_npc_containers( m_reg, m_sprite_factory, map_size_grid );
   level_gen.gen_random_plants( map_size_grid );
-  m_sys.find<Sys::Store::Type::ExitSystem>().spawn_exit();
 
   auto init_chance = Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenInitChance>( m_reg );
   level_gen.add_graveyard_exterior_obstacles( init_chance.get_value() );
