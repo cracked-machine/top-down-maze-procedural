@@ -25,6 +25,7 @@ entt::entity create_world_pos( entt::registry &registry, const sf::Vector2f &pos
 {
   auto entity = registry.create();
   registry.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSizePxF );
+  registry.emplace_or_replace<Cmp::Armable>( entity );
   return entity;
 }
 

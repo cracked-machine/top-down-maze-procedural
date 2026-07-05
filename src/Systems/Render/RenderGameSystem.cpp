@@ -22,8 +22,11 @@
 #include <Components/HolyWell/HolyWellMultiBlock.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
+#include <Components/LastDirection.hpp>
+#include <Components/LightningStrike.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Npc/NpcShockwave.hpp>
+#include <Components/Persistent/ArmedBlinkFreq.hpp>
 #include <Components/Persistent/CameraSmoothSpeed.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
@@ -33,19 +36,17 @@
 #include <Components/Player/PlayerNoPath.hpp>
 #include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
+#include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
+#include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinBuildingMultiBlock.hpp>
+#include <Components/SelectedPosition.hpp>
 #include <Components/System.hpp>
 #include <Components/Wall.hpp>
 #include <Components/Wormhole/WormholeMultiBlock.hpp>
 #include <Components/ZOrderValue.hpp>
-#include <Components/LastDirection.hpp>
-#include <Components/LightningStrike.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
-#include <Components/Random.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
-#include <Components/SelectedPosition.hpp>
 #include <Shaders/BaseShaderSprite.hpp>
 #include <Shaders/DarkModeShader.hpp>
 #include <Shaders/DrippingBloodShader.hpp>
@@ -166,8 +167,9 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
         temp_square.setFillColor( sf::Color::Transparent );
         if ( armed_cmp.getElapsedWarningTime() > armed_cmp.m_warning_delay )
         {
-          const auto &flash_clk = Utils::Player::get_global_bomb_flash_clk( reg() );
-          const bool flash_on = ( flash_clk.getElapsedTime().asMilliseconds() / 500 ) % 2 == 0;
+          const float &flash_clk_elapsed_secs = Utils::Player::get_global_bomb_flash_clk( reg() ).getElapsedTime().asSeconds();
+          const float &armed_blink_hertz = Sys::PersistSystem::get<Cmp::Persist::ArmedBlinkFreq>( reg() ).get_value();
+          const bool flash_on = static_cast<int>( flash_clk_elapsed_secs * armed_blink_hertz * 2.f ) % 2 == 0;
           if ( flash_on )
           {
             temp_square.setOutlineColor( armed_cmp.m_armed_color_border );

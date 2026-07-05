@@ -1,7 +1,3 @@
-#include <Components/Stats/BaseAction.hpp>
-#include <Utils/Player.hpp>
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
-
 #include <Audio/SoundBank.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Armable.hpp>
@@ -19,6 +15,7 @@
 #include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
+#include <Components/Stats/BaseAction.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/CryptRoomEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
@@ -28,6 +25,7 @@
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Optimizations.hpp>
+#include <Utils/Player.hpp>
 
 namespace Game::Sys
 {

@@ -1,5 +1,6 @@
 
 
+#include <Components/Persistent/ArmedBlinkFreq.hpp>
 #include <Components/Persistent/ArmedBlockColourBorder.hpp>
 #include <Components/Persistent/ArmedBlockColourFill.hpp>
 #include <Components/Persistent/ArmedOffDelay.hpp>
@@ -213,6 +214,7 @@ void RenderMenuSystem::render_settings_widgets( sf::Time dt, sf::FloatRect title
     Sys::PersistSystem::get<Cmp::Persist::ArmedOffDelay>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::ArmedBlockColourBorder>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::ArmedBlockColourFill>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::ArmedBlinkFreq>( reg() ).render_widget();
 
     // Hazard Settings
     ImGui::SeparatorText( "Hazard Settings" );

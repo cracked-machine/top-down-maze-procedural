@@ -1,4 +1,12 @@
 {
+  "ArmedBlinkFreq": {
+    "type": "float",
+    "value": 2.0,
+    "min_value": 1.0,
+    "max_value": 5.0,
+    "detail": "Armed Blink Frequency",
+    "format": "%.1f"
+  },
   "ArmedBlockColourBorder": {
     "type": "sf::Color",
     "value" : {
@@ -210,7 +218,7 @@
   },
   "MusicVolume": {
     "type": "float",
-    "value": 100.0,
+    "value": 0.0,
     "min_value": 0.0,
     "max_value": 100.0,
     "detail": "Music Volume",

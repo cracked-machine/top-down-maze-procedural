@@ -7,6 +7,7 @@
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
+#include <Components/Persistent/ArmedBlinkFreq.hpp>
 #include <Components/Persistent/ArmedBlockColourBorder.hpp>
 #include <Components/Persistent/ArmedBlockColourFill.hpp>
 #include <Components/Persistent/ArmedOffDelay.hpp>
@@ -96,6 +97,7 @@ void PersistSystem::initialize_type_registry()
   };
 
   // clang-format off
+  register_type.operator()<ArmedBlinkFreq>("ArmedBlinkFreq");
   register_type.operator()<ArmedBlockColourFill>("ArmedBlockColourFill");
   register_type.operator()<ArmedBlockColourBorder>("ArmedBlockColourBorder");
   register_type.operator()<ArmedOffDelay>("ArmedOffDelay");

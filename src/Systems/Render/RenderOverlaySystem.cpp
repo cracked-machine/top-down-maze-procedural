@@ -1,4 +1,6 @@
 #include <Components/AnimData.hpp>
+#include <Components/Armable.hpp>
+#include <Components/Armed.hpp>
 #include <Components/Crypt/CryptPassageBlock.hpp>
 #include <Components/Crypt/CryptPassageDoor.hpp>
 #include <Components/Crypt/CryptRoomLavaPit.hpp>
@@ -760,6 +762,8 @@ void RenderOverlaySystem::render_ui_entity_inspect()
       if ( reg().all_of<Cmp::CryptPassageDoor>( entity ) ) draw_line( " PassageDoor", sf::Color::Green );
       if ( reg().all_of<Cmp::CryptRoomLavaPitCell>( entity ) ) draw_line( " CryptRoomLavaPitCell", sf::Color{ 255, 165, 0 } );
       if ( reg().all_of<Cmp::CryptRoomLavaPit>( entity ) ) draw_line( " CryptRoomLavaPit", sf::Color{ 255, 165, 0 } );
+      if ( reg().all_of<Cmp::Armable>( entity ) ) draw_line( " Armable", sf::Color::Green );
+      if ( reg().all_of<Cmp::Armed>( entity ) ) draw_line( " Armed", sf::Color::Red );
 
       if ( auto *cmp = reg().try_get<Cmp::UUID>( entity ) ) draw_line( " " + cmp->str(), sf::Color::White );
 

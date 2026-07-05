@@ -95,8 +95,10 @@ void BombSystem::arm_grave_bomb()
   auto player_entt = Utils::Player::get_entity( reg() );
   m_sound_bank.get_effect( "bomb_fuse" ).play();
   auto new_bomb_entt = reg().create();
-  reg().emplace_or_replace<Cmp::Position>( new_bomb_entt, Utils::Player::get_position( reg() ) );
+  auto realigned_epicenter_pos = Utils::snap_to_grid( Utils::Player::get_position( reg() ) );
+  reg().emplace_or_replace<Cmp::Position>( new_bomb_entt, realigned_epicenter_pos.position, realigned_epicenter_pos.size );
   place_concentric_bomb_pattern( new_bomb_entt, reg().get<Cmp::PlayerBlastRadius>( player_entt ).value );
+  Utils::Player::get_global_bomb_flash_clk( reg() ).restart();
 }
 
 void BombSystem::arm_entt( entt::entity target_entt )
@@ -137,7 +139,8 @@ void BombSystem::arm_player_bomb()
       m_sound_bank.get_effect( "bomb_fuse" ).play();
 
       auto armed_epicenter_entity = reg().create();
-      reg().emplace<Cmp::Position>( armed_epicenter_entity, destructable_pos_cmp.position, destructable_pos_cmp.size );
+      auto realigned_epicenter_pos = Utils::snap_to_grid( destructable_pos_cmp );
+      reg().emplace<Cmp::Position>( armed_epicenter_entity, realigned_epicenter_pos.position, realigned_epicenter_pos.size );
       place_concentric_bomb_pattern( armed_epicenter_entity, reg().get<Cmp::PlayerBlastRadius>( player_entt ).value );
       Factory::destroy_inventory( reg(), "sprite.item.bomb" );
       Utils::Player::get_global_bomb_flash_clk( reg() ).restart();
@@ -165,7 +168,7 @@ void BombSystem::place_concentric_bomb_pattern( const entt::entity &epicenter_en
 
   // Mark epicenter as armed FIRST before any recursive processing
   int sequence_counter = 0;
-  Factory::create_armed( reg(), epicenter_entity, Cmp::Armed::EpiCenter::YES, sequence_counter++, centerTile.y - kZOrderOffset );
+  Factory::create_armed( reg(), epicenter_entity, Cmp::Armed::EpiCenter::YES, sequence_counter++, centerTile.y + kZOrderOffset );
 
   // We dont detonate ReservedPositions so dont arm them in the first place
   // Also exclude NPCs since they're handled separately and may be missing Position component during death animation
@@ -210,7 +213,7 @@ void BombSystem::place_concentric_bomb_pattern( const entt::entity &epicenter_en
     // Arm each entity in the layer in clockwise order
     for ( const auto &[entity, pos] : layer_entities )
     {
-      Factory::create_armed( reg(), entity, Cmp::Armed::EpiCenter::NO, sequence_counter++, centerTile.y - kZOrderOffset );
+      Factory::create_armed( reg(), entity, Cmp::Armed::EpiCenter::NO, sequence_counter++, centerTile.y + kZOrderOffset );
     }
   }
 }
