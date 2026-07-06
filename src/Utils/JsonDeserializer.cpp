@@ -2,6 +2,7 @@
 #include <Utils/JsonDeserializer.hpp>
 
 #include <charconv>
+#include <cstdint>
 #include <fstream>
 #include <spdlog/spdlog.h>
 
@@ -60,6 +61,14 @@ int JsonDeserializer::get_int( const nlohmann::json &j, const std::string &field
   return j.at( field ).get<int>();
 }
 
+bool JsonDeserializer::get_bool( const nlohmann::json &j, const std::string &field, std::source_location loc )
+{
+  check_contains( j, field, loc );
+  if ( not j.at( field ).is_boolean() )
+    throw std::runtime_error( make_loc_string( loc ) + "JSON field '" + field + "' is not a boolean, got: " + j.at( field ).type_name() );
+  return j.at( field ).get<bool>();
+}
+
 std::vector<int> JsonDeserializer::get_int_list( const nlohmann::json &j, std::string field, std::source_location loc )
 {
   std::vector<int> results;
@@ -68,6 +77,25 @@ std::vector<int> JsonDeserializer::get_int_list( const nlohmann::json &j, std::s
     results.push_back( get_int( value, "value", loc ) );
   }
   return results;
+}
+
+std::vector<bool> JsonDeserializer::get_bool_array( const nlohmann::json &j, std::string field, [[maybe_unused]] std::source_location loc )
+{
+  // optional
+  if ( not j.contains( field ) ) return {};
+  return j.at( field ).get<std::vector<bool>>();
+}
+
+std::vector<uint32_t> JsonDeserializer::get_u32_array( const nlohmann::json &j, std::string field, std::source_location loc )
+{
+  check_contains( j, field, loc );
+  return j.at( field ).get<std::vector<uint32_t>>();
+}
+
+std::vector<float> JsonDeserializer::get_float_array( const nlohmann::json &j, std::string field, std::source_location loc )
+{
+  check_contains( j, field, loc );
+  return j.at( field ).get<std::vector<float>>();
 }
 
 sf::Color JsonDeserializer::get_color( const nlohmann::json &j, const std::string &field, std::source_location loc )
@@ -134,6 +162,13 @@ std::filesystem::path JsonDeserializer::get_abs_path( const std::filesystem::pat
     result /= part;
   }
   return Game::Constants::res_dir / result;
+}
+
+sf::Vector2i JsonDeserializer::get_vector2i( const nlohmann::json &j, std::string field, std::source_location loc )
+{
+  check_contains( j, field, loc );
+  const auto &obj = j.at( field );
+  return { get_int( obj, "width", loc ), get_int( obj, "height", loc ) };
 }
 
 } // namespace Game::Utils

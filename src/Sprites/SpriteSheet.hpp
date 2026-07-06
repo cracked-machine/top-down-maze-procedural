@@ -1,6 +1,7 @@
 #ifndef SRC_SPRITES_SPRITESHEET_HPP__
 #define SRC_SPRITES_SPRITESHEET_HPP__
 
+#include <SFML/System/Vector2.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 
 #include <Utils/Constants.hpp>
@@ -16,6 +17,16 @@ namespace Game::Sprites
 //! @brief Sprite dimensions with componentWiseMul support.
 using SpriteSize = struct SpriteSize
 {
+  SpriteSize( int x, int y )
+      : width( x ),
+        height( y )
+  {
+  }
+  SpriteSize( sf::Vector2i v )
+      : width( v.x ),
+        height( v.y )
+  {
+  }
   unsigned int width{ 1 };
   unsigned int height{ 1 };
   [[nodiscard]] sf::Vector2f componentWiseMul( sf::Vector2u rhs ) const

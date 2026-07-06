@@ -14,7 +14,7 @@ SpriteSheet::SpriteSheet( SpriteMetaType type, std::string display_name, const s
     : m_sprite_type{ type },
       m_display_name( display_name ),
       m_zorder_list( zorder_list ),
-      m_grid_size{ grid_size.width, grid_size.height },
+      m_grid_size{ static_cast<int>( grid_size.width ), static_cast<int>( grid_size.height ) },
       m_sprites_per_frame{ sprites_per_frame },
       m_sprites_per_sequence{ sprites_per_sequence },
       m_solid_mask{ std::move( solid_mask ) }
@@ -40,7 +40,7 @@ SpriteSheet::SpriteSheet( SpriteMetaType type, std::string display_name, const s
     : m_sprite_type{ type },
       m_display_name( display_name ),
       m_zorder_list( zorder_list ),
-      m_grid_size{ grid_size.width, grid_size.height },
+      m_grid_size{ static_cast<int>( grid_size.width ), static_cast<int>( grid_size.height ) },
       m_sprites_per_frame{ sprites_per_frame },
       m_sprites_per_sequence{ sprites_per_sequence },
       m_solid_mask{ std::move( solid_mask ) }

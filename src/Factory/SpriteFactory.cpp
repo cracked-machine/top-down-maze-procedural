@@ -1,117 +1,46 @@
 #include <Components/Random.hpp>
 #include <Factory/SpriteFactory.hpp>
 #include <Sprites/SpriteSheet.hpp>
+#include <Utils/JsonDeserializer.hpp>
 
 #include <SFML/Graphics/Image.hpp>
-#include <fstream>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 #include <regex>
 #include <spdlog/fmt/bundled/ranges.h>
 #include <spdlog/spdlog.h>
 #include <string>
-
-namespace nlohmann
-{
-//! @brief ADL hook used via nlohmann::basic_json::get (see SceneConfig::load below)
-template <>
-struct adl_serializer<Game::Sprites::SpriteSheet>
-{
-  static void from_json( const json &j, Game::Sprites::SpriteSheet &ms )
-  {
-
-    //! @brief lambda helper for error checking on JSON Single field types
-    auto get_field = [&]<typename T>( const std::string &key, T &out )
-    {
-      if ( not j.contains( key ) ) throw std::runtime_error( "Missing '" + key + "' from JSON sprites file" );
-      try
-      {
-        out = j.at( key ).get<T>();
-      } catch ( const nlohmann::json::type_error &e )
-      {
-        throw std::runtime_error( "Error parsing JSON sprites file: '" + key + "': " + e.what() );
-      }
-    };
-
-    //! @brief lambda helper for error checking on JSON Single field types
-    auto get_optional_list = [&]<typename T>( const std::string &key, std::vector<T> &out )
-    {
-      if ( not j.contains( key ) ) return;
-      try
-      {
-        out = j.at( key ).get<std::vector<T>>();
-      } catch ( const nlohmann::json::type_error &e )
-      {
-        throw std::runtime_error( "Error parsing JSON sprites file: '" + key + "': " + e.what() );
-      }
-    };
-
-    //! @brief helper for error checking on JSON width/height vector types
-    auto get_xy_field = [&]<typename TVec>( const std::string &key, TVec &out )
-    {
-      using TScalar = decltype( out.width );
-      if ( !j.contains( key ) ) throw std::runtime_error( "Missing '" + key + "' from JSON sprites file" );
-      try
-      {
-        out.width = j.at( key ).at( "width" ).get<TScalar>();
-        out.height = j.at( key ).at( "height" ).get<TScalar>();
-      } catch ( const nlohmann::json::type_error &e )
-      {
-        throw std::runtime_error( "Error parsing JSON sprites file: '" + key + "': " + e.what() );
-      }
-    };
-
-    std::string display_name;
-    get_field( "displayname", display_name );
-
-    std::vector<float> zorder_list{};
-    get_optional_list( "zorder", zorder_list );
-
-    std::filesystem::path texture_path;
-    get_field( "texture_path", texture_path );
-
-    std::vector<uint32_t> sprite_indices;
-    get_field( "sprite_indices", sprite_indices );
-
-    unsigned int sprites_per_sequence;
-    get_field( "sprites_per_sequence", sprites_per_sequence );
-
-    unsigned int sprites_per_frame;
-    get_field( "sprites_per_frame", sprites_per_frame );
-
-    std::vector<bool> solid_mask{};
-    get_optional_list( "solid_mask", solid_mask );
-
-    Game::Sprites::SpriteSize grid_size;
-    get_xy_field( "grid_size", grid_size );
-
-    ms = Game::Sprites::SpriteSheet{ "",        display_name,      zorder_list,          texture_path, sprite_indices,
-                                     grid_size, sprites_per_frame, sprites_per_sequence, solid_mask };
-  }
-};
-} // namespace nlohmann
+#include <utility>
 
 namespace Game::Sprites
 {
 void SpriteFactory::init()
 {
   std::filesystem::path json_path( "res/json/spritesheet_metadata.json" );
-  std::ifstream file( json_path );
-  if ( not file.is_open() ) { throw std::runtime_error( "Could not open {}." + json_path.string() ); }
+  auto j = Utils::JsonDeserializer::load_json_file( json_path );
 
-  nlohmann::json j;
-  file >> j;
-
-  if ( not j.contains( "sprites" ) ) throw std::runtime_error( "Missing 'sprites' from {}." + json_path.string() );
+  if ( not j.contains( "sprites" ) ) throw std::runtime_error( "Missing 'sprites' from " + json_path.string() );
   const auto &sprites = j.at( "sprites" );
   for ( const auto &[ms_type, ms_object] : sprites.items() )
   {
-    if ( not ms_object.contains( "spritesheet" ) ) throw std::runtime_error( "Missing 'spritesheet' from {}." + json_path.string() );
-    const auto &spritesheet = ms_object.at( "spritesheet" );
-    SpriteSheet new_ms = spritesheet.get<SpriteSheet>();
-    new_ms.set_sprite_type( ms_type );
-    SPDLOG_INFO( "Loaded sprite metadata for type: {}, tiles: {}", new_ms.get_sprite_type(), new_ms.get_sprite_count() );
-    m_sprite_metadata_map[ms_type] = std::move( new_ms );
+    if ( not ms_object.contains( "spritesheet" ) ) throw std::runtime_error( "Missing 'spritesheet' from " + json_path.string() );
+    const auto &spritesheet_json = ms_object.at( "spritesheet" );
+    // SpriteSheet new_ms = spritesheet_json.get<SpriteSheet>();
+    SpriteSheet new_ss{ ms_type,
+                        Utils::JsonDeserializer::get_string( spritesheet_json, "displayname" ),
+                        Utils::JsonDeserializer::get_float_array( spritesheet_json, "zorder" ),
+                        Utils::JsonDeserializer::get_string( spritesheet_json, "texture_path" ),
+                        Utils::JsonDeserializer::get_u32_array( spritesheet_json, "sprite_indices" ),
+                        SpriteSize( Utils::JsonDeserializer::get_vector2i( spritesheet_json, "grid_size" ) ),
+                        static_cast<unsigned int>( Utils::JsonDeserializer::get_int( spritesheet_json, "sprites_per_frame" ) ),
+                        static_cast<unsigned int>( Utils::JsonDeserializer::get_int( spritesheet_json, "sprites_per_sequence" ) ),
+                        Utils::JsonDeserializer::get_bool_array( spritesheet_json, "solid_mask" )
+
+    };
+
+    // new_ss.set_sprite_type( ms_type );
+    SPDLOG_INFO( "Loaded sprite metadata for type: {}, tiles: {}", new_ss.get_sprite_type(), new_ss.get_sprite_count() );
+    m_sprite_metadata_map[ms_type] = std::move( new_ss );
   }
 
   create_error_sprite();
@@ -149,7 +78,7 @@ std::pair<SpriteMetaType, std::size_t> SpriteFactory::get_random_type_and_textur
   {
     if ( metadata.get_sprite_type() == selected_data.get_sprite_type() )
     {
-      Cmp::RandomInt random_picker( 0, selected_data.get_sprite_count() - 1 );
+      Cmp::RandomInt random_picker( 0, static_cast<int>( selected_data.get_sprite_count() ) - 1 );
       return { type, random_picker.gen() };
     }
   }
@@ -161,7 +90,7 @@ std::pair<SpriteMetaType, std::size_t> SpriteFactory::get_random_type_and_textur
 
 SpriteMetaType SpriteFactory::get_random_type( std::vector<SpriteMetaType> type_list )
 {
-  const SpriteSheet &selected_data = get_random_spritedata( type_list );
+  const SpriteSheet &selected_data = get_random_spritedata( std::move( type_list ) );
 
   return selected_data.get_sprite_type();
 }
@@ -234,7 +163,7 @@ const SpriteSheet &SpriteFactory::get_random_spritedata( std::vector<SpriteMetaT
 
   try
   {
-    Cmp::RandomInt picker( 0.0f, type_list.size() - 1 );
+    Cmp::RandomInt picker( 0.0f, static_cast<int>( type_list.size() ) - 1 );
     int pick = picker.gen();
     return get_spritedata_by_type( type_list[pick] );
   } catch ( ... )
