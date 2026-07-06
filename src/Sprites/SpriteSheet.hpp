@@ -3,6 +3,7 @@
 
 #include <Sprites/SpriteMetaType.hpp>
 
+#include <Utils/Constants.hpp>
 #include <cassert>
 #include <cstdint>
 #include <filesystem>
@@ -65,6 +66,11 @@ public:
   //! @brief Get the grid size object
   //! @return SpriteSize
   [[nodiscard]] SpriteSize get_grid_size() const { return m_grid_size; }
+  [[nodiscard]] sf::Vector2f get_px_size() const
+  {
+    return { static_cast<float>( m_grid_size.width ) * Constants::kGridSizePxF.x,
+             static_cast<float>( m_grid_size.height ) * Constants::kGridSizePxF.y };
+  }
 
   //! @brief Get the sprite count object
   //! @return std::size_t

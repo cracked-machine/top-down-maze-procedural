@@ -32,6 +32,7 @@
 
 #include <SFML/System/Vector2.hpp>
 #include <entt/entity/entity.hpp>
+#include <stdexcept>
 
 namespace Game::Sys
 
@@ -47,26 +48,48 @@ ExitSystem::ExitSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::
 
 void ExitSystem::spawn_exit()
 {
+  entt::entity selected_entity = entt::null;
+  Cmp::Position selected_pos_cmp( { 0, 0 }, { 0, 0 } );
+  const auto &kGraveExitSpritesheet = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.exit.locked" );
+  const int kMaxAttempts = 100;
 
-  auto [rand_entity, rand_pos_cmp] = Utils::Rnd::get_random_position(
-      reg(), {}, Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, 0 );
+  int attempt_count = 0;
+  while ( true )
+  {
+    auto exclude_list = Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC, Cmp::ReservedPosition>{};
+    auto [rand_entity, rand_pos_cmp] = Utils::Rnd::get_random_position( reg(), {}, exclude_list, 0 );
+    Cmp::Position multiblock_hitbox( rand_pos_cmp.position, kGraveExitSpritesheet.get_px_size() );
+
+    bool collides_with_wall = false;
+    for ( auto [wall_entt, wall_cmp, wall_pos_cmp] : reg().view<Cmp::Wall, Cmp::Position>().each() )
+    {
+      if ( multiblock_hitbox.findIntersection( wall_pos_cmp ) ) { collides_with_wall = true; }
+    }
+    if ( not collides_with_wall )
+    {
+      selected_entity = rand_entity;
+      selected_pos_cmp = rand_pos_cmp;
+      break;
+    }
+
+    attempt_count++;
+    if ( attempt_count >= kMaxAttempts ) { throw std::runtime_error( "Unable to spawn graveyard exit" ); }
+  }
 
   // Remove the existing wall obstacle first
-  Factory::remove_obstacle( reg(), rand_entity, true );
+  Factory::remove_obstacle( reg(), selected_entity, true );
 
-  const auto &grave_exit_ss = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.exit.locked" );
-  Factory::add_multiblock_with_segments<Cmp::GraveExitMultiBlock, Cmp::GraveExitSegment>( reg(), rand_pos_cmp.position, grave_exit_ss );
+  Factory::add_multiblock_with_segments<Cmp::GraveExitMultiBlock, Cmp::GraveExitSegment>( reg(), selected_pos_cmp.position, kGraveExitSpritesheet );
 
   // place the exit cmp at the bottom centre of the Cmp::GraveExitMultiBlock
-  sf::Vector2f door_grid_pos( ( grave_exit_ss.get_grid_size().width / 2 ), grave_exit_ss.get_grid_size().height - 2 );
+  sf::Vector2f door_grid_pos( ( kGraveExitSpritesheet.get_grid_size().width / 2 ), kGraveExitSpritesheet.get_grid_size().height - 2 );
 
   auto exit_entt = reg().create();
-  auto door_px_pos = sf::Vector2f( rand_pos_cmp.x() + ( door_grid_pos.x * Constants::kGridSizePxF.x ),
-                                   rand_pos_cmp.y() + ( door_grid_pos.y * Constants::kGridSizePxF.y ) );
+  auto door_px_pos = sf::Vector2f( selected_pos_cmp.x() + ( door_grid_pos.x * Constants::kGridSizePxF.x ),
+                                   selected_pos_cmp.y() + ( door_grid_pos.y * Constants::kGridSizePxF.y ) );
   reg().emplace_or_replace<Cmp::Position>( exit_entt, door_px_pos, Constants::kGridSizePxF );
   reg().emplace_or_replace<Cmp::Exit>( exit_entt, true );
-
-  SPDLOG_INFO( "Exit spawned at position ({}, {})", rand_pos_cmp.position.x, rand_pos_cmp.position.y );
+  SPDLOG_INFO( "Exit spawned at position ({}, {})", selected_pos_cmp.position.x, selected_pos_cmp.position.y );
 }
 
 void ExitSystem::on_player_action( Events::PlayerActionEvent ev )
