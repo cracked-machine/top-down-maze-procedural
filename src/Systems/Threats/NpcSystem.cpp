@@ -5,6 +5,7 @@
 #include <Components/Crypt/CryptSegment.hpp>
 #include <Components/Direction.hpp>
 #include <Components/FootStepTimer.hpp>
+#include <Components/Grave/GraveExitSegment.hpp>
 #include <Components/Grave/GraveSegment.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/Npc/Npc.hpp>
@@ -557,6 +558,7 @@ void NpcSystem::find_pushback_position( const Cmp::Direction &npc_direction )
   if ( Utils::Collision::check_cmp<Cmp::Wall>( reg(), new_pos_rect ) ) return;
   if ( Utils::Collision::check_cmp<Cmp::AltarSegment>( reg(), new_pos_rect ) ) return;
   if ( Utils::Collision::check_cmp<Cmp::GraveSegment>( reg(), new_pos_rect ) ) return;
+  if ( Utils::Collision::check_cmp<Cmp::GraveExitSegment>( reg(), new_pos_rect ) ) return;
   if ( Utils::Collision::check_cmp<Cmp::CryptSegment>( reg(), new_pos_rect ) ) return;
   if ( Utils::Collision::check_cmp<Cmp::RuinSegment>( reg(), new_pos_rect ) ) return;
   if ( Utils::Collision::check_cmp<Cmp::CryptObjectiveSegment>( reg(), new_pos_rect ) ) return;

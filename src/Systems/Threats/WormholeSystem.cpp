@@ -5,6 +5,7 @@
 #include <Components/Crypt/CryptSegment.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Exit.hpp>
+#include <Components/Grave/GraveExitSegment.hpp>
 #include <Components/Grave/GraveSegment.hpp>
 #include <Components/Hazard/HazardFieldCell.hpp>
 #include <Components/LerpPosition.hpp>
@@ -114,6 +115,12 @@ std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsi
       for ( auto [entity, crypt_cmp, crypt_pos_cmp] : reg().view<Cmp::CryptSegment, Cmp::Position>().each() )
       {
         if ( crypt_pos_cmp.findIntersection( wormhole_block ) ) return false;
+      }
+
+      // Return false for graveyard exit collisions
+      for ( auto [entity, xit_cmp, exit_pos_cmp] : reg().view<Cmp::GraveExitSegment, Cmp::Position>().each() )
+      {
+        if ( exit_pos_cmp.findIntersection( wormhole_block ) ) return false;
       }
 
       // Return false for hazard collisions
