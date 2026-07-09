@@ -14,27 +14,6 @@
 namespace Game::Sprites
 {
 
-//! @brief Sprite dimensions with componentWiseMul support.
-using SpriteSize = struct SpriteSize
-{
-  SpriteSize( int x, int y )
-      : width( x ),
-        height( y )
-  {
-  }
-  SpriteSize( sf::Vector2i v )
-      : width( v.x ),
-        height( v.y )
-  {
-  }
-  unsigned int width{ 1 };
-  unsigned int height{ 1 };
-  [[nodiscard]] sf::Vector2f componentWiseMul( sf::Vector2u rhs ) const
-  {
-    return { static_cast<float>( width * rhs.x ), static_cast<float>( height * rhs.y ) };
-  }
-};
-
 //! @brief Non-mutable container for multiple sprites loaded from a single tile sheet.
 class SpriteSheet
 {
@@ -53,7 +32,7 @@ public:
   //! @param sprites_per_sequence
   //! @param solid_mask
   explicit SpriteSheet( SpriteMetaType type, std::string display_name, const std::vector<float> &zorder_list,
-                        const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size = { 1, 1 },
+                        const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks, sf::Vector2i grid_size = { 1, 1 },
                         unsigned int sprites_per_frame = 1, unsigned int sprites_per_sequence = 1, std::vector<bool> solid_mask = {} );
 
   //! @brief Construct a new Multi Sprite object using texture object
@@ -67,7 +46,7 @@ public:
   //! @param sprites_per_sequence
   //! @param solid_mask
   explicit SpriteSheet( SpriteMetaType type, std::string display_name, const std::vector<float> &zorder_list, sf::Texture tilemap_texture,
-                        const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size = { 1, 1 }, unsigned int sprites_per_frame = 1,
+                        const std::vector<uint32_t> &tilemap_picks, sf::Vector2i grid_size = { 1, 1 }, unsigned int sprites_per_frame = 1,
                         unsigned int sprites_per_sequence = 1, std::vector<bool> solid_mask = {} );
 
   SpriteSheet( SpriteSheet && ) = default;
@@ -76,11 +55,10 @@ public:
 
   //! @brief Get the grid size object
   //! @return SpriteSize
-  [[nodiscard]] SpriteSize get_grid_size() const { return m_grid_size; }
+  [[nodiscard]] sf::Vector2i get_grid_size() const { return m_grid_size; }
   [[nodiscard]] sf::Vector2f get_px_size() const
   {
-    return { static_cast<float>( m_grid_size.width ) * Constants::kGridSizePxF.x,
-             static_cast<float>( m_grid_size.height ) * Constants::kGridSizePxF.y };
+    return { static_cast<float>( m_grid_size.x ) * Constants::kGridSizePxF.x, static_cast<float>( m_grid_size.y ) * Constants::kGridSizePxF.y };
   }
 
   //! @brief Get the sprite count object
@@ -159,7 +137,7 @@ private:
   std::vector<float> m_zorder_list;
 
   //! @brief width and height grid size for the multi-sprite
-  SpriteSize m_grid_size{ 1, 1 };
+  sf::Vector2i m_grid_size{ 1, 1 };
 
   //! @brief number of sprites per animation frame
   unsigned int m_sprites_per_frame{ 1 };

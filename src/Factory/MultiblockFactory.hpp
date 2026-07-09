@@ -49,18 +49,16 @@ namespace detail
 
 template <typename MULTIBLOCK>
   requires IsMB<MULTIBLOCK>
-void create_multiblock( entt::registry &reg, entt::entity entity, Cmp::Position pos, const Sprites::SpriteSheet &ms, size_t ms_idx = 0 )
+void create_multiblock( entt::registry &reg, entt::entity entity, Cmp::Position pos, const Sprites::SpriteSheet &ss, size_t ms_idx = 0 )
 {
-
-  auto large_obst_grid_size = ms.get_grid_size();
   // clang-format off
   reg.emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 
-        .sprite_type = ms.get_sprite_type(), 
+        .sprite_type = ss.get_sprite_type(), 
         .frame_index_offset = ms_idx,
         .enabled = true
   });
   // clang-format on
-  reg.emplace_or_replace<MULTIBLOCK>( entity, pos.position, large_obst_grid_size.componentWiseMul( Constants::kGridSizePx ) );
+  reg.emplace_or_replace<MULTIBLOCK>( entity, pos.position, ss.get_px_size() );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, pos.position.y );
   reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
 
@@ -73,8 +71,8 @@ void create_multiblock( entt::registry &reg, entt::entity entity, Cmp::Position 
     ms.get_sprite_type(),
     pos.position.x,
     pos.position.y, 
-    large_obst_grid_size.width, 
-    large_obst_grid_size.height,
+    ss.get_grid_size().x, 
+    ss.get_grid_size().y,
     zorder_cmp.getZOrder(),
     uuid.str()
   );
@@ -123,7 +121,7 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &registry, 
     int rel_grid_x = static_cast<int>( rel_x / Constants::kGridSizePx.x );
     int rel_grid_y = static_cast<int>( rel_y / Constants::kGridSizePx.y );
 
-    std::size_t calculated_grid_index = ( rel_grid_y * ms.get_grid_size().width ) + rel_grid_x;
+    std::size_t calculated_grid_index = ( rel_grid_y * ms.get_grid_size().x ) + rel_grid_x;
     SPDLOG_DEBUG( "  - Creating segment at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
 
     bool new_solid_mask = true;

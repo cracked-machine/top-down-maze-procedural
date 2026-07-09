@@ -82,7 +82,7 @@ void ExitSystem::spawn_exit()
   Factory::add_multiblock_with_segments<Cmp::GraveExitMultiBlock, Cmp::GraveExitSegment>( reg(), selected_pos_cmp.position, kGraveExitSpritesheet );
 
   // place the exit cmp at the bottom centre of the Cmp::GraveExitMultiBlock
-  sf::Vector2f door_grid_pos( ( kGraveExitSpritesheet.get_grid_size().width / 2 ), kGraveExitSpritesheet.get_grid_size().height - 2 );
+  sf::Vector2f door_grid_pos( ( kGraveExitSpritesheet.get_grid_size().x / 2 ), kGraveExitSpritesheet.get_grid_size().y - 2 );
 
   auto exit_entt = reg().create();
   auto door_px_pos = sf::Vector2f( selected_pos_cmp.x() + ( door_grid_pos.x * Constants::kGridSizePxF.x ),

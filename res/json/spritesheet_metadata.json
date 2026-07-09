@@ -18,8 +18,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 5,
-          "height": 7
+          "x": 5,
+          "y": 7
         }
       }
     },
@@ -41,8 +41,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 5,
-          "height": 7
+          "x": 5,
+          "y": 7
         }
       }
     },
@@ -55,8 +55,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -69,8 +69,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -83,8 +83,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -97,8 +97,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -111,8 +111,8 @@
         "sprites_per_sequence": 7,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -125,8 +125,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -139,8 +139,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -153,8 +153,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -167,8 +167,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -181,8 +181,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -195,8 +195,8 @@
         "sprites_per_frame": 1,
         "sprites_per_sequence": 12,
         "grid_size": {
-          "width": 3,
-          "height": 3
+          "x": 3,
+          "y": 3
         }
       }
     },
@@ -209,8 +209,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -223,8 +223,8 @@
         "sprites_per_frame": 1,
         "sprites_per_sequence": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -246,8 +246,8 @@
         "sprites_per_frame": 1,
         "sprites_per_sequence": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -261,8 +261,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 2,
-          "height": 2
+          "x": 2,
+          "y": 2
         }
       }
     },
@@ -276,8 +276,8 @@
         "sprites_per_sequence": 4,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 2,
-          "height": 2
+          "x": 2,
+          "y": 2
         }
       }
     },
@@ -291,8 +291,8 @@
         "sprites_per_sequence": 4,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 2,
-          "height": 2
+          "x": 2,
+          "y": 2
         }
       }
     },
@@ -306,8 +306,8 @@
         "sprites_per_sequence": 4,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 2,
-          "height": 2
+          "x": 2,
+          "y": 2
         }
       }
     },
@@ -321,8 +321,8 @@
         "sprites_per_sequence": 4,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 2,
-          "height": 2
+          "x": 2,
+          "y": 2
         }
       }
     },
@@ -336,8 +336,8 @@
         "sprites_per_sequence": 4,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 2,
-          "height": 2
+          "x": 2,
+          "y": 2
         }
       }
     },
@@ -350,8 +350,8 @@
         "sprites_per_sequence": 5,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 3
+          "x": 1,
+          "y": 3
         }
       }
     },
@@ -364,8 +364,8 @@
         "sprites_per_sequence": 5,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 3
+          "x": 1,
+          "y": 3
         }
       }
     },
@@ -379,8 +379,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 3,
-          "height": 4
+          "x": 3,
+          "y": 4
         }
       }
     },
@@ -394,8 +394,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 3,
-          "height": 4
+          "x": 3,
+          "y": 4
         }
       }
     },
@@ -409,8 +409,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 3,
-          "height": 4
+          "x": 3,
+          "y": 4
         }
       }
     },
@@ -424,8 +424,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 8,
-          "height": 5
+          "x": 8,
+          "y": 5
         }
       }
     },
@@ -444,8 +444,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 2
+          "x": 1,
+          "y": 2
         }
       }
     }, 
@@ -464,8 +464,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 2
+          "x": 1,
+          "y": 2
         }
       }
     },    
@@ -484,8 +484,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 2,
-          "height": 2
+          "x": 2,
+          "y": 2
         }
       }
     },
@@ -504,8 +504,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 2,
-          "height": 2
+          "x": 2,
+          "y": 2
         }
       }
     },
@@ -519,8 +519,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -533,8 +533,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -547,8 +547,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -581,8 +581,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -595,8 +595,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -609,8 +609,8 @@
         "sprites_per_sequence": 10,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -623,8 +623,8 @@
         "sprites_per_sequence": 3,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -637,8 +637,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -651,8 +651,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -665,8 +665,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -689,8 +689,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 18,
-          "height": 8
+          "x": 18,
+          "y": 8
         }
       }
     },
@@ -713,8 +713,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 18,
-          "height": 8
+          "x": 18,
+          "y": 8
         }
       }
     },
@@ -727,8 +727,8 @@
         "sprites_per_sequence": 6,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -742,8 +742,8 @@
         "sprites_per_sequence": 4,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -756,8 +756,8 @@
         "sprites_per_sequence": 4,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -770,8 +770,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -784,8 +784,8 @@
         "sprites_per_sequence": 4,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -798,8 +798,8 @@
         "sprites_per_sequence": 4,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -812,8 +812,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -826,8 +826,8 @@
         "sprites_per_sequence": 13,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -840,8 +840,8 @@
         "sprites_per_sequence": 13,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -854,8 +854,8 @@
         "sprites_per_sequence": 13,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -868,8 +868,8 @@
         "sprites_per_sequence": 13,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -882,8 +882,8 @@
         "sprites_per_sequence": 10,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -896,8 +896,8 @@
         "sprites_per_sequence": 10,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -910,8 +910,8 @@
         "sprites_per_sequence": 10,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -924,8 +924,8 @@
         "sprites_per_sequence": 10,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -939,8 +939,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -953,8 +953,8 @@
         "sprites_per_sequence": 3,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -967,8 +967,8 @@
         "sprites_per_sequence": 3,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -981,8 +981,8 @@
         "sprites_per_sequence": 3,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -995,8 +995,8 @@
         "sprites_per_sequence": 3,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1009,8 +1009,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1023,8 +1023,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1037,8 +1037,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1051,8 +1051,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1065,8 +1065,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1079,8 +1079,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1093,8 +1093,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1107,8 +1107,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1121,8 +1121,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1135,8 +1135,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1149,8 +1149,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1163,8 +1163,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1177,8 +1177,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1191,8 +1191,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1205,8 +1205,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1219,8 +1219,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1233,8 +1233,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1247,8 +1247,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1261,8 +1261,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1275,8 +1275,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1289,8 +1289,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1303,8 +1303,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1317,8 +1317,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1331,8 +1331,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1345,8 +1345,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1359,8 +1359,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1373,8 +1373,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1387,8 +1387,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1401,8 +1401,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1415,8 +1415,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1429,8 +1429,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1443,8 +1443,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1457,8 +1457,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1471,8 +1471,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1485,8 +1485,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1499,8 +1499,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1513,8 +1513,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1531,8 +1531,8 @@
         "sprites_per_sequence": 6,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1545,8 +1545,8 @@
         "sprites_per_sequence": 16,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 3,
-          "height": 3
+          "x": 3,
+          "y": 3
         }
       }
     },
@@ -1559,8 +1559,8 @@
         "sprites_per_sequence": 4,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1584,8 +1584,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1609,8 +1609,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1624,8 +1624,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1639,8 +1639,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1663,8 +1663,8 @@
         "sprites_per_frame": 1,
         "sprites_per_sequence": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1687,8 +1687,8 @@
         "sprites_per_frame": 1,
         "sprites_per_sequence": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1702,8 +1702,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 3,
-          "height": 8
+          "x": 3,
+          "y": 8
         }
       }
     },
@@ -1716,8 +1716,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 3,
-          "height": 9
+          "x": 3,
+          "y": 9
         }
       }
     },
@@ -1730,8 +1730,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 8
+          "x": 1,
+          "y": 8
         }
       }
     },
@@ -1745,8 +1745,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 2
+          "x": 1,
+          "y": 2
         }
       }
     },
@@ -1759,8 +1759,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1773,8 +1773,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1787,8 +1787,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1801,8 +1801,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     },
@@ -1817,8 +1817,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 21,
-          "height": 8
+          "x": 21,
+          "y": 8
         }
       }
     },
@@ -1832,8 +1832,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 3,
-          "height": 3
+          "x": 3,
+          "y": 3
         }
       }
     },
@@ -1848,8 +1848,8 @@
         "sprites_per_sequence": 4,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 3,
-          "height": 4
+          "x": 3,
+          "y": 4
         }
       }
     },
@@ -1871,8 +1871,8 @@
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "x": 1,
+          "y": 1
         }
       }
     }

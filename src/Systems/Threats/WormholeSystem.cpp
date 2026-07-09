@@ -87,8 +87,8 @@ std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsi
         reg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{},
         Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, current_seed );
 
-    auto &wormhole_ms = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.hazard.wormhole" );
-    Cmp::WormholeMultiBlock wormhole_block( random_pos.position, wormhole_ms.get_grid_size().componentWiseMul( Constants::kGridSizePx ) );
+    const auto &wormhole_ms = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.hazard.wormhole" );
+    Cmp::WormholeMultiBlock wormhole_block( random_pos.position, wormhole_ms.get_px_size() );
 
     // Check collisions with walls, graves, shrines
     auto is_valid = [&]() -> bool
@@ -167,8 +167,8 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
 
   // 3. set the entities obstacle component to "broken" so we have something for the shader effect
   // to mangle
-  auto &wormhole_ms = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.hazard.wormhole" );
-  Cmp::WormholeMultiBlock wormhole_block( random_pos.position, wormhole_ms.get_grid_size().componentWiseMul( Constants::kGridSizePx ) );
+  const auto &wormhole_ms = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.hazard.wormhole" );
+  Cmp::WormholeMultiBlock wormhole_block( random_pos.position, wormhole_ms.get_px_size() );
 
   auto obstacle_view = reg().view<Cmp::Position>();
   auto navmesh = m_npc_navmesh.lock();
@@ -194,8 +194,7 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
   reg().emplace<Cmp::WormholeSingularity>( center_entity );
 
   // getReg().emplace_or_replace<Cmp::WormholeSingularity>( random_entity );
-  reg().emplace_or_replace<Cmp::WormholeMultiBlock>( random_entity, random_pos.position,
-                                                     wormhole_ms.get_grid_size().componentWiseMul( Constants::kGridSizePx ) );
+  reg().emplace_or_replace<Cmp::WormholeMultiBlock>( random_entity, random_pos.position, wormhole_ms.get_px_size() );
   // clang-format off
   reg().emplace_or_replace<Cmp::AnimData>( random_entity, Cmp::AnimData::Config{  
         .sprite_type = "sprite.graveyard.hazard.wormhole",

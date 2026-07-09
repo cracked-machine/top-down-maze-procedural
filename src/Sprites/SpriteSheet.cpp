@@ -9,12 +9,12 @@ namespace Game::Sprites
 {
 
 SpriteSheet::SpriteSheet( SpriteMetaType type, std::string display_name, const std::vector<float> &zorder_list,
-                          const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size,
+                          const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks, sf::Vector2i grid_size,
                           unsigned int sprites_per_frame, unsigned int sprites_per_sequence, std::vector<bool> solid_mask )
     : m_sprite_type{ type },
       m_display_name( display_name ),
       m_zorder_list( zorder_list ),
-      m_grid_size{ static_cast<int>( grid_size.width ), static_cast<int>( grid_size.height ) },
+      m_grid_size{ grid_size },
       m_sprites_per_frame{ sprites_per_frame },
       m_sprites_per_sequence{ sprites_per_sequence },
       m_solid_mask{ std::move( solid_mask ) }
@@ -35,12 +35,12 @@ SpriteSheet::SpriteSheet( SpriteMetaType type, std::string display_name, const s
 }
 
 SpriteSheet::SpriteSheet( SpriteMetaType type, std::string display_name, const std::vector<float> &zorder_list, sf::Texture tilemap_texture,
-                          const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size, unsigned int sprites_per_frame,
+                          const std::vector<uint32_t> &tilemap_picks, sf::Vector2i grid_size, unsigned int sprites_per_frame,
                           unsigned int sprites_per_sequence, std::vector<bool> solid_mask )
     : m_sprite_type{ type },
       m_display_name( display_name ),
       m_zorder_list( zorder_list ),
-      m_grid_size{ static_cast<int>( grid_size.width ), static_cast<int>( grid_size.height ) },
+      m_grid_size{ grid_size },
       m_sprites_per_frame{ sprites_per_frame },
       m_sprites_per_sequence{ sprites_per_sequence },
       m_solid_mask{ std::move( solid_mask ) }
@@ -66,7 +66,7 @@ bool SpriteSheet::add_sprite( const std::vector<uint32_t> &tilemap_picks )
   SPDLOG_DEBUG( "{} requested {} tiles", m_sprite_type, tilemap_picks.size() );
   for ( const auto &tile_idx : tilemap_picks )
   {
-    sf::Vector2u kGridSquareSizePixels{ Constants::kGridSizePx.x * m_grid_size.width, Constants::kGridSizePx.y * m_grid_size.height };
+    sf::Vector2u kGridSquareSizePixels{ Constants::kGridSizePx.x * m_grid_size.x, Constants::kGridSizePx.y * m_grid_size.y };
 
     sf::VertexArray current_va( sf::PrimitiveType::Triangles, 6 );
 

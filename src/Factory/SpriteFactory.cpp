@@ -31,7 +31,7 @@ void SpriteFactory::init()
                         Utils::JsonDeserializer::get_float_array( spritesheet_json, "zorder" ),
                         Utils::JsonDeserializer::get_string( spritesheet_json, "texture_path" ),
                         Utils::JsonDeserializer::get_u32_array( spritesheet_json, "sprite_indices" ),
-                        SpriteSize( Utils::JsonDeserializer::get_vector2i( spritesheet_json, "grid_size" ) ),
+                        sf::Vector2i( Utils::JsonDeserializer::get_vector2i( spritesheet_json, "grid_size" ) ),
                         static_cast<unsigned int>( Utils::JsonDeserializer::get_int( spritesheet_json, "sprites_per_frame" ) ),
                         static_cast<unsigned int>( Utils::JsonDeserializer::get_int( spritesheet_json, "sprites_per_sequence" ) ),
                         Utils::JsonDeserializer::get_bool_array( spritesheet_json, "solid_mask" )

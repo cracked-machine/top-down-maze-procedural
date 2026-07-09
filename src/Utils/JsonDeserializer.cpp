@@ -168,7 +168,7 @@ sf::Vector2i JsonDeserializer::get_vector2i( const nlohmann::json &j, std::strin
 {
   check_contains( j, field, loc );
   const auto &obj = j.at( field );
-  return { get_int( obj, "width", loc ), get_int( obj, "height", loc ) };
+  return { get_int( obj, "x", loc ), get_int( obj, "y", loc ) };
 }
 
 } // namespace Game::Utils
