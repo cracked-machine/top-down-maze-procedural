@@ -164,11 +164,16 @@ std::filesystem::path JsonDeserializer::get_abs_path( const std::filesystem::pat
   return Game::Constants::res_dir / result;
 }
 
-sf::Vector2i JsonDeserializer::get_vector2i( const nlohmann::json &j, std::string field, std::source_location loc )
+sf::Vector2i JsonDeserializer::get_vector2i( const nlohmann::json &j, const std::string &field, std::source_location loc )
 {
   check_contains( j, field, loc );
   const auto &obj = j.at( field );
   return { get_int( obj, "x", loc ), get_int( obj, "y", loc ) };
+}
+
+sf::Vector2i JsonDeserializer::get_vector2i( const nlohmann::json &j, const std::string &field, sf::Vector2i default_val, std::source_location loc )
+{
+  return j.contains( field ) ? JsonDeserializer::get_vector2i( j, field, loc ) : default_val;
 }
 
 } // namespace Game::Utils

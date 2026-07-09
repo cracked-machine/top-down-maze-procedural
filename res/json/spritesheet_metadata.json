@@ -20,6 +20,11 @@
         "grid_size": {
           "x": 5,
           "y": 7
+        },
+        "exit_position" :
+        {
+          "x": 2,
+          "y": 5
         }
       }
     },

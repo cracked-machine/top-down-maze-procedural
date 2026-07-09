@@ -1,7 +1,9 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Utils/Constants.hpp>
+#include <utility>
 
 #include <spdlog/spdlog.h>
 
@@ -10,14 +12,16 @@ namespace Game::Sprites
 
 SpriteSheet::SpriteSheet( SpriteMetaType type, std::string display_name, const std::vector<float> &zorder_list,
                           const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks, sf::Vector2i grid_size,
-                          unsigned int sprites_per_frame, unsigned int sprites_per_sequence, std::vector<bool> solid_mask )
-    : m_sprite_type{ type },
-      m_display_name( display_name ),
+                          unsigned int sprites_per_frame, unsigned int sprites_per_sequence, std::vector<bool> solid_mask,
+                          sf::Vector2i exit_position )
+    : m_sprite_type{ std::move( type ) },
+      m_display_name( std::move( display_name ) ),
       m_zorder_list( zorder_list ),
       m_grid_size{ grid_size },
       m_sprites_per_frame{ sprites_per_frame },
       m_sprites_per_sequence{ sprites_per_sequence },
-      m_solid_mask{ std::move( solid_mask ) }
+      m_solid_mask{ std::move( solid_mask ) },
+      m_exit_position( exit_position )
 {
   m_tilemap_texture = std::make_unique<sf::Texture>();
   if ( !m_tilemap_texture->loadFromFile( tilemap_path ) )
@@ -36,14 +40,15 @@ SpriteSheet::SpriteSheet( SpriteMetaType type, std::string display_name, const s
 
 SpriteSheet::SpriteSheet( SpriteMetaType type, std::string display_name, const std::vector<float> &zorder_list, sf::Texture tilemap_texture,
                           const std::vector<uint32_t> &tilemap_picks, sf::Vector2i grid_size, unsigned int sprites_per_frame,
-                          unsigned int sprites_per_sequence, std::vector<bool> solid_mask )
-    : m_sprite_type{ type },
-      m_display_name( display_name ),
+                          unsigned int sprites_per_sequence, std::vector<bool> solid_mask, sf::Vector2i exit_position )
+    : m_sprite_type{ std::move( type ) },
+      m_display_name( std::move( display_name ) ),
       m_zorder_list( zorder_list ),
       m_grid_size{ grid_size },
       m_sprites_per_frame{ sprites_per_frame },
       m_sprites_per_sequence{ sprites_per_sequence },
-      m_solid_mask{ std::move( solid_mask ) }
+      m_solid_mask{ std::move( solid_mask ) },
+      m_exit_position( exit_position )
 {
   SPDLOG_DEBUG( "Loaded tilemap texture" );
   m_tilemap_texture = std::make_shared<sf::Texture>( std::move( tilemap_texture ) );

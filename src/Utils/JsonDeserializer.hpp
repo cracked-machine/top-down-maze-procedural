@@ -40,7 +40,10 @@ public:
 
   static std::filesystem::path get_abs_path( const std::filesystem::path &rel );
 
-  static sf::Vector2i get_vector2i( const nlohmann::json &j, std::string field, std::source_location loc = std::source_location::current() );
+  static sf::Vector2i get_vector2i( const nlohmann::json &j, const std::string &field, std::source_location loc = std::source_location::current() );
+
+  static sf::Vector2i get_vector2i( const nlohmann::json &j, const std::string &field, sf::Vector2i default_val,
+                                    std::source_location loc = std::source_location::current() );
 
 protected:
   ~JsonDeserializer() = default;

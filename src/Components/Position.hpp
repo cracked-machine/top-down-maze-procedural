@@ -17,6 +17,8 @@ public:
   }
   float x() { return position.x; }
   float y() { return position.y; }
+
+  Position operator+( const Position &rhs ) const { return { position + rhs.position, size }; }
 };
 
 } // namespace Game::Cmp

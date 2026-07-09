@@ -81,13 +81,12 @@ void ExitSystem::spawn_exit()
 
   Factory::add_multiblock_with_segments<Cmp::GraveExitMultiBlock, Cmp::GraveExitSegment>( reg(), selected_pos_cmp.position, kGraveExitSpritesheet );
 
-  // place the exit cmp at the bottom centre of the Cmp::GraveExitMultiBlock
-  sf::Vector2f door_grid_pos( ( kGraveExitSpritesheet.get_grid_size().x / 2 ), kGraveExitSpritesheet.get_grid_size().y - 2 );
-
   auto exit_entt = reg().create();
-  auto door_px_pos = sf::Vector2f( selected_pos_cmp.x() + ( door_grid_pos.x * Constants::kGridSizePxF.x ),
-                                   selected_pos_cmp.y() + ( door_grid_pos.y * Constants::kGridSizePxF.y ) );
-  reg().emplace_or_replace<Cmp::Position>( exit_entt, door_px_pos, Constants::kGridSizePxF );
+
+  Cmp::Position exit_px_pos_relative( kGraveExitSpritesheet.get_exit_position_f().componentWiseMul( Constants::kGridSizePxF ),
+                                      Constants::kGridSizePxF );
+  Cmp::Position exit_px_pos_abs = selected_pos_cmp + exit_px_pos_relative;
+  reg().emplace_or_replace<Cmp::Position>( exit_entt, exit_px_pos_abs.position, exit_px_pos_abs.size );
   reg().emplace_or_replace<Cmp::Exit>( exit_entt, true );
   SPDLOG_INFO( "Exit spawned at position ({}, {})", selected_pos_cmp.position.x, selected_pos_cmp.position.y );
 }
@@ -95,23 +94,16 @@ void ExitSystem::spawn_exit()
 void ExitSystem::on_player_action( Events::PlayerActionEvent ev )
 {
   auto [entt, inventory_ms] = Utils::Player::get_inventory_type( reg() );
-  if ( ev.action == Events::PlayerActionEvent::GameActions::ACTIVATE && inventory_ms == "sprite.item.exitkey" ) { check_player_can_unlock_exit(); }
+  if ( ev.action == Events::PlayerActionEvent::GameActions::ACTIVATE && inventory_ms == "sprite.item.exitkey" ) { unlock_exit(); }
 }
 
-void ExitSystem::check_player_can_unlock_exit()
+void ExitSystem::unlock_exit()
 {
   auto [inv_entt, inv_type] = Utils::Player::get_inventory_type( reg() );
   if ( not inv_type.contains( "exitkey" ) ) return;
 
   auto player_pos = Utils::Player::get_position( reg() );
   auto player_hitbox = Cmp::RectBounds::scaled( player_pos, 2.f );
-
-  // assume player should be behind the exit multiblock
-  for ( auto [exit_mb_entt, exit_mb_cmp, anim_cmp] : reg().view<Cmp::GraveExitMultiBlock, Cmp::AnimData>().each() )
-  {
-    // const auto &grave_exit_ss = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.exit.unlocked" );
-    reg().emplace_or_replace<Cmp::ZOrderValue>( exit_mb_entt, exit_mb_cmp.position.y + ( 5 * Constants::kGridSizePxF.y ) );
-  }
 
   for ( auto [entity, exit_cmp, exit_pos_cmp] : reg().view<Cmp::Exit, Cmp::Position>().each() )
   {
@@ -123,8 +115,6 @@ void ExitSystem::check_player_can_unlock_exit()
     {
       if ( not exit_pos_cmp.findIntersection( exit_mb_cmp ) ) continue;
       anim_cmp.m_sprite_type = "sprite.graveyard.exit.unlocked";
-      // if we are near exit then place exit multiblock behind the player
-      reg().emplace_or_replace<Cmp::ZOrderValue>( exit_mb_entt, exit_mb_cmp.position.y - 16.f );
 
       // remove all blocking so player can exit
       for ( auto [entity, pos_cmp] : reg().view<Cmp::Position>().each() )
@@ -137,6 +127,28 @@ void ExitSystem::check_player_can_unlock_exit()
 
     if ( m_sound_bank.get_effect( "secret" ).getStatus() == sf::Sound::Status::Stopped ) m_sound_bank.get_effect( "secret" ).play();
     Factory::destroy_inventory( reg(), "sprite.item.exitkey" );
+  }
+}
+
+void ExitSystem::update_exit_zorder()
+{
+  auto player_pos = Utils::Player::get_position( reg() );
+  auto player_hitbox = Cmp::RectBounds::scaled( player_pos, 2.f );
+
+  bool player_near_exit = false;
+  for ( auto [entity, exit_cmp, exit_pos_cmp] : reg().view<Cmp::Exit, Cmp::Position>().each() )
+  {
+    if ( player_hitbox.findIntersection( exit_pos_cmp ) )
+    {
+      player_near_exit = true;
+      break;
+    }
+  }
+
+  for ( auto [exit_mb_entt, exit_mb_cmp] : reg().view<Cmp::GraveExitMultiBlock>().each() )
+  {
+    float zorder = player_near_exit ? exit_mb_cmp.position.y - 16.f : exit_mb_cmp.position.y + ( 5 * Constants::kGridSizePxF.y );
+    reg().emplace_or_replace<Cmp::ZOrderValue>( exit_mb_entt, zorder );
   }
 }
 

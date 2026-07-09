@@ -34,7 +34,8 @@ void SpriteFactory::init()
                         sf::Vector2i( Utils::JsonDeserializer::get_vector2i( spritesheet_json, "grid_size" ) ),
                         static_cast<unsigned int>( Utils::JsonDeserializer::get_int( spritesheet_json, "sprites_per_frame" ) ),
                         static_cast<unsigned int>( Utils::JsonDeserializer::get_int( spritesheet_json, "sprites_per_sequence" ) ),
-                        Utils::JsonDeserializer::get_bool_array( spritesheet_json, "solid_mask" )
+                        Utils::JsonDeserializer::get_bool_array( spritesheet_json, "solid_mask" ),
+                        Utils::JsonDeserializer::get_vector2i( spritesheet_json, "exit_position", sf::Vector2i{} )
 
     };
 

@@ -31,10 +31,13 @@ public:
 
   //! @brief  This function is called via event trigger:
   //!         `Events::PlayerActionEvent` from `SceneInputRouter::graveyard_scene_state_handler()`
-  void check_player_can_unlock_exit();
+  void unlock_exit();
 
   //! @brief Check for player collision with open exit to complete level
   void check_exit_collision();
+
+  //! @brief Update exit multiblock z-order so it renders in front of the player unless the player is nearby
+  void update_exit_zorder();
 
 private:
   int exit_sprite_index = 6;
