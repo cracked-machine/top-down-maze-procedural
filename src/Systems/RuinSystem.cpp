@@ -14,10 +14,12 @@
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinBookcase.hpp>
+#include <Components/Ruin/RuinBuildingMultiBlock.hpp>
 #include <Components/Ruin/RuinCobweb.hpp>
 #include <Components/Ruin/RuinEntrance.hpp>
 #include <Components/Ruin/RuinFloorAccess.hpp>
 #include <Components/Ruin/RuinGateSegment.hpp>
+#include <Components/Ruin/RuinSegment.hpp>
 #include <Components/Ruin/RuinStairsBalustradeMultiBlock.hpp>
 #include <Components/Ruin/RuinStairsGateMultiBlock.hpp>
 #include <Components/Ruin/RuinStairsLowerMultiBlock.hpp>
@@ -94,6 +96,23 @@ void RuinSystem::check_entrance_collision()
     SPDLOG_INFO( "Last known graveyard position {}, {}", last_known_pos.position.x, last_known_pos.position.y );
     Factory::add_player_last_graveyard_pos( reg(), last_known_pos );
     break;
+  }
+}
+
+void RuinSystem::update_exit_zorder()
+{
+  auto player_pos = Utils::Player::get_position( reg() );
+
+  for ( auto [mb_entt, mb_cmp, mb_z_cmp] : reg().view<Cmp::RuinBuildingMultiBlock, Cmp::ZOrderValue>().each() )
+  {
+    if ( not player_pos.findIntersection( mb_cmp ) ) continue;
+    auto segment_view = reg().view<Cmp::RuinSegment, Cmp::Position, Cmp::ZOrderValue>();
+    for ( auto [segment_entt, segment_cmp, segment_pos_cmp, segment_z_cmp] : segment_view.each() )
+    {
+      if ( not player_pos.findIntersection( segment_pos_cmp ) ) continue;
+      mb_z_cmp.setZOrder( segment_z_cmp.getZOrder() );
+      SPDLOG_DEBUG( "Updated zorder to {}", segment_z_cmp.getZOrder() );
+    }
   }
 }
 

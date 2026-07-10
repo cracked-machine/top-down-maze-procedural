@@ -1,10 +1,10 @@
 #ifndef SRC_SYSTEMS_CRYPTSYSTEM_HPP__
 #define SRC_SYSTEMS_CRYPTSYSTEM_HPP__
 
-#include <Utils/Crypt.hpp>
 #include <Events/CryptRoomEvent.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
+#include <Utils/Crypt.hpp>
 
 #include <Events/ResumeClocksEvent.hpp>
 #include <Factory/ObstacleFactory.hpp>
@@ -53,6 +53,8 @@ public:
   //! @brief Handle crypt room events
   //! @param event
   void on_room_event( Events::CryptRoomEvent &event );
+
+  void update_exit_zorder();
 
   //! @brief Check for collisions with the entrance
   void check_entrance_collision();

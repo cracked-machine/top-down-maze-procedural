@@ -119,7 +119,7 @@ void update_segments( entt::registry &registry, const Sprites::SpriteSheet &ms, 
 template <typename MULTIBLOCK, typename MBSEGMENT>
   requires IsMB<MULTIBLOCK> && IsMBSegment<MBSEGMENT>
 std::vector<entt::entity> create_multiblock_segments( entt::registry &registry, entt::entity multiblock_entity, Cmp::Position mb_pos_cmp,
-                                                      const Sprites::SpriteSheet &ms )
+                                                      const Sprites::SpriteSheet &ss )
 {
   std::vector<entt::entity> created_entts;
 
@@ -128,6 +128,8 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &registry, 
                 mb_pos_cmp.position.y );
 
   auto pos_view = registry.view<Cmp::Position>();
+
+  std::size_t door_grid_index = static_cast<std::size_t>( ( ss.get_door_position().y * ss.get_grid_size().x ) + ss.get_door_position().x );
 
   [[maybe_unused]] int intersection_count = 0;
   for ( auto [entity, pos_cmp] : pos_view.each() )
@@ -158,17 +160,15 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &registry, 
     int rel_grid_x = static_cast<int>( rel_x / Constants::kGridSizePx.x );
     int rel_grid_y = static_cast<int>( rel_y / Constants::kGridSizePx.y );
 
-    std::size_t calculated_grid_index = ( rel_grid_y * ms.get_grid_size().x ) + rel_grid_x;
+    std::size_t calculated_grid_index = ( rel_grid_y * ss.get_grid_size().x ) + rel_grid_x;
     SPDLOG_DEBUG( "  - Creating segment at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
 
     registry.emplace_or_replace<MBSEGMENT>( entity, true );
     registry.emplace_or_replace<Cmp::Armable>( entity );
 
-    // NOTE that this is a bit shit: hardcoded door placement for crypts.
-    // If we add new MultiBlock sprites with 9+ segments they might suddenly sprout CryptDoors
     if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::CryptMultiBlock> )
     {
-      if ( calculated_grid_index == 10 )
+      if ( calculated_grid_index == door_grid_index )
       {
         registry.emplace_or_replace<Cmp::CryptEntrance>( entity );
         SPDLOG_DEBUG( "Adding Cmp::CryptEntrance at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
@@ -176,7 +176,7 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &registry, 
     }
     else if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::HolyWellMultiBlock> )
     {
-      if ( calculated_grid_index == 10 )
+      if ( calculated_grid_index == door_grid_index )
       {
         registry.emplace_or_replace<Cmp::HollyWellEntrance>( entity );
         SPDLOG_DEBUG( "Adding Cmp::HollyWellEntrance at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y,
@@ -185,7 +185,7 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &registry, 
     }
     else if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::RuinBuildingMultiBlock> )
     {
-      if ( calculated_grid_index == 29 )
+      if ( calculated_grid_index == door_grid_index )
       {
         registry.emplace_or_replace<Cmp::RuinEntrance>( entity );
         SPDLOG_DEBUG( "Adding Cmp::RuinEntrance at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
@@ -198,7 +198,7 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &registry, 
     SPDLOG_DEBUG( "Processed {} intersecting entities for multiblock {}", intersection_count, typeid( MULTIBLOCK ).name() );
   }
 
-  update_segments<MULTIBLOCK, MBSEGMENT>( registry, ms, multiblock_entity, new_multiblock_bounds );
+  update_segments<MULTIBLOCK, MBSEGMENT>( registry, ss, multiblock_entity, new_multiblock_bounds );
 
   return created_entts;
 }

@@ -39,6 +39,7 @@ public:
   void init( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh ) { m_pathfinding_navmesh = pathfinding_navmesh; }
 
   void check_entrance_collision();
+  void update_exit_zorder();
   void spawn_floor_access( sf::Vector2f spawn_position, sf::Vector2f size, Cmp::RuinFloorAccess::Direction dir );
 
   void creaking_rope_update();

@@ -42,6 +42,23 @@ void HolyWellSystem::on_player_action( Events::PlayerActionEvent ev )
   check_inventory_deposit();
 }
 
+void HolyWellSystem::update_exit_zorder()
+{
+  auto player_pos = Utils::Player::get_position( reg() );
+
+  for ( auto [mb_entt, mb_cmp, mb_z_cmp] : reg().view<Cmp::HolyWellMultiBlock, Cmp::ZOrderValue>().each() )
+  {
+    if ( not player_pos.findIntersection( mb_cmp ) ) continue;
+    auto segment_view = reg().view<Cmp::HolyWellSegment, Cmp::Position, Cmp::ZOrderValue>();
+    for ( auto [segment_entt, segment_cmp, segment_pos_cmp, segment_z_cmp] : segment_view.each() )
+    {
+      if ( not player_pos.findIntersection( segment_pos_cmp ) ) continue;
+      mb_z_cmp.setZOrder( segment_z_cmp.getZOrder() );
+      SPDLOG_DEBUG( "Updated zorder to {}", segment_z_cmp.getZOrder() );
+    }
+  }
+}
+
 void HolyWellSystem::check_entrance_collision()
 {
   auto player_pos = Utils::Player::get_position( reg() );

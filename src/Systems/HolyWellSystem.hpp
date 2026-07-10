@@ -23,6 +23,8 @@ public:
 
   void add_well_ms( sf::Vector2u spawn_position );
 
+  void update_exit_zorder();
+
   //! @brief Check for collisions with the entrance
   void check_entrance_collision();
   void check_exit_collision();
