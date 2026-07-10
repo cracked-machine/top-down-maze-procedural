@@ -46,7 +46,7 @@ ExitSystem::ExitSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::
   std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&ExitSystem::on_player_action>( this );
 }
 
-void ExitSystem::spawn_exit()
+void ExitSystem::create_exit()
 {
   entt::entity selected_entity = entt::null;
   Cmp::Position selected_pos_cmp( { 0, 0 }, { 0, 0 } );
@@ -83,7 +83,7 @@ void ExitSystem::spawn_exit()
 
   auto exit_entt = reg().create();
 
-  Cmp::Position exit_px_pos_relative( kGraveExitSpritesheet.get_exit_position_f().componentWiseMul( Constants::kGridSizePxF ),
+  Cmp::Position exit_px_pos_relative( kGraveExitSpritesheet.get_door_position_f().componentWiseMul( Constants::kGridSizePxF ),
                                       Constants::kGridSizePxF );
   Cmp::Position exit_px_pos_abs = selected_pos_cmp + exit_px_pos_relative;
   reg().emplace_or_replace<Cmp::Position>( exit_entt, exit_px_pos_abs.position, exit_px_pos_abs.size );
@@ -103,7 +103,7 @@ void ExitSystem::unlock_exit()
   if ( not inv_type.contains( "exitkey" ) ) return;
 
   auto player_pos = Utils::Player::get_position( reg() );
-  auto player_hitbox = Cmp::RectBounds::scaled( player_pos, 2.f );
+  auto player_hitbox = Cmp::RectBounds::scaled( player_pos, 5.f );
 
   for ( auto [entity, exit_cmp, exit_pos_cmp] : reg().view<Cmp::Exit, Cmp::Position>().each() )
   {
@@ -115,14 +115,8 @@ void ExitSystem::unlock_exit()
     {
       if ( not exit_pos_cmp.findIntersection( exit_mb_cmp ) ) continue;
       anim_cmp.m_sprite_type = "sprite.graveyard.exit.unlocked";
-
-      // remove all blocking so player can exit
-      for ( auto [entity, pos_cmp] : reg().view<Cmp::Position>().each() )
-      {
-        if ( not exit_pos_cmp.findIntersection( pos_cmp ) ) continue;
-        reg().remove<Cmp::PlayerNoPath>( entity );
-      }
-      break;
+      Factory::detail::update_segments<Cmp::GraveExitMultiBlock, Cmp::GraveExitSegment>(
+          reg(), m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.exit.unlocked" ), exit_mb_entt, exit_mb_cmp );
     }
 
     if ( m_sound_bank.get_effect( "secret" ).getStatus() == sf::Sound::Status::Stopped ) m_sound_bank.get_effect( "secret" ).play();
@@ -133,34 +127,31 @@ void ExitSystem::unlock_exit()
 void ExitSystem::update_exit_zorder()
 {
   auto player_pos = Utils::Player::get_position( reg() );
-  auto player_hitbox = Cmp::RectBounds::scaled( player_pos, 2.f );
 
-  bool player_near_exit = false;
-  for ( auto [entity, exit_cmp, exit_pos_cmp] : reg().view<Cmp::Exit, Cmp::Position>().each() )
+  for ( auto [mb_entt, mb_cmp, mb_z_cmp] : reg().view<Cmp::GraveExitMultiBlock, Cmp::ZOrderValue>().each() )
   {
-    if ( player_hitbox.findIntersection( exit_pos_cmp ) )
+    if ( not player_pos.findIntersection( mb_cmp ) ) continue;
+    auto segment_view = reg().view<Cmp::GraveExitSegment, Cmp::Position, Cmp::ZOrderValue>();
+    for ( auto [segment_entt, segment_cmp, segment_pos_cmp, segment_z_cmp] : segment_view.each() )
     {
-      player_near_exit = true;
-      break;
+      if ( not player_pos.findIntersection( segment_pos_cmp ) ) continue;
+      mb_z_cmp.setZOrder( segment_z_cmp.getZOrder() );
+      SPDLOG_DEBUG( "Updated zorder to {}", segment_z_cmp.getZOrder() );
     }
-  }
-
-  for ( auto [exit_mb_entt, exit_mb_cmp] : reg().view<Cmp::GraveExitMultiBlock>().each() )
-  {
-    float zorder = player_near_exit ? exit_mb_cmp.position.y - 16.f : exit_mb_cmp.position.y + ( 5 * Constants::kGridSizePxF.y );
-    reg().emplace_or_replace<Cmp::ZOrderValue>( exit_mb_entt, zorder );
   }
 }
 
 void ExitSystem::check_exit_collision()
 {
+
   auto exit_view = reg().view<Cmp::Exit, Cmp::Position>();
   for ( auto [entity, exit_cmp, exit_pos_cmp] : exit_view.each() )
   {
     if ( exit_cmp.m_locked ) { return; }
 
-    auto pc_pos_cmp = Utils::Player::get_position( reg() );
-    if ( pc_pos_cmp.findIntersection( exit_pos_cmp ) )
+    // allow the player to reach the exit from the front but not the back
+    Cmp::Position adjusted_exit_pos( { exit_pos_cmp.x(), exit_pos_cmp.y() + 8 }, exit_pos_cmp.size );
+    if ( Utils::Player::get_position( reg() ).findIntersection( adjusted_exit_pos ) )
     {
       SPDLOG_INFO( "Player reached the exit zone!" );
       Utils::get_system_cmp( reg() ).level_complete = true;

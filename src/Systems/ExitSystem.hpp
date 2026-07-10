@@ -10,6 +10,7 @@
 namespace Game::Sys
 {
 
+//! @brief Graveyard exit only
 class ExitSystem : public BaseSystem
 {
 public:
@@ -27,7 +28,7 @@ public:
 
   //! @brief Create the exit in the game area
   //! @param spawn_position
-  void spawn_exit();
+  void create_exit();
 
   //! @brief  This function is called via event trigger:
   //!         `Events::PlayerActionEvent` from `SceneInputRouter::graveyard_scene_state_handler()`
@@ -36,7 +37,7 @@ public:
   //! @brief Check for player collision with open exit to complete level
   void check_exit_collision();
 
-  //! @brief Update exit multiblock z-order so it renders in front of the player unless the player is nearby
+  //! @brief Update exit multiblock z-order using the segment zorder.
   void update_exit_zorder();
 
 private:

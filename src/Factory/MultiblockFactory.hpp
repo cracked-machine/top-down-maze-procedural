@@ -81,6 +81,43 @@ void create_multiblock( entt::registry &reg, entt::entity entity, Cmp::Position 
 
 template <typename MULTIBLOCK, typename MBSEGMENT>
   requires IsMB<MULTIBLOCK> && IsMBSegment<MBSEGMENT>
+void update_segments( entt::registry &registry, const Sprites::SpriteSheet &ms, [[maybe_unused]] entt::entity mb_entt, MULTIBLOCK mb_cmp )
+{
+  auto solid_masks = ms.get_solid_mask();
+
+  for ( auto [entity, segment_cmp, pos_cmp] : registry.view<MBSEGMENT, Cmp::Position>().each() )
+  {
+    if ( not pos_cmp.findIntersection( mb_cmp ) ) continue;
+
+    float rel_x = pos_cmp.position.x - mb_cmp.position.x;
+    float rel_y = pos_cmp.position.y - mb_cmp.position.y;
+
+    int rel_grid_x = static_cast<int>( rel_x / Constants::kGridSizePx.x );
+    int rel_grid_y = static_cast<int>( rel_y / Constants::kGridSizePx.y );
+
+    std::size_t calculated_grid_index = ( rel_grid_y * ms.get_grid_size().x ) + rel_grid_x;
+
+    bool new_solid_mask = true;
+    if ( not solid_masks.empty() && solid_masks.size() > calculated_grid_index ) { new_solid_mask = solid_masks.at( calculated_grid_index ); }
+
+    segment_cmp.set_solid_mask( new_solid_mask );
+    registry.emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y + ms.get_zorder( calculated_grid_index ) );
+
+    if ( new_solid_mask )
+    {
+      registry.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
+      registry.emplace_or_replace<Cmp::PlayerNoPath>( entity );
+    }
+    else
+    {
+      registry.remove<Cmp::NpcNoPathFinding>( entity );
+      registry.remove<Cmp::PlayerNoPath>( entity );
+    }
+  }
+}
+
+template <typename MULTIBLOCK, typename MBSEGMENT>
+  requires IsMB<MULTIBLOCK> && IsMBSegment<MBSEGMENT>
 std::vector<entt::entity> create_multiblock_segments( entt::registry &registry, entt::entity multiblock_entity, Cmp::Position mb_pos_cmp,
                                                       const Sprites::SpriteSheet &ms )
 {
@@ -124,22 +161,8 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &registry, 
     std::size_t calculated_grid_index = ( rel_grid_y * ms.get_grid_size().x ) + rel_grid_x;
     SPDLOG_DEBUG( "  - Creating segment at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
 
-    bool new_solid_mask = true;
-    auto solid_masks = ms.get_solid_mask();
-    if ( !solid_masks.empty() && solid_masks.size() > calculated_grid_index )
-    {
-      new_solid_mask = solid_masks.at( calculated_grid_index );
-
-      if ( new_solid_mask )
-      {
-        registry.emplace_or_replace<MBSEGMENT>( entity, new_solid_mask );
-        registry.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
-        registry.emplace_or_replace<Cmp::PlayerNoPath>( entity );
-      }
-    }
+    registry.emplace_or_replace<MBSEGMENT>( entity, true );
     registry.emplace_or_replace<Cmp::Armable>( entity );
-    SPDLOG_DEBUG( "Modifying entity {}, sprite type {}, zorder to {}", static_cast<int>( entity ), ms.get_sprite_type(),
-                  pos_cmp.position.y + ms.getSpriteSizePixels().y );
 
     // NOTE that this is a bit shit: hardcoded door placement for crypts.
     // If we add new MultiBlock sprites with 9+ segments they might suddenly sprout CryptDoors
@@ -174,6 +197,8 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &registry, 
 
     SPDLOG_DEBUG( "Processed {} intersecting entities for multiblock {}", intersection_count, typeid( MULTIBLOCK ).name() );
   }
+
+  update_segments<MULTIBLOCK, MBSEGMENT>( registry, ms, multiblock_entity, new_multiblock_bounds );
 
   return created_entts;
 }

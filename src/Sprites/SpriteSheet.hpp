@@ -31,11 +31,11 @@ public:
   //! @param sprites_per_frame
   //! @param sprites_per_sequence
   //! @param solid_mask
-  //! @param exit_position
+  //! @param door_position
   explicit SpriteSheet( SpriteMetaType type, std::string display_name, const std::vector<float> &zorder_list,
                         const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks, sf::Vector2i grid_size = { 1, 1 },
                         unsigned int sprites_per_frame = 1, unsigned int sprites_per_sequence = 1, std::vector<bool> solid_mask = {},
-                        sf::Vector2i exit_position = {} );
+                        sf::Vector2i door_position = {} );
 
   //! @brief Construct a new Multi Sprite object using texture object
   //! @param type
@@ -47,10 +47,10 @@ public:
   //! @param sprites_per_frame
   //! @param sprites_per_sequence
   //! @param solid_mask
-  //! @param exit_position
+  //! @param door_position
   explicit SpriteSheet( SpriteMetaType type, std::string display_name, const std::vector<float> &zorder_list, sf::Texture tilemap_texture,
                         const std::vector<uint32_t> &tilemap_picks, sf::Vector2i grid_size = { 1, 1 }, unsigned int sprites_per_frame = 1,
-                        unsigned int sprites_per_sequence = 1, std::vector<bool> solid_mask = {}, sf::Vector2i exit_position = {} );
+                        unsigned int sprites_per_sequence = 1, std::vector<bool> solid_mask = {}, sf::Vector2i door_position = {} );
 
   SpriteSheet( SpriteSheet && ) = default;
   SpriteSheet &operator=( SpriteSheet && ) = default;
@@ -80,8 +80,8 @@ public:
   //! @return const std::vector<bool>&
   [[nodiscard]] const std::vector<bool> &get_solid_mask() const { return m_solid_mask; }
 
-  [[nodiscard]] sf::Vector2i get_exit_position() const { return m_exit_position; }
-  [[nodiscard]] sf::Vector2f get_exit_position_f() const { return sf::Vector2f( m_exit_position ); }
+  [[nodiscard]] sf::Vector2i get_door_position() const { return m_door_position; }
+  [[nodiscard]] sf::Vector2f get_door_position_f() const { return sf::Vector2f( m_door_position ); }
 
   //! @brief Get the texture object
   //! @return const sf::Texture&
@@ -154,7 +154,7 @@ private:
   //! @brief Indicates which 'sprite_indices' the player cannot traverse. Array size must match sprite_indices size.
   std::vector<bool> m_solid_mask;
 
-  sf::Vector2i m_exit_position;
+  sf::Vector2i m_door_position;
 };
 
 } // namespace Game::Sprites
