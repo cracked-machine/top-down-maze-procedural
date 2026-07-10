@@ -13,8 +13,6 @@
 #include <Components/Exit.hpp>
 #include <Components/Grave/GraveMultiBlock.hpp>
 #include <Components/Grave/GraveSegment.hpp>
-#include <Components/HolyWell/WellBuildingMultiBlock.hpp>
-#include <Components/HolyWell/WellBuildingSegment.hpp>
 #include <Components/Moveable.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
@@ -36,6 +34,8 @@
 #include <Components/Ruin/RuneMarking.hpp>
 #include <Components/SpawnArea.hpp>
 #include <Components/Wall.hpp>
+#include <Components/Well/WellBuildingMultiBlock.hpp>
+#include <Components/Well/WellBuildingSegment.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/CreateItemEvent.hpp>
 #include <Factory/CryptFactory.hpp>

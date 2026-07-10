@@ -2,7 +2,6 @@
 #include <Components/Altar/AltarMultiBlock.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Grave/GraveMultiBlock.hpp>
-#include <Components/HolyWell/WellBuildingMultiBlock.hpp>
 #include <Components/Inventory/Grimoire.hpp>
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/LerpPosition.hpp>
@@ -21,6 +20,7 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinBuildingMultiBlock.hpp>
 #include <Components/UUID.hpp>
+#include <Components/Well/WellBuildingMultiBlock.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/ParticleFactory.hpp>

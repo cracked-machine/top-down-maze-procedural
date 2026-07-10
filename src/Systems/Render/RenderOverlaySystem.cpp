@@ -17,8 +17,6 @@
 #include <Components/Hazard/CorruptionCell.hpp>
 #include <Components/Hazard/HazardFieldCell.hpp>
 #include <Components/Hazard/SinkholeCell.hpp>
-#include <Components/HolyWell/HolyWellEntrance.hpp>
-#include <Components/HolyWell/WellBuildingSegment.hpp>
 #include <Components/Inventory/FlashUICadaver.hpp>
 #include <Components/Inventory/FlashUIInventory.hpp>
 #include <Components/Inventory/FlashUIRadius.hpp>
@@ -50,6 +48,8 @@
 #include <Components/Shop/ShopInventory.hpp>
 #include <Components/VoidPosition.hpp>
 #include <Components/Wall.hpp>
+#include <Components/Well/WellBuildingSegment.hpp>
+#include <Components/Well/WellEntrance.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <PathFinding/AStar.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
@@ -781,7 +781,7 @@ void RenderOverlaySystem::render_ui_entity_inspect()
       if ( reg().all_of<Cmp::WellBuildingSegment>( entity ) ) draw_line( " HolyWellSegment", sf::Color::Cyan );
       if ( reg().all_of<Cmp::CryptEntrance>( entity ) ) draw_line( " CryptEntrance", sf::Color::Cyan );
       if ( reg().all_of<Cmp::RuinEntrance>( entity ) ) draw_line( " CryptEntrance", sf::Color::Cyan );
-      if ( reg().all_of<Cmp::HollyWellEntrance>( entity ) ) draw_line( " HollyWellEntrance", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::WellEntrance>( entity ) ) draw_line( " HollyWellEntrance", sf::Color::Cyan );
 
       if ( auto *cmp = reg().try_get<Cmp::UUID>( entity ) ) draw_line( " " + cmp->str(), sf::Color::White );
 

@@ -1,5 +1,5 @@
-#ifndef SRC_COMPONENTS_HOLYWELL_HOLYWELLMULTIBLOCK_HPP__
-#define SRC_COMPONENTS_HOLYWELL_HOLYWELLMULTIBLOCK_HPP__
+#ifndef SRC_COMPONENTS_WELL_WELLBUILDINGMULTIBLOCK_HPP__
+#define SRC_COMPONENTS_WELL_WELLBUILDINGMULTIBLOCK_HPP__
 
 #include <SFML/Graphics/RectangleShape.hpp>
 
@@ -8,8 +8,8 @@
 namespace Game::Cmp
 {
 
-// HolyWellMultiBlock component represents a multi-block sprite defined geometrically as a rectangle
-// It can be used to find its HolyWellSegment parts and track overall activation state
+// WellMultiBlock component represents a multi-block sprite defined geometrically as a rectangle
+// It can be used to find its WellSegment parts and track overall activation state
 // NOTE: This is used for both exterior well buildings and the interior well itself
 class WellBuildingMultiBlock : public sf::FloatRect
 {
@@ -22,4 +22,4 @@ public:
 
 } // namespace Game::Cmp
 
-#endif // SRC_COMPONENTS_HOLYWELL_HOLYWELLMULTIBLOCK_HPP__
+#endif // SRC_COMPONENTS_WELL_WELLBUILDINGMULTIBLOCK_HPP__

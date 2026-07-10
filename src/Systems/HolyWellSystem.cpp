@@ -1,8 +1,5 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/Exit.hpp>
-#include <Components/HolyWell/HolyWellEntrance.hpp>
-#include <Components/HolyWell/WellBuildingMultiBlock.hpp>
-#include <Components/HolyWell/WellBuildingSegment.hpp>
 #include <Components/Inventory/FlashUIWealth.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
@@ -11,6 +8,9 @@
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/Wall.hpp>
+#include <Components/Well/WellBuildingMultiBlock.hpp>
+#include <Components/Well/WellBuildingSegment.hpp>
+#include <Components/Well/WellEntrance.hpp>
 #include <Events/DropInventoryEvent.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
@@ -62,7 +62,7 @@ void HolyWellSystem::update_exit_zorder()
 void HolyWellSystem::check_entrance_collision()
 {
   auto player_pos = Utils::Player::get_position( reg() );
-  auto door_view = reg().view<Cmp::HollyWellEntrance, Cmp::Position>();
+  auto door_view = reg().view<Cmp::WellEntrance, Cmp::Position>();
 
   for ( auto [door_entity, door_cmp, door_pos_cmp] : door_view.each() )
   {

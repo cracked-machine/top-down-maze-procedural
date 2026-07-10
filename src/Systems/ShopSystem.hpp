@@ -1,8 +1,8 @@
 #ifndef SRC_SYSTEMS_SHOPSYSTEM_HPP__
 #define SRC_SYSTEMS_SHOPSYSTEM_HPP__
 
-#include <Components/HolyWell/WellBuildingMultiBlock.hpp>
 #include <Components/Shop/ShopInventory.hpp>
+#include <Components/Well/WellBuildingMultiBlock.hpp>
 #include <Events/BuyShopItemEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Systems/BaseSystem.hpp>

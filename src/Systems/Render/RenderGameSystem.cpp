@@ -19,7 +19,6 @@
 #include <Components/Crypt/CryptRoomStart.hpp>
 #include <Components/Exit.hpp>
 #include <Components/Grave/GraveMultiBlock.hpp>
-#include <Components/HolyWell/WellBuildingMultiBlock.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/LastDirection.hpp>
@@ -43,6 +42,7 @@
 #include <Components/SelectedPosition.hpp>
 #include <Components/System.hpp>
 #include <Components/Wall.hpp>
+#include <Components/Well/WellBuildingMultiBlock.hpp>
 #include <Components/Wormhole/WormholeMultiBlock.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>

@@ -16,9 +16,6 @@
 #include <Components/Grave/GraveExitMultiBlock.hpp>
 #include <Components/Grave/GraveMultiBlock.hpp>
 #include <Components/Grave/GraveSegment.hpp>
-#include <Components/HolyWell/HolyWellEntrance.hpp>
-#include <Components/HolyWell/WellBuildingMultiBlock.hpp>
-#include <Components/HolyWell/WellBuildingSegment.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Player/PlayerNoPath.hpp>
 #include <Components/Position.hpp>
@@ -28,6 +25,9 @@
 #include <Components/Ruin/RuinEntrance.hpp>
 #include <Components/Ruin/RuinStairsSegment.hpp>
 #include <Components/UUID.hpp>
+#include <Components/Well/WellBuildingMultiBlock.hpp>
+#include <Components/Well/WellBuildingSegment.hpp>
+#include <Components/Well/WellEntrance.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -180,7 +180,7 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &registry, 
     {
       if ( calculated_grid_index == door_grid_index )
       {
-        registry.emplace_or_replace<Cmp::HollyWellEntrance>( entity );
+        registry.emplace_or_replace<Cmp::WellEntrance>( entity );
         SPDLOG_DEBUG( "Adding Cmp::HollyWellEntrance at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y,
                       calculated_grid_index );
       }

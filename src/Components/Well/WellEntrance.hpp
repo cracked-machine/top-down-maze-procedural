@@ -1,14 +1,14 @@
-#ifndef SRC_COMPONENTS_HOLYWELL_HOLYWELLENTRANCE_HPP__
-#define SRC_COMPONENTS_HOLYWELL_HOLYWELLENTRANCE_HPP__
+#ifndef SRC_COMPONENTS_WELL_WELLENTRANCE_HPP__
+#define SRC_COMPONENTS_WELL_WELLENTRANCE_HPP__
 
 namespace Game::Cmp
 {
 
 // Used for collision detection on crypt doors
-class HollyWellEntrance
+class WellEntrance
 {
 public:
-  HollyWellEntrance( bool is_open = false )
+  WellEntrance( bool is_open = false )
       : m_is_open( is_open )
   {
   }
@@ -23,4 +23,4 @@ private:
 
 } // namespace Game::Cmp
 
-#endif // SRC_COMPONENTS_HOLYWELL_HOLYWELLENTRANCE_HPP__
+#endif // SRC_COMPONENTS_WELL_WELLENTRANCE_HPP__

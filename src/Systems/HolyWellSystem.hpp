@@ -1,7 +1,7 @@
 #ifndef SRC_SYSTEMS_HOLYWELLSYSTEM_HPP__
 #define SRC_SYSTEMS_HOLYWELLSYSTEM_HPP__
 
-#include <Components/HolyWell/WellBuildingMultiBlock.hpp>
+#include <Components/Well/WellBuildingMultiBlock.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Systems/BaseSystem.hpp>
 
