@@ -80,14 +80,6 @@ void ExitSystem::create_exit()
   Factory::remove_obstacle( reg(), selected_entity, true );
 
   Factory::add_multiblock_with_segments<Cmp::GraveExitMultiBlock, Cmp::GraveExitSegment>( reg(), selected_pos_cmp.position, kGraveExitSpritesheet );
-
-  auto exit_entt = reg().create();
-
-  Cmp::Position exit_px_pos_relative( kGraveExitSpritesheet.get_door_position_f().componentWiseMul( Constants::kGridSizePxF ),
-                                      Constants::kGridSizePxF );
-  Cmp::Position exit_px_pos_abs = selected_pos_cmp + exit_px_pos_relative;
-  reg().emplace_or_replace<Cmp::Position>( exit_entt, exit_px_pos_abs.position, exit_px_pos_abs.size );
-  reg().emplace_or_replace<Cmp::Exit>( exit_entt, true );
   SPDLOG_INFO( "Exit spawned at position ({}, {})", selected_pos_cmp.position.x, selected_pos_cmp.position.y );
 }
 

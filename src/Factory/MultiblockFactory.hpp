@@ -12,6 +12,8 @@
 #include <Components/Crypt/CryptInteriorSegment.hpp>
 #include <Components/Crypt/CryptObjectiveMultiBlock.hpp>
 #include <Components/Crypt/CryptObjectiveSegment.hpp>
+#include <Components/Exit.hpp>
+#include <Components/Grave/GraveExitMultiBlock.hpp>
 #include <Components/Grave/GraveMultiBlock.hpp>
 #include <Components/Grave/GraveSegment.hpp>
 #include <Components/HolyWell/HolyWellEntrance.hpp>
@@ -189,6 +191,14 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &registry, 
       {
         registry.emplace_or_replace<Cmp::RuinEntrance>( entity );
         SPDLOG_DEBUG( "Adding Cmp::RuinEntrance at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
+      }
+    }
+    else if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::GraveExitMultiBlock> )
+    {
+      if ( calculated_grid_index == door_grid_index )
+      {
+        registry.emplace_or_replace<Cmp::Exit>( entity );
+        SPDLOG_DEBUG( "Adding Cmp::Exit at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
       }
     }
 
