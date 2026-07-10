@@ -2,7 +2,7 @@
 #include <Components/Altar/AltarMultiBlock.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Grave/GraveMultiBlock.hpp>
-#include <Components/HolyWell/HolyWellMultiBlock.hpp>
+#include <Components/HolyWell/WellBuildingMultiBlock.hpp>
 #include <Components/Inventory/Grimoire.hpp>
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/LerpPosition.hpp>

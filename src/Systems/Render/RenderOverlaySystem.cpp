@@ -2,12 +2,12 @@
 #include <Components/AnimData.hpp>
 #include <Components/Armable.hpp>
 #include <Components/Armed.hpp>
+#include <Components/Crypt/CryptBuildingSegment.hpp>
 #include <Components/Crypt/CryptEntrance.hpp>
 #include <Components/Crypt/CryptPassageBlock.hpp>
 #include <Components/Crypt/CryptPassageDoor.hpp>
 #include <Components/Crypt/CryptRoomLavaPit.hpp>
 #include <Components/Crypt/CryptRoomLavaPitCell.hpp>
-#include <Components/Crypt/CryptSegment.hpp>
 #include <Components/Crypt/CryptShuffleTimer.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Exit.hpp>
@@ -18,7 +18,7 @@
 #include <Components/Hazard/HazardFieldCell.hpp>
 #include <Components/Hazard/SinkholeCell.hpp>
 #include <Components/HolyWell/HolyWellEntrance.hpp>
-#include <Components/HolyWell/HolyWellSegment.hpp>
+#include <Components/HolyWell/WellBuildingSegment.hpp>
 #include <Components/Inventory/FlashUICadaver.hpp>
 #include <Components/Inventory/FlashUIInventory.hpp>
 #include <Components/Inventory/FlashUIRadius.hpp>
@@ -43,9 +43,9 @@
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
+#include <Components/Ruin/RuinBuildingSegment.hpp>
 #include <Components/Ruin/RuinCobweb.hpp>
 #include <Components/Ruin/RuinEntrance.hpp>
-#include <Components/Ruin/RuinSegment.hpp>
 #include <Components/SelectedPosition.hpp>
 #include <Components/Shop/ShopInventory.hpp>
 #include <Components/VoidPosition.hpp>
@@ -776,9 +776,9 @@ void RenderOverlaySystem::render_ui_entity_inspect()
       if ( reg().all_of<Cmp::GraveExitSegment>( entity ) ) draw_line( " GraveExitSegment", sf::Color::Cyan );
       if ( reg().all_of<Cmp::GraveSegment>( entity ) ) draw_line( " GraveSegment", sf::Color::Cyan );
       if ( reg().all_of<Cmp::AltarSegment>( entity ) ) draw_line( " AltarSegment", sf::Color::Cyan );
-      if ( reg().all_of<Cmp::CryptSegment>( entity ) ) draw_line( " CryptSegment", sf::Color::Cyan );
-      if ( reg().all_of<Cmp::RuinSegment>( entity ) ) draw_line( " RuinSegment", sf::Color::Cyan );
-      if ( reg().all_of<Cmp::HolyWellSegment>( entity ) ) draw_line( " HolyWellSegment", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::CryptBuildingSegment>( entity ) ) draw_line( " CryptSegment", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::RuinBuildingSegment>( entity ) ) draw_line( " RuinSegment", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::WellBuildingSegment>( entity ) ) draw_line( " HolyWellSegment", sf::Color::Cyan );
       if ( reg().all_of<Cmp::CryptEntrance>( entity ) ) draw_line( " CryptEntrance", sf::Color::Cyan );
       if ( reg().all_of<Cmp::RuinEntrance>( entity ) ) draw_line( " CryptEntrance", sf::Color::Cyan );
       if ( reg().all_of<Cmp::HollyWellEntrance>( entity ) ) draw_line( " HollyWellEntrance", sf::Color::Cyan );

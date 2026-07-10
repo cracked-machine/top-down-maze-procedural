@@ -11,10 +11,10 @@ namespace Game::Cmp
 // HolyWellMultiBlock component represents a multi-block sprite defined geometrically as a rectangle
 // It can be used to find its HolyWellSegment parts and track overall activation state
 // NOTE: This is used for both exterior well buildings and the interior well itself
-class HolyWellMultiBlock : public sf::FloatRect
+class WellBuildingMultiBlock : public sf::FloatRect
 {
 public:
-  HolyWellMultiBlock( const sf::Vector2f &position, const sf::Vector2f &size )
+  WellBuildingMultiBlock( const sf::Vector2f &position, const sf::Vector2f &size )
       : sf::FloatRect( position, size )
   {
   }

@@ -3,7 +3,7 @@
 #include <Components/AnimData.hpp>
 #include <Components/Armable.hpp>
 #include <Components/Armed.hpp>
-#include <Components/Crypt/CryptSegment.hpp>
+#include <Components/Crypt/CryptBuildingSegment.hpp>
 #include <Components/DeathPosition.hpp>
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/Exit.hpp>

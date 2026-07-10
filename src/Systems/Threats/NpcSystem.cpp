@@ -1,8 +1,8 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/Altar/AltarSegment.hpp>
 #include <Components/AnimData.hpp>
+#include <Components/Crypt/CryptBuildingSegment.hpp>
 #include <Components/Crypt/CryptObjectiveSegment.hpp>
-#include <Components/Crypt/CryptSegment.hpp>
 #include <Components/Direction.hpp>
 #include <Components/FootStepTimer.hpp>
 #include <Components/Grave/GraveExitSegment.hpp>
@@ -27,7 +27,7 @@
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
-#include <Components/Ruin/RuinSegment.hpp>
+#include <Components/Ruin/RuinBuildingSegment.hpp>
 #include <Components/SpawnArea.hpp>
 #include <Components/Stats/BaseAction.hpp>
 #include <Components/Stats/CollisionAction.hpp>
@@ -559,8 +559,8 @@ void NpcSystem::find_pushback_position( const Cmp::Direction &npc_direction )
   if ( Utils::Collision::check_cmp<Cmp::AltarSegment>( reg(), new_pos_rect ) ) return;
   if ( Utils::Collision::check_cmp<Cmp::GraveSegment>( reg(), new_pos_rect ) ) return;
   if ( Utils::Collision::check_cmp<Cmp::GraveExitSegment>( reg(), new_pos_rect ) ) return;
-  if ( Utils::Collision::check_cmp<Cmp::CryptSegment>( reg(), new_pos_rect ) ) return;
-  if ( Utils::Collision::check_cmp<Cmp::RuinSegment>( reg(), new_pos_rect ) ) return;
+  if ( Utils::Collision::check_cmp<Cmp::CryptBuildingSegment>( reg(), new_pos_rect ) ) return;
+  if ( Utils::Collision::check_cmp<Cmp::RuinBuildingSegment>( reg(), new_pos_rect ) ) return;
   if ( Utils::Collision::check_cmp<Cmp::CryptObjectiveSegment>( reg(), new_pos_rect ) ) return;
 
   player_pos.position = new_position;

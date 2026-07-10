@@ -1,20 +1,20 @@
 #include <Components/Altar/AltarMultiBlock.hpp>
 #include <Components/Altar/AltarSegment.hpp>
+#include <Components/Crypt/CryptBuildingMultiBlock.hpp>
+#include <Components/Crypt/CryptBuildingSegment.hpp>
 #include <Components/Crypt/CryptInteriorMultiBlock.hpp>
 #include <Components/Crypt/CryptInteriorSegment.hpp>
-#include <Components/Crypt/CryptMultiBlock.hpp>
 #include <Components/Crypt/CryptObjectiveMultiBlock.hpp>
 #include <Components/Crypt/CryptObjectiveSegment.hpp>
 #include <Components/Crypt/CryptRoomClosed.hpp>
 #include <Components/Crypt/CryptRoomEnd.hpp>
 #include <Components/Crypt/CryptRoomOpen.hpp>
 #include <Components/Crypt/CryptRoomStart.hpp>
-#include <Components/Crypt/CryptSegment.hpp>
 #include <Components/Exit.hpp>
 #include <Components/Grave/GraveMultiBlock.hpp>
 #include <Components/Grave/GraveSegment.hpp>
-#include <Components/HolyWell/HolyWellMultiBlock.hpp>
-#include <Components/HolyWell/HolyWellSegment.hpp>
+#include <Components/HolyWell/WellBuildingMultiBlock.hpp>
+#include <Components/HolyWell/WellBuildingSegment.hpp>
 #include <Components/Moveable.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
@@ -24,11 +24,11 @@
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
+#include <Components/Ruin/RuinBuildingSegment.hpp>
 #include <Components/Ruin/RuinCobweb.hpp>
 #include <Components/Ruin/RuinGateSegment.hpp>
 #include <Components/Ruin/RuinHexagramMultiBlock.hpp>
 #include <Components/Ruin/RuinHexagramSegment.hpp>
-#include <Components/Ruin/RuinSegment.hpp>
 #include <Components/Ruin/RuinStairsBalustradeMultiBlock.hpp>
 #include <Components/Ruin/RuinStairsGateMultiBlock.hpp>
 #include <Components/Ruin/RuinStairsLowerMultiBlock.hpp>
@@ -131,7 +131,7 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
     const auto &ms = m_sprite_factory.get_spritesheet_by_type( ms_type );
     if ( ms_type == "sprite.well.fountain" )
     {
-      Factory::add_multiblock_with_segments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( reg(), pos, ms );
+      Factory::add_multiblock_with_segments<Cmp::WellBuildingMultiBlock, Cmp::WellBuildingSegment>( reg(), pos, ms );
     }
     else if ( ms_type == "sprite.crypt.objective.closed" )
     {
@@ -382,17 +382,17 @@ void LevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::Sprite
   }
   else if ( ms.get_sprite_type() == "sprite.graveyard.crypt.closed" )
   {
-    Factory::add_multiblock_with_segments<Cmp::CryptMultiBlock, Cmp::CryptSegment>( reg(), random_origin_position.position, ms );
+    Factory::add_multiblock_with_segments<Cmp::CryptBuildingMultiBlock, Cmp::CryptBuildingSegment>( reg(), random_origin_position.position, ms );
     SPDLOG_INFO( "Added {} to {},{}", ms.get_sprite_type(), random_origin_position.position.x, random_origin_position.position.y );
   }
   else if ( ms.get_sprite_type() == "sprite.graveyard.well" )
   {
-    Factory::add_multiblock_with_segments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( reg(), random_origin_position.position, ms );
+    Factory::add_multiblock_with_segments<Cmp::WellBuildingMultiBlock, Cmp::WellBuildingSegment>( reg(), random_origin_position.position, ms );
     SPDLOG_INFO( "Added {} to {},{}", ms.get_sprite_type(), random_origin_position.position.x, random_origin_position.position.y );
   }
   else if ( ms.get_sprite_type() == "sprite.graveyard.ruin" )
   {
-    Factory::add_multiblock_with_segments<Cmp::RuinBuildingMultiBlock, Cmp::RuinSegment>( reg(), random_origin_position.position, ms );
+    Factory::add_multiblock_with_segments<Cmp::RuinBuildingMultiBlock, Cmp::RuinBuildingSegment>( reg(), random_origin_position.position, ms );
     SPDLOG_INFO( "Added {} to {},{}", ms.get_sprite_type(), random_origin_position.position.x, random_origin_position.position.y );
   }
   else
@@ -438,17 +438,17 @@ std::pair<entt::entity, Cmp::Position> LevelGenerator::find_spawn_location( cons
       }
 
       // Return false for crypt collisions
-      for ( auto [entity, crypt_cmp, crypt_pos_cmp] : reg().view<Cmp::CryptSegment, Cmp::Position>().each() )
+      for ( auto [entity, crypt_cmp, crypt_pos_cmp] : reg().view<Cmp::CryptBuildingSegment, Cmp::Position>().each() )
       {
         if ( crypt_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
-      for ( auto [entity, holywell_cmp, holywell_pos_cmp] : reg().view<Cmp::HolyWellSegment, Cmp::Position>().each() )
+      for ( auto [entity, holywell_cmp, holywell_pos_cmp] : reg().view<Cmp::WellBuildingSegment, Cmp::Position>().each() )
       {
         if ( holywell_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
-      for ( auto [entity, ruin_cmp, ruin_pos_cmp] : reg().view<Cmp::RuinSegment, Cmp::Position>().each() )
+      for ( auto [entity, ruin_cmp, ruin_pos_cmp] : reg().view<Cmp::RuinBuildingSegment, Cmp::Position>().each() )
       {
         if ( ruin_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }

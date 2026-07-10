@@ -2,18 +2,18 @@
 
 #include <Components/Crypt/CryptChest.hpp>
 #include <Components/Crypt/CryptLever.hpp>
-#include <Components/HolyWell/HolyWellSegment.hpp>
+#include <Components/HolyWell/WellBuildingSegment.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/PlantObstacle.hpp>
-#include <Components/Ruin/RuinSegment.hpp>
+#include <Components/Ruin/RuinBuildingSegment.hpp>
 #include <Components/Ruin/RuinStairsSegment.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <Audio/SoundBank.hpp>
 #include <Components/Altar/AltarSegment.hpp>
+#include <Components/Crypt/CryptBuildingSegment.hpp>
 #include <Components/Crypt/CryptInteriorSegment.hpp>
 #include <Components/Crypt/CryptObjectiveSegment.hpp>
-#include <Components/Crypt/CryptSegment.hpp>
 #include <Components/Exit.hpp>
 #include <Components/Grave/GraveSegment.hpp>
 #include <Components/LerpPosition.hpp>

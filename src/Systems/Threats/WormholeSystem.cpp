@@ -2,7 +2,7 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/Altar/AltarSegment.hpp>
 #include <Components/AnimData.hpp>
-#include <Components/Crypt/CryptSegment.hpp>
+#include <Components/Crypt/CryptBuildingSegment.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Exit.hpp>
 #include <Components/Grave/GraveExitSegment.hpp>
@@ -112,7 +112,7 @@ std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsi
       }
 
       // Return false for crypt collisions
-      for ( auto [entity, crypt_cmp, crypt_pos_cmp] : reg().view<Cmp::CryptSegment, Cmp::Position>().each() )
+      for ( auto [entity, crypt_cmp, crypt_pos_cmp] : reg().view<Cmp::CryptBuildingSegment, Cmp::Position>().each() )
       {
         if ( crypt_pos_cmp.findIntersection( wormhole_block ) ) return false;
       }

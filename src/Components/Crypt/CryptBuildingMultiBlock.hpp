@@ -10,10 +10,10 @@ namespace Game::Cmp
 
 // CryptMultiBlock component represents a multi-block sprite defined geometrically as a rectangle
 // It can be used to find its CryptSegment parts and track overall activation state
-class CryptMultiBlock : public sf::FloatRect
+class CryptBuildingMultiBlock : public sf::FloatRect
 {
 public:
-  CryptMultiBlock( const sf::Vector2f &position, const sf::Vector2f &size )
+  CryptBuildingMultiBlock( const sf::Vector2f &position, const sf::Vector2f &size )
       : sf::FloatRect( position, size )
   {
     m_activation_threshold = ( size.x / 16 ) * ( size.y / 16 ); // each block is 16x16 pixels

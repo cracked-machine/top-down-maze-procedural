@@ -5,25 +5,25 @@
 #include <Components/Altar/AltarSegment.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Armable.hpp>
+#include <Components/Crypt/CryptBuildingMultiBlock.hpp>
+#include <Components/Crypt/CryptBuildingSegment.hpp>
 #include <Components/Crypt/CryptEntrance.hpp>
 #include <Components/Crypt/CryptInteriorMultiBlock.hpp>
 #include <Components/Crypt/CryptInteriorSegment.hpp>
-#include <Components/Crypt/CryptMultiBlock.hpp>
 #include <Components/Crypt/CryptObjectiveMultiBlock.hpp>
 #include <Components/Crypt/CryptObjectiveSegment.hpp>
-#include <Components/Crypt/CryptSegment.hpp>
 #include <Components/Grave/GraveMultiBlock.hpp>
 #include <Components/Grave/GraveSegment.hpp>
 #include <Components/HolyWell/HolyWellEntrance.hpp>
-#include <Components/HolyWell/HolyWellMultiBlock.hpp>
-#include <Components/HolyWell/HolyWellSegment.hpp>
+#include <Components/HolyWell/WellBuildingMultiBlock.hpp>
+#include <Components/HolyWell/WellBuildingSegment.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Player/PlayerNoPath.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinBuildingMultiBlock.hpp>
+#include <Components/Ruin/RuinBuildingSegment.hpp>
 #include <Components/Ruin/RuinEntrance.hpp>
-#include <Components/Ruin/RuinSegment.hpp>
 #include <Components/Ruin/RuinStairsSegment.hpp>
 #include <Components/UUID.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -166,7 +166,7 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &registry, 
     registry.emplace_or_replace<MBSEGMENT>( entity, true );
     registry.emplace_or_replace<Cmp::Armable>( entity );
 
-    if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::CryptMultiBlock> )
+    if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::CryptBuildingMultiBlock> )
     {
       if ( calculated_grid_index == door_grid_index )
       {
@@ -174,7 +174,7 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &registry, 
         SPDLOG_DEBUG( "Adding Cmp::CryptEntrance at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
       }
     }
-    else if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::HolyWellMultiBlock> )
+    else if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::WellBuildingMultiBlock> )
     {
       if ( calculated_grid_index == door_grid_index )
       {

@@ -15,11 +15,11 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinBookcase.hpp>
 #include <Components/Ruin/RuinBuildingMultiBlock.hpp>
+#include <Components/Ruin/RuinBuildingSegment.hpp>
 #include <Components/Ruin/RuinCobweb.hpp>
 #include <Components/Ruin/RuinEntrance.hpp>
 #include <Components/Ruin/RuinFloorAccess.hpp>
 #include <Components/Ruin/RuinGateSegment.hpp>
-#include <Components/Ruin/RuinSegment.hpp>
 #include <Components/Ruin/RuinStairsBalustradeMultiBlock.hpp>
 #include <Components/Ruin/RuinStairsGateMultiBlock.hpp>
 #include <Components/Ruin/RuinStairsLowerMultiBlock.hpp>
@@ -106,7 +106,7 @@ void RuinSystem::update_exit_zorder()
   for ( auto [mb_entt, mb_cmp, mb_z_cmp] : reg().view<Cmp::RuinBuildingMultiBlock, Cmp::ZOrderValue>().each() )
   {
     if ( not player_pos.findIntersection( mb_cmp ) ) continue;
-    auto segment_view = reg().view<Cmp::RuinSegment, Cmp::Position, Cmp::ZOrderValue>();
+    auto segment_view = reg().view<Cmp::RuinBuildingSegment, Cmp::Position, Cmp::ZOrderValue>();
     for ( auto [segment_entt, segment_cmp, segment_pos_cmp, segment_z_cmp] : segment_view.each() )
     {
       if ( not player_pos.findIntersection( segment_pos_cmp ) ) continue;

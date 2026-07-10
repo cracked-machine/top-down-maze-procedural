@@ -1,10 +1,11 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/Altar/AltarMultiBlock.hpp>
 #include <Components/AnimData.hpp>
+#include <Components/Crypt/CryptBuildingMultiBlock.hpp>
+#include <Components/Crypt/CryptBuildingSegment.hpp>
 #include <Components/Crypt/CryptChest.hpp>
 #include <Components/Crypt/CryptEntrance.hpp>
 #include <Components/Crypt/CryptLever.hpp>
-#include <Components/Crypt/CryptMultiBlock.hpp>
 #include <Components/Crypt/CryptObjectiveMultiBlock.hpp>
 #include <Components/Crypt/CryptObjectiveSegment.hpp>
 #include <Components/Crypt/CryptPassageBlock.hpp>
@@ -17,7 +18,6 @@
 #include <Components/Crypt/CryptRoomLavaPitCellEffect.hpp>
 #include <Components/Crypt/CryptRoomOpen.hpp>
 #include <Components/Crypt/CryptRoomStart.hpp>
-#include <Components/Crypt/CryptSegment.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Exit.hpp>
 #include <Components/FootStepAlpha.hpp>
@@ -223,10 +223,10 @@ void CryptSystem::update_exit_zorder()
 {
   auto player_pos = Utils::Player::get_position( reg() );
 
-  for ( auto [mb_entt, mb_cmp, mb_z_cmp] : reg().view<Cmp::CryptMultiBlock, Cmp::ZOrderValue>().each() )
+  for ( auto [mb_entt, mb_cmp, mb_z_cmp] : reg().view<Cmp::CryptBuildingMultiBlock, Cmp::ZOrderValue>().each() )
   {
     if ( not player_pos.findIntersection( mb_cmp ) ) continue;
-    auto segment_view = reg().view<Cmp::CryptSegment, Cmp::Position, Cmp::ZOrderValue>();
+    auto segment_view = reg().view<Cmp::CryptBuildingSegment, Cmp::Position, Cmp::ZOrderValue>();
     for ( auto [segment_entt, segment_cmp, segment_pos_cmp, segment_z_cmp] : segment_view.each() )
     {
       if ( not player_pos.findIntersection( segment_pos_cmp ) ) continue;
@@ -314,7 +314,7 @@ void CryptSystem::unlock_crypt_door()
     {
 
       // Set the z-order value
-      auto crypt_view = reg().view<Cmp::CryptMultiBlock>();
+      auto crypt_view = reg().view<Cmp::CryptBuildingMultiBlock>();
       for ( auto [crypt_entt, crypt_cmp] : crypt_view.each() )
       {
         if ( not door_pos_cmp.findIntersection( crypt_cmp ) ) continue;
@@ -329,7 +329,7 @@ void CryptSystem::unlock_crypt_door()
     }
     {
       // Set the z-order value
-      auto crypt_view = reg().view<Cmp::CryptMultiBlock>();
+      auto crypt_view = reg().view<Cmp::CryptBuildingMultiBlock>();
       for ( auto [crypt_entt, crypt_cmp] : crypt_view.each() )
       {
         if ( not door_pos_cmp.findIntersection( crypt_cmp ) ) continue;
@@ -347,10 +347,10 @@ void CryptSystem::unlock_crypt_door()
     reg().remove<Cmp::PlayerNoPath>( door_entity );
 
     // make doorway non-solid and lower z-order so player walks over it
-    reg().emplace_or_replace<Cmp::CryptSegment>( door_entity, Cmp::CryptSegment( false ) );
+    reg().emplace_or_replace<Cmp::CryptBuildingSegment>( door_entity, Cmp::CryptBuildingSegment( false ) );
 
     // find the crypt multi-block this door belongs to and update the sprite
-    auto crypt_view = reg().view<Cmp::CryptMultiBlock, Cmp::AnimData>();
+    auto crypt_view = reg().view<Cmp::CryptBuildingMultiBlock, Cmp::AnimData>();
     for ( auto [crypt_entity, crypt_cmp, anim_cmp] : crypt_view.each() )
     {
       if ( not door_pos_cmp.findIntersection( crypt_cmp ) ) continue;

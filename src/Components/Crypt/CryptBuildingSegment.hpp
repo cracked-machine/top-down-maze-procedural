@@ -1,14 +1,14 @@
-#ifndef SRC_COMPONENTS_RUIN_RUINSEGMENT_HPP__
-#define SRC_COMPONENTS_RUIN_RUINSEGMENT_HPP__
+#ifndef SRC_COMPONENTS_CRYPT_CRYPTSEGMENT_HPP__
+#define SRC_COMPONENTS_CRYPT_CRYPTSEGMENT_HPP__
 
 namespace Game::Cmp
 {
 
-// Mainly used to distinguish between 16x16 block Ruin segments for the purpose of collision detection
-class RuinSegment
+// Mainly used to distinguish between 16x16 block crypt segments for the purpose of collision detection
+class CryptBuildingSegment
 {
 public:
-  RuinSegment( bool solid_mask )
+  CryptBuildingSegment( bool solid_mask )
       : m_solid_mask( solid_mask )
   {
   }
@@ -23,4 +23,4 @@ private:
 
 } // namespace Game::Cmp
 
-#endif // SRC_COMPONENTS_RUIN_RUINSEGMENT_HPP__
+#endif // SRC_COMPONENTS_CRYPT_CRYPTSEGMENT_HPP__

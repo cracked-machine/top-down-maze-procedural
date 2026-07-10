@@ -5,10 +5,10 @@ namespace Game::Cmp
 {
 
 // Mainly used to distinguish between 16x16 block holywell segments for the purpose of collision detection
-class HolyWellSegment
+class WellBuildingSegment
 {
 public:
-  HolyWellSegment( bool solid_mask )
+  WellBuildingSegment( bool solid_mask )
       : m_solid_mask( solid_mask )
   {
   }

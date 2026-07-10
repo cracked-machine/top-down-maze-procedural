@@ -5,11 +5,11 @@
 #include <Components/Altar/AltarMultiBlock.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Armed.hpp>
+#include <Components/Crypt/CryptBuildingMultiBlock.hpp>
 #include <Components/Crypt/CryptChest.hpp>
 #include <Components/Crypt/CryptEntrance.hpp>
 #include <Components/Crypt/CryptInteriorMultiBlock.hpp>
 #include <Components/Crypt/CryptLever.hpp>
-#include <Components/Crypt/CryptMultiBlock.hpp>
 #include <Components/Crypt/CryptPassageBlock.hpp>
 #include <Components/Crypt/CryptRoomClosed.hpp>
 #include <Components/Crypt/CryptRoomEnd.hpp>
@@ -19,7 +19,7 @@
 #include <Components/Crypt/CryptRoomStart.hpp>
 #include <Components/Exit.hpp>
 #include <Components/Grave/GraveMultiBlock.hpp>
-#include <Components/HolyWell/HolyWellMultiBlock.hpp>
+#include <Components/HolyWell/WellBuildingMultiBlock.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/LastDirection.hpp>
@@ -333,9 +333,9 @@ void RenderGameSystem::refresh_z_order_queue()
 
   // prevent pop-in/pop-outs when multiblock entities are near the edge of the view
   add_visible_entity_to_z_order_queue<Cmp::AltarMultiBlock>( m_zorder_queue_, view_bounds );
-  add_visible_entity_to_z_order_queue<Cmp::CryptMultiBlock>( m_zorder_queue_, view_bounds );
+  add_visible_entity_to_z_order_queue<Cmp::CryptBuildingMultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::GraveMultiBlock>( m_zorder_queue_, view_bounds );
-  add_visible_entity_to_z_order_queue<Cmp::HolyWellMultiBlock>( m_zorder_queue_, view_bounds );
+  add_visible_entity_to_z_order_queue<Cmp::WellBuildingMultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::CryptInteriorMultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::RuinBuildingMultiBlock>( m_zorder_queue_, view_bounds );
 
