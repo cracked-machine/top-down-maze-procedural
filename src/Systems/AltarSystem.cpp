@@ -7,6 +7,7 @@
 #include <Components/Armable.hpp>
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/Inventory/FlashUIInventory.hpp>
+#include <Components/Inventory/FlashUIWealth.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/Npc/Npc.hpp>
@@ -14,6 +15,7 @@
 #include <Components/Particle/Flame.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
+#include <Components/Player/PlayerWealth.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
@@ -86,13 +88,15 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
   if ( not altar_uuid_cmp ) throw std::runtime_error( "Altar does not have UUID" );
 
   auto [sacrifice_entt, sacrifice_type] = Utils::Player::get_inventory_type( reg() );
+  enum class SacrificeAnimType { RELIC, KEY, JEWELS };
 
-  enum class SacrificeAnimType { RELIC, KEY };
+  //! @brief Common actions following an altar sacrifice
   auto common_activation = [&]( SacrificeAnimType sacrifice_anim_type )
   {
     Sprites::SpriteMetaType sprite_type;
     if ( sacrifice_anim_type == SacrificeAnimType::RELIC ) { sprite_type = "sprite.graveyard.altar.relic.anim"; }
     else if ( sacrifice_anim_type == SacrificeAnimType::KEY ) { sprite_type = "sprite.graveyard.altar.key.anim"; }
+    else if ( sacrifice_anim_type == SacrificeAnimType::JEWELS ) { sprite_type = "sprite.graveyard.altar.relic.anim"; }
 
     Factory::destroy_inventory( reg(), sacrifice_type );
 
@@ -105,6 +109,18 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
 
     m_altar_activation_clock.restart();
   };
+
+  // sacrifice jewels at any time
+  if ( sacrifice_type.contains( "item.jewelry" ) )
+  {
+    SPDLOG_INFO( "Player made an offering: {}", sacrifice_type );
+    common_activation( SacrificeAnimType::JEWELS );
+    auto &player_wealth = Utils::Player::get_wealth( reg() );
+    player_wealth.wealth += 2;
+    // signal UI to flash
+    auto flash_entt = reg().create();
+    reg().emplace_or_replace<Cmp::FlashUIWealth>( flash_entt );
+  }
 
   SPDLOG_DEBUG( "Checking altar activation: {}/{}", altar_cmp.get_activation_count(), altar_cmp.get_activation_threshold() );
   // We still need to satisfy the relic sacrifice threshold to get an exitkey drop

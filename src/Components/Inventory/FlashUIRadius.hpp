@@ -4,6 +4,8 @@
 namespace Game::Cmp
 {
 
+//! @brief Signals to the Render system to flash the UI for player bomb radius
+//! @note This is destroyed by the Render system.
 struct FlashUIRadius
 {
   sf::Time duration{ sf::seconds( 3.f ) };
