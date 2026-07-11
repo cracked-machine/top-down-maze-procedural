@@ -102,7 +102,7 @@ void HealingSpringSystem::check_inventory_deposit()
 {
 
   auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg() );
-  if ( not inventory_type.contains( "sprite.item.jewelry" ) ) return;
+  if ( not inventory_type.contains( "item.cursetablet" ) ) return;
 
   auto &wealth = Utils::Player::get_wealth( m_reg );
 
