@@ -1,7 +1,6 @@
 #ifndef SRC_SYSTEMS_HOLYWELLSYSTEM_HPP__
 #define SRC_SYSTEMS_HOLYWELLSYSTEM_HPP__
 
-#include <Components/Well/WellBuildingMultiBlock.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Systems/BaseSystem.hpp>
 
@@ -21,9 +20,7 @@ public:
 
   void on_player_action( Events::PlayerActionEvent ev );
 
-  void add_well_ms( sf::Vector2u spawn_position );
-
-  void update_exit_zorder();
+  void update_building_zorder();
 
   //! @brief Check for collisions with the entrance
   void check_entrance_collision();

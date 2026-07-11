@@ -44,6 +44,7 @@
 #include <Components/Stats/SpawnAction.hpp>
 #include <Components/System.hpp>
 #include <Components/UUID.hpp>
+#include <Components/Well/FountainMultiBlock.hpp>
 #include <Components/Wormhole/WormholeJump.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/DropInventoryEvent.hpp>
@@ -525,6 +526,17 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
           if ( player_distance > torch_radius.value ) continue;
           net_modifier += candle_action_modifiers;
         }
+      }
+
+      // healing power of the sacred spring
+      Cmp::BaseAction fountain_effects( { +5 }, { -5 }, { -5 }, { -5 }, { -5 }, {} );
+      for ( auto [fountain_entt, fountain_mb_cmp] : reg().view<Cmp::FountainMultiBlock>().each() )
+      {
+        if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), fountain_mb_cmp ) ) continue;
+
+        float player_distance = Utils::Maths::getEuclideanDistance( fountain_mb_cmp.position, Utils::Player::get_position( reg() ).position );
+        if ( player_distance > 500 ) continue;
+        net_modifier += fountain_effects;
       }
 
       // apply candle item modifiers to the player when standing inside radius of wisp NPC

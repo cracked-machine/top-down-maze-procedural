@@ -34,6 +34,8 @@
 #include <Components/Ruin/RuneMarking.hpp>
 #include <Components/SpawnArea.hpp>
 #include <Components/Wall.hpp>
+#include <Components/Well/FountainMultiBlock.hpp>
+#include <Components/Well/FountainSegment.hpp>
 #include <Components/Well/WellBuildingMultiBlock.hpp>
 #include <Components/Well/WellBuildingSegment.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -131,7 +133,7 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
     const auto &ms = m_sprite_factory.get_spritesheet_by_type( ms_type );
     if ( ms_type == "sprite.well.fountain" )
     {
-      Factory::add_multiblock_with_segments<Cmp::WellBuildingMultiBlock, Cmp::WellBuildingSegment>( reg(), pos, ms );
+      Factory::add_multiblock_with_segments<Cmp::FountainMultiBlock, Cmp::FountainSegment>( reg(), pos, ms );
     }
     else if ( ms_type == "sprite.crypt.objective.closed" )
     {

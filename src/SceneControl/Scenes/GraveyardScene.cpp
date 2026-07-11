@@ -20,7 +20,6 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinBuildingMultiBlock.hpp>
 #include <Components/UUID.hpp>
-#include <Components/Well/WellBuildingMultiBlock.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/ParticleFactory.hpp>
@@ -268,7 +267,7 @@ void GraveyardScene::do_update( sf::Time dt )
 
   m_sys.find<Sys::Store::Type::CryptSystem>().unlock_crypt_door();
   m_sys.find<Sys::Store::Type::AltarSystem>().check_player_collision();
-  m_sys.find<Sys::Store::Type::HolyWellSystem>().update_exit_zorder();
+  m_sys.find<Sys::Store::Type::HolyWellSystem>().update_building_zorder();
   m_sys.find<Sys::Store::Type::HolyWellSystem>().check_entrance_collision();
   m_sys.find<Sys::Store::Type::RuinSystem>().update_exit_zorder();
   m_sys.find<Sys::Store::Type::RuinSystem>().check_entrance_collision();

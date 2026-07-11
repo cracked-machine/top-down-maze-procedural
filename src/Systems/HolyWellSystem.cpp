@@ -8,6 +8,7 @@
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/Wall.hpp>
+#include <Components/Well/FountainMultiBlock.hpp>
 #include <Components/Well/WellBuildingMultiBlock.hpp>
 #include <Components/Well/WellBuildingSegment.hpp>
 #include <Components/Well/WellEntrance.hpp>
@@ -27,22 +28,13 @@
 namespace Game::Sys
 {
 
-void HolyWellSystem::add_well_ms( sf::Vector2u spawn_position )
-{
-
-  const Sprites::SpriteSheet &ms = m_sprite_factory.get_spritesheet_by_type( "sprite.well.fountain" );
-  const sf::Vector2f new_pos = { static_cast<float>( spawn_position.x ) * Constants::kGridSizePx.x,
-                                 static_cast<float>( spawn_position.y ) * Constants::kGridSizePx.y };
-  Factory::add_multiblock_with_segments<Cmp::WellBuildingMultiBlock, Cmp::WellBuildingSegment>( reg(), new_pos, ms );
-}
-
 void HolyWellSystem::on_player_action( Events::PlayerActionEvent ev )
 {
   if ( ev.action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
   check_inventory_deposit();
 }
 
-void HolyWellSystem::update_exit_zorder()
+void HolyWellSystem::update_building_zorder()
 {
   auto player_pos = Utils::Player::get_position( reg() );
 
@@ -116,7 +108,7 @@ void HolyWellSystem::check_inventory_deposit()
 
   // check if we're near a holywell
   auto player_hitbox = Cmp::RectBounds::scaled( Utils::Player::get_position( reg() ).position, Constants::kGridSizePxF, 1.5f );
-  for ( auto [well_entt, well_mb_cmp] : reg().view<Cmp::WellBuildingMultiBlock>().each() )
+  for ( auto [well_entt, well_mb_cmp] : reg().view<Cmp::FountainMultiBlock>().each() )
   {
     if ( not player_hitbox.findIntersection( well_mb_cmp ) ) continue;
     Factory::destroy_inventory( reg(), inventory_type );
