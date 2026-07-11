@@ -9,12 +9,11 @@
 #include <Systems/FootstepSystem.hpp>
 #include <Systems/GraveSystem.hpp>
 #include <Systems/GrimoireSystem.hpp>
-#include <Systems/HolyWellSystem.hpp>
+#include <Systems/HealingSpringSystem.hpp>
 #include <Systems/ItemSystem.hpp>
 #include <Systems/LootSystem.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/PlayerSystem.hpp>
-#include <Systems/RuinSystem.hpp>
 #include <Systems/ProcGen/CellAutomataSystem.hpp>
 #include <Systems/ProcGen/DLASystem.hpp>
 #include <Systems/ProcGen/LevelGenerator.hpp>
@@ -22,6 +21,7 @@
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderMenuSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
+#include <Systems/RuinSystem.hpp>
 #include <Systems/ShaderSystem.hpp>
 #include <Systems/ShopSystem.hpp>
 #include <Systems/Stores/BaseStore.hpp>
@@ -54,7 +54,7 @@ Store::Store( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, 
     m_sysmap.emplace( Type::FootstepSystem, std::make_unique<FootstepSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::GraveSystem, std::make_unique<GraveSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::GrimoireSystem, std::make_unique<GrimoireSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::HolyWellSystem, std::make_unique<HolyWellSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
+    m_sysmap.emplace( Type::HealingSpringSystem, std::make_unique<HealingSpringSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
     m_sysmap.emplace( Type::ItemStore, std::make_unique<ItemStore>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::ItemSystem, std::make_unique<ItemSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::NpcStore, std::make_unique<NpcStore>( m_initial_reg, window, sprite_factory, sound_bank ) );

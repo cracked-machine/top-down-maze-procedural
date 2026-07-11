@@ -34,6 +34,7 @@
 #include <Components/Ruin/RuinCobweb.hpp>
 #include <Components/Ruin/RuneMarking.hpp>
 #include <Components/SelectedPosition.hpp>
+#include <Components/Spring/HealingSpringMultiBlock.hpp>
 #include <Components/Stats/BaseAction.hpp>
 #include <Components/Stats/CarryAction.hpp>
 #include <Components/Stats/CollisionAction.hpp>
@@ -44,7 +45,6 @@
 #include <Components/Stats/SpawnAction.hpp>
 #include <Components/System.hpp>
 #include <Components/UUID.hpp>
-#include <Components/Well/FountainMultiBlock.hpp>
 #include <Components/Wormhole/WormholeJump.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/DropInventoryEvent.hpp>
@@ -528,9 +528,9 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
         }
       }
 
-      // healing power of the sacred spring
+      // healing spring
       Cmp::BaseAction fountain_effects( { +5 }, { -5 }, { -5 }, { -5 }, { -5 }, {} );
-      for ( auto [fountain_entt, fountain_mb_cmp] : reg().view<Cmp::FountainMultiBlock>().each() )
+      for ( auto [fountain_entt, fountain_mb_cmp] : reg().view<Cmp::HealingSpringMultiBlock>().each() )
       {
         if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), fountain_mb_cmp ) ) continue;
 

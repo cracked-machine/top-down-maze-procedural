@@ -16,9 +16,9 @@
 #include <Components/Ruin/RuinBuildingSegment.hpp>
 #include <Components/Ruin/RuinEntrance.hpp>
 #include <Components/Ruin/RuinStairsSegment.hpp>
-#include <Components/Well/WellBuildingMultiBlock.hpp>
-#include <Components/Well/WellBuildingSegment.hpp>
-#include <Components/Well/WellEntrance.hpp>
+#include <Components/Spring/HealingSpringBuildingMultiBlock.hpp>
+#include <Components/Spring/HealingSpringBuildingSegment.hpp>
+#include <Components/Spring/HealingSpringEntrance.hpp>
 #include <Sprites/SpriteSheet.hpp>
 
 namespace Game::Factory

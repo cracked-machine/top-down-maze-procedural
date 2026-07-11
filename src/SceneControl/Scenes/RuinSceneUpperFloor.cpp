@@ -17,12 +17,11 @@
 #include <Factory/RuinFactory.hpp>
 #include <Factory/ShaderFactory.hpp>
 #include <Factory/WallFactory.hpp>
-#include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <SceneControl/Scenes/RuinSceneUpperFloor.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/CryptSystem.hpp>
-#include <Systems/HolyWellSystem.hpp>
+#include <Systems/HealingSpringSystem.hpp>
 #include <Systems/LootSystem.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>

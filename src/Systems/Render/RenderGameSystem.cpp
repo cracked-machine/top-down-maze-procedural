@@ -40,9 +40,9 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinBuildingMultiBlock.hpp>
 #include <Components/SelectedPosition.hpp>
+#include <Components/Spring/HealingSpringBuildingMultiBlock.hpp>
 #include <Components/System.hpp>
 #include <Components/Wall.hpp>
-#include <Components/Well/WellBuildingMultiBlock.hpp>
 #include <Components/Wormhole/WormholeMultiBlock.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
@@ -335,7 +335,7 @@ void RenderGameSystem::refresh_z_order_queue()
   add_visible_entity_to_z_order_queue<Cmp::AltarMultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::CryptBuildingMultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::GraveMultiBlock>( m_zorder_queue_, view_bounds );
-  add_visible_entity_to_z_order_queue<Cmp::WellBuildingMultiBlock>( m_zorder_queue_, view_bounds );
+  add_visible_entity_to_z_order_queue<Cmp::HealingSpringBuildingMultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::CryptInteriorMultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::RuinBuildingMultiBlock>( m_zorder_queue_, view_bounds );
 

@@ -24,10 +24,10 @@
 #include <Components/Ruin/RuinBuildingSegment.hpp>
 #include <Components/Ruin/RuinEntrance.hpp>
 #include <Components/Ruin/RuinStairsSegment.hpp>
+#include <Components/Spring/HealingSpringBuildingMultiBlock.hpp>
+#include <Components/Spring/HealingSpringBuildingSegment.hpp>
+#include <Components/Spring/HealingSpringEntrance.hpp>
 #include <Components/UUID.hpp>
-#include <Components/Well/WellBuildingMultiBlock.hpp>
-#include <Components/Well/WellBuildingSegment.hpp>
-#include <Components/Well/WellEntrance.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -176,11 +176,11 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &registry, 
         SPDLOG_DEBUG( "Adding Cmp::CryptEntrance at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
       }
     }
-    else if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::WellBuildingMultiBlock> )
+    else if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::HealingSpringBuildingMultiBlock> )
     {
       if ( calculated_grid_index == door_grid_index )
       {
-        registry.emplace_or_replace<Cmp::WellEntrance>( entity );
+        registry.emplace_or_replace<Cmp::HealingSpringEntrance>( entity );
         SPDLOG_DEBUG( "Adding Cmp::HollyWellEntrance at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y,
                       calculated_grid_index );
       }

@@ -49,7 +49,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/AltarSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/LootSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/CryptSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/HolyWellSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/HealingSpringSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/RuinSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/ShopSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/ItemSystem.cpp
@@ -70,7 +70,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/TitleScene.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/LevelCompleteScene.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/CryptScene.cpp
-    ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/HolyWellScene.cpp
+    ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/HealingSpringScene.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/RuinSceneLowerFloor.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/RuinSceneUpperFloor.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/ShopScene.cpp

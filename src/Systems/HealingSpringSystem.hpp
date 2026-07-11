@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMS_HOLYWELLSYSTEM_HPP__
-#define SRC_SYSTEMS_HOLYWELLSYSTEM_HPP__
+#ifndef SRC_SYSTEMS_SACREDSPRINGSYSTEM_HPP__
+#define SRC_SYSTEMS_SACREDSPRINGSYSTEM_HPP__
 
 #include <Events/PlayerActionEvent.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -7,15 +7,15 @@
 namespace Game::Sys
 {
 
-class HolyWellSystem : public BaseSystem
+class HealingSpringSystem : public BaseSystem
 {
 public:
-  HolyWellSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
-                  entt::dispatcher &scenemanager_event_dispatcher )
+  HealingSpringSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
+                       entt::dispatcher &scenemanager_event_dispatcher )
       : Game::Sys::BaseSystem( reg, window, sprite_factory, sound_bank ),
         m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
   {
-    std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&HolyWellSystem::on_player_action>( this );
+    std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&HealingSpringSystem::on_player_action>( this );
   }
 
   void on_player_action( Events::PlayerActionEvent ev );
@@ -41,4 +41,4 @@ private:
 
 } // namespace Game::Sys
 
-#endif // SRC_SYSTEMS_HOLYWELLSYSTEM_HPP__
+#endif // SRC_SYSTEMS_SACREDSPRINGSYSTEM_HPP__

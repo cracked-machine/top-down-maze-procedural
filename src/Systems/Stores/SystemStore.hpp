@@ -30,7 +30,7 @@ class ExitSystem;
 class FootstepSystem;
 class GraveSystem;
 class GrimoireSystem;
-class HolyWellSystem;
+class HealingSpringSystem;
 class ItemStore;
 class ItemSystem;
 class NpcStore;
@@ -68,7 +68,7 @@ public:
     FootstepSystem,
     GraveSystem,
     GrimoireSystem,
-    HolyWellSystem,
+    HealingSpringSystem,
     ItemStore,
     ItemSystem,
     NpcStore,
@@ -136,7 +136,7 @@ template<> struct Store::SystemTraits<Store::Type::ExitSystem>             { usi
 template<> struct Store::SystemTraits<Store::Type::FootstepSystem>         { using type = FootstepSystem; };
 template<> struct Store::SystemTraits<Store::Type::GraveSystem>            { using type = GraveSystem; };
 template<> struct Store::SystemTraits<Store::Type::GrimoireSystem>         { using type = GrimoireSystem; };
-template<> struct Store::SystemTraits<Store::Type::HolyWellSystem>         { using type = HolyWellSystem; };
+template<> struct Store::SystemTraits<Store::Type::HealingSpringSystem>         { using type = HealingSpringSystem; };
 template<> struct Store::SystemTraits<Store::Type::ItemStore>              { using type = ItemStore; };
 template<> struct Store::SystemTraits<Store::Type::ItemSystem>             { using type = ItemSystem; };
 template<> struct Store::SystemTraits<Store::Type::NpcStore>               { using type = NpcStore; };

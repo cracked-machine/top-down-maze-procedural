@@ -46,10 +46,10 @@
 #include <Components/Ruin/RuinEntrance.hpp>
 #include <Components/SelectedPosition.hpp>
 #include <Components/Shop/ShopInventory.hpp>
+#include <Components/Spring/HealingSpringBuildingSegment.hpp>
+#include <Components/Spring/HealingSpringEntrance.hpp>
 #include <Components/VoidPosition.hpp>
 #include <Components/Wall.hpp>
-#include <Components/Well/WellBuildingSegment.hpp>
-#include <Components/Well/WellEntrance.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <PathFinding/AStar.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
@@ -778,10 +778,10 @@ void RenderOverlaySystem::render_ui_entity_inspect()
       if ( reg().all_of<Cmp::AltarSegment>( entity ) ) draw_line( " AltarSegment", sf::Color::Cyan );
       if ( reg().all_of<Cmp::CryptBuildingSegment>( entity ) ) draw_line( " CryptSegment", sf::Color::Cyan );
       if ( reg().all_of<Cmp::RuinBuildingSegment>( entity ) ) draw_line( " RuinSegment", sf::Color::Cyan );
-      if ( reg().all_of<Cmp::WellBuildingSegment>( entity ) ) draw_line( " HolyWellSegment", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::HealingSpringBuildingSegment>( entity ) ) draw_line( " HealingSpringSegment", sf::Color::Cyan );
       if ( reg().all_of<Cmp::CryptEntrance>( entity ) ) draw_line( " CryptEntrance", sf::Color::Cyan );
       if ( reg().all_of<Cmp::RuinEntrance>( entity ) ) draw_line( " CryptEntrance", sf::Color::Cyan );
-      if ( reg().all_of<Cmp::WellEntrance>( entity ) ) draw_line( " HollyWellEntrance", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::HealingSpringEntrance>( entity ) ) draw_line( " HealingSpringEntrance", sf::Color::Cyan );
 
       if ( auto *cmp = reg().try_get<Cmp::UUID>( entity ) ) draw_line( " " + cmp->str(), sf::Color::White );
 

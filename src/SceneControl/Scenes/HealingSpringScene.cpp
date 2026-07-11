@@ -6,13 +6,12 @@
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/PathfindingFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
-#include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
 #include <SceneControl/SceneData.hpp>
-#include <SceneControl/Scenes/HolyWellScene.hpp>
+#include <SceneControl/Scenes/HealingSpringScene.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/CryptSystem.hpp>
 #include <Systems/FootstepSystem.hpp>
-#include <Systems/HolyWellSystem.hpp>
+#include <Systems/HealingSpringSystem.hpp>
 #include <Systems/LootSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
@@ -29,7 +28,7 @@
 namespace Game::Scene
 {
 
-void HolyWellScene::on_init()
+void HealingSpringScene::on_init()
 {
   auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
   m_persistent_sys.initialize_component_registry();
@@ -67,7 +66,7 @@ void HolyWellScene::on_init()
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 }
 
-void HolyWellScene::on_enter()
+void HealingSpringScene::on_enter()
 {
   SPDLOG_INFO( "Entering {}", get_name() );
   m_sound_bank.get_music( "game_music" ).stop();
@@ -90,7 +89,7 @@ void HolyWellScene::on_enter()
   player_dir = Cmp::Direction{ { 0.f, 0.f } };
 }
 
-void HolyWellScene::on_exit()
+void HealingSpringScene::on_exit()
 {
   SPDLOG_INFO( "Exiting {}", get_name() );
   m_reg.clear();
@@ -99,14 +98,14 @@ void HolyWellScene::on_exit()
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 }
 
-void HolyWellScene::do_update( sf::Time dt )
+void HealingSpringScene::do_update( sf::Time dt )
 {
   m_sys.find<Sys::Store::Type::AnimSystem>().update( dt );
   m_sys.find<Sys::Store::Type::NpcSystem>().update( dt );
   m_sys.find<Sys::Store::Type::FootstepSystem>().update();
   m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision();
-  m_sys.find<Sys::Store::Type::HolyWellSystem>().check_exit_collision();
-  // m_sys.find<Sys::Store::Type::HolyWellSystem>().check_inventory_deposit( dt );
+  m_sys.find<Sys::Store::Type::HealingSpringSystem>().check_exit_collision();
+  // m_sys.find<Sys::Store::Type::HealingSpringSystem>().check_inventory_deposit( dt );
 
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
 
@@ -114,13 +113,13 @@ void HolyWellScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys );
 }
 
-void HolyWellScene::reinit_navmesh()
+void HealingSpringScene::reinit_navmesh()
 {
   m_sys.find<Sys::Store::Type::NpcSystem>().init( m_npc_navmesh, m_open_navmesh );
   m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_npc_navmesh, m_player_navmesh, m_open_navmesh );
   m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_npc_navmesh );
 }
 
-entt::registry &HolyWellScene::registry() { return m_reg; }
+entt::registry &HealingSpringScene::registry() { return m_reg; }
 
 } // namespace Game::Scene

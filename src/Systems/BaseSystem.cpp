@@ -6,7 +6,7 @@
 #include <Components/PlantObstacle.hpp>
 #include <Components/Ruin/RuinBuildingSegment.hpp>
 #include <Components/Ruin/RuinStairsSegment.hpp>
-#include <Components/Well/WellBuildingSegment.hpp>
+#include <Components/Spring/HealingSpringBuildingSegment.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <Audio/SoundBank.hpp>

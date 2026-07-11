@@ -1,9 +1,9 @@
-#ifndef SRC_SCENECONTROL_SCENES_HOLYWELLSCENE_HPP__
-#define SRC_SCENECONTROL_SCENES_HOLYWELLSCENE_HPP__
+#ifndef SRC_SCENECONTROL_SCENES_SACREDSPRINGSCENE_HPP__
+#define SRC_SCENECONTROL_SCENES_SACREDSPRINGSCENE_HPP__
 
 #include <Factory/SpriteFactory.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
+#include <SceneControl/Events/ProcessHealingSpringSceneInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
 #include <Sprites/VertexFloor.hpp>
 
@@ -15,11 +15,11 @@ namespace Game::Audio { class SoundBank; }
 namespace Game::Scene
 {
 
-class HolyWellScene : public Scene<Events::ProcessHolyWellSceneInputEvent>
+class HealingSpringScene : public Scene<Events::ProcessHealingSpringSceneInputEvent>
 {
 public:
-  HolyWellScene( Audio::SoundBank &sound_bank, Sys::Store &system_store, entt::dispatcher &nav_event_dispatcher,
-                 Sprites::SpriteFactory &sprite_Factory )
+  HealingSpringScene( Audio::SoundBank &sound_bank, Sys::Store &system_store, entt::dispatcher &nav_event_dispatcher,
+                      Sprites::SpriteFactory &sprite_Factory )
       : Scene( nav_event_dispatcher ),
         m_sound_bank( sound_bank ),
         m_sys( system_store ),
@@ -30,7 +30,7 @@ public:
   void on_init() override;
   void on_enter() override;
   void on_exit() override;
-  std::string get_name() const override { return "HolyWellScene"; }
+  [[nodiscard]] std::string get_name() const override { return "HealingSpringScene"; }
 
   entt::registry &registry() override;
 
@@ -47,4 +47,4 @@ private:
 
 } // namespace Game::Scene
 
-#endif // SRC_SCENECONTROL_SCENES_HOLYWELLSCENE_HPP__
+#endif // SRC_SCENECONTROL_SCENES_SACREDSPRINGSCENE_HPP__

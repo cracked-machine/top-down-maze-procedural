@@ -7,17 +7,17 @@
 #include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
+#include <Components/Spring/HealingSpringBuildingMultiBlock.hpp>
+#include <Components/Spring/HealingSpringBuildingSegment.hpp>
+#include <Components/Spring/HealingSpringEntrance.hpp>
+#include <Components/Spring/HealingSpringMultiBlock.hpp>
 #include <Components/Wall.hpp>
-#include <Components/Well/FountainMultiBlock.hpp>
-#include <Components/Well/WellBuildingMultiBlock.hpp>
-#include <Components/Well/WellBuildingSegment.hpp>
-#include <Components/Well/WellEntrance.hpp>
 #include <Events/DropInventoryEvent.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Sprites/SpriteSheet.hpp>
-#include <Systems/HolyWellSystem.hpp>
+#include <Systems/HealingSpringSystem.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>
@@ -28,20 +28,20 @@
 namespace Game::Sys
 {
 
-void HolyWellSystem::on_player_action( Events::PlayerActionEvent ev )
+void HealingSpringSystem::on_player_action( Events::PlayerActionEvent ev )
 {
   if ( ev.action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
   check_inventory_deposit();
 }
 
-void HolyWellSystem::update_building_zorder()
+void HealingSpringSystem::update_building_zorder()
 {
   auto player_pos = Utils::Player::get_position( reg() );
 
-  for ( auto [mb_entt, mb_cmp, mb_z_cmp] : reg().view<Cmp::WellBuildingMultiBlock, Cmp::ZOrderValue>().each() )
+  for ( auto [mb_entt, mb_cmp, mb_z_cmp] : reg().view<Cmp::HealingSpringBuildingMultiBlock, Cmp::ZOrderValue>().each() )
   {
     if ( not player_pos.findIntersection( mb_cmp ) ) continue;
-    auto segment_view = reg().view<Cmp::WellBuildingSegment, Cmp::Position, Cmp::ZOrderValue>();
+    auto segment_view = reg().view<Cmp::HealingSpringBuildingSegment, Cmp::Position, Cmp::ZOrderValue>();
     for ( auto [segment_entt, segment_cmp, segment_pos_cmp, segment_z_cmp] : segment_view.each() )
     {
       if ( not player_pos.findIntersection( segment_pos_cmp ) ) continue;
@@ -51,10 +51,10 @@ void HolyWellSystem::update_building_zorder()
   }
 }
 
-void HolyWellSystem::check_entrance_collision()
+void HealingSpringSystem::check_entrance_collision()
 {
   auto player_pos = Utils::Player::get_position( reg() );
-  auto door_view = reg().view<Cmp::WellEntrance, Cmp::Position>();
+  auto door_view = reg().view<Cmp::HealingSpringEntrance, Cmp::Position>();
 
   for ( auto [door_entity, door_cmp, door_pos_cmp] : door_view.each() )
   {
@@ -65,7 +65,7 @@ void HolyWellSystem::check_entrance_collision()
     auto decreased_entrance_bounds = Cmp::RectBounds::scaled( door_pos_cmp.position, door_pos_cmp.size, 0.1f, Cmp::RectBounds::ScaleAxis::XY );
 
     if ( not player_pos.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
-    m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_HOLYWELL );
+    m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_SACREDSPRING );
 
     Factory::remove_player_last_graveyard_pos( reg() );
     Cmp::Position last_known_pos(
@@ -80,7 +80,7 @@ void HolyWellSystem::check_entrance_collision()
   }
 }
 
-void HolyWellSystem::check_exit_collision()
+void HealingSpringSystem::check_exit_collision()
 {
   auto player_pos = Utils::Player::get_position( reg() );
   auto door_view = reg().view<Cmp::Exit, Cmp::Position>();
@@ -94,11 +94,11 @@ void HolyWellSystem::check_exit_collision()
                                                               Cmp::RectBounds::ScaleAxis::XY ); // shrink entrance bounds slightly for better UX
 
     if ( not player_pos.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
-    m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::EXIT_HOLYWELL );
+    m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::EXIT_SACREDSPRING );
   }
 }
 
-void HolyWellSystem::check_inventory_deposit()
+void HealingSpringSystem::check_inventory_deposit()
 {
 
   auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg() );
@@ -106,9 +106,9 @@ void HolyWellSystem::check_inventory_deposit()
 
   auto &wealth = Utils::Player::get_wealth( m_reg );
 
-  // check if we're near a holywell
+  // check if we're near a healing spring
   auto player_hitbox = Cmp::RectBounds::scaled( Utils::Player::get_position( reg() ).position, Constants::kGridSizePxF, 1.5f );
-  for ( auto [well_entt, well_mb_cmp] : reg().view<Cmp::FountainMultiBlock>().each() )
+  for ( auto [well_entt, well_mb_cmp] : reg().view<Cmp::HealingSpringMultiBlock>().each() )
   {
     if ( not player_hitbox.findIntersection( well_mb_cmp ) ) continue;
     Factory::destroy_inventory( reg(), inventory_type );

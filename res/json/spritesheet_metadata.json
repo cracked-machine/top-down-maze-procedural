@@ -445,9 +445,9 @@
         }
       }
     },
-    "sprite.graveyard.well": {
+    "sprite.graveyard.building.healingspring": {
       "spritesheet": {
-        "displayname": "sprite.graveyard.well",
+        "displayname": "sprite.graveyard.building.healingspring",
         "zorder": [
           48,48,48,
           -16,-16,-16,
@@ -1910,9 +1910,9 @@
       }
     },
 
-    "sprite.well.fountain": {
+    "sprite.graveyard.healingspring": {
       "spritesheet": {
-        "displayname": "sprite.well.fountain",
+        "displayname": "sprite.graveyard.healingspring",
         "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/wellfountain.png",
         "sprite_indices": [0, 3, 6, 9],

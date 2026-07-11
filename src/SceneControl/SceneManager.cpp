@@ -11,7 +11,7 @@
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <SceneControl/Scenes/GameOverScene.hpp>
 #include <SceneControl/Scenes/GraveyardScene.hpp>
-#include <SceneControl/Scenes/HolyWellScene.hpp>
+#include <SceneControl/Scenes/HealingSpringScene.hpp>
 #include <SceneControl/Scenes/LevelCompleteScene.hpp>
 #include <SceneControl/Scenes/PausedMenuScene.hpp>
 #include <SceneControl/Scenes/RuinSceneLowerFloor.hpp>
@@ -217,14 +217,14 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
       pop( RegCopyMode::ALL );
       break;
     }
-    case Events::SceneManagerEvent::Type::ENTER_HOLYWELL: {
-      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::ENTER_HOLYWELL requested" );
-      auto holywell_scene = std::make_unique<HolyWellScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher, m_sprite_factory );
-      push_no_exit( std::move( holywell_scene ), RegCopyMode::ALL );
+    case Events::SceneManagerEvent::Type::ENTER_SACREDSPRING: {
+      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::ENTER_SACREDSPRING requested" );
+      auto healing_spring_scene = std::make_unique<HealingSpringScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher, m_sprite_factory );
+      push_no_exit( std::move( healing_spring_scene ), RegCopyMode::ALL );
       break;
     }
-    case Events::SceneManagerEvent::Type::EXIT_HOLYWELL: {
-      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::EXIT_HOLYWELL requested" );
+    case Events::SceneManagerEvent::Type::EXIT_SACREDSPRING: {
+      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::EXIT_SACREDSPRING requested" );
       pop( RegCopyMode::ALL );
       break;
     }

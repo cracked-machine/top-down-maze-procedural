@@ -26,7 +26,7 @@
 #include <SceneControl/Events/ProcessCryptSceneInputEvent.hpp>
 #include <SceneControl/Events/ProcessGameoverSceneInputEvent.hpp>
 #include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
-#include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
+#include <SceneControl/Events/ProcessHealingSpringSceneInputEvent.hpp>
 #include <SceneControl/Events/ProcessLevelCompleteSceneInputEvent.hpp>
 #include <SceneControl/Events/ProcessPausedMenuSceneInputEvent.hpp>
 #include <SceneControl/Events/ProcessRuinSceneLowerInputEvent.hpp>
@@ -62,7 +62,7 @@ SceneInputRouter::SceneInputRouter( entt::registry &reg, sf::RenderWindow &m_win
   m_nav_event_dispatcher.sink<Events::ProcessGameoverSceneInputEvent>().connect<&SceneInputRouter::game_over_scene_state_handler>(this );
   m_nav_event_dispatcher.sink<Events::ProcessLevelCompleteSceneInputEvent>().connect<&SceneInputRouter::level_complete_scene_state_handler>( this );
   m_nav_event_dispatcher.sink<Events::ProcessCryptSceneInputEvent>().connect<&SceneInputRouter::crypt_scene_state_handler>( this );
-  m_nav_event_dispatcher.sink<Events::ProcessHolyWellSceneInputEvent>().connect<&SceneInputRouter::holywell_scene_state_handler>( this );
+  m_nav_event_dispatcher.sink<Events::ProcessHealingSpringSceneInputEvent>().connect<&SceneInputRouter::healing_spring_scene_state_handler>( this );
   m_nav_event_dispatcher.sink<Events::ProcessRuinSceneLowerInputEvent>().connect<&SceneInputRouter::ruin_scene_state_handler>( this );
   m_nav_event_dispatcher.sink<Events::ProcessRuinSceneUpperInputEvent>().connect<&SceneInputRouter::ruin_scene_state_handler>( this );
   m_nav_event_dispatcher.sink<Events::ProcessShopSceneInputEvent>().connect<&SceneInputRouter::shop_scene_state_handler>( this );
@@ -130,7 +130,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
       {
         Factory::add_player_last_graveyard_pos( reg(), Utils::Player::get_position( reg() ), { 0.f, 0.f } );
 
-        enqueue( Events::SceneManagerEvent::Type::ENTER_HOLYWELL );
+        enqueue( Events::SceneManagerEvent::Type::ENTER_SACREDSPRING );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F7 )
       {
@@ -260,7 +260,7 @@ void SceneInputRouter::crypt_scene_state_handler()
   }
 }
 
-void SceneInputRouter::holywell_scene_state_handler()
+void SceneInputRouter::healing_spring_scene_state_handler()
 {
 
   using namespace sf::Keyboard;

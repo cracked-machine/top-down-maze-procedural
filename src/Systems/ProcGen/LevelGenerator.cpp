@@ -33,11 +33,11 @@
 #include <Components/Ruin/RuinStairsUpperMultiBlock.hpp>
 #include <Components/Ruin/RuneMarking.hpp>
 #include <Components/SpawnArea.hpp>
+#include <Components/Spring/HealingSpringBuildingMultiBlock.hpp>
+#include <Components/Spring/HealingSpringBuildingSegment.hpp>
+#include <Components/Spring/HealingSpringMultiBlock.hpp>
+#include <Components/Spring/HealingSpringSegment.hpp>
 #include <Components/Wall.hpp>
-#include <Components/Well/FountainMultiBlock.hpp>
-#include <Components/Well/FountainSegment.hpp>
-#include <Components/Well/WellBuildingMultiBlock.hpp>
-#include <Components/Well/WellBuildingSegment.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/CreateItemEvent.hpp>
 #include <Factory/CryptFactory.hpp>
@@ -63,7 +63,6 @@
 #include <Utils/Utils.hpp>
 
 #include <SFML/System/Vector2.hpp>
-#include <memory>
 #include <ranges>
 #include <spdlog/spdlog.h>
 
@@ -131,9 +130,9 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
   for ( const auto &[ms_type, pos] : scene_data.multiblock_objectlayer() )
   {
     const auto &ms = m_sprite_factory.get_spritesheet_by_type( ms_type );
-    if ( ms_type == "sprite.well.fountain" )
+    if ( ms_type == "sprite.graveyard.healingspring" )
     {
-      Factory::add_multiblock_with_segments<Cmp::FountainMultiBlock, Cmp::FountainSegment>( reg(), pos, ms );
+      Factory::add_multiblock_with_segments<Cmp::HealingSpringMultiBlock, Cmp::HealingSpringSegment>( reg(), pos, ms );
     }
     else if ( ms_type == "sprite.crypt.objective.closed" )
     {
@@ -319,7 +318,7 @@ void LevelGenerator::gen_graveyard_exterior_multiblocks()
   auto grave_num_multiplier = Sys::PersistSystem::get<Cmp::Persist::GraveNumMultiplier>( reg() );
   auto max_num_altars = Sys::PersistSystem::get<Cmp::Persist::MaxNumAltars>( reg() );
   auto max_num_crypts = Sys::PersistSystem::get<Cmp::Persist::MaxNumCrypts>( reg() );
-  std::size_t max_number_holywells = 1;
+  std::size_t max_number_healing_springs = 1;
   std::size_t max_number_ruins = 1;
 
   // GRAVES
@@ -352,10 +351,10 @@ void LevelGenerator::gen_graveyard_exterior_multiblocks()
     do_gen_graveyard_exterior_multiblock( crypt_spritesheet, 0 );
   }
 
-  const auto &holywell_spritesheet = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.well" );
-  for ( std::size_t i = 0; i < max_number_holywells; ++i )
+  const auto &healingspring_spritesheet = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.building.healingspring" );
+  for ( std::size_t i = 0; i < max_number_healing_springs; ++i )
   {
-    do_gen_graveyard_exterior_multiblock( holywell_spritesheet, 0 );
+    do_gen_graveyard_exterior_multiblock( healingspring_spritesheet, 0 );
   }
 
   const auto &ruin_spritesheet = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.ruin" );
@@ -387,9 +386,10 @@ void LevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::Sprite
     Factory::add_multiblock_with_segments<Cmp::CryptBuildingMultiBlock, Cmp::CryptBuildingSegment>( reg(), random_origin_position.position, ms );
     SPDLOG_INFO( "Added {} to {},{}", ms.get_sprite_type(), random_origin_position.position.x, random_origin_position.position.y );
   }
-  else if ( ms.get_sprite_type() == "sprite.graveyard.well" )
+  else if ( ms.get_sprite_type() == "sprite.graveyard.building.healingspring" )
   {
-    Factory::add_multiblock_with_segments<Cmp::WellBuildingMultiBlock, Cmp::WellBuildingSegment>( reg(), random_origin_position.position, ms );
+    Factory::add_multiblock_with_segments<Cmp::HealingSpringBuildingMultiBlock, Cmp::HealingSpringBuildingSegment>(
+        reg(), random_origin_position.position, ms );
     SPDLOG_INFO( "Added {} to {},{}", ms.get_sprite_type(), random_origin_position.position.x, random_origin_position.position.y );
   }
   else if ( ms.get_sprite_type() == "sprite.graveyard.ruin" )
@@ -445,9 +445,9 @@ std::pair<entt::entity, Cmp::Position> LevelGenerator::find_spawn_location( cons
         if ( crypt_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
-      for ( auto [entity, holywell_cmp, holywell_pos_cmp] : reg().view<Cmp::WellBuildingSegment, Cmp::Position>().each() )
+      for ( auto [entity, spring_cmp, spring_pos_cmp] : reg().view<Cmp::HealingSpringBuildingSegment, Cmp::Position>().each() )
       {
-        if ( holywell_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
+        if ( spring_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
       for ( auto [entity, ruin_cmp, ruin_pos_cmp] : reg().view<Cmp::RuinBuildingSegment, Cmp::Position>().each() )
