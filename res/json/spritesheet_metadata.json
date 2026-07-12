@@ -449,28 +449,28 @@
       "spritesheet": {
         "displayname": "sprite.graveyard.building.healingspring",
         "zorder": [
-          48,48,48,
-          -16,-16,-16,
-          -16,-16,-16,
-          -16,-16,-16
+          48, 48, 48, 48, 48,
+          -16,-16,-16,-16,-16,
+          -16,-16,-16,-16,-16,
+          -16,-16,-16,-16,-16
         ],
         "texture_path": "res/textures/landmarks.png",
         "sprite_indices": [160],
         "solid_mask": [
-          false,false,false,
-          true, true, true, 
-          true, true, true, 
-          true, false, true
+          false,false,false,false,false,
+          true, true, true, true, true, 
+          true, true, true, true, true,
+          true, true, false, true, true
         ],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "x": 3,
+          "x": 5,
           "y": 4
         },
         "door_position" :
         {
-          "x": 1,
+          "x": 2,
           "y": 3
         }
       }
