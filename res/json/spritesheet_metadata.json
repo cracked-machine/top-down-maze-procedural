@@ -13,7 +13,7 @@
           -16,-16,-16,-16,-16
         ],
         "texture_path": "res/textures/landmarks.png",
-        "sprite_indices": [500],
+        "sprite_indices": [80],
         "solid_mask": [
           false,false,false,false,false,
           false,false,false,false,false,
@@ -49,7 +49,7 @@
           -16,-16,-16,-16,-16
         ],
         "texture_path": "res/textures/landmarks.png",
-        "sprite_indices": [505],
+        "sprite_indices": [85],
         "solid_mask": [
           false,false,false,false,false,
           false,false,false,false,false,
