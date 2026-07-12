@@ -19,7 +19,10 @@ class SpriteFactory;
 
 namespace Game::Factory
 {
-entt::entity create_plant_obstacle( entt::registry &reg, Cmp::Position pos_cmp, const Sprites::SpriteSheet &ms );
+//! @brief Remove the components of plant multiblock and segment entities
+//! @param reg
+//! @param plant_entt
+void remove_plant_mb( entt::registry &reg, entt::entity plant_entt );
 
 } // namespace Game::Factory
 

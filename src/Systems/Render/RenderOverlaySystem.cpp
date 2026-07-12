@@ -14,6 +14,7 @@
 #include <Components/FootStepTimer.hpp>
 #include <Components/Grave/GraveExitSegment.hpp>
 #include <Components/Grave/GraveSegment.hpp>
+#include <Components/Grave/PlantSegment.hpp>
 #include <Components/Hazard/CorruptionCell.hpp>
 #include <Components/Hazard/HazardFieldCell.hpp>
 #include <Components/Hazard/SinkholeCell.hpp>
@@ -776,6 +777,7 @@ void RenderOverlaySystem::render_ui_entity_inspect()
       if ( reg().all_of<Cmp::GraveExitSegment>( entity ) ) draw_line( " GraveExitSegment", sf::Color::Cyan );
       if ( reg().all_of<Cmp::GraveSegment>( entity ) ) draw_line( " GraveSegment", sf::Color::Cyan );
       if ( reg().all_of<Cmp::AltarSegment>( entity ) ) draw_line( " AltarSegment", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::PlantSegment>( entity ) ) draw_line( " PlantSegment", sf::Color::Cyan );
       if ( reg().all_of<Cmp::CryptBuildingSegment>( entity ) ) draw_line( " CryptSegment", sf::Color::Cyan );
       if ( reg().all_of<Cmp::RuinBuildingSegment>( entity ) ) draw_line( " RuinSegment", sf::Color::Cyan );
       if ( reg().all_of<Cmp::HealingSpringBuildingSegment>( entity ) ) draw_line( " HealingSpringSegment", sf::Color::Cyan );

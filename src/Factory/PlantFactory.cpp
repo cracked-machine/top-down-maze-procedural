@@ -1,53 +1,53 @@
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Armable.hpp>
+#include <Components/Grave/PlantMultiBlock.hpp>
+#include <Components/Grave/PlantSegment.hpp>
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
-#include <Components/PlantObstacle.hpp>
+// #include <Components/PlantObstacle.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerNoPath.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
+#include <Components/UUID.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/PlantFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
+#include <Systems/Render/RenderSystem.hpp>
+#include <Utils/Optimizations.hpp>
 #include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
+#include <entt/entity/registry.hpp>
+#include <vector>
 
 namespace Game::Factory
 {
 
-entt::entity create_plant_obstacle( entt::registry &reg, Cmp::Position pos_cmp, const Sprites::SpriteSheet &ms )
+void remove_plant_mb( entt::registry &reg, entt::entity plant_entt )
 {
-  // make sure we mark all position entities as reserved to prevent procgen reusing this spot.
-  for ( auto [existing_pos_entt, existing_pos_cmp] : reg.view<Cmp::Position>().each() )
+  auto *plant_mb_cmp = reg.try_get<Cmp::PlantMultiBlock>( plant_entt );
+  auto *plant_uuid_cmp = reg.try_get<Cmp::UUID>( plant_entt );
+  if ( not plant_mb_cmp or not plant_uuid_cmp ) return;
+
+  // find the UUID for the other multiblock/segments and remove them. We want to retain the entity/position.
+  for ( auto [other_uuid_entt, plant_segment_cmp, other_uuid_cmp] : reg.view<Cmp::PlantSegment, Cmp::UUID>().each() )
   {
-    if ( not pos_cmp.findIntersection( existing_pos_cmp ) ) continue;
-    reg.emplace_or_replace<Cmp::ReservedPosition>( existing_pos_entt );
+    if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), *plant_mb_cmp ) ) continue;
+    if ( *plant_uuid_cmp == other_uuid_cmp )
+    {
+      SPDLOG_INFO( "Found segment entt {}", static_cast<uint32_t>( other_uuid_entt ) );
+      reg.remove<Cmp::PlantMultiBlock>( other_uuid_entt );
+      reg.remove<Cmp::PlantSegment>( other_uuid_entt );
+      reg.remove<Cmp::UUID>( other_uuid_entt );
+      reg.remove<Cmp::PlayerNoPath>( other_uuid_entt );
+      reg.remove<Cmp::NpcNoPathFinding>( other_uuid_entt );
+      reg.remove<Cmp::ReservedPosition>( other_uuid_entt );
+    }
   }
-
-  auto plant_entt = reg.create();
-  reg.emplace_or_replace<Cmp::Position>( plant_entt, pos_cmp.position, pos_cmp.size );
-  reg.emplace_or_replace<Cmp::PlantObstacle>( plant_entt );
-  reg.emplace_or_replace<Cmp::WorldItem>( plant_entt, ms.get_sprite_type().substr( std::string_view{ "sprite." }.size() ), ms.get_sprite_type() );
-  reg.emplace_or_replace<Cmp::ReservedPosition>( plant_entt );
-  reg.emplace_or_replace<Cmp::NpcNoPathFinding>( plant_entt );
-  reg.emplace_or_replace<Cmp::PlayerNoPath>( plant_entt, false );
-  reg.emplace_or_replace<Cmp::AbsoluteAlpha>( plant_entt, 255 );
-  // clang-format off
-  reg.emplace_or_replace<Cmp::AnimData>( plant_entt, Cmp::AnimData::Config{ 
-        .sprite_type = ms.get_sprite_type(), 
-        .enabled = true
-  });
-  // clang-format on
-  reg.emplace_or_replace<Cmp::Armable>( plant_entt );
-
-  Cmp::ZOrderValue zorder( 0 );
-  if ( ms.get_zorder( 0 ) != 0 ) { zorder.setZOrder( ms.get_zorder( 0 ) ); }
-  else { zorder.setZOrder( pos_cmp.position.y ); }
-  reg.emplace_or_replace<Cmp::ZOrderValue>( plant_entt, zorder );
-  return plant_entt;
+  // now destroy the redundant plant multiblock entity
+  if ( reg.valid( plant_entt ) ) reg.destroy( plant_entt );
 }
 
 } // namespace Game::Factory

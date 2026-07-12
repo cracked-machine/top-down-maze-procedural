@@ -4,7 +4,6 @@
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
-#include <Components/PlantObstacle.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerNoPath.hpp>
 #include <Components/ReservedPosition.hpp>

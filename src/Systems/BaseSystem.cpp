@@ -1,32 +1,7 @@
-// #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
-
-#include <Components/Crypt/CryptChest.hpp>
-#include <Components/Crypt/CryptLever.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
-#include <Components/PlantObstacle.hpp>
-#include <Components/Ruin/RuinBuildingSegment.hpp>
-#include <Components/Ruin/RuinStairsSegment.hpp>
-#include <Components/Spring/HealingSpringBuildingSegment.hpp>
-#include <Systems/BaseSystem.hpp>
 
 #include <Audio/SoundBank.hpp>
-#include <Components/Altar/AltarSegment.hpp>
-#include <Components/Crypt/CryptBuildingSegment.hpp>
-#include <Components/Crypt/CryptInteriorSegment.hpp>
-#include <Components/Crypt/CryptObjectiveSegment.hpp>
-#include <Components/Exit.hpp>
-#include <Components/Grave/GraveSegment.hpp>
-#include <Components/LerpPosition.hpp>
-#include <Components/Npc/Npc.hpp>
-#include <Components/Obstacle.hpp>
-#include <Components/Persistent/PcDamageDelay.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
-#include <Components/RectBounds.hpp>
-#include <Components/ReservedPosition.hpp>
-#include <Components/Wall.hpp>
 #include <Factory/SpriteFactory.hpp>
-#include <Systems/PersistSystem.hpp>
-#include <Systems/PersistSystemImpl.hpp>
+#include <Systems/BaseSystem.hpp>
 
 #include <entt/entity/registry.hpp>
 

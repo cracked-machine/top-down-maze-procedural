@@ -6,6 +6,8 @@
 #include <Components/Direction.hpp>
 #include <Components/Exit.hpp>
 #include <Components/FootStepTimer.hpp>
+#include <Components/Grave/PlantMultiBlock.hpp>
+#include <Components/Grave/PlantSegment.hpp>
 #include <Components/Inventory/Explosive.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
@@ -51,6 +53,7 @@
 #include <Events/PlayerActionEvent.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/LootFactory.hpp>
+#include <Factory/MultiblockFactory.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
@@ -740,11 +743,14 @@ void PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entit
     return;
   }
 
-  // if plant then replant it in the ground - snap to nearest grid to prevent collision issues
+  // if player inventory is a plant item then replant it in the ground - snap to nearest grid to prevent collision issues
   if ( inventory_slot_cmp->m_item.sprite_type.contains( "plant" ) )
   {
-    Factory::create_plant_obstacle( reg(), Cmp::Position( Utils::snap_to_grid( pos ), Constants::kGridSizePxF ),
-                                    m_sprite_factory.get_spritesheet_by_type( inventory_slot_cmp->m_item.sprite_type ) );
+    // multiblocks are top-left anchored, so offset the y-axis so that plant base is at players feet
+    [[maybe_unused]] auto mb_entt = Factory::add_multiblock_with_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>(
+        reg(), Utils::snap_to_grid( { pos.x, pos.y - Constants::kGridSizePxF.y } ),
+        m_sprite_factory.get_spritesheet_by_type( inventory_slot_cmp->m_item.sprite_type ) );
+
     reg().destroy( inventory_slot_entt );
     return;
   }
@@ -795,16 +801,21 @@ void PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entit
 
 void PlayerSystem::pickup_world_item( entt::registry &reg, entt::entity world_item_entt )
 {
-  // does this entity own a world item that can be carried?
-  auto *world_item_cmp = reg.try_get<Cmp::WorldItem>( world_item_entt );
-  if ( not world_item_cmp ) return;
+  
+  auto *anim_data_cmp = reg.try_get<Cmp::AnimData>( world_item_entt );
+  if ( not anim_data_cmp ) return;
+
+  auto sprite_key = anim_data_cmp->m_sprite_type;
+  if ( sprite_key.starts_with( "sprite." ) )
+    sprite_key = sprite_key.substr( 7 );
+  auto world_item_cmp = Sys::ItemStore::instance().get_item( sprite_key );  
 
   // create the basic inventory slot entt
   auto inventory_entity = reg.create();
-  reg.emplace_or_replace<Cmp::PlayerInventorySlot>( inventory_entity, *world_item_cmp );
+  reg.emplace_or_replace<Cmp::PlayerInventorySlot>( inventory_entity, world_item_cmp );
   // clang-format off
   reg.emplace_or_replace<Cmp::AnimData>( inventory_entity, Cmp::AnimData::Config{  
-        .sprite_type =  world_item_cmp->sprite_type,
+        .sprite_type =  world_item_cmp.sprite_type,
         .enabled = false
   });
   // clang-format on
@@ -840,7 +851,8 @@ void PlayerSystem::pickup_world_item( entt::registry &reg, entt::entity world_it
 
   // now destroy the world item entt
   SPDLOG_DEBUG( "Picked up world entt {}", static_cast<uint32_t>( world_item_entt ) );
-  reg.destroy( world_item_entt );
+  Factory::remove_plant_mb( reg, world_item_entt );
+  if ( reg.valid( world_item_entt ) ) reg.destroy( world_item_entt );
 
   if ( inventory_entity != entt::null ) { m_sound_bank.get_effect( "get_loot" ).play(); }
 }

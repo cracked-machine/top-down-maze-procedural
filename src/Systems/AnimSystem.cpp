@@ -15,6 +15,7 @@
 
 #include <SFML/System/Time.hpp>
 #include <spdlog/spdlog.h>
+#include <stdexcept>
 
 namespace Game::Sys
 {
@@ -103,6 +104,10 @@ void AnimSystem::update_single_sequence( Cmp::AnimData &anim, sf::Time dt, const
     //              anim.m_elapsed_time.asSeconds(), ms.get_sprites_per_frame(), ms.get_sprites_per_sequence() );
 
     unsigned int num_animation_frames = ms.get_sprites_per_sequence() / ms.get_sprites_per_frame();
+    if ( num_animation_frames < 1 )
+    {
+      throw std::runtime_error( "Not enough indices in Sprite '" + ms.get_sprite_type() + "': sprites per sequence / sprites per frame == 0" );
+    }
     unsigned int current_anim_frame = anim.m_current_frame / ms.get_sprites_per_frame();
     unsigned int next_anim_frame = ( current_anim_frame + 1 ) % num_animation_frames;
     // SPDLOG_INFO( "Next: next_anim_frame={}", next_anim_frame );

@@ -4,6 +4,8 @@
 #include <Components/AnimData.hpp>
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/Direction.hpp>
+#include <Components/Grave/PlantMultiBlock.hpp>
+#include <Components/Grave/PlantSegment.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/LastDirection.hpp>
@@ -15,7 +17,6 @@
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
-#include <Components/PlantObstacle.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerNoPath.hpp>
 #include <Components/Random.hpp>
@@ -30,6 +31,7 @@
 #include <Factory/BombFactory.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
+#include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
@@ -78,14 +80,14 @@ void ActionSystem::update( sf::Time dt )
   {
     // check if plant player path blocking should be activated
     auto player_pos = Utils::Player::get_position( reg() );
-    for ( auto [plant_entt, plant_cmp, plant_pos_cmp] : reg().view<Cmp::PlantObstacle, Cmp::Position>().each() )
+    for ( auto [plant_entt, plant_mb_cmp] : reg().view<Cmp::PlantMultiBlock>().each() )
     {
       auto *playernopath_cmp = reg().try_get<Cmp::PlayerNoPath>( plant_entt );
       if ( not playernopath_cmp ) continue;
 
       // enable inactive pathblocking on the plant once the player has moved away from its bbox
       if ( playernopath_cmp->active ) continue;
-      if ( not player_pos.findIntersection( plant_pos_cmp ) ) { playernopath_cmp->active = true; }
+      if ( not player_pos.findIntersection( plant_mb_cmp ) ) { playernopath_cmp->active = true; }
     }
     m_plantcheck_accumulator = sf::Time::Zero;
   }
@@ -310,12 +312,12 @@ void ActionSystem::check_player_dig_plant_collision()
   }
 
   // Iterate through all entities with Position and Obstacle components
-  auto position_view = reg().view<Cmp::Position, Cmp::PlantObstacle, Cmp::AbsoluteAlpha>( entt::exclude<Cmp::SelectedPosition> );
+  auto position_view = reg().view<Cmp::PlantMultiBlock, Cmp::UUID>( entt::exclude<Cmp::SelectedPosition> );
   SPDLOG_DEBUG( "position_view size: {}", position_view.size_hint() );
-  for ( auto [obst_entity, obst_pos_cmp, obst_cmp, alpha_cmp] : position_view.each() )
+  for ( auto [plant_entt, plant_mb_cmp, plant_uuid_cmp] : position_view.each() )
   {
     auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
-    if ( mouse_position_bounds.findIntersection( obst_pos_cmp ) )
+    if ( mouse_position_bounds.findIntersection( plant_mb_cmp ) )
     {
       SPDLOG_DEBUG( "Found diggable entity at position: [{}, {}]!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
 
@@ -325,7 +327,7 @@ void ActionSystem::check_player_dig_plant_collision()
       for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : reg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
       {
         auto player_hitbox = Cmp::RectBounds::scaled( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
-        if ( player_hitbox.findIntersection( obst_pos_cmp ) )
+        if ( player_hitbox.findIntersection( plant_mb_cmp ) )
         {
           player_nearby = true;
           break;
@@ -337,55 +339,30 @@ void ActionSystem::check_player_dig_plant_collision()
 
       // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
       // Add a new SelectedPosition component to the entity
-      reg().emplace_or_replace<Cmp::SelectedPosition>( obst_entity, obst_pos_cmp.position );
+      reg().emplace_or_replace<Cmp::SelectedPosition>( plant_entt, plant_mb_cmp.position );
 
       // Apply digging damage, play a sound depending on whether the obstacle was destroyed
       m_dig_cooldown_clock.restart();
 
-      if ( inventory_slot_type == "sprite.item.shovel" )
-      {
-        auto existing_alpha = alpha_cmp.getAlpha();
-        auto damage_value = Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( reg() ).get_value();
-        auto damage_percentage = Utils::Maths::to_percent( 255.f, damage_value );
-        auto adjusted_alpha = std::max( 0, existing_alpha - damage_percentage );
-        alpha_cmp.setAlpha( adjusted_alpha );
-      }
-      else if ( inventory_slot_type == "sprite.item.axe" )
-      {
-        // axe will instakill all plants
-        alpha_cmp.setAlpha( 0 );
-      }
-
       float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
       Utils::Player::reduce_inventory_wear_level( reg(), reduction_amount );
 
-      if ( alpha_cmp.getAlpha() == 0 )
+      // select the final smash sound
+      m_sound_bank.get_effect( "chopping_final" ).play();
+      auto inventory_wear_view = reg().view<Cmp::PlayerInventorySlot>();
+      for ( auto [inventory_entt, inventory_slot] : inventory_wear_view.each() )
       {
-        // select the final smash sound
-        m_sound_bank.get_effect( "chopping_final" ).play();
-        auto inventory_wear_view = reg().view<Cmp::PlayerInventorySlot>();
-        for ( auto [inventory_entt, inventory_slot] : inventory_wear_view.each() )
+        if ( inventory_slot.m_item.sprite_type == "sprite.item.shovel" )
         {
-          if ( inventory_slot.m_item.sprite_type == "sprite.item.shovel" )
-          {
-            auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
-            auto player_pos = Utils::Player::get_position( reg() ).position;
-            get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
-          }
-          else if ( inventory_slot.m_item.sprite_type == "sprite.item.axe" )
-          {
-            if ( reg().valid( obst_entity ) ) reg().destroy( obst_entity );
-          }
+          auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
+          auto player_pos = Utils::Player::get_position( reg() ).position;
+          get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
         }
-        get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG, obst_entity ) );
+        else if ( inventory_slot.m_item.sprite_type == "sprite.item.axe" ) { Factory::remove_plant_mb( reg(), plant_entt ); }
+      }
+      get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG, plant_entt ) );
 
-        SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
-      }
-      else
-      {
-        // play digging sound and animation
-        m_sound_bank.get_effect( "digging_earth" ).play();
-      }
+      SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
     }
   }
 }

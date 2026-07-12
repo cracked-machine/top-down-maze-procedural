@@ -13,11 +13,12 @@
 #include <Components/Exit.hpp>
 #include <Components/Grave/GraveMultiBlock.hpp>
 #include <Components/Grave/GraveSegment.hpp>
+#include <Components/Grave/PlantMultiBlock.hpp>
+#include <Components/Grave/PlantSegment.hpp>
 #include <Components/Moveable.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/Persistent/MaxNumCrypts.hpp>
-#include <Components/PlantObstacle.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
@@ -521,7 +522,9 @@ std::vector<entt::entity> LevelGenerator::gen_random_plants( sf::Vector2u map_gr
     {
 
       // now create the plant at a new entt
-      Factory::create_plant_obstacle( reg(), random_pos, m_sprite_factory.get_spritesheet_by_type( rand_plant_type ) );
+      Factory::add_multiblock_with_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>( reg(), random_pos.position,
+                                                                                      m_sprite_factory.get_spritesheet_by_type( rand_plant_type ) );
+      // Factory::create_plant_obstacle( reg(), random_pos, m_sprite_factory.get_spritesheet_by_type( rand_plant_type ) );
       SPDLOG_DEBUG( "Created plant at {},{}", random_pos.position.x, random_pos.position.y );
       assigned_entts.push_back( random_entity );
     }

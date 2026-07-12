@@ -7,6 +7,7 @@
 #include <Components/FootStepTimer.hpp>
 #include <Components/Grave/GraveExitSegment.hpp>
 #include <Components/Grave/GraveSegment.hpp>
+#include <Components/Grave/PlantSegment.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcContainer.hpp>
@@ -21,7 +22,6 @@
 #include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
-#include <Components/PlantObstacle.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Position.hpp>
@@ -554,7 +554,7 @@ void NpcSystem::find_pushback_position( const Cmp::Direction &npc_direction )
   // make sure player isnt knocked into an obstacle or multiblock
   auto new_pos_rect = Cmp::RectBounds::scaled( new_position, Constants::kGridSizePxF, 1.f );
   if ( Utils::Collision::check_cmp<Cmp::Obstacle>( reg(), new_pos_rect ) ) return;
-  if ( Utils::Collision::check_cmp<Cmp::PlantObstacle>( reg(), new_pos_rect ) ) return;
+  if ( Utils::Collision::check_cmp<Cmp::PlantSegment>( reg(), new_pos_rect ) ) return;
   if ( Utils::Collision::check_cmp<Cmp::Wall>( reg(), new_pos_rect ) ) return;
   if ( Utils::Collision::check_cmp<Cmp::AltarSegment>( reg(), new_pos_rect ) ) return;
   if ( Utils::Collision::check_cmp<Cmp::GraveSegment>( reg(), new_pos_rect ) ) return;
