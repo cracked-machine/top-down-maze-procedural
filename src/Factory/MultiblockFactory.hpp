@@ -16,6 +16,7 @@
 #include <Components/Grave/GraveExitMultiBlock.hpp>
 #include <Components/Grave/GraveMultiBlock.hpp>
 #include <Components/Grave/GraveSegment.hpp>
+#include <Components/Grave/PlantSegment.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Player/PlayerNoPath.hpp>
 #include <Components/Position.hpp>
@@ -32,6 +33,7 @@
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Utils/Constants.hpp>
+#include <entt/entity/fwd.hpp>
 #include <entt/fwd.hpp>
 
 namespace Game::Factory
@@ -54,6 +56,7 @@ template <typename MULTIBLOCK>
 void create_multiblock( entt::registry &reg, entt::entity entity, const Cmp::UUID &uuid, Cmp::Position pos, const Sprites::SpriteSheet &ss,
                         size_t ms_idx = 0 )
 {
+  reg.emplace_or_replace<MULTIBLOCK>( entity, pos.position, ss.get_px_size() );
   // clang-format off
   reg.emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 
         .sprite_type = ss.get_sprite_type(), 
@@ -61,10 +64,8 @@ void create_multiblock( entt::registry &reg, entt::entity entity, const Cmp::UUI
         .enabled = true
   });
   // clang-format on
-  reg.emplace_or_replace<MULTIBLOCK>( entity, pos.position, ss.get_px_size() );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, pos.position.y );
   reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
-
   reg.emplace_or_replace<Cmp::UUID>( entity, uuid );
 
   [[maybe_unused]] auto zorder_cmp = reg.get<Cmp::ZOrderValue>( entity );
@@ -123,38 +124,31 @@ template <typename MULTIBLOCK, typename MBSEGMENT>
 std::vector<entt::entity> create_multiblock_segments( entt::registry &reg, entt::entity multiblock_entity, const Cmp::UUID &uuid,
                                                       Cmp::Position mb_pos_cmp, const Sprites::SpriteSheet &ss )
 {
-  std::vector<entt::entity> created_entts;
 
   MULTIBLOCK new_multiblock_bounds = reg.get<MULTIBLOCK>( multiblock_entity );
-  SPDLOG_DEBUG( "createMultiblockSegments called with MULTIBLOCK type: {} for {},{}", typeid( MBSEGMENT ).name(), mb_pos_cmp.position.x,
-                mb_pos_cmp.position.y );
-
-  auto pos_view = reg.view<Cmp::Position>();
-
   std::size_t door_grid_index = static_cast<std::size_t>( ( ss.get_door_position().y * ss.get_grid_size().x ) + ss.get_door_position().x );
 
-  [[maybe_unused]] int intersection_count = 0;
-  for ( auto [pos_entity, pos_cmp] : pos_view.each() )
+  // track which grid positions are already assigned segments
+  PathFinding::SpatialHashGrid segment_map;
+
+  // cache upfront so we dont add mutate the view whilst iterating it.
+  std::vector<entt::entity> world_pos_entt_list;
+  for ( auto [pos_entity, pos_cmp] : reg.view<Cmp::Position>().each() )
+  {
+    if ( not pos_cmp.findIntersection( new_multiblock_bounds ) ) continue;
+    if ( reg.any_of<MULTIBLOCK, MBSEGMENT, Cmp::ReservedPosition>( pos_entity ) ) continue;
+    world_pos_entt_list.push_back( pos_entity );
+  }
+
+  std::vector<entt::entity> created_entts;
+  for ( auto world_pos_entity : world_pos_entt_list )
   {
 
-    if ( not pos_cmp.findIntersection( new_multiblock_bounds ) ) continue;
-
-    intersection_count++;
-    SPDLOG_DEBUG( "Entity {} intersects multiblock at ({}, {})", static_cast<int>( entity ), pos_cmp.position.x, pos_cmp.position.y );
-
-    // Only skip multiblock entity for CryptObjectiveSegment (they share the same entity)
-    // Other multiblock types need their entity to be processed as a segment
-    if constexpr ( std::is_same_v<MBSEGMENT, Cmp::CryptObjectiveSegment> )
-    {
-      if ( pos_entity == multiblock_entity ) continue;
-    }
-    else if constexpr ( std::is_same_v<MBSEGMENT, Cmp::RuinStairsSegment> )
-    {
-      if ( pos_entity == multiblock_entity ) continue;
-    }
-    // else {}
+    // mark this world entt as reserved to prevent repeat visits
+    reg.emplace_or_replace<Cmp::ReservedPosition>( world_pos_entity );
 
     // Calculate relative pixel positions within the large obstacle grid
+    auto pos_cmp = reg.get<Cmp::Position>( world_pos_entity );
     float rel_x = pos_cmp.position.x - mb_pos_cmp.position.x;
     float rel_y = pos_cmp.position.y - mb_pos_cmp.position.y;
 
@@ -165,50 +159,35 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &reg, entt:
     std::size_t calculated_grid_index = ( rel_grid_y * ss.get_grid_size().x ) + rel_grid_x;
     SPDLOG_DEBUG( "  - Creating segment at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
 
+    // Don't allow duplicate segments at a given position
+    if ( not segment_map.at( pos_cmp ).empty() ) continue;
+
     auto new_segment_entt = reg.create();
     reg.emplace_or_replace<MBSEGMENT>( new_segment_entt, true );
     reg.emplace_or_replace<Cmp::Armable>( new_segment_entt );
     reg.emplace_or_replace<Cmp::UUID>( new_segment_entt, uuid );
     reg.emplace_or_replace<Cmp::Position>( new_segment_entt, pos_cmp.position, pos_cmp.size );
+    reg.emplace_or_replace<Cmp::ReservedPosition>( new_segment_entt );
 
     if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::CryptBuildingMultiBlock> )
     {
-      if ( calculated_grid_index == door_grid_index )
-      {
-        reg.emplace_or_replace<Cmp::CryptEntrance>( new_segment_entt );
-        SPDLOG_DEBUG( "Adding Cmp::CryptEntrance at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
-      }
+      if ( calculated_grid_index == door_grid_index ) { reg.emplace_or_replace<Cmp::CryptEntrance>( new_segment_entt ); }
     }
     else if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::HealingSpringBuildingMultiBlock> )
     {
-      if ( calculated_grid_index == door_grid_index )
-      {
-        reg.emplace_or_replace<Cmp::HealingSpringEntrance>( new_segment_entt );
-        SPDLOG_DEBUG( "Adding Cmp::HollyWellEntrance at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y,
-                      calculated_grid_index );
-      }
+      if ( calculated_grid_index == door_grid_index ) { reg.emplace_or_replace<Cmp::HealingSpringEntrance>( new_segment_entt ); }
     }
     else if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::RuinBuildingMultiBlock> )
     {
-      if ( calculated_grid_index == door_grid_index )
-      {
-        reg.emplace_or_replace<Cmp::RuinEntrance>( new_segment_entt );
-        SPDLOG_DEBUG( "Adding Cmp::RuinEntrance at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
-      }
+      if ( calculated_grid_index == door_grid_index ) { reg.emplace_or_replace<Cmp::RuinEntrance>( new_segment_entt ); }
     }
     else if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::GraveExitMultiBlock> )
     {
-      if ( calculated_grid_index == door_grid_index )
-      {
-        reg.emplace_or_replace<Cmp::Exit>( new_segment_entt );
-        SPDLOG_DEBUG( "Adding Cmp::Exit at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
-      }
+      if ( calculated_grid_index == door_grid_index ) { reg.emplace_or_replace<Cmp::Exit>( new_segment_entt ); }
     }
 
-    reg.emplace_or_replace<Cmp::ReservedPosition>( new_segment_entt );
     created_entts.push_back( new_segment_entt );
-
-    SPDLOG_DEBUG( "Processed {} intersecting entities for multiblock {}", intersection_count, typeid( MULTIBLOCK ).name() );
+    segment_map.insert( new_segment_entt, pos_cmp );
   }
 
   update_segments<MULTIBLOCK, MBSEGMENT>( reg, ss, multiblock_entity, new_multiblock_bounds );

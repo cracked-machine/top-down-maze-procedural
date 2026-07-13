@@ -1,7 +1,9 @@
+#include <Components/Altar/AltarMultiBlock.hpp>
 #include <Components/Altar/AltarSegment.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Armable.hpp>
 #include <Components/Armed.hpp>
+#include <Components/Crypt/CryptBuildingMultiBlock.hpp>
 #include <Components/Crypt/CryptBuildingSegment.hpp>
 #include <Components/Crypt/CryptEntrance.hpp>
 #include <Components/Crypt/CryptPassageBlock.hpp>
@@ -13,7 +15,9 @@
 #include <Components/Exit.hpp>
 #include <Components/FootStepTimer.hpp>
 #include <Components/Grave/GraveExitSegment.hpp>
+#include <Components/Grave/GraveMultiBlock.hpp>
 #include <Components/Grave/GraveSegment.hpp>
+#include <Components/Grave/PlantMultiBlock.hpp>
 #include <Components/Grave/PlantSegment.hpp>
 #include <Components/Hazard/CorruptionCell.hpp>
 #include <Components/Hazard/HazardFieldCell.hpp>
@@ -42,11 +46,13 @@
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
+#include <Components/Ruin/RuinBuildingMultiBlock.hpp>
 #include <Components/Ruin/RuinBuildingSegment.hpp>
 #include <Components/Ruin/RuinCobweb.hpp>
 #include <Components/Ruin/RuinEntrance.hpp>
 #include <Components/SelectedPosition.hpp>
 #include <Components/Shop/ShopInventory.hpp>
+#include <Components/Spring/HealingSpringBuildingMultiBlock.hpp>
 #include <Components/Spring/HealingSpringBuildingSegment.hpp>
 #include <Components/Spring/HealingSpringEntrance.hpp>
 #include <Components/VoidPosition.hpp>
@@ -776,11 +782,17 @@ void RenderOverlaySystem::render_ui_entity_inspect()
       if ( reg().all_of<Cmp::Armed>( entity ) ) draw_line( " Armed", sf::Color::Red );
       if ( reg().all_of<Cmp::GraveExitSegment>( entity ) ) draw_line( " GraveExitSegment", sf::Color::Cyan );
       if ( reg().all_of<Cmp::GraveSegment>( entity ) ) draw_line( " GraveSegment", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::GraveMultiBlock>( entity ) ) draw_line( " GraveMultiBlock", sf::Color::Cyan );
       if ( reg().all_of<Cmp::AltarSegment>( entity ) ) draw_line( " AltarSegment", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::AltarMultiBlock>( entity ) ) draw_line( " AltarMultiBlock", sf::Color::Cyan );
       if ( reg().all_of<Cmp::PlantSegment>( entity ) ) draw_line( " PlantSegment", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::PlantMultiBlock>( entity ) ) draw_line( " PlantMultiBlock", sf::Color::Cyan );
       if ( reg().all_of<Cmp::CryptBuildingSegment>( entity ) ) draw_line( " CryptSegment", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::CryptBuildingMultiBlock>( entity ) ) draw_line( " CryptBuildingMultiBlock", sf::Color::Cyan );
       if ( reg().all_of<Cmp::RuinBuildingSegment>( entity ) ) draw_line( " RuinSegment", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::RuinBuildingMultiBlock>( entity ) ) draw_line( " RuinBuildingMultiBlock", sf::Color::Cyan );
       if ( reg().all_of<Cmp::HealingSpringBuildingSegment>( entity ) ) draw_line( " HealingSpringSegment", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::HealingSpringBuildingMultiBlock>( entity ) ) draw_line( " HealingSpringBuildingMultiBlock", sf::Color::Cyan );
       if ( reg().all_of<Cmp::CryptEntrance>( entity ) ) draw_line( " CryptEntrance", sf::Color::Cyan );
       if ( reg().all_of<Cmp::RuinEntrance>( entity ) ) draw_line( " CryptEntrance", sf::Color::Cyan );
       if ( reg().all_of<Cmp::HealingSpringEntrance>( entity ) ) draw_line( " HealingSpringEntrance", sf::Color::Cyan );
@@ -791,7 +803,7 @@ void RenderOverlaySystem::render_ui_entity_inspect()
       auto posy = std::to_string( static_cast<int>( pos_cmp.position.y ) );
       auto sizex = std::to_string( static_cast<int>( pos_cmp.size.y ) );
       auto sizey = std::to_string( static_cast<int>( pos_cmp.size.y ) );
-      draw_line( "  Size: [ " + sizex + " , " += sizey + " ] Pos: [ " += posx + " , " += posy + " ]" );
+      draw_line( "  Size: [ " + sizex + " , " += sizey + " ]   Pos: [ " += posx + " , " += posy + " ]" );
 
       if ( auto *cmp = reg().try_get<Cmp::ZOrderValue>( entity ) )
       {
