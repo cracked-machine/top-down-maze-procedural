@@ -11,6 +11,8 @@
 #include <Components/VoidPosition.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/ObstacleFactory.hpp>
+#include <PathFinding/SmartPointers.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Utils/Constants.hpp>
 #include <entt/entity/fwd.hpp>
@@ -35,11 +37,16 @@ entt::entity create_void_pos( entt::registry &registry, const Cmp::Position &pos
   return entity;
 }
 
-void add_obstacle( entt::registry &reg, entt::entity entity )
+bool add_obstacle( entt::registry &reg, entt::entity entity, const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh )
 {
-  if ( reg.any_of<Cmp::PlayerCharacter, Cmp::ReservedPosition>( entity ) ) { return; }
+  auto *pos_cmp = reg.try_get<Cmp::Position>( entity );
+  if ( not pos_cmp ) return false;
+
+  if ( reserved_navmesh && not reserved_navmesh->at( *pos_cmp ).empty() ) return false;
+
   if ( reg.all_of<Cmp::DestroyedObstacle>( entity ) ) { reg.remove<Cmp::DestroyedObstacle>( entity ); }
   reg.emplace_or_replace<Cmp::Obstacle>( entity );
+  return true;
 }
 
 void decorate_obstacle( entt::registry &reg, entt::entity entity, Cmp::Position pos_cmp, const Sprites::SpriteSheet &ms, std::size_t sprite_tile_idx,
@@ -106,7 +113,6 @@ void remove_obstacle( entt::registry &reg, entt::entity search_entt, bool delete
     if ( cap_uuid_cmp != search_uuid_cmp ) continue;
     SPDLOG_DEBUG( "Removing matching obstacle {} - {}", static_cast<uint32_t>( cap_entt ), search_uuid_cmp.str() );
     if ( delete_extras ) reg.destroy( cap_entt );
-    break;
   }
 }
 

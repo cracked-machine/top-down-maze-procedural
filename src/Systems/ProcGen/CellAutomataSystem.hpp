@@ -30,7 +30,7 @@ public:
   void on_resume() override {}
 
   void iterate( uint16_t iterations, uint8_t birth_threshold, uint8_t survival_threshold, LevelGenerator::SceneType scene_type,
-                PathFinding::SpatialHashGrid &levelgen_spatialgrid );
+                PathFinding::SpatialHashGrid &levelgen_spatialgrid, PathFinding::SpatialHashGridSharedPtr reserved_navmesh );
 };
 
 } // namespace Game::Sys::ProcGen

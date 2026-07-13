@@ -747,9 +747,18 @@ void PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entit
   if ( inventory_slot_cmp->m_item.sprite_type.contains( "plant" ) )
   {
     // multiblocks are top-left anchored, so offset the y-axis so that plant base is at players feet
-    [[maybe_unused]] auto mb_entt = Factory::add_multiblock_with_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>(
+    Factory::add_multiblock_with_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>(
         reg(), Utils::snap_to_grid( { pos.x, pos.y - Constants::kGridSizePxF.y } ),
         m_sprite_factory.get_spritesheet_by_type( inventory_slot_cmp->m_item.sprite_type ) );
+
+    //! @todo Player should not be able to walk through newly replanted plants!
+    // // The player navmesh is built once at scene init; rebuild it so the new plant's solid segments block immediately
+    // if ( auto navmesh = m_player_navmesh.lock() )
+    // {
+    //   navmesh->clear();
+    //   for ( auto [e, nopath_cmp, pos_cmp] : reg().view<Cmp::PlayerNoPath, Cmp::Position>().each() )
+    //     navmesh->insert( e, pos_cmp );
+    // }
 
     reg().destroy( inventory_slot_entt );
     return;

@@ -12,7 +12,7 @@ namespace Game::Sys::ProcGen
 {
 
 void CellAutomataSystem::iterate( uint16_t iterations, uint8_t birth_threshold, uint8_t survival_threshold, LevelGenerator::SceneType scene_type,
-                                  PathFinding::SpatialHashGrid &levelgen_spatialgrid )
+                                  PathFinding::SpatialHashGrid &levelgen_spatialgrid, PathFinding::SpatialHashGridSharedPtr reserved_navmesh )
 {
 
   sf::Clock iteration_timer;
@@ -22,7 +22,6 @@ void CellAutomataSystem::iterate( uint16_t iterations, uint8_t birth_threshold, 
     SPDLOG_DEBUG( "NAVMESH: {}", levelgen_spatialgrid.size() );
     for ( auto [pos_entt, pos_cmp] : reg().view<Cmp::Position>( entt::exclude<Cmp::ReservedPosition> ).each() )
     {
-      if ( reg().any_of<Cmp::ReservedPosition>( pos_entt ) ) continue;
       std::vector<entt::entity> neighbour_list = levelgen_spatialgrid.neighbours( pos_cmp );
       SPDLOG_DEBUG( "#{} at {},{} has {} nieghbours", static_cast<uint32_t>( pos_entt ), pos_cmp.x(), pos_cmp.y(), neighbour_list.size() );
 
@@ -35,17 +34,34 @@ void CellAutomataSystem::iterate( uint16_t iterations, uint8_t birth_threshold, 
 
       if ( should_be_alive )
       {
-        if ( scene_type == LevelGenerator::SceneType::GRAVEYARD_EXTERIOR ) { Factory::add_obstacle( reg(), pos_entt ); }
+        if ( scene_type == LevelGenerator::SceneType::GRAVEYARD_EXTERIOR )
+        {
+          if ( reserved_navmesh->at( pos_cmp ).empty() )
+          {
+            // Bypass add_obstacle to avoid its O(n) reserved-position scan in this hot loop;
+            // reserved_grid.at() above is already the correct O(1) guard.
+            reg().emplace_or_replace<Cmp::Obstacle>( pos_entt );
+            reserved_navmesh->insert( pos_entt, pos_cmp );
+          }
+        }
         else if ( scene_type == LevelGenerator::SceneType::RUIN_INTERIOR )
         {
-          Factory::add_obstacle( reg(), pos_entt );
+          if ( reserved_navmesh->at( pos_cmp ).empty() )
+          {
+            reg().emplace_or_replace<Cmp::Obstacle>( pos_entt );
+            reserved_navmesh->insert( pos_entt, pos_cmp );
+          }
           reg().emplace_or_replace<Cmp::Moveable>( pos_entt );
         }
       }
       else
       {
         // make sure we dont delete the player character by accident
-        if ( not reg().any_of<Cmp::PlayerCharacter>( pos_entt ) ) { Factory::remove_obstacle( reg(), pos_entt ); }
+        if ( not reg().any_of<Cmp::PlayerCharacter>( pos_entt ) )
+        {
+          Factory::remove_obstacle( reg(), pos_entt );
+          reserved_navmesh->remove( pos_entt, pos_cmp );
+        }
       }
     }
     SPDLOG_INFO( "Iteration #{} took {}ms", i, iteration_timer.restart().asMilliseconds() );

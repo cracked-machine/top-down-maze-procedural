@@ -7,6 +7,7 @@
 #include <Components/Position.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/Factory.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <entt/entity/registry.hpp>
@@ -90,7 +91,8 @@ inline entt::entity create_loot_drop( entt::registry &registry, Cmp::AnimData &&
 void destroy_loot_drop( entt::registry &registry, entt::entity loot_entity );
 
 // Iterate and generate loot containers
-std::vector<entt::entity> gen_loot_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size );
+std::vector<entt::entity> gen_loot_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size,
+                                               PathFinding::SpatialHashGridSharedPtr reserved_navmesh );
 
 } // namespace Game::Factory
 

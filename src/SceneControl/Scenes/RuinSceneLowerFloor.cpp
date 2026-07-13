@@ -79,9 +79,9 @@ void RuinSceneLowerFloor::on_init()
   level_gen.add_ruin_rune_markers();
   auto max_cobwebs = Sys::PersistSystem::get<Cmp::Persist::RuinMaxCobwebs>( m_reg );
   level_gen.add_lowerfloor_cobwebs( max_cobwebs.get_value(), sf::FloatRect( { 0.f, 0.f }, map_size_pixel ) );
-
+  m_reserved_navmash = Pathfinding::Factory::create_reserved_navmesh( m_reg );
   auto init_chance = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenInitChance>( m_reg );
-  level_gen.add_ruin_interior_obstacles( init_chance.get_value() );
+  level_gen.add_ruin_interior_obstacles( init_chance.get_value(), m_reserved_navmash );
 
   auto max_iterations = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenMaxIterations>( m_reg );
   auto &dla_sys = m_sys.find<Sys::Store::Type::DiffusionLtdAggrSystem>();

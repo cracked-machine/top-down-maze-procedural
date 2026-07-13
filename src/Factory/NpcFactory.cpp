@@ -224,7 +224,8 @@ void remove_npc_explosion( entt::registry &registry, entt::entity entity )
   SPDLOG_DEBUG( "Explosion animation complete, removing component from entity {}", static_cast<int>( entity ) );
 }
 
-std::vector<entt::entity> gen_npc_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size )
+std::vector<entt::entity> gen_npc_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size,
+                                              PathFinding::SpatialHashGridSharedPtr reserved_navmesh )
 {
   std::vector<entt::entity> assigned_entts;
 
@@ -235,16 +236,20 @@ std::vector<entt::entity> gen_npc_containers( entt::registry &reg, Sprites::Spri
     auto [random_entity, random_origin_position] = Utils::Rnd::get_random_position(
         reg, {}, Utils::Rnd::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
 
-    // pick a random loot container type and texture index
-    // clang-format off
-    auto [npc_type, rand_npc_tex_idx] =
-      sprite_factory.get_random_type_and_texture_index( {
-        "sprite.graveyard.bones"
-      } );
-    // clang-format on
+    if ( reserved_navmesh->at( random_origin_position ).empty() )
+    {
+      // pick a random loot container type and texture index
+      // clang-format off
+      auto [npc_type, rand_npc_tex_idx] =
+        sprite_factory.get_random_type_and_texture_index( {
+          "sprite.graveyard.bones"
+        } );
+      // clang-format on
 
-    Factory::create_npc_container( reg, random_entity, random_origin_position, npc_type, rand_npc_tex_idx, 0.f );
-    assigned_entts.push_back( random_entity );
+      Factory::create_npc_container( reg, random_entity, random_origin_position, npc_type, rand_npc_tex_idx, 0.f );
+      assigned_entts.push_back( random_entity );
+      reserved_navmesh->insert( random_entity, random_origin_position );
+    }
   }
   return assigned_entts;
 }

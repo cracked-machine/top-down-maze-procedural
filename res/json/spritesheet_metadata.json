@@ -1107,7 +1107,7 @@
     "sprite.item.plant1": {
       "spritesheet": {
         "displayname": "Plant1",
-        "zorder": [1,0],
+        "zorder": [2,0],
         "texture_path": "res/textures/plants.png",
         "sprite_indices": [0,1],
         "sprites_per_sequence": 1,
@@ -1122,7 +1122,7 @@
     "sprite.item.plant2": {
       "spritesheet": {
         "displayname": "Plant2",
-        "zorder": [1,0],
+        "zorder": [2,0],
         "texture_path": "res/textures/plants.png",
         "sprite_indices": [2,3],
         "sprites_per_sequence": 1,
@@ -1137,7 +1137,7 @@
     "sprite.item.plant3": {
       "spritesheet": {
         "displayname": "Plant3",
-        "zorder": [1,0],
+        "zorder": [2,0],
         "texture_path": "res/textures/plants.png",
         "sprite_indices": [4,5],
         "sprites_per_sequence": 1,
@@ -1152,7 +1152,7 @@
     "sprite.item.plant4": {
       "spritesheet": {
         "displayname": "Plant4",
-        "zorder": [1,0],
+        "zorder": [2,0],
         "texture_path": "res/textures/plants.png",
         "sprite_indices": [6,7],
         "sprites_per_sequence": 1,
@@ -1167,7 +1167,7 @@
     "sprite.item.plant5": {
       "spritesheet": {
         "displayname": "Plant5",
-        "zorder": [1,0],
+        "zorder": [2,0],
         "texture_path": "res/textures/plants.png",
         "sprite_indices": [8,9],
         "sprites_per_sequence": 1,
@@ -1182,7 +1182,7 @@
     "sprite.item.plant6": {
       "spritesheet": {
         "displayname": "Plant6",
-        "zorder": [1,0],
+        "zorder": [2,0],
         "texture_path": "res/textures/plants.png",
         "sprite_indices": [10,11],
         "sprites_per_sequence": 1,
@@ -1197,7 +1197,7 @@
     "sprite.item.plant7": {
       "spritesheet": {
         "displayname": "Plant7",
-        "zorder": [1,0],
+        "zorder": [2,0],
         "texture_path": "res/textures/plants.png",
         "sprite_indices": [12,13],
         "sprites_per_sequence": 1,
@@ -1212,7 +1212,7 @@
     "sprite.item.plant8": {
       "spritesheet": {
         "displayname": "Plant8",
-        "zorder": [1,0],
+        "zorder": [2,0],
         "texture_path": "res/textures/plants.png",
         "sprite_indices": [14,15],
         "sprites_per_sequence": 1,
@@ -1227,7 +1227,7 @@
     "sprite.item.plant9": {
       "spritesheet": {
         "displayname": "Plant9",
-        "zorder": [1,0],
+        "zorder": [2,0],
         "texture_path": "res/textures/plants.png",
         "sprite_indices": [16,17],
         "sprites_per_sequence": 1,
@@ -1242,7 +1242,7 @@
     "sprite.item.plant10": {
       "spritesheet": {
         "displayname": "Plant10",
-        "zorder": [1,0],
+        "zorder": [2,0],
         "texture_path": "res/textures/plants.png",
         "sprite_indices": [18,19],
         "sprites_per_sequence": 1,
@@ -1257,7 +1257,7 @@
     "sprite.item.plant11": {
       "spritesheet": {
         "displayname": "Plant11",
-        "zorder": [1,0],
+        "zorder": [2,0],
         "texture_path": "res/textures/plants.png",
         "sprite_indices": [20,21],
         "sprites_per_sequence": 1,
@@ -1272,7 +1272,7 @@
     "sprite.item.plant12": {
       "spritesheet": {
         "displayname": "Plant12",
-        "zorder": [1,0],
+        "zorder": [2,0],
         "texture_path": "res/textures/plants.png",
         "sprite_indices": [22,23],
         "sprites_per_sequence": 1,

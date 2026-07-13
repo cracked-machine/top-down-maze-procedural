@@ -1,6 +1,7 @@
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Player/PlayerNoPath.hpp>
 #include <Components/Position.hpp>
+#include <Components/ReservedPosition.hpp>
 #include <Factory/PathfindingFactory.hpp>
 #include <PathFinding/SmartPointers.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
@@ -40,6 +41,17 @@ PathFinding::SpatialHashGridSharedPtr create_open_navmesh( entt::registry &reg )
     open_navmesh->insert( pos_entt, pos_cmp );
   }
   return open_navmesh;
+}
+
+PathFinding::SpatialHashGridSharedPtr create_reserved_navmesh( entt::registry &reg )
+{
+  // create a navmesh for uninhibited pathfinding
+  PathFinding::SpatialHashGridSharedPtr reserved_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
+  for ( auto [pos_entt, reserved_cmp, pos_cmp] : reg.view<Cmp::ReservedPosition, Cmp::Position>().each() )
+  {
+    reserved_navmesh->insert( pos_entt, pos_cmp );
+  }
+  return reserved_navmesh;
 }
 
 } // namespace Game::Pathfinding::Factory

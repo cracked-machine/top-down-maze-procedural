@@ -182,16 +182,18 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
   }
 }
 
-void LevelGenerator::add_graveyard_exterior_obstacles( float init_chance )
+void LevelGenerator::add_graveyard_exterior_obstacles( float init_chance, PathFinding::SpatialHashGridSharedPtr reserved_navmesh )
 {
   auto position_view = reg().view<Cmp::Position>( entt::exclude<Cmp::PlayerCharacter, Cmp::ReservedPosition> );
   for ( auto [entity, pos_cmp] : position_view.each() )
   {
-
     if ( Cmp::RandomFloat{ 0.f, 1.f }.gen() < init_chance )
     {
-      Factory::add_obstacle( reg(), entity );
-      m_obstacle_sm->insert( entity, pos_cmp );
+      if ( Factory::add_obstacle( reg(), entity, reserved_navmesh ) )
+      {
+        m_obstacle_sm->insert( entity, pos_cmp );
+        reserved_navmesh->insert( entity, pos_cmp );
+      }
     }
   }
 }
@@ -218,15 +220,19 @@ void LevelGenerator::decorate_graveyard_exterior_obstacles()
   }
 }
 
-void LevelGenerator::add_ruin_interior_obstacles( float init_chance )
+void LevelGenerator::add_ruin_interior_obstacles( float init_chance, PathFinding::SpatialHashGridSharedPtr reserved_navmesh )
 {
   auto position_view = reg().view<Cmp::Position>( entt::exclude<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Exit> );
   for ( auto [entity, pos_cmp] : position_view.each() )
   {
-    if ( Cmp::RandomFloat{ 0.f, 1.f }.gen() < init_chance )
+    if ( reserved_navmesh->at( pos_cmp ).empty() )
     {
-      Factory::add_obstacle( reg(), entity );
-      m_obstacle_sm->insert( entity, pos_cmp );
+      if ( Cmp::RandomFloat{ 0.f, 1.f }.gen() < init_chance )
+      {
+        Factory::add_obstacle( reg(), entity );
+        m_obstacle_sm->insert( entity, pos_cmp );
+        reserved_navmesh->insert( entity, pos_cmp );
+      }
     }
   }
 }
@@ -501,7 +507,7 @@ std::pair<entt::entity, Cmp::Position> LevelGenerator::find_spawn_location( cons
   return { entt::null, Cmp::Position{ { 0.f, 0.f }, { 0.f, 0.f } } };
 }
 
-std::vector<entt::entity> LevelGenerator::gen_random_plants( sf::Vector2u map_grid_size )
+std::vector<entt::entity> LevelGenerator::gen_random_plants( sf::Vector2u map_grid_size, PathFinding::SpatialHashGridSharedPtr reserved_navmesh )
 {
   std::vector<entt::entity> assigned_entts;
 
@@ -520,13 +526,27 @@ std::vector<entt::entity> LevelGenerator::gen_random_plants( sf::Vector2u map_gr
     auto world_pos_entt = Utils::get_world_pos_entt( reg(), random_pos );
     if ( world_pos_entt != entt::null )
     {
+      if ( reserved_navmesh->at( random_pos ).empty() )
+      {
+        // now create the plant at a new entt
+        auto mb_entt = Factory::add_multiblock_with_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>(
+            reg(), random_pos.position, m_sprite_factory.get_spritesheet_by_type( rand_plant_type ) );
+        SPDLOG_DEBUG( "Created plant at {},{}", random_pos.position.x, random_pos.position.y );
+        assigned_entts.push_back( random_entity );
 
-      // now create the plant at a new entt
-      Factory::add_multiblock_with_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>( reg(), random_pos.position,
-                                                                                      m_sprite_factory.get_spritesheet_by_type( rand_plant_type ) );
-      // Factory::create_plant_obstacle( reg(), random_pos, m_sprite_factory.get_spritesheet_by_type( rand_plant_type ) );
-      SPDLOG_DEBUG( "Created plant at {},{}", random_pos.position.x, random_pos.position.y );
-      assigned_entts.push_back( random_entity );
+        // Protect every cell covered by this plant: segment entities carry the UUID and
+        // are at each tile position. Insert them so subsequent placement calls see them
+        // as reserved via the O(1) navmesh check.
+        auto *mb_uuid = reg().try_get<Cmp::UUID>( mb_entt );
+        if ( mb_uuid )
+        {
+          for ( auto [seg_entt, seg_cmp, seg_pos, seg_uuid] : reg().view<Cmp::PlantSegment, Cmp::Position, Cmp::UUID>().each() )
+          {
+            if ( seg_uuid == *mb_uuid )
+              reserved_navmesh->insert( seg_entt, seg_pos );
+          }
+        }
+      }
     }
   }
   return assigned_entts;

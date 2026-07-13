@@ -134,7 +134,7 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &reg, entt:
   std::size_t door_grid_index = static_cast<std::size_t>( ( ss.get_door_position().y * ss.get_grid_size().x ) + ss.get_door_position().x );
 
   [[maybe_unused]] int intersection_count = 0;
-  for ( auto [entity, pos_cmp] : pos_view.each() )
+  for ( auto [pos_entity, pos_cmp] : pos_view.each() )
   {
 
     if ( not pos_cmp.findIntersection( new_multiblock_bounds ) ) continue;
@@ -146,11 +146,11 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &reg, entt:
     // Other multiblock types need their entity to be processed as a segment
     if constexpr ( std::is_same_v<MBSEGMENT, Cmp::CryptObjectiveSegment> )
     {
-      if ( entity == multiblock_entity ) continue;
+      if ( pos_entity == multiblock_entity ) continue;
     }
     else if constexpr ( std::is_same_v<MBSEGMENT, Cmp::RuinStairsSegment> )
     {
-      if ( entity == multiblock_entity ) continue;
+      if ( pos_entity == multiblock_entity ) continue;
     }
     // else {}
 
@@ -165,15 +165,17 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &reg, entt:
     std::size_t calculated_grid_index = ( rel_grid_y * ss.get_grid_size().x ) + rel_grid_x;
     SPDLOG_DEBUG( "  - Creating segment at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
 
-    reg.emplace_or_replace<MBSEGMENT>( entity, true );
-    reg.emplace_or_replace<Cmp::Armable>( entity );
-    reg.emplace_or_replace<Cmp::UUID>( entity, uuid );
+    auto new_segment_entt = reg.create();
+    reg.emplace_or_replace<MBSEGMENT>( new_segment_entt, true );
+    reg.emplace_or_replace<Cmp::Armable>( new_segment_entt );
+    reg.emplace_or_replace<Cmp::UUID>( new_segment_entt, uuid );
+    reg.emplace_or_replace<Cmp::Position>( new_segment_entt, pos_cmp.position, pos_cmp.size );
 
     if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::CryptBuildingMultiBlock> )
     {
       if ( calculated_grid_index == door_grid_index )
       {
-        reg.emplace_or_replace<Cmp::CryptEntrance>( entity );
+        reg.emplace_or_replace<Cmp::CryptEntrance>( new_segment_entt );
         SPDLOG_DEBUG( "Adding Cmp::CryptEntrance at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
       }
     }
@@ -181,7 +183,7 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &reg, entt:
     {
       if ( calculated_grid_index == door_grid_index )
       {
-        reg.emplace_or_replace<Cmp::HealingSpringEntrance>( entity );
+        reg.emplace_or_replace<Cmp::HealingSpringEntrance>( new_segment_entt );
         SPDLOG_DEBUG( "Adding Cmp::HollyWellEntrance at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y,
                       calculated_grid_index );
       }
@@ -190,7 +192,7 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &reg, entt:
     {
       if ( calculated_grid_index == door_grid_index )
       {
-        reg.emplace_or_replace<Cmp::RuinEntrance>( entity );
+        reg.emplace_or_replace<Cmp::RuinEntrance>( new_segment_entt );
         SPDLOG_DEBUG( "Adding Cmp::RuinEntrance at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
       }
     }
@@ -198,13 +200,13 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &reg, entt:
     {
       if ( calculated_grid_index == door_grid_index )
       {
-        reg.emplace_or_replace<Cmp::Exit>( entity );
+        reg.emplace_or_replace<Cmp::Exit>( new_segment_entt );
         SPDLOG_DEBUG( "Adding Cmp::Exit at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
       }
     }
 
-    reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
-    created_entts.push_back( entity );
+    reg.emplace_or_replace<Cmp::ReservedPosition>( new_segment_entt );
+    created_entts.push_back( new_segment_entt );
 
     SPDLOG_DEBUG( "Processed {} intersecting entities for multiblock {}", intersection_count, typeid( MULTIBLOCK ).name() );
   }
@@ -218,7 +220,8 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &reg, entt:
 
 template <typename MULTIBLOCK, typename MBSEGMENT>
   requires IsMB<MULTIBLOCK> && IsMBSegment<MBSEGMENT>
-entt::entity add_multiblock_with_segments( entt::registry &reg, sf::Vector2f position, const Sprites::SpriteSheet &ms, size_t ms_index = 0, float zorder = 0 )
+entt::entity add_multiblock_with_segments( entt::registry &reg, sf::Vector2f position, const Sprites::SpriteSheet &ms, size_t ms_index = 0,
+                                           float zorder = 0 )
 {
   auto entt = reg.create();
   Cmp::Position pos( position, ms.get_sprite_size() );

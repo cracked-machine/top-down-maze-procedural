@@ -33,13 +33,13 @@ public:
   void build_scene_from_data( const Scene::SceneData &scene_data );
 
   //! @brief Create obstacle components without sprites for initial proc gen
-  void add_graveyard_exterior_obstacles( float init_chance );
+  void add_graveyard_exterior_obstacles( float init_chance, PathFinding::SpatialHashGridSharedPtr reserved_navmesh );
 
   //! @brief create "sprite.graveyard.wall.int.main" and "sprite.graveyard.wall.int.cap" sprites for the graveyard obstacles.
   void decorate_graveyard_exterior_obstacles();
 
   //! @brief Create obstacle components without sprites for initial proc gen
-  void add_ruin_interior_obstacles( float init_chance );
+  void add_ruin_interior_obstacles( float init_chance, PathFinding::SpatialHashGridSharedPtr reserved_navmesh );
 
   //! @brief Create "sprite.crypt.wall.int" sprites for the graveyard obstacles.
   void decorate_ruin_interior_obstacles();
@@ -61,7 +61,7 @@ public:
   //! @brief Generate a number of plant world items in the new game area.
   //! @param map_grid_size
   //! @return std::vector<entt::entity>
-  std::vector<entt::entity> gen_random_plants( sf::Vector2u map_grid_size );
+  std::vector<entt::entity> gen_random_plants( sf::Vector2u map_grid_size, PathFinding::SpatialHashGridSharedPtr reserved_navmesh );
 
   //! @brief Call this to make sure the level data is reset before regenerating a new scene
   void reset();

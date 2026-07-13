@@ -52,6 +52,7 @@ private:
   Sprites::SpriteFactory &m_sprite_factory;
 
   EntryMode m_entry_mode;
+  PathFinding::SpatialHashGridSharedPtr m_reserved_navmash;
 };
 
 } // namespace Game::Scene

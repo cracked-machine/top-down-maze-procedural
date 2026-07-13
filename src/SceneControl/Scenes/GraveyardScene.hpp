@@ -48,6 +48,8 @@ private:
 
   bool m_grimoire_overlay_open{ false };
   void reinit_navmesh();
+
+  PathFinding::SpatialHashGridSharedPtr m_reserved_navmash;
 };
 
 } // namespace Game::Scene

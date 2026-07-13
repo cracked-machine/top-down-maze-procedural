@@ -789,11 +789,9 @@ void RenderOverlaySystem::render_ui_entity_inspect()
 
       auto posx = std::to_string( static_cast<int>( pos_cmp.position.x ) );
       auto posy = std::to_string( static_cast<int>( pos_cmp.position.y ) );
-      draw_line( "  Pos: [ " + posx + " , " += posy + " ]" );
-
       auto sizex = std::to_string( static_cast<int>( pos_cmp.size.y ) );
       auto sizey = std::to_string( static_cast<int>( pos_cmp.size.y ) );
-      draw_line( "  Size: [ " + sizex + " , " += sizey + " ]" );
+      draw_line( "  Size: [ " + sizex + " , " += sizey + " ] Pos: [ " += posx + " , " += posy + " ]" );
 
       if ( auto *cmp = reg().try_get<Cmp::ZOrderValue>( entity ) )
       {

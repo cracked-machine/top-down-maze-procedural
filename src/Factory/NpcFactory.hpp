@@ -2,6 +2,7 @@
 #define SRC_FACTORY_NPCFACTORY_HPP__
 
 #include <Components/Position.hpp>
+#include <PathFinding/SmartPointers.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #include <entt/fwd.hpp>
@@ -39,7 +40,8 @@ void remove_npc_explosion( entt::registry &registry, entt::entity entity );
 bool create_shockwave( entt::registry &registry, entt::entity npc_entt );
 
 // Iterate and generate npc containers
-std::vector<entt::entity> gen_npc_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size );
+std::vector<entt::entity> gen_npc_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size,
+                                              PathFinding::SpatialHashGridSharedPtr reserved_navmesh );
 
 } // namespace Game::Factory
 

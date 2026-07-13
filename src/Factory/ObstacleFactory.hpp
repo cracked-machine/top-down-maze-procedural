@@ -3,6 +3,7 @@
 
 #include <Components/Position.hpp>
 #include <Components/UUID.hpp>
+#include <PathFinding/SmartPointers.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #include <entt/fwd.hpp>
 #include <unordered_map>
@@ -17,13 +18,12 @@ namespace Game::Factory
 entt::entity create_world_pos( entt::registry &registry, const sf::Vector2f &pos );
 entt::entity create_void_pos( entt::registry &registry, const Cmp::Position &pos );
 
-//! @brief Create an obstacle WITHOUT sprite for procedural generation algorithm
+//! @brief Create an obstacle WITHOUT sprite for procedural generation algorithm.
 //! @param registry
 //! @param entity
-//! @param pos_cmp
-//! @param ms
-//! @param sprite_tile_idx
-void add_obstacle( entt::registry &registry, entt::entity entity );
+//! @param reserved_navmesh If provided, skips placement when the position is already reserved (O(1) check).
+//! @return true if the obstacle was placed, false if blocked by the reserved navmesh.
+bool add_obstacle( entt::registry &registry, entt::entity entity, const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh = nullptr );
 
 //! @brief Create an obstacle WITH sprite for final level gen pass
 //! @param registry

@@ -119,19 +119,20 @@ void GraveyardScene::on_init()
   level_gen.build_scene_from_data( *m_scene_data );
   m_sys.find<Sys::Store::Type::ExitSystem>().create_exit();
   level_gen.gen_graveyard_exterior_multiblocks();
-  Factory::gen_loot_containers( m_reg, m_sprite_factory, map_size_grid );
-  Factory::gen_npc_containers( m_reg, m_sprite_factory, map_size_grid );
-  level_gen.gen_random_plants( map_size_grid );
+  m_reserved_navmash = Pathfinding::Factory::create_reserved_navmesh( m_reg );
+  Factory::gen_loot_containers( m_reg, m_sprite_factory, map_size_grid, m_reserved_navmash );
+  Factory::gen_npc_containers( m_reg, m_sprite_factory, map_size_grid, m_reserved_navmash );
+  level_gen.gen_random_plants( map_size_grid, m_reserved_navmash );
 
   auto init_chance = Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenInitChance>( m_reg );
-  level_gen.add_graveyard_exterior_obstacles( init_chance.get_value() );
+  level_gen.add_graveyard_exterior_obstacles( init_chance.get_value(), m_reserved_navmash );
 
   auto &cellauto_parser = m_sys.find<Sys::Store::Type::CellAutomataSystem>();
   auto max_iterations = Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenMaxIterations>( m_reg );
   auto birth_threshold = Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenBirthThreshold>( m_reg );
   auto survival_threshold = Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenSurvivalThreshold>( m_reg );
   cellauto_parser.iterate( max_iterations.get_value(), birth_threshold.get_value(), survival_threshold.get_value(),
-                           Sys::ProcGen::LevelGenerator::SceneType::GRAVEYARD_EXTERIOR, level_gen.get_obstacle_sm() );
+                           Sys::ProcGen::LevelGenerator::SceneType::GRAVEYARD_EXTERIOR, level_gen.get_obstacle_sm(), m_reserved_navmash );
 
   level_gen.decorate_graveyard_exterior_obstacles();
 
