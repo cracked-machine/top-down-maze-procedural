@@ -67,6 +67,7 @@ void create_multiblock( entt::registry &reg, entt::entity entity, const Cmp::UUI
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, pos.position.y );
   reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
   reg.emplace_or_replace<Cmp::UUID>( entity, uuid );
+  reg.emplace_or_replace<Cmp::Position>( entity, pos.position, ss.get_px_size() );
 
   [[maybe_unused]] auto zorder_cmp = reg.get<Cmp::ZOrderValue>( entity );
   // clang-format off

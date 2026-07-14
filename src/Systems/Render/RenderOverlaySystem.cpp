@@ -801,7 +801,7 @@ void RenderOverlaySystem::render_ui_entity_inspect()
 
       auto posx = std::to_string( static_cast<int>( pos_cmp.position.x ) );
       auto posy = std::to_string( static_cast<int>( pos_cmp.position.y ) );
-      auto sizex = std::to_string( static_cast<int>( pos_cmp.size.y ) );
+      auto sizex = std::to_string( static_cast<int>( pos_cmp.size.x ) );
       auto sizey = std::to_string( static_cast<int>( pos_cmp.size.y ) );
       draw_line( "  Size: [ " + sizex + " , " += sizey + " ]   Pos: [ " += posx + " , " += posy + " ]" );
 
