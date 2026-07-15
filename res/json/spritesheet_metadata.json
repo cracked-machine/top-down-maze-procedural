@@ -1722,7 +1722,18 @@
         "grid_size": {
           "x": 3,
           "y": 8
-        }
+        },
+        "solid_mask": [
+          false,false,false,
+          false,false,false,
+          false,false,false,
+          false,false,false,
+          false,false,false,
+          false,false,false,
+          false,false,false,
+          false,false,false,
+          false,false,false
+        ]
       }
     },
     "sprite.ruin.stairs.up": {
@@ -1736,7 +1747,18 @@
         "grid_size": {
           "x": 3,
           "y": 9
-        }
+        },
+        "solid_mask": [
+          false,false,false,
+          false,false,false,
+          false,false,false,
+          false,false,false,
+          false,false,false,
+          false,false,false,
+          false,false,false,
+          false,false,false,
+          false,false,false
+        ]
       }
     },
     "sprite.ruin.stairs.balustrade": {
