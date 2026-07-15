@@ -1,35 +1,21 @@
+#include <Components/Exit.hpp>
 #include <Components/Persistent/ShopMaxItems.hpp>
 #include <Components/Persistent/ShopMaxPrice.hpp>
 #include <Components/Persistent/ShopMinPrice.hpp>
-#include <Events/DropInventoryEvent.hpp>
-#include <Systems/PersistSystem.hpp>
-#include <Systems/Stores/ItemStore.hpp>
-#include <Systems/Stores/SystemStore.hpp>
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
-
-#include <Components/Exit.hpp>
 #include <Components/Player/PlayerWealth.hpp>
 #include <Components/Shop/ShopInventory.hpp>
+#include <Events/DropInventoryEvent.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
+#include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/ShopSystem.hpp>
+#include <Systems/Stores/ItemStore.hpp>
+#include <Systems/Stores/SystemStore.hpp>
 #include <Utils/Player.hpp>
 
 namespace Game::Sys
 {
-
-void ShopSystem::add_shop_inventory_item( Cmp::ShopInventory &shop_inventory_cmp )
-{
-  // auto carryitem_types = m_sprite_factory.get_all_sprite_types_by_pattern( "sprite.item." );
-  auto item_types = Sys::ItemStore::instance().get_all_item_keys();
-  Cmp::RandomInt item_picker( 0, static_cast<int>( item_types.size() ) - 1 );
-  Cmp::RandomInt price_picker( shop_inventory_cmp.m_config.min_price, shop_inventory_cmp.m_config.max_price );
-  auto selected_item = item_picker.gen();
-  auto price = price_picker.gen();
-  SPDLOG_INFO( "Adding shop item - {} - for {}", item_types.at( selected_item ), price );
-  shop_inventory_cmp.m_slots.emplace_back( item_types.at( selected_item ), price );
-}
 
 void ShopSystem::create_shop_inventory()
 {
@@ -45,6 +31,18 @@ void ShopSystem::create_shop_inventory()
 
   auto shop_inventory_entt = reg().create();
   reg().emplace_or_replace<Cmp::ShopInventory>( shop_inventory_entt, shop_inventory_cmp );
+}
+
+void ShopSystem::add_shop_inventory_item( Cmp::ShopInventory &shop_inventory_cmp )
+{
+  // auto carryitem_types = m_sprite_factory.get_all_sprite_types_by_pattern( "sprite.item." );
+  auto item_types = Sys::ItemStore::instance().get_all_item_keys();
+  Cmp::RandomInt item_picker( 0, static_cast<int>( item_types.size() ) - 1 );
+  Cmp::RandomInt price_picker( shop_inventory_cmp.m_config.min_price, shop_inventory_cmp.m_config.max_price );
+  auto selected_item = item_picker.gen();
+  auto price = price_picker.gen();
+  SPDLOG_INFO( "Adding shop item - {} - for {}", item_types.at( selected_item ), price );
+  shop_inventory_cmp.m_slots.emplace_back( item_types.at( selected_item ), price );
 }
 
 void ShopSystem::check_exit_collision()

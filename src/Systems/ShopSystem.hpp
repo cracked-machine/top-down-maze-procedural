@@ -20,13 +20,13 @@ public:
     get_systems_event_queue().sink<Events::BuyShopItemEvent>().connect<&ShopSystem::on_buy_shop_item>( this );
   }
 
-  //! @brief Pick a random "sprite.item." sprite and price and insert in the inventory component
-  //! @param shop_inventory_cmp The inventory component
-  void add_shop_inventory_item( Cmp::ShopInventory &shop_inventory_cmp );
-
   //! @brief Create an inventory component in the registry.
   //! @param inventory_entt The entity that will own the component
   void create_shop_inventory();
+
+  //! @brief Pick a random "sprite.item." sprite and price and insert in the inventory component
+  //! @param shop_inventory_cmp The inventory component
+  void add_shop_inventory_item( Cmp::ShopInventory &shop_inventory_cmp );
 
   //! @brief Check for collisions with the exit
   void check_exit_collision();
