@@ -282,20 +282,19 @@ void NpcSystem::update_pathfinding( sf::Time dt )
     // Other NPCs — target is always the player; compute spawn check once for all
     const Cmp::Position player_pos = Utils::Player::get_position( reg() );
     const bool player_in_spawn = Utils::Player::is_in_spawn( reg(), player_pos );
-    if ( auto navmesh = m_npc_navmesh.lock() )
+    for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::NPC>().each() )
     {
-      for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::NPC>().each() )
+      if ( npc_cmp.sprite_type_list.front().contains( "wisp" ) ) continue;
+      // Skip NPCs already stopped at the spawn boundary — A* result won't change
+      if ( player_in_spawn )
       {
-        if ( npc_cmp.sprite_type_list.front().contains( "wisp" ) ) continue;
-        // Skip NPCs already stopped at the spawn boundary — A* result won't change
-        if ( player_in_spawn )
-        {
-          auto *npc_dir = reg().try_get<Cmp::Direction>( npc_entt );
-          auto *npc_lerp = reg().try_get<Cmp::LerpPosition>( npc_entt );
-          if ( npc_dir && npc_dir->x == 0.0f && npc_dir->y == 0.0f && !npc_lerp ) continue;
-        }
-        update_pathfinding_for( *navmesh, player_pos, npc_entt, player_in_spawn );
+        auto *npc_dir = reg().try_get<Cmp::Direction>( npc_entt );
+        auto *npc_lerp = reg().try_get<Cmp::LerpPosition>( npc_entt );
+        if ( npc_dir && npc_dir->x == 0.0f && npc_dir->y == 0.0f && !npc_lerp ) continue;
       }
+      auto navmesh = navmesh_for( npc_cmp );
+      if ( not navmesh ) continue;
+      update_pathfinding_for( *navmesh, player_pos, npc_entt, player_in_spawn );
     }
 
     m_pathfinding_timer = sf::Time::Zero;
@@ -382,21 +381,22 @@ void NpcSystem::update_movement( sf::Time dt )
 
   for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : reg().view<Cmp::NPC, Cmp::Position>().each() )
   {
-    PathFinding::SpatialHashGridSharedPtr navmesh;
-    if ( npc_cmp.sprite_type_list.front().contains( "wisp" ) )
-    {
-
-      SPDLOG_DEBUG( "Update wisp position at {},{}", npc_pos_cmp.x(), npc_pos_cmp.y() );
-      navmesh = m_open_navmesh.lock();
-      if ( not navmesh ) continue;
-    }
-    else
-    {
-      navmesh = m_npc_navmesh.lock();
-      if ( not navmesh ) continue;
-    }
+    auto navmesh = navmesh_for( npc_cmp );
+    if ( not navmesh ) continue;
     update_movement_for( *navmesh, npc_entt, dt );
   }
+}
+
+PathFinding::SpatialHashGridSharedPtr NpcSystem::navmesh_for( const Cmp::NPC &npc_cmp )
+{
+  const auto &npc_type = npc_cmp.sprite_type_list.front();
+  if ( npc_type.contains( "wisp" ) ) { return m_open_navmesh.lock(); }
+  if ( npc_type.contains( "ghost" ) )
+  {
+    // ghosts pass through plants; fall back to the regular navmesh in scenes without one
+    if ( auto ghost_navmesh = m_ghost_navmesh.lock() ) { return ghost_navmesh; }
+  }
+  return m_npc_navmesh.lock();
 }
 
 void NpcSystem::update_movement_for( PathFinding::SpatialHashGrid &navmesh, entt::entity npc_entity, sf::Time dt )

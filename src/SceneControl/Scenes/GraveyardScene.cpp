@@ -142,7 +142,8 @@ void GraveyardScene::on_init()
   //                  Sys::ProcGen::DLASystem::SpawnShape::Ellipse );
 
   // create navmeshes for pathfinding
-  m_npc_navmesh = Pathfinding::Factory::create_npc_navmesh( m_reg );
+  m_generic_npc_navmesh = Pathfinding::Factory::create_npc_navmesh( m_reg );
+  m_ghost_navmesh = Pathfinding::Factory::create_ghost_navmesh( m_reg );
   m_player_navmesh = Pathfinding::Factory::create_player_navmesh( m_reg );
   m_open_navmesh = Pathfinding::Factory::create_open_navmesh( m_reg );
   reinit_navmesh();
@@ -291,12 +292,12 @@ void GraveyardScene::do_update( sf::Time dt )
 
 void GraveyardScene::reinit_navmesh()
 {
-  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_npc_navmesh, m_open_navmesh );
-  m_sys.find<Sys::Store::Type::BombSystem>().init( m_npc_navmesh, m_player_navmesh );
-  m_sys.find<Sys::Store::Type::ActionSystem>().init( m_npc_navmesh, m_player_navmesh );
-  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_npc_navmesh, m_player_navmesh, m_open_navmesh );
-  m_sys.find<Sys::Store::Type::WormholeSystem>().init( m_npc_navmesh );
-  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_npc_navmesh );
+  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_generic_npc_navmesh, m_open_navmesh, m_ghost_navmesh );
+  m_sys.find<Sys::Store::Type::BombSystem>().init( m_generic_npc_navmesh, m_player_navmesh, m_ghost_navmesh );
+  m_sys.find<Sys::Store::Type::ActionSystem>().init( m_generic_npc_navmesh, m_player_navmesh, m_ghost_navmesh );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_generic_npc_navmesh, m_player_navmesh, m_open_navmesh );
+  m_sys.find<Sys::Store::Type::WormholeSystem>().init( m_generic_npc_navmesh );
+  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_generic_npc_navmesh );
 }
 
 entt::registry &GraveyardScene::registry() { return m_reg; }

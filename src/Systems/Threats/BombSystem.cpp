@@ -254,6 +254,7 @@ void BombSystem::update()
       Factory::remove_obstacle( reg(), obst_entity, true );
       pathfinding_navmesh->insert( obst_entity, obst_pos_cmp );
       player_navmesh->insert( obst_entity, obst_pos_cmp );
+      if ( auto ghost_navmesh = m_ghost_navmesh.lock() ) { ghost_navmesh->insert( obst_entity, obst_pos_cmp ); }
     }
 
     // detonate loot containers - component removal is handled by LootSystem

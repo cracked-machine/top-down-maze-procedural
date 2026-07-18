@@ -42,13 +42,23 @@ public:
   }
 
 protected:
-  PathFinding::SpatialHashGridSharedPtr m_npc_navmesh;
-  PathFinding::SpatialHashGridSharedPtr m_player_navmesh;
+  //! @brief Blocks pathfinding on obstacles, plants, multiblocks, etc...
+  PathFinding::SpatialHashGridSharedPtr m_generic_npc_navmesh;
+  //! @brief Same as default but excludes plants
+  PathFinding::SpatialHashGridSharedPtr m_ghost_navmesh;
+  //! @brief No blocks on pathfinding
   PathFinding::SpatialHashGridSharedPtr m_open_navmesh;
+  //! @brief Player navmesh for blocking/allowing user movement
+  PathFinding::SpatialHashGridSharedPtr m_player_navmesh;
+
+  //! @brief Deserialised JSON scene data. See res/scenes
   SceneMapSharedPtr m_scene_data;
+
+  //! @brief Flag when player has just spawned in the scene.
   bool m_just_spawned{ true };
 
 private:
+  //! @brief The dispatcher for routing scene-specific events to SceneInputRouter.
   entt::dispatcher &m_nav_event_dispatcher;
 };
 

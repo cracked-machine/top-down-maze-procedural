@@ -19,6 +19,7 @@ namespace Game::Cmp
 {
 class Direction;
 class LerpPosition;
+class NPC;
 class NpcShockwave;
 
 } // namespace Game::Cmp
@@ -44,10 +45,13 @@ public:
   //! @brief init the weak pointer for the pathfinding navmesh
   //! @param npc_navmesh
   //! @param open_navmesh
-  void init( const PathFinding::SpatialHashGridSharedPtr &npc_navmesh, const PathFinding::SpatialHashGridSharedPtr &open_navmesh )
+  //! @param ghost_navmesh variant that ignores plant segments; ghosts fall back to npc_navmesh when unset
+  void init( const PathFinding::SpatialHashGridSharedPtr &npc_navmesh, const PathFinding::SpatialHashGridSharedPtr &open_navmesh,
+             const PathFinding::SpatialHashGridSharedPtr &ghost_navmesh = nullptr )
   {
     m_npc_navmesh = npc_navmesh;
     m_open_navmesh = open_navmesh;
+    m_ghost_navmesh = ghost_navmesh;
   }
 
   //! @brief Update the NpcSystem
@@ -63,6 +67,11 @@ public:
   void on_resume() override {}
 
 private:
+  //! @brief Pick the navmesh matching an NPC's traversal type: wisps roam the open
+  //! navmesh, ghosts use the plant-permeable ghost navmesh, everyone else the npc navmesh
+  //! @param npc_cmp
+  PathFinding::SpatialHashGridSharedPtr navmesh_for( const Cmp::NPC &npc_cmp );
+
   //! @brief Updates lerp movement for all NPCs
   //! @param dt
   void update_movement( sf::Time dt );
@@ -124,6 +133,7 @@ private:
 
   //! @brief Used for NPCs to pathfind around blocking obstacles
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
+  PathFinding::SpatialHashGridWeakPtr m_ghost_navmesh;
 
   //! @brief Used for NPCs to move freely within the level boundaries.
   PathFinding::SpatialHashGridWeakPtr m_open_navmesh;

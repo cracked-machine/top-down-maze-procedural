@@ -1,3 +1,4 @@
+#include <Components/Grave/PlantSegment.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Player/PlayerNoPath.hpp>
 #include <Components/Position.hpp>
@@ -9,7 +10,7 @@
 namespace Game::Pathfinding::Factory
 {
 
-PathFinding::SpatialHashGridSharedPtr create_npc_navmesh( entt::registry &reg )
+PathFinding::SpatialHashGridSharedPtr create_npc_navmesh( entt::registry &reg, const NpcBlockerFilter &blocks )
 {
   // Blocking components can live on a separate entity (e.g. a multiblock segment) that
   // shares a grid position with a plain world tile, so excluding by entity alone would
@@ -20,6 +21,7 @@ PathFinding::SpatialHashGridSharedPtr create_npc_navmesh( entt::registry &reg )
   PathFinding::SpatialHashGrid blocked_positions;
   for ( auto [nopath_entt, nopath_cmp, reserved_cmp, pos_cmp] : reg.view<Cmp::NpcNoPathFinding, Cmp::ReservedPosition, Cmp::Position>().each() )
   {
+    if ( blocks && not blocks( nopath_entt ) ) continue;
     blocked_positions.insert( nopath_entt, pos_cmp );
   }
 
@@ -31,6 +33,14 @@ PathFinding::SpatialHashGridSharedPtr create_npc_navmesh( entt::registry &reg )
     pathfinding_navmesh->insert( pos_entt, pos_cmp );
   }
   return pathfinding_navmesh;
+}
+
+PathFinding::SpatialHashGridSharedPtr create_ghost_navmesh( entt::registry &reg )
+{
+  // Ghosts drift through plants but respect every other solid blocker. Further NPC-type
+  // specific navmeshes (e.g. blocked only by certain plant types) follow this pattern:
+  // pass a filter that inspects the blocker entity's components.
+  return create_npc_navmesh( reg, [&reg]( entt::entity blocker_entt ) { return not reg.any_of<Cmp::PlantSegment>( blocker_entt ); } );
 }
 
 PathFinding::SpatialHashGridSharedPtr create_player_navmesh( entt::registry &reg )
