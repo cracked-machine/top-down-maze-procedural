@@ -12,16 +12,44 @@ class SoundBank
 {
 public:
   SoundBank();
+
+  //! @brief Registers every sound effect and music track by name, loading their buffers.
+  //! Must be called once before get_effect()/get_music() can resolve any name.
   void init();
+
+  //! @brief Applies `volume` to every registered sound effect.
+  //! @param volume
   void update_effects_volume( float volume );
+
+  //! @brief Applies `volume` to every registered music track.
+  //! @param volume
   void update_music_volume( float volume );
+
+  //! @brief Returns a reference to the pooled sf::Sound instance for `name`.
+  //! Bind with `auto &`/`const auto &` - copying into a local (`auto`) creates a
+  //! disconnected sf::Sound with its own OpenAL source, so calls like .play()/.stop()
+  //! on the copy will not affect the managed instance.
+  //! @param name
   sf::Sound &get_effect( const std::string &name );
+
+  //! @brief Returns a reference to the pooled sf::Music instance for `name`.
+  //! Bind with `auto &`/`const auto &` - copying into a local (`auto`) creates a
+  //! disconnected sf::Music with its own OpenAL source, so calls like .play()/.stop()
+  //! on the copy will not affect the managed instance.
+  //! @param name
   sf::Music &get_music( const std::string &name );
 
 private:
+  //! @brief Synthesizes a sine wave tone into an in-memory sf::SoundBuffer.
+  //! @param frequency
+  //! @param duration
+  //! @param sample_rate
   static sf::SoundBuffer generate_tone( float frequency = 440.0f, float duration = 0.5f, unsigned int sample_rate = 44100 );
 
+  //! @brief Registered sound effects, keyed by the name passed to get_effect().
   std::unordered_map<std::string, EffectsData> sounds;
+
+  //! @brief Registered music tracks, keyed by the name passed to get_music().
   std::unordered_map<std::string, MusicData> music;
 };
 

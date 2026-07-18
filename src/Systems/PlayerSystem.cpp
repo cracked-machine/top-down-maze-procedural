@@ -781,6 +781,7 @@ void PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entit
 
     // clear player inevntory
     reg().destroy( inventory_slot_entt );
+    m_sound_bank.get_effect( "chopping_final" ).play();
     return;
   }
 
