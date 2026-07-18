@@ -23,7 +23,8 @@
 namespace Game::Factory
 {
 
-void remove_plant_mb( entt::registry &reg, entt::entity plant_entt )
+void remove_plant_mb( entt::registry &reg, entt::entity plant_entt, const PathFinding::SpatialHashGridSharedPtr &npc_navmesh,
+                      const PathFinding::SpatialHashGridSharedPtr &player_navmesh )
 {
   auto *plant_mb_cmp = reg.try_get<Cmp::PlantMultiBlock>( plant_entt );
   auto *plant_uuid_cmp = reg.try_get<Cmp::UUID>( plant_entt );
@@ -42,9 +43,12 @@ void remove_plant_mb( entt::registry &reg, entt::entity plant_entt )
       segment_positions.push_back( seg_pos_cmp );
     }
   }
-  for ( auto e : to_destroy )
+  for ( std::size_t i = 0; i < to_destroy.size(); ++i )
   {
-    if ( reg.valid( e ) ) reg.destroy( e );
+    // segments are indexed in the player navmesh as blockers - drop them before destroying,
+    // otherwise is_valid_move queries stale entity handles
+    if ( player_navmesh ) player_navmesh->remove( to_destroy[i], segment_positions[i] );
+    if ( reg.valid( to_destroy[i] ) ) reg.destroy( to_destroy[i] );
   }
 
   // Un-reserve the world tiles this plant claimed in create_multiblock_segments, otherwise
@@ -57,6 +61,8 @@ void remove_plant_mb( entt::registry &reg, entt::entity plant_entt )
       if ( tile_pos_cmp.findIntersection( seg_pos ) )
       {
         reg.remove<Cmp::ReservedPosition>( tile_entt );
+        // the tile is walkable again for NPCs, unless it blocks in its own right (e.g. an obstacle)
+        if ( npc_navmesh && not reg.any_of<Cmp::NpcNoPathFinding>( tile_entt ) ) { npc_navmesh->insert( tile_entt, tile_pos_cmp ); }
         break;
       }
     }

@@ -357,7 +357,10 @@ void ActionSystem::check_player_dig_plant_collision()
           auto player_pos = Utils::Player::get_position( reg() ).position;
           get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
         }
-        else if ( inventory_slot.m_item.sprite_type == "sprite.item.axe" ) { Factory::remove_plant_mb( reg(), plant_entt ); }
+        else if ( inventory_slot.m_item.sprite_type == "sprite.item.axe" )
+        {
+          Factory::remove_plant_mb( reg(), plant_entt, m_npc_navmesh.lock(), m_player_navmesh.lock() );
+        }
       }
       get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG, plant_entt ) );
 

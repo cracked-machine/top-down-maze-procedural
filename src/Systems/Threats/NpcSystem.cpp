@@ -312,7 +312,7 @@ void NpcSystem::update_pathfinding_for( PathFinding::SpatialHashGrid &navmesh, c
   auto *npc_pos_cmp = reg().try_get<Cmp::Position>( npc_entity );
   if ( not npc_pos_cmp ) return;
 
-  // only pathfind when in the current view/screen - except wisps - they need to pathfind at all times.
+  // only pathfind when NPC is in the current view/screen - except wisps - they need to pathfind at all times.
   if ( not npc_type.contains( "wisp" ) and not Utils::is_visible_in_view( RenderSystem::get_world_view(), *npc_pos_cmp ) )
   {
     reg().emplace_or_replace<Cmp::Direction>( npc_entity, Cmp::Direction( { 0.0, 0.0 } ) );
@@ -323,7 +323,7 @@ void NpcSystem::update_pathfinding_for( PathFinding::SpatialHashGrid &navmesh, c
   auto *npc_lerp_pos_cmp = reg().try_get<Cmp::LerpPosition>( npc_entity );
   if ( npc_lerp_pos_cmp && npc_lerp_pos_cmp->m_lerp_factor < 1.0f ) return;
 
-  // allow ghosts to sneak through gaps
+  // allow ghosts to sneak through corners
   auto query_compass = PathFinding::QueryCompass::CARDINAL;
 
   if ( npc_type.contains( "sprite.ghost" ) ) query_compass = PathFinding::QueryCompass::BOTH;
@@ -446,23 +446,6 @@ void NpcSystem::update_movement_for( PathFinding::SpatialHashGrid &navmesh, entt
     zorder_augment = spritesheet.get_zorder( 0 );
   }
   reg().patch<Cmp::ZOrderValue>( npc_entity, [&]( auto &zorder_cmp ) { zorder_cmp.setZOrder( pos_cmp->position.y + zorder_augment ); } );
-}
-
-bool NpcSystem::is_valid_move( const sf::FloatRect &target_position )
-{
-
-  // arbitrary Cmp::NoPathFinding components
-  auto nppathfinding_view = reg().view<Cmp::NpcNoPathFinding, Cmp::Position>();
-  for ( auto [entt, nopath_cmp, pos_cmp] : nppathfinding_view.each() )
-  {
-    if ( pos_cmp.findIntersection( target_position ) )
-    {
-      SPDLOG_DEBUG( "NPC collided Cmp::NoPathFinding" );
-      return false;
-    }
-  }
-
-  return true;
 }
 
 void NpcSystem::check_once_collision()

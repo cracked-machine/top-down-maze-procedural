@@ -762,6 +762,23 @@ void PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entit
       }
     }
 
+    // The NPC navmesh is built once at scene setup, so evict the tiles the new plant
+    // now blocks. Keep the player entity - PlayerSystem::update re-inserts it every
+    // frame and NPCs need it to path towards the player.
+    if ( auto npc_navmesh = m_npc_navmesh.lock() )
+    {
+      for ( auto seg_entt : segment_entt_list )
+      {
+        if ( not reg().any_of<Cmp::NpcNoPathFinding>( seg_entt ) ) continue;
+        auto seg_pos_cmp = reg().get<Cmp::Position>( seg_entt );
+        for ( auto blocked_entt : npc_navmesh->at( seg_pos_cmp ) )
+        {
+          if ( reg().any_of<Cmp::PlayerCharacter>( blocked_entt ) ) continue;
+          npc_navmesh->remove( blocked_entt, seg_pos_cmp );
+        }
+      }
+    }
+
     // clear player inevntory
     reg().destroy( inventory_slot_entt );
     return;
@@ -863,7 +880,7 @@ void PlayerSystem::pickup_world_item( entt::registry &reg, entt::entity world_it
 
   // now destroy the world item entt
   SPDLOG_DEBUG( "Picked up world entt {}", static_cast<uint32_t>( world_item_entt ) );
-  Factory::remove_plant_mb( reg, world_item_entt );
+  Factory::remove_plant_mb( reg, world_item_entt, m_npc_navmesh.lock(), m_player_navmesh.lock() );
   if ( reg.valid( world_item_entt ) ) reg.destroy( world_item_entt );
 
   if ( inventory_entity != entt::null ) { m_sound_bank.get_effect( "get_loot" ).play(); }

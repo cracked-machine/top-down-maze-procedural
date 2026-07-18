@@ -11,10 +11,23 @@ namespace Game::Pathfinding::Factory
 
 PathFinding::SpatialHashGridSharedPtr create_npc_navmesh( entt::registry &reg )
 {
+  // Blocking components can live on a separate entity (e.g. a multiblock segment) that
+  // shares a grid position with a plain world tile, so excluding by entity alone would
+  // still insert the tile. Collect the blocked positions first, then skip any entity
+  // whose position is blocked. Only structural entities (ReservedPosition) block their
+  // position: decorations like obstacle caps also carry NpcNoPathFinding, but they only
+  // exclude themselves - the tile underneath them must stay walkable.
+  PathFinding::SpatialHashGrid blocked_positions;
+  for ( auto [nopath_entt, nopath_cmp, reserved_cmp, pos_cmp] : reg.view<Cmp::NpcNoPathFinding, Cmp::ReservedPosition, Cmp::Position>().each() )
+  {
+    blocked_positions.insert( nopath_entt, pos_cmp );
+  }
+
   // create a restricted navmesh for pathfinding
   PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
   for ( auto [pos_entt, pos_cmp] : reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> ).each() )
   {
+    if ( not blocked_positions.at( pos_cmp ).empty() ) continue;
     pathfinding_navmesh->insert( pos_entt, pos_cmp );
   }
   return pathfinding_navmesh;
