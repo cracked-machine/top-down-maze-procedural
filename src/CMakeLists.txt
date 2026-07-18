@@ -87,7 +87,12 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Factory/WallFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/RuinFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/PlantFactory.cpp
-    ${CMAKE_SOURCE_DIR}/src/Factory/MultiblockFactory.cpp
+    ${CMAKE_SOURCE_DIR}/src/Factory/MultiblockFactoryAltarGrave.cpp
+    ${CMAKE_SOURCE_DIR}/src/Factory/MultiblockFactoryCrypt.cpp
+    ${CMAKE_SOURCE_DIR}/src/Factory/MultiblockFactoryRuinStairs.cpp
+    ${CMAKE_SOURCE_DIR}/src/Factory/MultiblockFactoryRuinBuildings.cpp
+    ${CMAKE_SOURCE_DIR}/src/Factory/MultiblockFactorySpring.cpp
+    ${CMAKE_SOURCE_DIR}/src/Factory/MultiblockFactoryPlant.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/ShaderFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/ParticleFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/PathfindingFactory.cpp

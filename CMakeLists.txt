@@ -9,8 +9,12 @@ message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
 find_program(CCACHE_PROGRAM ccache)
 if(CCACHE_PROGRAM)
     message(STATUS "Found ccache: ${CCACHE_PROGRAM}")
-    set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
-    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    # Points ccache at the project-local .ccache.conf (enables sloppiness needed
+    # to cache compiles that use target_precompile_headers) instead of relying
+    # on each machine's global ccache config.
+    set(CCACHE_LAUNCHER "${CMAKE_COMMAND}" -E env "CCACHE_CONFIGPATH=${CMAKE_SOURCE_DIR}/.ccache.conf" "${CCACHE_PROGRAM}")
+    set(CMAKE_C_COMPILER_LAUNCHER ${CCACHE_LAUNCHER})
+    set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_LAUNCHER})
 else()
     message(STATUS "ccache not found - compilation caching disabled")
 endif()
