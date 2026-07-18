@@ -63,7 +63,7 @@ ActionSystem::ActionSystem( entt::registry &reg, sf::RenderWindow &window, Sprit
   SPDLOG_DEBUG( "ActionSystem initialized" );
 }
 
-void ActionSystem::update( sf::Time dt )
+void ActionSystem::update( [[maybe_unused]] sf::Time dt )
 {
 
   // abort if still in cooldown
@@ -72,24 +72,6 @@ void ActionSystem::update( sf::Time dt )
   {
     SPDLOG_DEBUG( "Digging is on cooldown for {} more seconds!", ( digging_cooldown_amount - m_dig_cooldown_clock.getElapsedTime().asSeconds() ) );
     return;
-  }
-
-  static constexpr float kPlantCheckIntervalHz = 2.0f;
-  m_plantcheck_accumulator += dt;
-  if ( m_plantcheck_accumulator.asSeconds() >= 1.f / kPlantCheckIntervalHz )
-  {
-    // check if plant player path blocking should be activated
-    auto player_pos = Utils::Player::get_position( reg() );
-    for ( auto [plant_entt, plant_mb_cmp] : reg().view<Cmp::PlantMultiBlock>().each() )
-    {
-      auto *playernopath_cmp = reg().try_get<Cmp::PlayerNoPath>( plant_entt );
-      if ( not playernopath_cmp ) continue;
-
-      // enable inactive pathblocking on the plant once the player has moved away from its bbox
-      if ( playernopath_cmp->active ) continue;
-      if ( not player_pos.findIntersection( plant_mb_cmp ) ) { playernopath_cmp->active = true; }
-    }
-    m_plantcheck_accumulator = sf::Time::Zero;
   }
 }
 

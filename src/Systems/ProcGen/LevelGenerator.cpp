@@ -529,7 +529,7 @@ std::vector<entt::entity> LevelGenerator::gen_random_plants( sf::Vector2u map_gr
       if ( reserved_navmesh->at( random_pos ).empty() )
       {
         // now create the plant at a new entt
-        auto mb_entt = Factory::add_multiblock_with_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>(
+        auto [mb_entt, _] = Factory::add_multiblock_with_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>(
             reg(), random_pos.position, m_sprite_factory.get_spritesheet_by_type( rand_plant_type ) );
         SPDLOG_DEBUG( "Created plant at {},{}", random_pos.position.x, random_pos.position.y );
         assigned_entts.push_back( random_entity );
@@ -542,8 +542,7 @@ std::vector<entt::entity> LevelGenerator::gen_random_plants( sf::Vector2u map_gr
         {
           for ( auto [seg_entt, seg_cmp, seg_pos, seg_uuid] : reg().view<Cmp::PlantSegment, Cmp::Position, Cmp::UUID>().each() )
           {
-            if ( seg_uuid == *mb_uuid )
-              reserved_navmesh->insert( seg_entt, seg_pos );
+            if ( seg_uuid == *mb_uuid ) reserved_navmesh->insert( seg_entt, seg_pos );
           }
         }
       }

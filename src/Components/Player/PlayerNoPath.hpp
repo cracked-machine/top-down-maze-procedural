@@ -7,6 +7,10 @@ namespace Game::Cmp
 //! @brief Mark entity that blocks player movement
 struct PlayerNoPath
 {
+  //! @brief This is used by `PlayerSystem::is_valid_move` for collision detection.
+  //!        If set to false then collision detection for this entity is disabled.
+  //!        `Cmp::PlantSegments` automatically set this to false and is reactivated in
+  //!        `PlayerSystem::update_player_no_path_cmp` when player vacates its hitbox.
   bool active{ true };
 };
 

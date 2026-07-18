@@ -63,8 +63,6 @@ private:
   void select_moveable_obstacle();
   void deselect_all_moveable_obstacles();
 
-  sf::Time m_plantcheck_accumulator;
-
   // Cooldown clock to manage digging intervals
   sf::Clock m_dig_cooldown_clock;
 

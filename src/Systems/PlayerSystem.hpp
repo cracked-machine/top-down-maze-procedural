@@ -124,6 +124,10 @@ private:
   //! @param ev
   void on_player_action_event( Game::Events::PlayerActionEvent ev );
 
+  //! @brief Checking if Cmp::PlayerNoPath should be activated.
+  //! @param dt
+  void update_player_no_path_cmp( sf::Time dt );
+
   //! @brief Various ways in which the player can die. Starts the death animation loop.
   //! @param ev
   void on_player_mortality_event( Game::Events::PlayerMortalityEvent ev );
@@ -143,6 +147,9 @@ private:
 
   //! @brief Prevent player from spamming the drop inventory action.
   sf::Clock m_inventory_cooldown_timer;
+
+  //! @brief Cooldown for checking if Cmp::PlayerNoPath should be activated.
+  sf::Time m_plantcheck_accumulator;
 
   //! @brief Weak pointer to the pathfinding navmesh.
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;

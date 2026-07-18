@@ -97,6 +97,7 @@ PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprit
 
 void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
 {
+  update_player_no_path_cmp( dt );
 
   // cache position so we can update player in spatial grid after changes.
   auto old_player_pos = Utils::Player::get_position( reg() );
@@ -747,19 +748,21 @@ void PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entit
   if ( inventory_slot_cmp->m_item.sprite_type.contains( "plant" ) )
   {
     // multiblocks are top-left anchored, so offset the y-axis so that plant base is at players feet
-    Factory::add_multiblock_with_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>(
+    auto [mb_entt, segment_entt_list] = Factory::add_multiblock_with_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>(
         reg(), Utils::snap_to_grid( { pos.x, pos.y - Constants::kGridSizePxF.y } ),
         m_sprite_factory.get_spritesheet_by_type( inventory_slot_cmp->m_item.sprite_type ) );
 
-    //! @todo Player should not be able to walk through newly replanted plants!
-    // // The player navmesh is built once at scene init; rebuild it so the new plant's solid segments block immediately
-    // if ( auto navmesh = m_player_navmesh.lock() )
-    // {
-    //   navmesh->clear();
-    //   for ( auto [e, nopath_cmp, pos_cmp] : reg().view<Cmp::PlayerNoPath, Cmp::Position>().each() )
-    //     navmesh->insert( e, pos_cmp );
-    // }
+    // rebuild the m_player_navmesh here
+    if ( auto player_navmesh = m_player_navmesh.lock() )
+    {
+      player_navmesh->clear();
+      for ( auto [entt, nopath_cmp, pos_cmp] : reg().view<Cmp::PlayerNoPath, Cmp::Position>().each() )
+      {
+        player_navmesh->insert( entt, pos_cmp );
+      }
+    }
 
+    // clear player inevntory
     reg().destroy( inventory_slot_entt );
     return;
   }
@@ -936,6 +939,29 @@ void PlayerSystem::on_player_action_event( Game::Events::PlayerActionEvent ev )
   else if ( ev.action == Game::Events::PlayerActionEvent::GameActions::DIG )
   {
     if ( reg().valid( ev.m_entt ) ) pickup_world_item( reg(), ev.m_entt );
+  }
+}
+
+void PlayerSystem::update_player_no_path_cmp( sf::Time dt )
+{
+  // PlayerNoPath lives on the plant segment entities (see update_segments), not the
+  // PlantMultiBlock entity. Run this before the dig-cooldown early-return, otherwise
+  // reactivation stalls in the cooldown window right after digging/replanting.
+  static constexpr float kPlantCheckIntervalHz = 2.0f;
+  m_plantcheck_accumulator += dt;
+  if ( m_plantcheck_accumulator.asSeconds() >= 1.f / kPlantCheckIntervalHz )
+  {
+    // check if plant player path blocking should be activated
+    auto player_pos = Utils::Player::get_position( reg() );
+    for ( auto [seg_entt, seg_cmp, playernopath_cmp, seg_pos_cmp] : reg().view<Cmp::PlantSegment, Cmp::PlayerNoPath, Cmp::Position>().each() )
+    {
+      if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), seg_pos_cmp ) ) continue;
+
+      // enable inactive pathblocking on the segment once the player has moved off its bbox
+      if ( playernopath_cmp.active ) continue;
+      if ( not player_pos.findIntersection( seg_pos_cmp ) ) { playernopath_cmp.active = true; }
+    }
+    m_plantcheck_accumulator = sf::Time::Zero;
   }
 }
 

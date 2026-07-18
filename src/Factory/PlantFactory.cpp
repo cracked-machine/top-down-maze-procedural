@@ -15,8 +15,6 @@
 #include <Factory/PlantFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
-#include <Systems/Render/RenderSystem.hpp>
-#include <Utils/Optimizations.hpp>
 #include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
 #include <entt/entity/registry.hpp>
@@ -34,19 +32,36 @@ void remove_plant_mb( entt::registry &reg, entt::entity plant_entt )
   // Collect all segment entities for this plant, then destroy them.
   // Segment entities are purpose-built (not world tiles), so destroy rather than strip components.
   std::vector<entt::entity> to_destroy;
-  for ( auto [other_uuid_entt, plant_segment_cmp, other_uuid_cmp] : reg.view<Cmp::PlantSegment, Cmp::UUID>().each() )
+  std::vector<Cmp::Position> segment_positions;
+  for ( auto [other_uuid_entt, plant_segment_cmp, seg_pos_cmp, other_uuid_cmp] : reg.view<Cmp::PlantSegment, Cmp::Position, Cmp::UUID>().each() )
   {
-    if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), *plant_mb_cmp ) ) continue;
     if ( *plant_uuid_cmp == other_uuid_cmp )
     {
       SPDLOG_INFO( "Found segment entt {}", static_cast<uint32_t>( other_uuid_entt ) );
       to_destroy.push_back( other_uuid_entt );
+      segment_positions.push_back( seg_pos_cmp );
     }
   }
   for ( auto e : to_destroy )
   {
     if ( reg.valid( e ) ) reg.destroy( e );
   }
+
+  // Un-reserve the world tiles this plant claimed in create_multiblock_segments, otherwise
+  // replanting here silently skips segment creation. Match tiles against the destroyed
+  // segments' positions so reservations held by neighbouring structures are untouched.
+  for ( auto [tile_entt, tile_pos_cmp, tile_reserved_cmp] : reg.view<Cmp::Position, Cmp::ReservedPosition>().each() )
+  {
+    for ( const auto &seg_pos : segment_positions )
+    {
+      if ( tile_pos_cmp.findIntersection( seg_pos ) )
+      {
+        reg.remove<Cmp::ReservedPosition>( tile_entt );
+        break;
+      }
+    }
+  }
+
   // now destroy the redundant plant multiblock entity
   if ( reg.valid( plant_entt ) ) reg.destroy( plant_entt );
 }

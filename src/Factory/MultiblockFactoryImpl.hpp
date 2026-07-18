@@ -5,6 +5,10 @@
 // MultiblockFactory*.cpp translation units that explicitly instantiate these
 // templates - never by consumers of MultiblockFactory.hpp - so that editing a
 // function body only forces a handful of instantiation files to recompile.
+#include <Components/Grave/PlantSegment.hpp>
+#include <Components/Inventory/WorldItem.hpp>
+#include <Components/Npc/Npc.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Sprites/SpriteSheet.hpp>
@@ -76,6 +80,7 @@ void update_segments( entt::registry &reg, const Sprites::SpriteSheet &ss, [[may
     {
       reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
       reg.emplace_or_replace<Cmp::PlayerNoPath>( entity );
+      if constexpr ( std::is_same_v<MBSEGMENT, Cmp::PlantSegment> ) { reg.emplace_or_replace<Cmp::PlayerNoPath>( entity, false ); }
     }
     else
     {
@@ -98,11 +103,15 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &reg, entt:
   PathFinding::SpatialHashGrid segment_map;
 
   // cache upfront so we dont add mutate the view whilst iterating it.
+  // Only accept genuine world tiles (created with Cmp::Armable): a bare Cmp::Position view
+  // also matches the player, NPCs and dropped items standing inside the bounds, which would
+  // get segments created at their (possibly off-grid) positions and be tagged ReservedPosition.
   std::vector<entt::entity> world_pos_entt_list;
   for ( auto [pos_entity, pos_cmp] : reg.view<Cmp::Position>().each() )
   {
     if ( not pos_cmp.findIntersection( new_multiblock_bounds ) ) continue;
-    if ( reg.any_of<MULTIBLOCK, MBSEGMENT, Cmp::ReservedPosition>( pos_entity ) ) continue;
+    if ( not reg.all_of<Cmp::Armable>( pos_entity ) ) continue;
+    if ( reg.any_of<MULTIBLOCK, MBSEGMENT, Cmp::ReservedPosition, Cmp::PlayerCharacter, Cmp::NPC, Cmp::WorldItem>( pos_entity ) ) continue;
     world_pos_entt_list.push_back( pos_entity );
   }
 
@@ -156,7 +165,7 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &reg, entt:
     segment_map.insert( new_segment_entt, pos_cmp );
   }
 
-  // update_segments<MULTIBLOCK, MBSEGMENT>( reg, ss, multiblock_entity, new_multiblock_bounds );
+  update_segments<MULTIBLOCK, MBSEGMENT>( reg, ss, multiblock_entity, new_multiblock_bounds );
 
   return created_entts;
 }
