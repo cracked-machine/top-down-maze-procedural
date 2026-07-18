@@ -197,7 +197,7 @@ void ActionSystem::check_player_dig_obstacle_collision()
 
   // Iterate through all entities with Position and Obstacle components
   auto position_view = reg().view<Cmp::Position, Cmp::Obstacle, Cmp::AbsoluteAlpha, Cmp::AnimData, Cmp::UUID>(
-      entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
+      entt::exclude<Cmp::SelectedPosition> );
   for ( auto [obstacle_entt, obstacle_pos_cmp, obstacle_cmp, obstacle_alpha_cmp, obstacle_anim_cmp, obstacle_uuid_cmp] : position_view.each() )
   {
     if ( not obstacle_anim_cmp.m_sprite_type.contains( ".main" ) ) continue;
@@ -205,6 +205,23 @@ void ActionSystem::check_player_dig_obstacle_collision()
     auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
     if ( mouse_position_bounds.findIntersection( obstacle_pos_cmp ) )
     {
+      // Reserved obstacles sit under structures and cannot be dug, with one exception:
+      // a replanted plant reserves the tiles it lands on, but must not shield the
+      // obstacle underneath it from digging.
+      if ( reg().all_of<Cmp::ReservedPosition>( obstacle_entt ) )
+      {
+        bool reserved_by_plant = false;
+        for ( auto [seg_entt, seg_cmp, seg_pos_cmp] : reg().view<Cmp::PlantSegment, Cmp::Position>().each() )
+        {
+          if ( seg_pos_cmp.findIntersection( obstacle_pos_cmp ) )
+          {
+            reserved_by_plant = true;
+            break;
+          }
+        }
+        if ( not reserved_by_plant ) continue;
+      }
+
       SPDLOG_DEBUG( "Found diggable entity at position: [{}, {}]!", pos_cmp.position.x, pos_cmp.position.y );
 
       auto player_pos_cmp = Utils::Player::get_position( reg() );
