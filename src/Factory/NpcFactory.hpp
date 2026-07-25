@@ -34,8 +34,8 @@ void destroy_npc_container( entt::registry &registry, entt::entity npc_container
 entt::entity create_npc( entt::registry &registry, entt::entity position_entity, const std::string &npc_type );
 entt::entity destroy_npc( entt::registry &registry, entt::entity npc_entity );
 
-entt::entity create_npc_explosion( entt::registry &registry, Cmp::Position npc_position_cmp );
-void remove_npc_explosion( entt::registry &registry, entt::entity entity );
+entt::entity create_npc_death_anim( entt::registry &registry, Cmp::Position npc_position_cmp, const Sprites::SpriteMetaType &death_anim );
+void remove_npc_death_anim( entt::registry &registry, entt::entity entity );
 
 bool create_shockwave( entt::registry &registry, entt::entity npc_entt );
 

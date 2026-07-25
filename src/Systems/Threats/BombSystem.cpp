@@ -221,12 +221,6 @@ void BombSystem::place_concentric_bomb_pattern( const entt::entity &epicenter_en
 void BombSystem::update()
 {
 
-  // remove any finished explosions
-  for ( auto [death_entt, death_cmp, anim_cmp] : reg().view<Cmp::DeathPosition, Cmp::AnimData>().each() )
-  {
-    if ( not anim_cmp.m_enabled ) { Factory::remove_npc_explosion( reg(), death_entt ); }
-  }
-
   PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock();
   if ( not pathfinding_navmesh )
   {
@@ -341,7 +335,7 @@ void BombSystem::update()
       // notify npc system of death
       if ( npc_pos_cmp.findIntersection( armed_pos_cmp ) )
       {
-        Factory::create_npc_explosion( reg(), npc_pos_cmp );
+        Factory::create_npc_death_anim( reg(), npc_pos_cmp, "sprite.death.anim.explosion" );
 
         SPDLOG_INFO( "NPC entity {} exploded at {},{}", static_cast<int>( npc_entt ), npc_pos_cmp.position.x, npc_pos_cmp.position.y );
         Factory::destroy_npc( reg(), npc_entt );

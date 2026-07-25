@@ -3,6 +3,7 @@
 #include <Components/AnimData.hpp>
 #include <Components/Crypt/CryptBuildingSegment.hpp>
 #include <Components/Crypt/CryptObjectiveSegment.hpp>
+#include <Components/DeathPosition.hpp>
 #include <Components/Direction.hpp>
 #include <Components/FootStepTimer.hpp>
 #include <Components/Grave/GraveExitSegment.hpp>
@@ -73,6 +74,12 @@ NpcSystem::NpcSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::Sp
 
 void NpcSystem::update( sf::Time dt )
 {
+
+  // remove any finished explosions
+  for ( auto [death_entt, death_cmp, anim_cmp] : reg().view<Cmp::DeathPosition, Cmp::AnimData>().each() )
+  {
+    if ( not anim_cmp.m_enabled ) { Factory::remove_npc_death_anim( reg(), death_entt ); }
+  }
 
   static constexpr float kContainerInterval = 0.20f;
   m_container_timer += dt;

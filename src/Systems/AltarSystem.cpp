@@ -88,7 +88,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
   if ( not altar_uuid_cmp ) throw std::runtime_error( "Altar does not have UUID" );
 
   auto [sacrifice_entt, sacrifice_type] = Utils::Player::get_inventory_type( reg() );
-  enum class SacrificeAnimType { RELIC, KEY, JEWELS };
+  enum class SacrificeAnimType { RELIC, KEY, JEWELS, WITCHESJAR };
 
   //! @brief Common actions following an altar sacrifice
   auto common_activation = [&]( SacrificeAnimType sacrifice_anim_type )
@@ -97,6 +97,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
     if ( sacrifice_anim_type == SacrificeAnimType::RELIC ) { sprite_type = "sprite.graveyard.altar.relic.anim"; }
     else if ( sacrifice_anim_type == SacrificeAnimType::KEY ) { sprite_type = "sprite.graveyard.altar.key.anim"; }
     else if ( sacrifice_anim_type == SacrificeAnimType::JEWELS ) { sprite_type = "sprite.graveyard.altar.relic.anim"; }
+    else if ( sacrifice_anim_type == SacrificeAnimType::WITCHESJAR ) { sprite_type = "sprite.graveyard.altar.relic.anim"; }
 
     Factory::destroy_inventory( reg(), sacrifice_type );
 
@@ -120,6 +121,22 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
     // signal UI to flash
     auto flash_entt = reg().create();
     reg().emplace_or_replace<Cmp::FlashUIWealth>( flash_entt );
+  }
+
+  // sacrifice witches jar at any time
+  if ( sacrifice_type.contains( "item.witchesjar" ) )
+  {
+    SPDLOG_INFO( "Player made an offering: {}", sacrifice_type );
+    common_activation( SacrificeAnimType::WITCHESJAR );
+    for ( auto [npc_entt, npc_cmp, npc_pos_cmp, anim_cmp] : reg().view<Cmp::NPC, Cmp::Position, Cmp::AnimData>().each() )
+    {
+      if ( anim_cmp.m_sprite_type.contains( "ghost" ) )
+      {
+        Factory::create_npc_death_anim( reg(), npc_pos_cmp, "sprite.death.anim.banish" );
+        Factory::destroy_npc( reg(), npc_entt );
+      }
+    }
+    m_sound_bank.get_effect( "witches_jar_sacrifice" ).play();
   }
 
   SPDLOG_DEBUG( "Checking altar activation: {}/{}", altar_cmp.get_activation_count(), altar_cmp.get_activation_threshold() );

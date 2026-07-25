@@ -63,6 +63,8 @@ void SoundBank::init()
   sounds.emplace( "emit_shockwave_low", EffectsData{ "res/audio/shockwave3.mp3" } );
   sounds.emplace( "emit_shockwave_high", EffectsData{ "res/audio/shockwave5.mp3" } );
 
+  sounds.emplace( "witches_jar_sacrifice", EffectsData{ "res/audio/witches_jar_sacrifice.mp3" } );
+
   // Initialize music (can't use initializer list because sf::Music is move-only)
   music.emplace( "title_music", MusicData{ "res/audio/EerieScifi.mp3" } );
   music.emplace( "game_music", MusicData{ "res/audio/SadWindyOrgan.mp3" } );

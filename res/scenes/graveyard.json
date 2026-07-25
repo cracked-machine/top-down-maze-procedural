@@ -1858,6 +1858,19 @@
                  "width":0,
                  "x":784,
                  "y":784
+                }, 
+                {
+                 "height":0,
+                 "id":271,
+                 "name":"item.witchesjar",
+                 "opacity":1,
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":768,
+                 "y":816
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -1866,7 +1879,7 @@
          "y":0
         }],
  "nextlayerid":11,
- "nextobjectid":271,
+ "nextobjectid":272,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.1",

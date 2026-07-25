@@ -196,7 +196,7 @@ entt::entity destroy_npc( entt::registry &reg, entt::entity npc_entity )
   return loot_entity;
 }
 
-entt::entity create_npc_explosion( entt::registry &reg, Cmp::Position npc_pos_cmp )
+entt::entity create_npc_death_anim( entt::registry &reg, Cmp::Position npc_pos_cmp, const Sprites::SpriteMetaType &death_anim )
 {
   auto npc_death_entity = reg.create();
   reg.emplace<Cmp::Position>( npc_death_entity, npc_pos_cmp.position, npc_pos_cmp.size );
@@ -204,7 +204,7 @@ entt::entity create_npc_explosion( entt::registry &reg, Cmp::Position npc_pos_cm
 
   // clang-format off
   reg.emplace_or_replace<Cmp::AnimData>( npc_death_entity, Cmp::AnimData::Config{ 
-        .sprite_type = "sprite.death.anim.explosion", 
+        .sprite_type = death_anim, 
         .framerate = 0.1,
         .enabled = true,
         .anim_type =  Cmp::AnimType::ONESHOTRESET
@@ -215,7 +215,7 @@ entt::entity create_npc_explosion( entt::registry &reg, Cmp::Position npc_pos_cm
   return npc_death_entity;
 }
 
-void remove_npc_explosion( entt::registry &registry, entt::entity entity )
+void remove_npc_death_anim( entt::registry &registry, entt::entity entity )
 {
   registry.remove<Cmp::DeathPosition>( entity );
   registry.remove<Cmp::AnimData>( entity );

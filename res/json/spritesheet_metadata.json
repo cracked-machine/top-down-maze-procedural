@@ -1582,6 +1582,20 @@
         }
       }
     },
+    "sprite.death.anim.banish": {
+      "spritesheet": {
+        "displayname": "sprite.death.anim.banish",
+        "zorder": [0, 0, 0, 0],
+        "texture_path": "res/textures/water_effect_and_bullet_16x16.png",
+        "sprite_indices": [101,102,103,104,105],
+        "sprites_per_sequence": 5,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "x": 1,
+          "y": 1
+        }
+      }
+    },
 
     "sprite.shop.wall.int": {
       "spritesheet": {
