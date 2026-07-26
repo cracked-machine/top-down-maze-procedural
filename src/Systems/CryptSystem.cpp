@@ -1109,7 +1109,8 @@ void CryptSystem::add_chest_to_open_rooms( const Cmp::Position &player_pos_cmp )
       float zorder = selected_pos.y() + m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.chest" ).get_zorder( 0 );
 
       Factory::remove_obstacle( reg(), selected_entt, true );
-      Crypt::Factory::create_crypt_chest( reg(), selected_pos.position, "sprite.crypt.chest", 0, zorder );
+      auto chest_entt = Crypt::Factory::create_crypt_chest( reg(), selected_pos.position, "sprite.crypt.chest", 0, zorder );
+      if ( auto player_navmesh = m_player_navmesh.lock() ) { player_navmesh->insert( chest_entt, selected_pos ); }
       SPDLOG_DEBUG( "Added chest to position: {},{}", selected_pos.position.x, selected_pos.position.y );
     }
   }
@@ -1186,6 +1187,7 @@ void CryptSystem::remove_all_chests()
   for ( auto [chest_entt, chest_cmp, chest_pos_cmp] : reg().view<Cmp::CryptChest, Cmp::Position>().each() )
   {
     Crypt::Factory::destroy_crypt_chest( reg(), chest_entt );
+    if ( auto player_navmesh = m_player_navmesh.lock() ) { player_navmesh->remove( chest_entt, chest_pos_cmp ); }
   }
 }
 
