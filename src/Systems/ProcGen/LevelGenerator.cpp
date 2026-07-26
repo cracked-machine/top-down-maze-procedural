@@ -64,6 +64,7 @@
 #include <Utils/Utils.hpp>
 
 #include <SFML/System/Vector2.hpp>
+#include <optional>
 #include <ranges>
 #include <spdlog/spdlog.h>
 
@@ -88,7 +89,7 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
   auto w = map_size_grid.x;
 
   // Walls
-  [[maybe_unused]] const Sprites::SpriteSheet &wall_ms = m_sprite_factory.get_spritesheet_by_type( scene_data.wall_tileset().name );
+  const Sprites::SpriteSheet &wall_ms = m_sprite_factory.get_spritesheet_by_type( scene_data.wall_tileset().name );
   for ( const auto [i, tile] : std::views::enumerate( scene_data.wall_tilelayer() ) )
   {
     auto row = i / w; // increments every 'w' tiles
@@ -265,7 +266,6 @@ void LevelGenerator::decorate_ruin_interior_obstacles()
     reg().emplace_or_replace<Cmp::Position>( cap_entt, cap_position );
     Factory::decorate_obstacle( reg(), cap_entt, cap_position, ss_cap, ss_cap_idx, obstacle_pos_cmp.y(), false );
     reg().emplace_or_replace<Cmp::UUID>( cap_entt, uuid );
-    reg().emplace_or_replace<Cmp::UUID>( cap_entt, uuid );
   }
 }
 
@@ -275,28 +275,11 @@ void LevelGenerator::add_ruin_rune_markers()
   {
     auto [rnd_entt, rnd_pos] = Utils::Rnd::get_random_position( reg(), {}, Utils::Rnd::ExcludePack<Cmp::ReservedPosition>{} );
     auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.ruin.runemarking.inactive" } );
-
-    auto rune_entt = reg().create();
-    reg().emplace_or_replace<Cmp::ReservedPosition>( rune_entt );
-    reg().emplace_or_replace<Cmp::Position>( rune_entt, rnd_pos );
     float zorder = m_sprite_factory.get_spritesheet_by_type( "sprite.ruin.runemarking.inactive" ).get_zorder( 0 );
-    reg().emplace_or_replace<Cmp::ZOrderValue>( rune_entt, zorder );
-    reg().emplace_or_replace<Cmp::RuneMarking>( rune_entt );
-    // clang-format off
-    reg().emplace_or_replace<Cmp::AnimData>( rune_entt, Cmp::AnimData::Config{ 
-          .sprite_type = "sprite.graveyard.playerspawn", 
-          .frame_index_offset = idx,
-          .enabled = true
-    });
-    // clang-format on
+    auto rune_entt = Factory::create_rune_marker( reg(), rnd_pos, zorder, idx );
 
     SPDLOG_INFO( "Added rune to {},{}", rnd_pos.x(), rnd_pos.y() );
 
-    // set the existing entt to reserved as well
-    for ( auto [world_entt, world_pos_cmp] : reg().view<Cmp::Position>().each() )
-    {
-      if ( world_pos_cmp.findIntersection( rnd_pos ) ) reg().emplace_or_replace<Cmp::ReservedPosition>( rnd_entt );
-    }
     m_non_obstacle_sm->insert( rune_entt, rnd_pos );
   }
 }
@@ -336,19 +319,34 @@ void LevelGenerator::gen_graveyard_exterior_multiblocks()
   std::size_t max_number_healing_springs = 1;
   std::size_t max_number_ruins = 1;
 
+  // shared spawn-location lookup for every multiblock placed below
+  auto find_spawn_pos = [&]( const Sprites::SpriteSheet &ms ) -> std::optional<Cmp::Position>
+  {
+    auto [random_entity, random_origin_position] = find_spawn_location( ms, 0 );
+    if ( random_entity == entt::null )
+    {
+      SPDLOG_ERROR( "Failed to find valid spawn position for {}.", ms.get_sprite_type() );
+      return std::nullopt;
+    }
+    return random_origin_position;
+  };
+
   // GRAVES
   auto grave_meta_types = m_sprite_factory.get_all_sprite_types_by_pattern( R"(graves\.\w+\.closed$)" );
-  if ( grave_meta_types.empty() ) { SPDLOG_WARN( "No GRAVE spritesheets found in SpriteFactory" ); }
+  if ( grave_meta_types.size() < 2 ) { SPDLOG_WARN( "No GRAVE spritesheets found in SpriteFactory" ); }
   else
   {
     SPDLOG_DEBUG( "Found {}, {}", grave_meta_types[0], grave_meta_types[1] );
-    uint8_t max_num_graves = max_num_altars.get_value() * grave_num_multiplier.get_value();
+    auto max_num_graves = static_cast<size_t>( max_num_altars.get_value() * grave_num_multiplier.get_value() );
     for ( std::size_t i = 0; i < max_num_graves; ++i )
     {
       auto [sprite_metatype, unused_index] = m_sprite_factory.get_random_type_and_texture_index( grave_meta_types );
       SPDLOG_DEBUG( "Selected {}, {}", sprite_metatype, unused_index );
       const auto &spritesheet = m_sprite_factory.get_spritesheet_by_type( sprite_metatype );
-      do_gen_graveyard_exterior_multiblock( spritesheet, unused_index );
+      if ( auto pos = find_spawn_pos( spritesheet ) )
+      {
+        Factory::add_multiblock_with_segments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( reg(), pos->position, spritesheet, unused_index );
+      }
     }
   }
 
@@ -356,66 +354,42 @@ void LevelGenerator::gen_graveyard_exterior_multiblocks()
   const auto &altar_spritesheet = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.altar.inactive" );
   for ( std::size_t i = 0; i < max_num_altars.get_value(); ++i )
   {
-    do_gen_graveyard_exterior_multiblock( altar_spritesheet, 0 );
+    if ( auto pos = find_spawn_pos( altar_spritesheet ) )
+    {
+      Factory::add_multiblock_with_segments<Cmp::AltarMultiBlock, Cmp::AltarSegment>( reg(), pos->position, altar_spritesheet );
+    }
   }
 
   // CRYPTS - note: we use keys from altars to open crypts so the number should be equal
   const auto &crypt_spritesheet = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.crypt.closed" );
   for ( std::size_t i = 0; i < max_num_crypts.get_value(); ++i )
   {
-    do_gen_graveyard_exterior_multiblock( crypt_spritesheet, 0 );
+    if ( auto pos = find_spawn_pos( crypt_spritesheet ) )
+    {
+      Factory::add_multiblock_with_segments<Cmp::CryptBuildingMultiBlock, Cmp::CryptBuildingSegment>( reg(), pos->position, crypt_spritesheet );
+      SPDLOG_INFO( "Added {} to {},{}", crypt_spritesheet.get_sprite_type(), pos->position.x, pos->position.y );
+    }
   }
 
   const auto &healingspring_spritesheet = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.building.healingspring" );
   for ( std::size_t i = 0; i < max_number_healing_springs; ++i )
   {
-    do_gen_graveyard_exterior_multiblock( healingspring_spritesheet, 0 );
+    if ( auto pos = find_spawn_pos( healingspring_spritesheet ) )
+    {
+      Factory::add_multiblock_with_segments<Cmp::HealingSpringBuildingMultiBlock, Cmp::HealingSpringBuildingSegment>( reg(), pos->position,
+                                                                                                                      healingspring_spritesheet );
+      SPDLOG_INFO( "Added {} to {},{}", healingspring_spritesheet.get_sprite_type(), pos->position.x, pos->position.y );
+    }
   }
 
   const auto &ruin_spritesheet = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.ruin" );
   for ( std::size_t i = 0; i < max_number_ruins; ++i )
   {
-    do_gen_graveyard_exterior_multiblock( ruin_spritesheet, 0 );
-  }
-}
-
-void LevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::SpriteSheet &ms, size_t ms_index, unsigned long seed )
-{
-  auto [random_entity, random_origin_position] = find_spawn_location( ms, seed );
-  if ( random_entity == entt::null )
-  {
-    SPDLOG_ERROR( "Failed to find valid spawn position for {}.", ms.get_sprite_type() );
-    return;
-  }
-
-  if ( ms.get_sprite_type().contains( "altar" ) )
-  {
-    Factory::add_multiblock_with_segments<Cmp::AltarMultiBlock, Cmp::AltarSegment>( reg(), random_origin_position.position, ms );
-  }
-  else if ( ms.get_sprite_type().contains( "graves" ) )
-  {
-    Factory::add_multiblock_with_segments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( reg(), random_origin_position.position, ms, ms_index );
-  }
-  else if ( ms.get_sprite_type() == "sprite.graveyard.crypt.closed" )
-  {
-    Factory::add_multiblock_with_segments<Cmp::CryptBuildingMultiBlock, Cmp::CryptBuildingSegment>( reg(), random_origin_position.position, ms );
-    SPDLOG_INFO( "Added {} to {},{}", ms.get_sprite_type(), random_origin_position.position.x, random_origin_position.position.y );
-  }
-  else if ( ms.get_sprite_type() == "sprite.graveyard.building.healingspring" )
-  {
-    Factory::add_multiblock_with_segments<Cmp::HealingSpringBuildingMultiBlock, Cmp::HealingSpringBuildingSegment>(
-        reg(), random_origin_position.position, ms );
-    SPDLOG_INFO( "Added {} to {},{}", ms.get_sprite_type(), random_origin_position.position.x, random_origin_position.position.y );
-  }
-  else if ( ms.get_sprite_type() == "sprite.graveyard.ruin" )
-  {
-    Factory::add_multiblock_with_segments<Cmp::RuinBuildingMultiBlock, Cmp::RuinBuildingSegment>( reg(), random_origin_position.position, ms );
-    SPDLOG_INFO( "Added {} to {},{}", ms.get_sprite_type(), random_origin_position.position.x, random_origin_position.position.y );
-  }
-  else
-  {
-    SPDLOG_ERROR( "gen_large_obstacle called with unsupported spritesheet type: {}", ms.get_sprite_type() );
-    return;
+    if ( auto pos = find_spawn_pos( ruin_spritesheet ) )
+    {
+      Factory::add_multiblock_with_segments<Cmp::RuinBuildingMultiBlock, Cmp::RuinBuildingSegment>( reg(), pos->position, ruin_spritesheet );
+      SPDLOG_INFO( "Added {} to {},{}", ruin_spritesheet.get_sprite_type(), pos->position.x, pos->position.y );
+    }
   }
 }
 

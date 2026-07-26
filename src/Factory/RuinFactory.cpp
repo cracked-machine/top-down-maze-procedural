@@ -9,6 +9,7 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinBookcase.hpp>
 #include <Components/Ruin/RuinCobweb.hpp>
+#include <Components/Ruin/RuneMarking.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/RuinFactory.hpp>
@@ -93,6 +94,24 @@ void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, con
     reg.emplace_or_replace<Cmp::AbsoluteAlpha>( shadowhand_entt, 200 );
     reg.emplace_or_replace<Cmp::NPC>( shadowhand_entt, npc_shadowhand_cmp );
   }
+}
+
+entt::entity create_rune_marker( entt::registry &reg, Cmp::Position pos, float zorder, size_t sprite_idx )
+{
+  auto rune_entt = reg.create();
+  reg.emplace_or_replace<Cmp::ReservedPosition>( rune_entt );
+  reg.emplace_or_replace<Cmp::Position>( rune_entt, pos );
+
+  reg.emplace_or_replace<Cmp::ZOrderValue>( rune_entt, zorder );
+  reg.emplace_or_replace<Cmp::RuneMarking>( rune_entt );
+  // clang-format off
+    reg.emplace_or_replace<Cmp::AnimData>( rune_entt, Cmp::AnimData::Config{ 
+          .sprite_type = "sprite.graveyard.playerspawn", 
+          .frame_index_offset = sprite_idx,
+          .enabled = true
+    });
+  // clang-format on
+  return rune_entt;
 }
 
 } // namespace Game::Factory

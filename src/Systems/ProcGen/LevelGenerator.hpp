@@ -84,12 +84,6 @@ public:
   void on_resume() override {}
 
 private:
-  //! @brief internal function for `gen_graveyard_exterior_multiblocks`.
-  //! @param ms
-  //! @param ms_index
-  //! @param seed
-  void do_gen_graveyard_exterior_multiblock( const Sprites::SpriteSheet &ms, size_t ms_index = 0, unsigned long seed = 0 );
-
   //! @brief Spatial map for finding obstacles during level gen / cell automata algorithm
   PathFinding::SpatialHashGridUniquePtr m_obstacle_sm;
   //! @brief Spatial map for marking void areas that are not part of the game area.

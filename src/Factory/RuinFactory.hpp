@@ -5,11 +5,11 @@
 #include <entt/entity/fwd.hpp>
 
 #include <Sprites/SpriteMetaType.hpp>
-namespace Game::Sprites
-{
-class SpriteSheet;
-class SpriteFactory;
-} // namespace Game::Sprites
+
+// clang-format off
+namespace Game::Sprites { class SpriteSheet; class SpriteFactory; }
+namespace Cmp { class Position; }
+// clang-format on
 
 namespace Game::Factory
 {
@@ -25,6 +25,8 @@ void create_cobweb( entt::registry &reg, entt::entity selected_entt, sf::Vector2
 //! @param cobweb_ms
 //! @param sprite_index
 void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, const Sprites::SpriteSheet &hand_ms, int sprite_index = 0 );
+
+entt::entity create_rune_marker( entt::registry &reg, Cmp::Position pos, float zorder, size_t sprite_idx );
 
 } // namespace Game::Factory
 
