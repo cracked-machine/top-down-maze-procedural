@@ -24,6 +24,7 @@
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerMovementSpeed.hpp>
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
+#include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Persistent/PostPullMovementDelay.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
@@ -419,12 +420,25 @@ void PlayerSystem::check_player_mortality()
   {
     if ( ( mortality_cmp.state == Cmp::PlayerMortality::State::DEAD ) and ( m_post_death_timer.getElapsedTime() > sf::seconds( 5.f ) ) )
     {
+      if ( Utils::Player::player_has_extra_life( reg() ) )
+      {
+        Utils::Player::get_position( reg() ).position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( reg() );
+        Factory::remove_player_extra_life( reg() );
+        m_sound_bank.get_effect( "player_respawn" ).play();
+        Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ 100 }, {}, {}, {}, {}, {} } );
+        Utils::Player::get_mortality( reg() ).state = Cmp::PlayerMortality::State::ALIVE;
+        Utils::Player::get_zorder( reg() ).setZOrder( Utils::Player::get_position( reg() ).y() );
+        m_post_death_timer.reset();
+      }
+      else
+      {
+        // reg().remove<Cmp::AnimData>( Utils::Player::get_entity( reg() ) );
+        SPDLOG_DEBUG( "Player has progressed to deadness." );
+        m_post_death_timer.reset();
+        stop_footsteps_sound();
 
-      SPDLOG_DEBUG( "Player has progressed to deadness." );
-      m_post_death_timer.reset();
-      stop_footsteps_sound();
-
-      m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::GAME_OVER );
+        m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::GAME_OVER );
+      }
     }
   }
 }
@@ -989,7 +1003,7 @@ void PlayerSystem::on_player_mortality_event( Game::Events::PlayerMortalityEvent
   auto common_death_throes = [&]()
   {
     m_post_death_timer.restart();
-    reg().remove<Cmp::AnimData>( Utils::Player::get_entity( reg() ) );
+    Utils::Player::get_zorder( reg() ).setZOrder( -100 ); // hide the player under the game during animation
     stop_footsteps_sound();
     Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ -100 }, {}, {}, {}, {}, {} } );
     SPDLOG_INFO( "Player death code: {}", static_cast<uint8_t>( ev.m_new_state ) );

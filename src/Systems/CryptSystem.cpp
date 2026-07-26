@@ -25,6 +25,7 @@
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/CryptNpcSpawnCount.hpp>
+#include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerCadaverCount.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
@@ -86,6 +87,7 @@ void CryptSystem::setup()
 
 void CryptSystem::update( sf::Time dt )
 {
+
   if ( m_maze_unlocked ) { Crypt::Factory::destroy_crypt_shuffle_timer( reg() ); }
   else { Utils::Crypt::update_crypt_shuffle_timer( reg(), dt ); }
 
@@ -97,7 +99,7 @@ void CryptSystem::update( sf::Time dt )
     shuffle_rooms_passages();
   }
 
-  // check collisions with lava pit
+  // check collisions with lava pit/spike traps
   if ( not Utils::get_system_cmp( reg() ).collisions_disabled )
   {
     check_lava_pit_collision();
@@ -253,8 +255,8 @@ void CryptSystem::check_entrance_collision()
     m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_CRYPT );
 
     auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
-    auto player_pos = Utils::Player::get_position( reg() ).position;
-    get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
+    // auto player_pos = Utils::Player::get_position( reg() ).position;
+    // get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
 
     Factory::remove_player_last_graveyard_pos( reg() );
     Cmp::Position last_known_pos(
@@ -639,7 +641,7 @@ void CryptSystem::create_initial_closed_rooms( sf::Vector2u map_grid_size )
           sf::Vector2f{ room_left - Constants::kGridSizePxF.x, room_top - Constants::kGridSizePxF.y },
           sf::Vector2f{ new_room.size.x + ( Constants::kGridSizePxF.x * 2.f ), new_room.size.y + ( Constants::kGridSizePxF.y * 2.f ) } );
 
-      for ( auto [pos_entt, pos_cmp] : reg().view<Cmp::Position>().each() )
+      for ( auto [pos_entt, pos_cmp] : reg().view<Cmp::Position>( entt::exclude<Cmp::ReservedPosition> ).each() )
       {
         if ( reg().any_of<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Direction>( pos_entt ) ) continue;
         if ( reg().any_of<Cmp::Wall, Cmp::Exit>( pos_entt ) ) continue;

@@ -23,6 +23,7 @@
 #include <Components/Hazard/HazardFieldCell.hpp>
 #include <Components/Hazard/SinkholeCell.hpp>
 #include <Components/Inventory/FlashUICadaver.hpp>
+#include <Components/Inventory/FlashUIHealth.hpp>
 #include <Components/Inventory/FlashUIInventory.hpp>
 #include <Components/Inventory/FlashUIRadius.hpp>
 #include <Components/Inventory/FlashUIWealth.hpp>
@@ -137,7 +138,7 @@ void RenderOverlaySystem::render_ui_inventory_icon()
   }
 }
 
-void RenderOverlaySystem::render_ui_meters()
+void RenderOverlaySystem::render_ui_meters( sf::Time dt )
 {
   if ( not m_main_ui_data )
   {
@@ -148,13 +149,31 @@ void RenderOverlaySystem::render_ui_meters()
   {
     float meter_value = 0;
     sf::Color meter_inner_color;
+    sf::Color meter_outer_color = sf::Color::Black;
     bool should_render = false;
 
+    auto health_flash_view = reg().view<Cmp::FlashUIHealth>();
     if ( meter.name == "health_meter" )
     {
       meter_value = static_cast<float>( Utils::Player::get_player_stats( reg() ).health() );
       meter_inner_color = sf::Color::Red;
       should_render = true;
+
+      if ( not health_flash_view.empty() )
+      {
+        auto flash_entt = health_flash_view.front();
+        auto &flash_cmp = health_flash_view.get<Cmp::FlashUIHealth>( flash_entt );
+        m_flash_health_ui_interval += dt;
+        if ( flash_cmp.duration != sf::Time::Zero and m_flash_health_ui_interval > flash_cmp.duration )
+        {
+          reg().remove<Cmp::FlashUIHealth>( flash_entt );
+          m_flash_health_ui_interval = sf::Time::Zero;
+        }
+        else if ( static_cast<int>( m_flash_health_ui_interval.asMilliseconds() / m_ui_flash_factor ) % 2 == 1 )
+        {
+          meter_outer_color = sf::Color::Cyan;
+        }
+      }
     }
     else if ( meter.name == "fear_meter" )
     {
@@ -197,7 +216,7 @@ void RenderOverlaySystem::render_ui_meters()
     auto outermeter = sf::RectangleShape( meter.rect.size );
     outermeter.setPosition( meter.rect.position );
     outermeter.setFillColor( sf::Color::Transparent );
-    outermeter.setOutlineColor( sf::Color::Black );
+    outermeter.setOutlineColor( meter_outer_color );
     outermeter.setOutlineThickness( 5.f );
     draw_screen( outermeter );
   }

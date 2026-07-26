@@ -3,6 +3,7 @@
 
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AnimData.hpp>
+#include <Components/Player/PlayerExtraLife.hpp>
 #include <Components/Stats/PlayerStats.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 
@@ -53,6 +54,7 @@ Cmp::PlayerCadaverCount &get_cadaver_count( entt::registry &reg );
 Cmp::TorchRadius &get_torch_radius( entt::registry &reg );
 Cmp::PlayerStats &get_player_stats( entt::registry &reg );
 sf::Clock &get_global_bomb_flash_clk( entt::registry &reg );
+bool player_has_extra_life( entt::registry &reg );
 
 } // namespace Game::Utils::Player
 

@@ -52,6 +52,14 @@ void create_multiblock( entt::registry &reg, entt::entity entity, const Cmp::UUI
   // clang-format on
 }
 
+//! @brief
+//! @tparam MULTIBLOCK
+//! @tparam MBSEGMENT
+//! @param reg
+//! @param ss
+//! @param mb_entt
+//! @param mb_cmp
+//! @return requires&&
 template <typename MULTIBLOCK, typename MBSEGMENT>
   requires IsMB<MULTIBLOCK> && IsMBSegment<MBSEGMENT>
 void update_segments( entt::registry &reg, const Sprites::SpriteSheet &ss, [[maybe_unused]] entt::entity mb_entt, MULTIBLOCK mb_cmp )
@@ -90,6 +98,15 @@ void update_segments( entt::registry &reg, const Sprites::SpriteSheet &ss, [[may
   }
 }
 
+//! @brief Create a multiblock segments object
+//! @tparam MULTIBLOCK
+//! @tparam MBSEGMENT
+//! @param reg
+//! @param multiblock_entity
+//! @param uuid
+//! @param mb_pos_cmp
+//! @param ss
+//! @return requires&&
 template <typename MULTIBLOCK, typename MBSEGMENT>
   requires IsMB<MULTIBLOCK> && IsMBSegment<MBSEGMENT>
 std::vector<entt::entity> create_multiblock_segments( entt::registry &reg, entt::entity multiblock_entity, const Cmp::UUID &uuid,
@@ -172,6 +189,15 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &reg, entt:
 
 } // namespace detail
 
+//! @brief
+//! @tparam MULTIBLOCK
+//! @tparam MBSEGMENT
+//! @param reg
+//! @param position
+//! @param ss
+//! @param ss_index
+//! @param zorder
+//! @return requires&&
 template <typename MULTIBLOCK, typename MBSEGMENT>
   requires IsMB<MULTIBLOCK> && IsMBSegment<MBSEGMENT>
 std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments( entt::registry &reg, sf::Vector2f position,

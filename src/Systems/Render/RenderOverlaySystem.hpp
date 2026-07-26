@@ -2,11 +2,11 @@
 #define SRC_SYSTEMS_RENDER_RENDEROVERLAYSYSTEM_HPP__
 
 #include <Components/Position.hpp>
-#include <Utils/Optimizations.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Render/UiData.hpp>
 #include <Utils/Constants.hpp>
+#include <Utils/Optimizations.hpp>
 
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderTexture.hpp>
@@ -70,7 +70,7 @@ public:
   void render_ui_outlines();
   void render_ui_icons();
   void render_ui_inventory_icon();
-  void render_ui_meters();
+  void render_ui_meters( sf::Time dt );
   void render_ui_texts();
   void render_ui_labels( sf::Time dt );
 
@@ -164,6 +164,8 @@ private:
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
   //! @brief Used to flash the UI wealth text
   sf::Time m_flash_wealth_ui_interval;
+  //! @brief Used to flash the UI health text
+  sf::Time m_flash_health_ui_interval;
   //! @brief Used to flash the UI cadaver text
   sf::Time m_flash_cadaver_ui_interval;
   //! @brief Used to flash the UI inevntory text

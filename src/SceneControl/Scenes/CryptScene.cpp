@@ -1,4 +1,7 @@
 #include <Audio/SoundBank.hpp>
+#include <Components/Altar/AltarSegment.hpp>
+#include <Components/AnimData.hpp>
+#include <Components/Inventory/FlashUIHealth.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
@@ -78,6 +81,7 @@ void CryptScene::on_init()
   // create navmeshes for pathfinding
   m_generic_npc_navmesh = Pathfinding::Factory::create_npc_navmesh( m_reg );
   m_open_navmesh = Pathfinding::Factory::create_open_navmesh( m_reg );
+  m_player_navmesh = Pathfinding::Factory::create_player_navmesh( m_reg );
   reinit_navmesh();
 
   Sprites::Containers::VertexFloor floortiles;
@@ -86,8 +90,14 @@ void CryptScene::on_init()
   m_reg.emplace<Sprites::Containers::VertexFloor>( floor_entity, floortiles );
   m_reg.emplace<Cmp::ZOrderValue>( floor_entity, -16.f );
 
-  Factory::add_inventory( m_reg, "item.candle" );
-  Particle::Factory::add_flame_for_player_inventory_slot( m_reg );
+  // Factory::add_inventory( m_reg, "item.candle" );
+  // Particle::Factory::add_flame_for_player_inventory_slot( m_reg );
+
+  for ( auto [candle_entt, candle_cmp, candle_pos, uuid_cmp] : m_reg.view<Cmp::WorldItem, Cmp::Position, Cmp::UUID>().each() )
+  {
+    if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
+    Particle::Factory::add_flame( m_reg, "particle.candle", uuid_cmp, candle_pos.getCenter(), Utils::Player::get_position( m_reg ).y() - 1 );
+  }
 }
 
 void CryptScene::on_enter()
@@ -122,6 +132,8 @@ void CryptScene::on_exit()
   SPDLOG_INFO( "Exiting {}", get_name() );
   Crypt::Factory::destroy_crypt_shuffle_timer( m_reg );
 
+  Factory::remove_player_extra_life( m_reg );
+
   // Hide the sudden position update/camera pan behind a forced loading screen.
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 }
@@ -142,6 +154,7 @@ void CryptScene::do_update( sf::Time dt )
   // Don't use Cmp::NpcNoPathFinding because it blocks over lavapits.
   for ( auto [ob_entt, ob_cmp, pos_cmp] : m_reg.view<Cmp::PlayerNoPath, Cmp::Position>().each() )
   {
+    if ( m_reg.any_of<Cmp::AltarSegment>( ob_entt ) ) continue;
     m_sys.find<Sys::Store::Type::ParticleSystem>().check_collsion( pos_cmp );
   }
   m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );

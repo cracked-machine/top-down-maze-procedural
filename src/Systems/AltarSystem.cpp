@@ -6,6 +6,7 @@
 #include <Components/AnimData.hpp>
 #include <Components/Armable.hpp>
 #include <Components/DestroyedObstacle.hpp>
+#include <Components/Inventory/FlashUIHealth.hpp>
 #include <Components/Inventory/FlashUIInventory.hpp>
 #include <Components/Inventory/FlashUIWealth.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
@@ -14,6 +15,7 @@
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Particle/Flame.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Player/PlayerExtraLife.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/Player/PlayerWealth.hpp>
 #include <Components/Random.hpp>
@@ -30,6 +32,7 @@
 #include <Factory/ObstacleFactory.hpp>
 #include <Factory/ParticleFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <SFML/System/Time.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #include <Systems/AltarSystem.hpp>
 #include <Systems/ParticleSystem.hpp>
@@ -126,14 +129,33 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
   // sacrifice witches jar at any time
   if ( sacrifice_type.contains( "item.witchesjar" ) )
   {
+    auto *anim_cmp = reg().try_get<Cmp::AnimData>( altar_entity );
+    if ( not anim_cmp ) return;
     SPDLOG_INFO( "Player made an offering: {}", sacrifice_type );
-    common_activation( SacrificeAnimType::WITCHESJAR );
-    for ( auto [npc_entt, npc_cmp, npc_pos_cmp, anim_cmp] : reg().view<Cmp::NPC, Cmp::Position, Cmp::AnimData>().each() )
+
+    if ( anim_cmp->m_sprite_type == "sprite.crypt.altar.inactive" )
     {
-      if ( anim_cmp.m_sprite_type.contains( "ghost" ) )
+      // player gains extra life protection
+      anim_cmp->m_sprite_type = "sprite.crypt.altar.active";
+      Particle::Factory::add_sparkles( m_reg, "altar.sparkles", 0.5, 25.f, *altar_uuid_cmp,
+                                       { altar_cmp.position.x + 8.f, altar_cmp.position.y + 24.f }, 5000 );
+      Factory::destroy_inventory( reg(), sacrifice_type );
+      auto flash_entt = reg().create();
+      reg().emplace_or_replace<Cmp::FlashUIHealth>( flash_entt );
+      reg().emplace_or_replace<Cmp::PlayerExtraLife>( Utils::Player::get_entity( reg() ) );
+      m_sound_bank.get_effect( "crypt_altar_activate" ).play();
+    }
+    else if ( anim_cmp->m_sprite_type.contains( "sprite.graveyard.altar" ) )
+    {
+      // player kills all spawned ghosts in the game
+      common_activation( SacrificeAnimType::WITCHESJAR );
+      for ( auto [npc_entt, npc_cmp, npc_pos_cmp, anim_cmp] : reg().view<Cmp::NPC, Cmp::Position, Cmp::AnimData>().each() )
       {
-        Factory::create_npc_death_anim( reg(), npc_pos_cmp, "sprite.death.anim.banish" );
-        Factory::destroy_npc( reg(), npc_entt );
+        if ( anim_cmp.m_sprite_type.contains( "ghost" ) )
+        {
+          Factory::create_npc_death_anim( reg(), npc_pos_cmp, "sprite.death.anim.banish" );
+          Factory::destroy_npc( reg(), npc_entt );
+        }
       }
     }
     m_sound_bank.get_effect( "witches_jar_sacrifice" ).play();

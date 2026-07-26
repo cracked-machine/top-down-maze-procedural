@@ -29,7 +29,7 @@ void NightStaticShader::update( entt::registry &reg )
   // add the radius for each flame particle sprite so the shader can render a circle of light
   for ( auto [candle_entt, particle_cmp] : reg.view<Sys::ParticleSpriteOwner>().each() )
   {
-    if ( not particle_cmp.sprite->get_tag().contains( "candle" ) ) continue;
+    if ( not particle_cmp.sprite->get_tag().contains( "candle" ) and not particle_cmp.sprite->get_tag().contains( "altar.sparkles" ) ) continue;
     torch_positions.push_back( particle_cmp.sprite->get_emitter_position() );
   }
 

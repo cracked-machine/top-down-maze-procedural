@@ -87,6 +87,7 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
   auto [map_size_grid, map_size_pixel] = scene_data.map_size();
   auto w = map_size_grid.x;
 
+  // Walls
   [[maybe_unused]] const Sprites::SpriteSheet &wall_ms = m_sprite_factory.get_spritesheet_by_type( scene_data.wall_tileset().name );
   for ( const auto [i, tile] : std::views::enumerate( scene_data.wall_tilelayer() ) )
   {
@@ -100,6 +101,7 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
     }
   }
 
+  // Levelgen layer
   for ( const auto [i, tile] : std::views::enumerate( scene_data.levelgen_tilelayer() ) )
   {
     auto col = i % w; // wraps back to zero every 'w' tiles
@@ -121,6 +123,7 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
     else if ( tile == scene_data.reserved_tile_id() ) { Factory::add_reservedposition( reg(), new_pos ); }
   }
 
+  // Solid Layer
   for ( const auto &solid : scene_data.solid_objectlayer() )
   {
     Factory::add_solid_player( reg(), solid );
@@ -128,6 +131,7 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
     Factory::add_no_move_dest( reg(), solid );
   }
 
+  // Multiblock layer
   for ( const auto &[ms_type, pos] : scene_data.multiblock_objectlayer() )
   {
     const auto &ms = m_sprite_factory.get_spritesheet_by_type( ms_type );
@@ -138,6 +142,10 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
     else if ( ms_type == "sprite.crypt.objective.closed" )
     {
       Factory::add_multiblock_with_segments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>( reg(), pos, ms );
+    }
+    else if ( ms_type == "sprite.crypt.altar.inactive" )
+    {
+      Factory::add_multiblock_with_segments<Cmp::AltarMultiBlock, Cmp::AltarSegment>( reg(), pos, ms );
     }
     else if ( ms_type == "npc.drknox" )
     {

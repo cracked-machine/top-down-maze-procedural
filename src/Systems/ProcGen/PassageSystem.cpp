@@ -1,3 +1,4 @@
+#include <Audio/SoundBank.hpp>
 #include <Components/Crypt/CryptChest.hpp>
 #include <Components/Crypt/CryptPassageBlock.hpp>
 #include <Components/Crypt/CryptPassageDoor.hpp>
@@ -8,6 +9,7 @@
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
 #include <Components/Obstacle.hpp>
+#include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Random.hpp>
 #include <Components/System.hpp>
@@ -15,9 +17,11 @@
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
+#include <Factory/PlayerFactory.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/Events/PassageEvent.hpp>
+#include <Systems/PersistSystem.hpp>
 #include <Systems/ProcGen/PassageSystem.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Maths.hpp>
@@ -645,11 +649,12 @@ void PassageSystem::fill_all_passages()
     if ( pathfinding_navmesh ) pathfinding_navmesh->remove( pos_entt, pos_cmp );
   }
 
-  // Player squish check — done once after all walls are placed
+  // Player squish check — done once after all walls are placed - except if player has extra life.
   if ( not Utils::get_system_cmp( reg() ).collisions_disabled )
   {
     if ( not m_passage_block_grid.at( Utils::Player::get_position( reg() ) ).empty() )
     {
+
       get_systems_event_queue().enqueue(
           Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SQUISHED, Utils::Player::get_position( reg() ) ) );
     }

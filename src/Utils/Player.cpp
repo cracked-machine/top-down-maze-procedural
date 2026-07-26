@@ -10,6 +10,7 @@
 #include <Components/Player/PlayerCadaverCount.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerCurse.hpp>
+#include <Components/Player/PlayerExtraLife.hpp>
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
 #include <Components/Player/PlayerLevelDepth.hpp>
 #include <Components/Player/PlayerMortality.hpp>
@@ -276,6 +277,12 @@ sf::Clock &get_global_bomb_flash_clk( entt::registry &reg )
     return player_cmp.m_global_bomb_flash_clk;
   }
   throw std::runtime_error( "Player entt has no component: Cmp::PlayerCharacter" );
+}
+
+bool player_has_extra_life( entt::registry &reg )
+{
+  auto player_view = reg.view<Cmp::PlayerExtraLife>();
+  return not player_view.empty();
 }
 
 } // namespace Game::Utils::Player

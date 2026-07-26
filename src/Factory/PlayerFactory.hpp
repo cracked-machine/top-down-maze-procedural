@@ -24,6 +24,7 @@ void add_inventory( entt::registry &reg, const std::string &item );
 Cmp::Position add_player_last_graveyard_pos( entt::registry &reg, Cmp::Position &last_known_pos,
                                              sf::Vector2f offset = { 0.f, Constants::kGridSizePxF.y } );
 void remove_player_last_graveyard_pos( entt::registry &reg );
+void remove_player_extra_life( entt::registry &reg );
 
 } // namespace Game::Factory
 

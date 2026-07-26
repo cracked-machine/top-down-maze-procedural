@@ -4,12 +4,14 @@
 #include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
+#include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Stats/ProjectileAction.hpp>
 #include <Components/System.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ParticleFactory.hpp>
+#include <Factory/PlayerFactory.hpp>
 #include <Sprites/Shockwave.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -154,6 +156,7 @@ void ShockwaveSystem::check_shockwave_player_collision()
       if ( player_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value() ) continue;
       if ( intersects_with_visible_segments( shockwave, player_pos ) )
       {
+
         player_stats_cmp.apply_modifiers( priest_projectile_action.action );
         m_sound_bank.get_effect( "damage_player" ).play();
         player_cmp.m_damage_cooldown_timer.restart();
@@ -163,10 +166,15 @@ void ShockwaveSystem::check_shockwave_player_collision()
         // trigger death animation
         if ( player_stats_cmp.health() <= 0 )
         {
-          get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SHOCKED, player_pos ) );
+          if ( Utils::Player::player_has_extra_life( reg() ) )
+          {
+            Utils::Player::get_position( reg() ).position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( reg() );
+            Factory::remove_player_extra_life( reg() );
+            m_sound_bank.get_effect( "player_respawn" ).play();
+          }
+          else { get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SHOCKED, player_pos ) ); }
         }
       }
-      else { SPDLOG_DEBUG( "Player does NOT intersect with shockwave (effective_radius: {})", shockwave.sprite.getRadius() ); }
     }
   }
 }

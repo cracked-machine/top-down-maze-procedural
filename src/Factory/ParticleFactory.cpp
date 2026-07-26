@@ -1,8 +1,11 @@
 #include <Components/Inventory/PlayerInventorySlot.hpp>
+#include <Components/Particle/ParticleSpriteTest.hpp>
 #include <Components/Particle/ShockWave.hpp>
+#include <Components/Particle/Sparkles.hpp>
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
 #include <Components/Position.hpp>
 #include <Factory/ParticleFactory.hpp>
+#include <SFML/System/Time.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Utils/Player.hpp>
 
@@ -20,6 +23,23 @@ void add_test( entt::registry &reg, Sys::ParticleSystem &psys, const std::string
   psprite.set_speed( std::uniform_real_distribution<float>( 1.f, 100.f ) );
   psprite.set_angle( std::uniform_real_distribution<float>( 1.f, 360.f ) );
   psys.add( std::make_pair( psprite, Cmp::ZOrderValue( 10000.f ) ) );
+}
+
+void add_sparkles( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp, sf::Vector2f pos,
+                   float zorder )
+{
+  auto ps = Cmp::Particle::Sparkles( 1000 );
+  ps.set_tag( tag );
+  ps.set_emitter_position( pos );
+  ps.set_lifetime_ms( std::uniform_int_distribution<int>( 0, sf::seconds( lifetime_seconds ).asMilliseconds() ) );
+  ps.set_speed( std::uniform_real_distribution<float>( 1.f, speed ) );
+  ps.set_angle( std::uniform_real_distribution<float>( 1.f, 360.f ) );
+
+  auto entt = reg.create();
+  reg.emplace_or_replace<Sys::ParticleSpriteOwner>( entt, Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::Sparkles>( ps ) ) );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
+  reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
+  SPDLOG_INFO( "Created flame ParticleSprite {}", static_cast<uint32_t>( entt ) );
 }
 
 void add_flame_for_player_inventory_slot( entt::registry &reg )

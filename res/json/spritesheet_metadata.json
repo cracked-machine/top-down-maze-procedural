@@ -592,6 +592,37 @@
         }
       }
     },
+
+    "sprite.crypt.altar.inactive": {
+      "spritesheet": {
+        "displayname": "sprite.crypt.altar.inactive",
+        "zorder": [0],
+        "texture_path": "res/textures/landmarks.png",
+        "sprite_indices": [2],
+        "solid_mask": [false, true],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "x": 1,
+          "y": 2
+        }
+      }
+    },
+    "sprite.crypt.altar.active": {
+      "spritesheet": {
+        "displayname": "sprite.crypt.altar.active",
+        "zorder": [0],
+        "texture_path": "res/textures/landmarks.png",
+        "sprite_indices": [3],
+        "solid_mask": [false, true],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "x": 1,
+          "y": 2
+        }
+      }
+    },
     "sprite.crypt.lava": {
       "spritesheet": {
         "displayname": "sprite.crypt.lava",

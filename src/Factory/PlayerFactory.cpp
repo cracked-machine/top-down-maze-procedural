@@ -1,10 +1,12 @@
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AbsoluteOffset.hpp>
 #include <Components/AbsoluteRotation.hpp>
+#include <Components/Altar/AltarMultiBlock.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/DeathPosition.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Inventory/Explosive.hpp>
+#include <Components/Inventory/FlashUIHealth.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
@@ -17,6 +19,7 @@
 #include <Components/Player/PlayerCadaverCount.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerCurse.hpp>
+#include <Components/Player/PlayerExtraLife.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
 #include <Components/Player/PlayerLevelDepth.hpp>
@@ -175,6 +178,29 @@ void remove_player_last_graveyard_pos( entt::registry &reg )
 {
   auto player_entt = Utils::Player::get_entity( reg );
   reg.remove<Cmp::PlayerLastGraveyardPosition>( player_entt );
+}
+
+void remove_player_extra_life( entt::registry &reg )
+{
+  for ( auto [extra_life_entt, extra_life_cmp] : reg.view<Cmp::PlayerExtraLife>().each() )
+  {
+    reg.remove<Cmp::PlayerExtraLife>( extra_life_entt );
+  }
+
+  for ( auto [flash_entt, flash_cmp] : reg.view<Cmp::FlashUIHealth>().each() )
+  {
+    reg.destroy( flash_entt );
+  }
+
+  for ( auto [ps_entt, ps_cmp] : reg.view<Sys::ParticleSpriteOwner>().each() )
+  {
+    if ( ps_cmp.sprite->get_tag() == "altar.sparkles" ) reg.destroy( ps_entt );
+  }
+
+  for ( auto [altar_mb_entt, altar_mb_cmp, altar_anim_cmp] : reg.view<Cmp::AltarMultiBlock, Cmp::AnimData>().each() )
+  {
+    if ( altar_anim_cmp.m_sprite_type == "sprite.crypt.altar.active" ) { altar_anim_cmp.m_sprite_type = "sprite.crypt.altar.inactive"; }
+  }
 }
 
 } // namespace Game::Factory
