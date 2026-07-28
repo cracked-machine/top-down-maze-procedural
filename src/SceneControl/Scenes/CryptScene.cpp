@@ -63,8 +63,7 @@ void CryptScene::on_init()
   Factory::Shader::add_night_static( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
 
   // create the empty game area
-  auto player_start_position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
-  auto player_start_area = Cmp::RectBounds::scaled( player_start_position, Constants::kGridSizePxF, 3.f, Cmp::RectBounds::ScaleAxis::XY );
+  auto player_start_area = m_scene_data->get_spawn_area_bounds();
   auto &random_level_sys = m_sys.find<Sys::Store::Type::LevelGenerator>();
   random_level_sys.reset();
   random_level_sys.build_scene_from_data( *m_scene_data );
@@ -72,7 +71,7 @@ void CryptScene::on_init()
 
   // intialise the game area
   auto start_room_entity = m_reg.create();
-  m_reg.emplace_or_replace<Cmp::CryptRoomStart>( start_room_entity, player_start_area.position(), player_start_area.size() );
+  m_reg.emplace_or_replace<Cmp::CryptRoomStart>( start_room_entity, player_start_area.position, player_start_area.size );
   m_sys.find<Sys::Store::Type::CryptSystem>().create_end_room( map_size_grid );
   m_sys.find<Sys::Store::Type::CryptSystem>().create_initial_closed_rooms( map_size_grid );
   m_sys.find<Sys::Store::Type::CryptSystem>().cache_all_room_connections();

@@ -12,6 +12,8 @@
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Random.hpp>
+#include <Components/ReservedPosition.hpp>
+#include <Components/SpawnArea.hpp>
 #include <Components/System.hpp>
 #include <Components/UUID.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
@@ -631,6 +633,8 @@ void PassageSystem::fill_all_passages()
     if ( reg().any_of<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Direction>( pos_entt ) ) continue;
     if ( reg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
     if ( reg().all_of<Cmp::UUID>( pos_entt ) ) continue; // skip cap entities (no Obstacle but already decorated)
+    // spawn tiles are authored wider than Cmp::CryptRoomStart's bounds - never wall over them
+    if ( reg().any_of<Cmp::SpawnArea, Cmp::ReservedPosition>( pos_entt ) ) continue;
 
     if ( m_passage_block_grid.at( pos_cmp ).empty() ) continue;
 

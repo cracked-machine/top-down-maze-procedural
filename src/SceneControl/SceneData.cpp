@@ -213,6 +213,43 @@ std::pair<sf::Vector2u, sf::Vector2f> SceneData::get_player_start_position() con
   // clang-format on
 }
 
+sf::FloatRect SceneData::get_spawn_area_bounds() const
+{
+  bool found_spawn_tile = false;
+  sf::Vector2u min_grid{ 0, 0 };
+  sf::Vector2u max_grid{ 0, 0 };
+
+  for ( auto [i, tile] : std::views::enumerate( m_map_data.levelgen_tilelayer ) )
+  {
+    if ( tile != spawn_tile_id() ) continue;
+
+    auto col = static_cast<unsigned int>( i ) % m_map_data.map_size.x;
+    auto row = static_cast<unsigned int>( i ) / m_map_data.map_size.x;
+
+    if ( not found_spawn_tile )
+    {
+      min_grid = max_grid = { col, row };
+      found_spawn_tile = true;
+      continue;
+    }
+    min_grid.x = std::min( min_grid.x, col );
+    min_grid.y = std::min( min_grid.y, row );
+    max_grid.x = std::max( max_grid.x, col );
+    max_grid.y = std::max( max_grid.y, row );
+  }
+
+  if ( not found_spawn_tile )
+  {
+    SPDLOG_WARN( "No 'spawn' tiles found in 'levelgen' layer, spawn area bounds default to zero-size" );
+    return {};
+  }
+
+  return { sf::Vector2f{ static_cast<float>( min_grid.x ) * static_cast<float>( Constants::kGridSizePx.x ),
+                         static_cast<float>( min_grid.y ) * static_cast<float>( Constants::kGridSizePx.y ) },
+           sf::Vector2f{ static_cast<float>( max_grid.x - min_grid.x + 1 ) * static_cast<float>( Constants::kGridSizePx.x ),
+                         static_cast<float>( max_grid.y - min_grid.y + 1 ) * static_cast<float>( Constants::kGridSizePx.y ) } };
+}
+
 std::pair<sf::Vector2u, sf::Vector2f> SceneData::map_size() const
 {
   // clang-format off

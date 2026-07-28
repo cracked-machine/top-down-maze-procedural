@@ -110,6 +110,10 @@ public:
   [[nodiscard]] std::pair<sf::Vector2u, sf::Vector2f> get_player_start_position() const;
   [[nodiscard]] WallTileSet wall_tileset() const { return m_map_data.wall_tileset; }
 
+  //! @brief  Get the bounding box (in pixels) of every 'spawn' tile in the levelgen layer.
+  //!         Used to size procgen spawn rooms (e.g. Cmp::CryptRoomStart) to match the authored spawn area.
+  [[nodiscard]] sf::FloatRect get_spawn_area_bounds() const;
+
   //! @brief  Get the map size as grid position and pixel position (x16)
   //!         For example, {50,70} and {800.0,1120.0}
   //! @return std::pair<sf::Vector2u, sf::Vector2f>
