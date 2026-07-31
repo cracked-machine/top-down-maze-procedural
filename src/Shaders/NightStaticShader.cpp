@@ -30,6 +30,7 @@ void NightStaticShader::update( entt::registry &reg )
   for ( auto [candle_entt, particle_cmp] : reg.view<Sys::ParticleSpriteOwner>().each() )
   {
     if ( not particle_cmp.sprite->get_tag().contains( "candle" ) and not particle_cmp.sprite->get_tag().contains( "altar.sparkles" ) ) continue;
+    if ( particle_cmp.sprite->get_view_type() != Cmp::Particle::ViewType::WORLD ) continue; // skip UI-space particles (e.g. candle shown in inventory icon)
     torch_positions.push_back( particle_cmp.sprite->get_emitter_position() );
   }
 
