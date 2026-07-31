@@ -105,8 +105,8 @@ entt::entity create_rune_marker( entt::registry &reg, Cmp::Position pos, float z
   reg.emplace_or_replace<Cmp::ZOrderValue>( rune_entt, zorder );
   reg.emplace_or_replace<Cmp::RuneMarking>( rune_entt );
   // clang-format off
-    reg.emplace_or_replace<Cmp::AnimData>( rune_entt, Cmp::AnimData::Config{ 
-          .sprite_type = "sprite.graveyard.playerspawn", 
+    reg.emplace_or_replace<Cmp::AnimData>( rune_entt, Cmp::AnimData::Config{
+          .sprite_type = "sprite.ruin.runemarking.inactive",
           .frame_index_offset = sprite_idx,
           .enabled = true
     });

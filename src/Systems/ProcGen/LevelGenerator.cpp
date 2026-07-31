@@ -273,7 +273,9 @@ void LevelGenerator::add_ruin_rune_markers()
 {
   for ( auto _ : std::views::iota( 0, 5 ) )
   {
-    auto [rnd_entt, rnd_pos] = Utils::Rnd::get_random_position( reg(), {}, Utils::Rnd::ExcludePack<Cmp::ReservedPosition>{} );
+    auto [rnd_entt, rnd_pos] =
+        Utils::Rnd::get_random_position( reg(), {}, Utils::Rnd::ExcludePack<Cmp::ReservedPosition, Cmp::PlayerCharacter>{} );
+    reg().emplace_or_replace<Cmp::ReservedPosition>( rnd_entt );
     auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.ruin.runemarking.inactive" } );
     float zorder = m_sprite_factory.get_spritesheet_by_type( "sprite.ruin.runemarking.inactive" ).get_zorder( 0 );
     auto rune_entt = Factory::create_rune_marker( reg(), rnd_pos, zorder, idx );
@@ -301,7 +303,8 @@ void LevelGenerator::add_lowerfloor_cobwebs( int num_cobwebs, sf::FloatRect scen
   int max_cobwebs = num_cobwebs;
   for ( auto _ : std::views::iota( 0, max_cobwebs ) )
   {
-    auto [rnd_entt, rnd_pos] = Utils::Rnd::get_random_position( reg(), {}, Utils::Rnd::ExcludePack<Cmp::ReservedPosition>{} );
+    auto [rnd_entt, rnd_pos] =
+        Utils::Rnd::get_random_position( reg(), {}, Utils::Rnd::ExcludePack<Cmp::ReservedPosition, Cmp::PlayerCharacter>{} );
     if ( rnd_entt == entt::null ) continue;
 
     if ( has_collision( Cmp::RectBounds::scaled( { rnd_pos.position }, gridsize, 1 ) ) ) continue;

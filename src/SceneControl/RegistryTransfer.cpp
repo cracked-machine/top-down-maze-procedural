@@ -220,6 +220,7 @@ void RegistryTransfer::init_missing_cmp_storages( entt::registry &registry )
   registry.storage<Cmp::Direction>();
   registry.storage<Cmp::LastDirection>();
   registry.storage<Cmp::Position>();
+  registry.storage<Cmp::ReservedPosition>();
   registry.storage<Cmp::PlayerCharacter>();
   registry.storage<Cmp::PlayerLevelDepth>();
   registry.storage<Cmp::PlayerStats>();
