@@ -13,7 +13,8 @@
                 "ms-vscode.hexeditor",
                 "cschlosser.doxdocgen",
                 "remitafforeau.glsl-complete-support",
-                "mrjjot.vscode-glsl-linter"
+                "mrjjot.vscode-glsl-linter",
+                "anthropic.claude-code"
 
             ],
             "settings": {

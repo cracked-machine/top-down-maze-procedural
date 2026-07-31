@@ -117,6 +117,7 @@
     "editor.defaultFormatter": "xaver.clang-format",
     "clang-format.language.glsl.enable": true,
     "clang-format.language.glsl.style": "",
+    "glsl-linter.validatorPath": "/usr/bin/glslang",
     "editor.indentSize": "tabSize",
     "editor.tabSize": 2,
     "[cpp]": {

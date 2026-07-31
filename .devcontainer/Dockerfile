@@ -22,8 +22,14 @@ RUN apt update -y && apt install -y \
     jq \
     yq \
     python3-pip \
-    curl
-    
+    curl \
+    lld
+
+# gcc-mingw-w64's -fuse-ld=lld only searches for a linker named
+# <target-triplet>-ld.lld, not the generic ld.lld lld installs - without
+# this symlink the flag is silently ignored and bfd ld is used instead.
+RUN ln -s /usr/bin/ld.lld /usr/bin/x86_64-w64-mingw32-ld.lld
+
 # SDL3 reqs
 RUN apt update -y && apt install -y \
     gnome-desktop-testing \
@@ -63,17 +69,7 @@ RUN apt update -y && apt install -y \
     libegl1-mesa-dev \
     libfreetype-dev
 
-RUN curl -L --output /tmp/glslang.tar.gz https://github.com/KhronosGroup/glslang/archive/refs/tags/16.3.0.tar.gz && \
-    tar -xzf /tmp/glslang.tar.gz -C /tmp && \
-    cd /tmp/glslang-16.3.0 && python3 update_glslang_sources.py && \
-    cmake -S /tmp/glslang-16.3.0 -B /tmp/glslang-build \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_INSTALL_PREFIX=/usr/local \
-        -DENABLE_GLSLANG_BINARIES=ON \
-        -DENABLE_HLSL=ON \
-        -GNinja && \
-    ninja -C /tmp/glslang-build install && \
-    rm -rf /tmp/glslang*
+RUN apt update -y && apt install -y glslang-tools
 
 RUN locale-gen en_GB.UTF-8 && update-locale
 
