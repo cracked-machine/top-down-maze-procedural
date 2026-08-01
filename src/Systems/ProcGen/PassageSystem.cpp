@@ -611,7 +611,7 @@ void PassageSystem::empty_open_passages()
 
   for ( auto &[entt, pos_cmp] : obstacles_to_remove )
   {
-    Factory::remove_obstacle( reg(), entt, true );
+    Factory::remove_obstacle( reg(), entt, Factory::DeleteExtras::Yes );
     pathfinding_navmesh->insert( entt, pos_cmp );
   }
   for ( auto &[entt, pos_cmp] : chests_to_remove )

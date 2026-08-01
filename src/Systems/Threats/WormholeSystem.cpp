@@ -290,7 +290,7 @@ void WormholeSystem::check_player_wormhole_collision()
       auto [new_spawn_entity, new_spawn_pos_cmp] = Utils::Rnd::get_random_position(
           reg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{}, Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC>{}, 0 );
 
-      Factory::remove_obstacle( reg(), new_spawn_entity );
+      Factory::remove_obstacle( reg(), new_spawn_entity, Factory::DeleteExtras::Yes );
       if ( auto teleport_navmesh = m_npc_navmesh.lock() ) teleport_navmesh->insert( new_spawn_entity, new_spawn_pos_cmp );
       // clang-format off
       reg().emplace_or_replace<Cmp::AnimData>( new_spawn_entity, Cmp::AnimData::Config{

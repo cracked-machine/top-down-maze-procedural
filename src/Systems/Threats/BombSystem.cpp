@@ -245,7 +245,7 @@ void BombSystem::update()
     for ( auto [obst_entity, obst_cmp, obst_pos_cmp] : obstacle_view.each() )
     {
       if ( not obst_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
-      Factory::remove_obstacle( reg(), obst_entity, true );
+      Factory::remove_obstacle( reg(), obst_entity, Factory::DeleteExtras::Yes );
       pathfinding_navmesh->insert( obst_entity, obst_pos_cmp );
       player_navmesh->insert( obst_entity, obst_pos_cmp );
       if ( auto ghost_navmesh = m_ghost_navmesh.lock() ) { ghost_navmesh->insert( obst_entity, obst_pos_cmp ); }

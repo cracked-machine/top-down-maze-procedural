@@ -36,14 +36,17 @@ bool add_obstacle( entt::registry &registry, entt::entity entity, const PathFind
 void decorate_obstacle( entt::registry &registry, entt::entity entity, Cmp::Position pos_cmp, const Sprites::SpriteSheet &ms,
                         std::size_t sprite_tile_idx, float zorder = 0, bool blocking = true );
 
+//! @brief Whether remove_obstacle() should also destroy the matching cap entity (tied by UUID).
+enum class DeleteExtras : bool { No = false, Yes = true };
+
 //! @brief Remove the obstacle component from the entity
 //! @param registry
 //! @param obstacle_entity
 //! @param delete_extras Delete any extra obstacles entitys found (doesn't delete the search_entt)
-void remove_obstacle( entt::registry &reg, entt::entity search_entt, bool delete_extras = false );
+void remove_obstacle( entt::registry &reg, entt::entity search_entt, DeleteExtras delete_extras = DeleteExtras::No );
 
 using UUIDEntityMap = std::unordered_map<Cmp::UUID, entt::entity>;
-void remove_obstacle( entt::registry &reg, entt::entity search_entt, bool delete_extras, const UUIDEntityMap &uuid_map );
+void remove_obstacle( entt::registry &reg, entt::entity search_entt, DeleteExtras delete_extras, const UUIDEntityMap &uuid_map );
 
 } // namespace Game::Factory
 

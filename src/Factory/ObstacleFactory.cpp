@@ -83,7 +83,7 @@ void decorate_obstacle( entt::registry &reg, entt::entity entity, Cmp::Position 
   SPDLOG_DEBUG( "Added obstacle {} at [{},{}] Z: {}", ms.get_display_name(), pos_cmp.x(), pos_cmp.y(), zorder_cmp.getZOrder() );
 }
 
-void remove_obstacle( entt::registry &reg, entt::entity search_entt, bool delete_extras )
+void remove_obstacle( entt::registry &reg, entt::entity search_entt, DeleteExtras delete_extras )
 {
   if ( not reg.valid( search_entt ) ) return;
 
@@ -112,11 +112,11 @@ void remove_obstacle( entt::registry &reg, entt::entity search_entt, bool delete
   {
     if ( cap_uuid_cmp != search_uuid_cmp ) continue;
     SPDLOG_DEBUG( "Removing matching obstacle {} - {}", static_cast<uint32_t>( cap_entt ), search_uuid_cmp.str() );
-    if ( delete_extras ) reg.destroy( cap_entt );
+    if ( delete_extras == DeleteExtras::Yes ) reg.destroy( cap_entt );
   }
 }
 
-void remove_obstacle( entt::registry &reg, entt::entity search_entt, bool delete_extras, const UUIDEntityMap &uuid_map )
+void remove_obstacle( entt::registry &reg, entt::entity search_entt, DeleteExtras delete_extras, const UUIDEntityMap &uuid_map )
 {
   if ( not reg.valid( search_entt ) ) return;
 
@@ -133,7 +133,7 @@ void remove_obstacle( entt::registry &reg, entt::entity search_entt, bool delete
   reg.remove<Cmp::UUID>( search_entt );
   SPDLOG_DEBUG( "Removing obstacle {} - {}", static_cast<uint32_t>( search_entt ), search_uuid_cmp.str() );
 
-  if ( !delete_extras || search_uuid_cmp.empty() ) return;
+  if ( delete_extras == DeleteExtras::No || search_uuid_cmp.empty() ) return;
 
   // O(1) cap entity lookup — map contains only cap entities (UUID present, no Obstacle)
   auto it = uuid_map.find( search_uuid_cmp );

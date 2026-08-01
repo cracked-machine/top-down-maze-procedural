@@ -267,7 +267,7 @@ void ActionSystem::check_player_dig_obstacle_collision()
         m_sound_bank.get_effect( "pickaxe_final" ).play();
 
         // replace the obstacle with a detonated component
-        Factory::remove_obstacle( reg(), obstacle_entt, true );
+        Factory::remove_obstacle( reg(), obstacle_entt, Factory::DeleteExtras::Yes );
         Factory::add_detonated( reg(), obstacle_entt, obstacle_pos_cmp );
 
         // add the position to the spatial grid so it can be used in pathfinding

@@ -60,7 +60,7 @@ sf::Vector2f HazardFieldSystem<HazardType>::init_hazard_field()
       Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC, Cmp::ReservedPosition>(), seed );
   if ( random_entity == entt::null ) { return {}; }
 
-  Factory::remove_obstacle( reg(), random_entity, true );
+  Factory::remove_obstacle( reg(), random_entity, Factory::DeleteExtras::Yes );
   reg().template emplace<HazardType>( random_entity );
   // clang-format off
   reg().template emplace_or_replace<Cmp::AnimData>( random_entity, Cmp::AnimData::Config{  
@@ -122,7 +122,7 @@ sf::Vector2f HazardFieldSystem<HazardType>::update_hazard_field()
       SPDLOG_DEBUG( "hazard_pick:{}", hazard_pick );
       if ( hazard_pick == 0 )
       {
-        Factory::remove_obstacle( reg(), obstacle_entity, true );
+        Factory::remove_obstacle( reg(), obstacle_entity, Factory::DeleteExtras::Yes );
         reg().template emplace_or_replace<HazardType>( obstacle_entity );
         // clang-format off
         reg().template emplace_or_replace<Cmp::AnimData>( obstacle_entity, Cmp::AnimData::Config{  

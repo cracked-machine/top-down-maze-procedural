@@ -77,7 +77,7 @@ void ExitSystem::create_exit()
   }
 
   // Remove the existing wall obstacle first
-  Factory::remove_obstacle( reg(), selected_entity, true );
+  Factory::remove_obstacle( reg(), selected_entity, Factory::DeleteExtras::Yes );
 
   Factory::add_multiblock_with_segments<Cmp::GraveExitMultiBlock, Cmp::GraveExitSegment>( reg(), selected_pos_cmp.position, kGraveExitSpritesheet );
   SPDLOG_INFO( "Exit spawned at position ({}, {})", selected_pos_cmp.position.x, selected_pos_cmp.position.y );
