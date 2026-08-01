@@ -774,6 +774,7 @@ void CryptSystem::fill_closed_rooms( const Factory::UUIDEntityMap &uuid_map )
       Factory::remove_obstacle( reg(), pos_entt, true, uuid_map );
       decorate_interior_wall( pos_entt, pos_cmp, RoomWallType::INTERIOR );
       pathfinding_navmesh->remove( pos_entt, pos_cmp );
+      if ( auto player_navmesh = m_player_navmesh.lock() ) { player_navmesh->insert( pos_entt, pos_cmp ); }
     }
   }
 
@@ -789,6 +790,7 @@ void CryptSystem::fill_closed_rooms( const Factory::UUIDEntityMap &uuid_map )
       Factory::remove_obstacle( reg(), pos_entt, true, uuid_map );
       decorate_interior_wall( pos_entt, pos_cmp, RoomWallType::BORDER );
       pathfinding_navmesh->remove( pos_entt, pos_cmp );
+      if ( auto player_navmesh = m_player_navmesh.lock() ) { player_navmesh->insert( pos_entt, pos_cmp ); }
     }
   }
 }
@@ -832,6 +834,7 @@ void CryptSystem::empty_open_rooms( const Factory::UUIDEntityMap &uuid_map )
 
       Factory::remove_obstacle( reg(), pos_entt, true, uuid_map );
       if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock() ) { pathfinding_navmesh->insert( pos_entt, pos_cmp ); }
+      if ( auto player_navmesh = m_player_navmesh.lock() ) { player_navmesh->remove( pos_entt, pos_cmp ); }
     }
 
     for ( auto [pos_entt, pos_cmp] : open_room_cmp.m_border_position_list )

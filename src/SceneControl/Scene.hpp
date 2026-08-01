@@ -42,13 +42,13 @@ public:
   }
 
 protected:
-  //! @brief Blocks pathfinding on obstacles, plants, multiblocks, etc...
+  //! @brief Blocks NPC pathfinding on obstacles, plants, multiblocks, etc...
   PathFinding::SpatialHashGridSharedPtr m_generic_npc_navmesh;
-  //! @brief Same as default but excludes plants
+  //! @brief Same as generic but excludes plants
   PathFinding::SpatialHashGridSharedPtr m_ghost_navmesh;
-  //! @brief No blocks on pathfinding
+  //! @brief The entire game area for uninhibited NPC pathfinding e.g. wisps
   PathFinding::SpatialHashGridSharedPtr m_open_navmesh;
-  //! @brief Player navmesh for blocking/allowing user movement
+  //! @brief Player navmesh for blocking movement
   PathFinding::SpatialHashGridSharedPtr m_player_navmesh;
 
   //! @brief Deserialised JSON scene data. See res/scenes
