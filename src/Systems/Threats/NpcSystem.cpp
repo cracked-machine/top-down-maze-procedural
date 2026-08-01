@@ -78,7 +78,7 @@ void NpcSystem::update( sf::Time dt )
   // remove any finished explosions
   for ( auto [death_entt, death_cmp, anim_cmp] : reg().view<Cmp::DeathPosition, Cmp::AnimData>().each() )
   {
-    if ( not anim_cmp.m_enabled ) { Factory::remove_npc_death_anim( reg(), death_entt ); }
+    if ( not anim_cmp.m_enabled ) { Factory::Npc::remove_npc_death_anim( reg(), death_entt ); }
   }
 
   static constexpr float kContainerInterval = 0.20f;
@@ -123,7 +123,7 @@ void NpcSystem::check_npc_container_collision()
     // for this one comparison and it already contains the needed scaling logic
     auto npc_activate_bounds = Cmp::RectBounds::scaled( npccontainer_pos_cmp.position, Constants::kGridSizePxF, npc_activate_scale.get_value() );
 
-    if ( player_pos.findIntersection( npc_activate_bounds.getBounds() ) ) { Factory::create_npc( reg(), npccontainer_entt, "npc.skeleton" ); }
+    if ( player_pos.findIntersection( npc_activate_bounds.getBounds() ) ) { Factory::Npc::create_npc( reg(), npccontainer_entt, "npc.skeleton" ); }
   }
 }
 
@@ -140,7 +140,7 @@ void NpcSystem::spawn_wisp()
 
   // find a random start position in the game area and create a new npc at that position
   auto [spawn_entt, spawn_pos] = Utils::Rnd::get_random_position( reg(), {}, {} );
-  auto npc_entt = Factory::create_npc( reg(), spawn_entt, "npc.wisp" );
+  auto npc_entt = Factory::Npc::create_npc( reg(), spawn_entt, "npc.wisp" );
   SPDLOG_INFO( "Created wisp npc {}", static_cast<uint32_t>( npc_entt ) );
 
   // find a random target position in the game area that is distant from the spawn_pos

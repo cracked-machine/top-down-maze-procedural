@@ -11,7 +11,7 @@ namespace Game::Sprites { class SpriteSheet; class SpriteFactory; }
 namespace Cmp { class Position; }
 // clang-format on
 
-namespace Game::Factory
+namespace Game::Factory::Ruin
 {
 
 // void create_staircase( entt::registry &reg, sf::Vector2f spawn_position, const Sprites::SpriteSheet &stairs_ms );
@@ -28,6 +28,6 @@ void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, con
 
 entt::entity create_rune_marker( entt::registry &reg, Cmp::Position pos, float zorder, size_t sprite_idx );
 
-} // namespace Game::Factory
+} // namespace Game::Factory::Ruin
 
 #endif // SRC_FACTORY_RUINFACTORY_HPP__

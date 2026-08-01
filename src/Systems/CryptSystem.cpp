@@ -88,7 +88,7 @@ void CryptSystem::setup()
 void CryptSystem::update( sf::Time dt )
 {
 
-  if ( m_maze_unlocked ) { Crypt::Factory::destroy_crypt_shuffle_timer( reg() ); }
+  if ( m_maze_unlocked ) { Factory::Crypt::destroy_crypt_shuffle_timer( reg() ); }
   else { Utils::Crypt::update_crypt_shuffle_timer( reg(), dt ); }
 
   check_exit_collision();
@@ -114,7 +114,7 @@ void CryptSystem::update( sf::Time dt )
 
 void CryptSystem::shuffle_rooms_passages()
 {
-  Factory::UUIDEntityMap uuid_map;
+  Factory::Obstacle::UUIDEntityMap uuid_map;
   for ( auto [e, uuid] : reg().view<Cmp::UUID>().each() )
     if ( !reg().all_of<Cmp::Obstacle>( e ) ) uuid_map[uuid] = e;
 
@@ -154,7 +154,7 @@ void CryptSystem::shuffle_rooms_passages()
 
 void CryptSystem::unlock_objective_passage()
 {
-  Factory::UUIDEntityMap uuid_map;
+  Factory::Obstacle::UUIDEntityMap uuid_map;
   for ( auto [e, uuid] : reg().view<Cmp::UUID>().each() )
     if ( !reg().all_of<Cmp::Obstacle>( e ) ) uuid_map[uuid] = e;
 
@@ -180,7 +180,7 @@ void CryptSystem::unlock_objective_passage()
 
 void CryptSystem::unlock_exit_passage()
 {
-  Factory::UUIDEntityMap uuid_map;
+  Factory::Obstacle::UUIDEntityMap uuid_map;
   for ( auto [e, uuid] : reg().view<Cmp::UUID>().each() )
     if ( !reg().all_of<Cmp::Obstacle>( e ) ) uuid_map[uuid] = e;
 
@@ -258,7 +258,7 @@ void CryptSystem::check_entrance_collision()
     // auto player_pos = Utils::Player::get_position( reg() ).position;
     // get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
 
-    Factory::remove_player_last_graveyard_pos( reg() );
+    Factory::Player::remove_player_last_graveyard_pos( reg() );
     Cmp::Position last_known_pos(
         {
             door_pos_cmp.position.x,
@@ -266,7 +266,7 @@ void CryptSystem::check_entrance_collision()
         },
         Constants::kGridSizePxF );
     SPDLOG_INFO( "Last known graveyard position {}, {}", last_known_pos.position.x, last_known_pos.position.y );
-    Factory::add_player_last_graveyard_pos( reg(), last_known_pos );
+    Factory::Player::add_player_last_graveyard_pos( reg(), last_known_pos );
     break;
   }
 }
@@ -341,7 +341,7 @@ void CryptSystem::unlock_crypt_door()
 
     // unlock the crypt door
     SPDLOG_DEBUG( "Player unlocked a crypt door at ({}, {})", door_pos_cmp.position.x, door_pos_cmp.position.y );
-    Factory::destroy_inventory( reg(), "sprite.item.cryptkey" );
+    Factory::Player::destroy_inventory( reg(), "sprite.item.cryptkey" );
 
     // player_key_count->decrement_count( 1 );
     m_sound_bank.get_effect( "crypt_open" ).play();
@@ -380,7 +380,7 @@ void CryptSystem::check_objective_activation( Events::PlayerActionEvent::GameAct
     {
       sf::FloatRect expanded_search( sf::Vector2f{ objective_cmp.position.x, objective_cmp.position.y + objective_cmp.size.y },
                                      sf::Vector2f{ objective_cmp.size.x, Constants::kGridSizePxF.y * 2.f } );
-      auto obst_entity = Factory::create_loot_drop(
+      auto obst_entity = Factory::Loot::create_loot_drop(
           reg(), Cmp::AnimData( Cmp::AnimData::Config{ .sprite_type = "sprite.crypt.loot.cadaver", .enabled = true } ), expanded_search,
           Factory::IncludePack<>{}, Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::CryptObjectiveSegment>{} );
       if ( obst_entity != entt::null )
@@ -467,7 +467,7 @@ void CryptSystem::check_chest_activation( Events::PlayerActionEvent::GameActions
       m_sound_bank.get_effect( "crypt_chest_open" ).play();
 
       // clang-format off
-      auto loot_entt = Factory::create_loot_drop( 
+      auto loot_entt = Factory::Loot::create_loot_drop( 
         reg(), 
         Cmp::AnimData( Cmp::AnimData::Config{ .sprite_type = "sprite.crypt.loot.gold", .enabled = true}),    
         Cmp::RectBounds::scaled( chest_pos_cmp, 3.f ).getBounds(), 
@@ -482,7 +482,7 @@ void CryptSystem::check_chest_activation( Events::PlayerActionEvent::GameActions
   }
 }
 
-void CryptSystem::create_room_borders( const Factory::UUIDEntityMap &uuid_map )
+void CryptSystem::create_room_borders( const Factory::Obstacle::UUIDEntityMap &uuid_map )
 {
   auto add_borders_for_room = [&]<typename Component>( Component &room_cmp, RoomWallType room_wall_type )
   {
@@ -492,7 +492,7 @@ void CryptSystem::create_room_borders( const Factory::UUIDEntityMap &uuid_map )
       auto *anim_data = reg().try_get<Cmp::AnimData>( pos_entt );
       if ( anim_data and anim_data->m_sprite_type.contains( ".main" ) )
       {
-        Factory::remove_obstacle( reg(), pos_entt, Factory::DeleteExtras::Yes, uuid_map );
+        Factory::Obstacle::remove_obstacle( reg(), pos_entt, Factory::Obstacle::DeleteExtras::Yes, uuid_map );
         decorate_interior_wall( pos_entt, pos_cmp, room_wall_type );
       }
       if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock() ) pathfinding_navmesh->remove( pos_entt, pos_cmp );
@@ -729,8 +729,8 @@ void CryptSystem::decorate_interior_wall( entt::entity main_entt, Cmp::Position 
   auto uuid = Cmp::UUID::generate();
 
   int tile_idx = static_cast<int>( room_wall_type );
-  Factory::add_obstacle( reg(), main_entt );
-  Factory::decorate_obstacle( reg(), main_entt, main_pos_cmp, ss_main, tile_idx, main_pos_cmp.y() + ss_main.get_zorder( tile_idx ) );
+  Factory::Obstacle::add_obstacle( reg(), main_entt );
+  Factory::Obstacle::decorate_obstacle( reg(), main_entt, main_pos_cmp, ss_main, tile_idx, main_pos_cmp.y() + ss_main.get_zorder( tile_idx ) );
   reg().emplace_or_replace<Cmp::UUID>( main_entt, uuid );
 
   // We place the room borders on top of the regular interior wall block so to prevent z-fighting,
@@ -738,7 +738,7 @@ void CryptSystem::decorate_interior_wall( entt::entity main_entt, Cmp::Position 
   auto cap_entt = reg().create();
   Cmp::Position cap_position( { main_pos_cmp.x(), main_pos_cmp.y() - main_pos_cmp.size.y }, main_pos_cmp.size );
   reg().emplace_or_replace<Cmp::Position>( cap_entt, cap_position );
-  Factory::decorate_obstacle( reg(), cap_entt, cap_position, ss_cap, tile_idx, main_pos_cmp.y() + ss_cap.get_zorder( tile_idx ), false );
+  Factory::Obstacle::decorate_obstacle( reg(), cap_entt, cap_position, ss_cap, tile_idx, main_pos_cmp.y() + ss_cap.get_zorder( tile_idx ), false );
   reg().emplace_or_replace<Cmp::UUID>( cap_entt, uuid );
 }
 
@@ -759,7 +759,7 @@ void CryptSystem::close_open_rooms( const Cmp::Position &player_pos_cmp )
   }
 }
 
-void CryptSystem::fill_closed_rooms( const Factory::UUIDEntityMap &uuid_map )
+void CryptSystem::fill_closed_rooms( const Factory::Obstacle::UUIDEntityMap &uuid_map )
 {
   PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock();
   if ( not pathfinding_navmesh ) throw std::runtime_error( "CryptSystem::fill_closed_rooms() - unable to lock pathfinding navmesh" );
@@ -771,7 +771,7 @@ void CryptSystem::fill_closed_rooms( const Factory::UUIDEntityMap &uuid_map )
       if ( reg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
       if ( reg().any_of<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Direction>( pos_entt ) ) continue;
 
-      Factory::remove_obstacle( reg(), pos_entt, Factory::DeleteExtras::Yes, uuid_map );
+      Factory::Obstacle::remove_obstacle( reg(), pos_entt, Factory::Obstacle::DeleteExtras::Yes, uuid_map );
       decorate_interior_wall( pos_entt, pos_cmp, RoomWallType::INTERIOR );
       pathfinding_navmesh->remove( pos_entt, pos_cmp );
       if ( auto player_navmesh = m_player_navmesh.lock() ) { player_navmesh->insert( pos_entt, pos_cmp ); }
@@ -787,7 +787,7 @@ void CryptSystem::fill_closed_rooms( const Factory::UUIDEntityMap &uuid_map )
       if ( reg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
       if ( reg().any_of<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Direction>( pos_entt ) ) continue;
 
-      Factory::remove_obstacle( reg(), pos_entt, Factory::DeleteExtras::Yes, uuid_map );
+      Factory::Obstacle::remove_obstacle( reg(), pos_entt, Factory::Obstacle::DeleteExtras::Yes, uuid_map );
       decorate_interior_wall( pos_entt, pos_cmp, RoomWallType::BORDER );
       pathfinding_navmesh->remove( pos_entt, pos_cmp );
       if ( auto player_navmesh = m_player_navmesh.lock() ) { player_navmesh->insert( pos_entt, pos_cmp ); }
@@ -821,7 +821,7 @@ void CryptSystem::open_all_rooms()
   open_selected_rooms( all_rooms );
 }
 
-void CryptSystem::empty_open_rooms( const Factory::UUIDEntityMap &uuid_map )
+void CryptSystem::empty_open_rooms( const Factory::Obstacle::UUIDEntityMap &uuid_map )
 {
 
   for ( auto [open_room_entt, open_room_cmp] : reg().view<Cmp::CryptRoomOpen>().each() )
@@ -832,7 +832,7 @@ void CryptSystem::empty_open_rooms( const Factory::UUIDEntityMap &uuid_map )
       if ( not open_room_cmp.findIntersection( pos_cmp ) ) continue;
       if ( not reg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
 
-      Factory::remove_obstacle( reg(), pos_entt, Factory::DeleteExtras::Yes, uuid_map );
+      Factory::Obstacle::remove_obstacle( reg(), pos_entt, Factory::Obstacle::DeleteExtras::Yes, uuid_map );
       if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock() ) { pathfinding_navmesh->insert( pos_entt, pos_cmp ); }
       if ( auto player_navmesh = m_player_navmesh.lock() ) { player_navmesh->remove( pos_entt, pos_cmp ); }
     }
@@ -840,7 +840,7 @@ void CryptSystem::empty_open_rooms( const Factory::UUIDEntityMap &uuid_map )
     for ( auto [pos_entt, pos_cmp] : open_room_cmp.m_border_position_list )
     {
       if ( not reg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
-      Factory::remove_obstacle( reg(), pos_entt, Factory::DeleteExtras::Yes, uuid_map );
+      Factory::Obstacle::remove_obstacle( reg(), pos_entt, Factory::Obstacle::DeleteExtras::Yes, uuid_map );
       decorate_interior_wall( pos_entt, pos_cmp, RoomWallType::BORDER );
     }
   }
@@ -854,7 +854,7 @@ void CryptSystem::add_lava_pit_open_rooms( const Cmp::Position &player_pos_cmp )
   for ( auto [open_room_entt, open_room_cmp] : open_room_view.each() )
   {
     if ( open_room_cmp.findIntersection( player_pos_cmp ) ) continue; // skip occupied rooms
-    Crypt::Factory::create_crypt_lava_pit( reg(), open_room_cmp, pathfinding_navmesh );
+    Factory::Crypt::create_crypt_lava_pit( reg(), open_room_cmp, pathfinding_navmesh );
   }
 }
 
@@ -912,7 +912,7 @@ void CryptSystem::remove_lava_pit_open_rooms( const Cmp::Position &player_pos_cm
       if ( not open_room_cmp.findIntersection( lava_pit_cmp ) ) continue;
       if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock() )
       {
-        Crypt::Factory::destroy_crypt_lava_pit( reg(), lava_pit_entt, pathfinding_navmesh );
+        Factory::Crypt::destroy_crypt_lava_pit( reg(), lava_pit_entt, pathfinding_navmesh );
       }
     }
   }
@@ -1111,8 +1111,8 @@ void CryptSystem::add_chest_to_open_rooms( const Cmp::Position &player_pos_cmp )
 
       float zorder = selected_pos.y() + m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.chest" ).get_zorder( 0 );
 
-      Factory::remove_obstacle( reg(), selected_entt, Factory::DeleteExtras::Yes );
-      auto chest_entt = Crypt::Factory::create_crypt_chest( reg(), selected_pos.position, "sprite.crypt.chest", 0, zorder );
+      Factory::Obstacle::remove_obstacle( reg(), selected_entt, Factory::Obstacle::DeleteExtras::Yes );
+      auto chest_entt = Factory::Crypt::create_crypt_chest( reg(), selected_pos.position, "sprite.crypt.chest", 0, zorder );
       if ( auto player_navmesh = m_player_navmesh.lock() ) { player_navmesh->insert( chest_entt, selected_pos ); }
       SPDLOG_DEBUG( "Added chest to position: {},{}", selected_pos.position.x, selected_pos.position.y );
     }
@@ -1130,7 +1130,7 @@ void CryptSystem::add_lever_to_open_rooms()
   Cmp::RandomInt room_position_picker( 0, static_cast<int>( internal_room_entts.size() ) - 1 );
   auto selected_entt = internal_room_entts[room_position_picker.gen()];
   auto room_pos = reg().get<Cmp::Position>( selected_entt );
-  Crypt::Factory::create_crypt_lever( reg(), room_pos.position, lever_sprite_type, disabled_lever_sprite_idx, zorder );
+  Factory::Crypt::create_crypt_lever( reg(), room_pos.position, lever_sprite_type, disabled_lever_sprite_idx, zorder );
   SPDLOG_DEBUG( "Added lever to position: {},{}", room_pos.position.x, room_pos.position.y );
 }
 
@@ -1143,7 +1143,7 @@ void CryptSystem::remove_lever_open_rooms( const Cmp::Position &player_pos_cmp )
       if ( not open_room_cmp.findIntersection( lever_pos_cmp ) ) continue;
       if ( open_room_cmp.findIntersection( player_pos_cmp ) ) continue;
 
-      Crypt::Factory::destroy_crypt_lever( reg(), lever_entt );
+      Factory::Crypt::destroy_crypt_lever( reg(), lever_entt );
     }
   }
 }
@@ -1172,7 +1172,7 @@ void CryptSystem::remove_chest_open_rooms( const Cmp::Position &player_pos_cmp )
       }
     }
 
-    if ( not player_in_same_room ) { Crypt::Factory::destroy_crypt_chest( reg(), chest_entt ); }
+    if ( not player_in_same_room ) { Factory::Crypt::destroy_crypt_chest( reg(), chest_entt ); }
   }
 }
 
@@ -1181,7 +1181,7 @@ void CryptSystem::remove_all_levers()
   for ( auto [lever_entt, lever_cmp, lever_pos_cmp] : reg().view<Cmp::CryptLever, Cmp::Position>().each() )
 
   {
-    Crypt::Factory::destroy_crypt_lever( reg(), lever_entt );
+    Factory::Crypt::destroy_crypt_lever( reg(), lever_entt );
   }
 }
 
@@ -1189,7 +1189,7 @@ void CryptSystem::remove_all_chests()
 {
   for ( auto [chest_entt, chest_cmp, chest_pos_cmp] : reg().view<Cmp::CryptChest, Cmp::Position>().each() )
   {
-    Crypt::Factory::destroy_crypt_chest( reg(), chest_entt );
+    Factory::Crypt::destroy_crypt_chest( reg(), chest_entt );
     if ( auto player_navmesh = m_player_navmesh.lock() ) { player_navmesh->remove( chest_entt, chest_pos_cmp ); }
   }
 }
@@ -1237,7 +1237,7 @@ void CryptSystem::spawn_npc_in_open_rooms()
     auto position_entity = reg().create();
     Cmp::Position position_cmp = reg().emplace<Cmp::Position>( position_entity, spawn_position, Constants::kGridSizePxF );
     [[maybe_unused]] Cmp::ZOrderValue zorder_cmp = reg().emplace<Cmp::ZOrderValue>( position_entity, position_cmp.position.y );
-    Factory::create_npc( reg(), position_entity, "npc.priest" );
+    Factory::Npc::create_npc( reg(), position_entity, "npc.priest" );
 
     SPDLOG_DEBUG( "Spawned NPC {} at position ({}, {})", r + 1, spawn_position.x, spawn_position.y );
   }

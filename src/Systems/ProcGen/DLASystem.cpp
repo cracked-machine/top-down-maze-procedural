@@ -26,7 +26,7 @@ void DLASystem::iterate( sf::FloatRect scene_size, const sf::Vector2f seed_pos, 
   auto center_entities = levelgen_spatialgrid.at( Cmp::Position( seed_pos, Constants::kGridSizePxF ) );
   for ( auto &entt : center_entities )
   {
-    Factory::remove_obstacle( reg(), entt );
+    Factory::Obstacle::remove_obstacle( reg(), entt );
     levelgen_spatialgrid.remove( entt, Cmp::Position( seed_pos, Constants::kGridSizePxF ) );
   }
   SPDLOG_INFO( "Seed particle position: {},{}", seed_pos.x, seed_pos.y );
@@ -76,7 +76,7 @@ void DLASystem::iterate( sf::FloatRect scene_size, const sf::Vector2f seed_pos, 
         auto entities_here = levelgen_spatialgrid.at( particle );
         for ( auto &entt : entities_here )
         {
-          Factory::remove_obstacle( reg(), entt );
+          Factory::Obstacle::remove_obstacle( reg(), entt );
           levelgen_spatialgrid.remove( entt, particle );
         }
         stuck = true;

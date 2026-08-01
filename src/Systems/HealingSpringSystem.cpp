@@ -67,7 +67,7 @@ void HealingSpringSystem::check_entrance_collision()
     if ( not player_pos.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
     m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_SACREDSPRING );
 
-    Factory::remove_player_last_graveyard_pos( reg() );
+    Factory::Player::remove_player_last_graveyard_pos( reg() );
     Cmp::Position last_known_pos(
         {
             door_pos_cmp.position.x,
@@ -75,7 +75,7 @@ void HealingSpringSystem::check_entrance_collision()
         },
         Constants::kGridSizePxF );
     SPDLOG_INFO( "Last known graveyard position {}, {}", last_known_pos.position.x, last_known_pos.position.y );
-    Factory::add_player_last_graveyard_pos( reg(), last_known_pos );
+    Factory::Player::add_player_last_graveyard_pos( reg(), last_known_pos );
     break;
   }
 }
@@ -111,7 +111,7 @@ void HealingSpringSystem::check_inventory_deposit()
   for ( auto [well_entt, well_mb_cmp] : reg().view<Cmp::HealingSpringMultiBlock>().each() )
   {
     if ( not player_hitbox.findIntersection( well_mb_cmp ) ) continue;
-    Factory::destroy_inventory( reg(), inventory_type );
+    Factory::Player::destroy_inventory( reg(), inventory_type );
     wealth.wealth += 2;
     m_sound_bank.get_effect( "get_key" ).play();
 

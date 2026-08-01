@@ -12,7 +12,7 @@
 namespace Game::Sprites { class SpriteSheet; class SpriteFactory; }
 // clang-format on
 
-namespace Game::Factory
+namespace Game::Factory::Obstacle
 {
 
 entt::entity create_world_pos( entt::registry &registry, const sf::Vector2f &pos );
@@ -48,6 +48,6 @@ void remove_obstacle( entt::registry &reg, entt::entity search_entt, DeleteExtra
 using UUIDEntityMap = std::unordered_map<Cmp::UUID, entt::entity>;
 void remove_obstacle( entt::registry &reg, entt::entity search_entt, DeleteExtras delete_extras, const UUIDEntityMap &uuid_map );
 
-} // namespace Game::Factory
+} // namespace Game::Factory::Obstacle
 
 #endif // SRC_FACTORY_OBSTACLEFACTORY_HPP__

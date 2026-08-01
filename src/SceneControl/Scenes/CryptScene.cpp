@@ -78,9 +78,9 @@ void CryptScene::on_init()
   m_sys.find<Sys::Store::Type::CryptSystem>().gen_crypt_initial_interior();
 
   // create navmeshes for pathfinding
-  m_generic_npc_navmesh = Pathfinding::Factory::create_npc_navmesh( m_reg );
-  m_open_navmesh = Pathfinding::Factory::create_open_navmesh( m_reg );
-  m_player_navmesh = Pathfinding::Factory::create_player_navmesh( m_reg );
+  m_generic_npc_navmesh = Factory::Pathfinding::create_npc_navmesh( m_reg );
+  m_open_navmesh = Factory::Pathfinding::create_open_navmesh( m_reg );
+  m_player_navmesh = Factory::Pathfinding::create_player_navmesh( m_reg );
   reinit_navmesh();
 
   Sprites::Containers::VertexFloor floortiles;
@@ -89,13 +89,13 @@ void CryptScene::on_init()
   m_reg.emplace<Sprites::Containers::VertexFloor>( floor_entity, floortiles );
   m_reg.emplace<Cmp::ZOrderValue>( floor_entity, -16.f );
 
-  // Factory::add_inventory( m_reg, "item.candle" );
-  // Particle::Factory::add_flame_for_player_inventory_slot( m_reg );
+  // Factory::Player::add_inventory( m_reg, "item.candle" );
+  // Factory::Particle::add_flame_for_player_inventory_slot( m_reg );
 
   for ( auto [candle_entt, candle_cmp, candle_pos, uuid_cmp] : m_reg.view<Cmp::WorldItem, Cmp::Position, Cmp::UUID>().each() )
   {
     if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
-    Particle::Factory::add_flame( m_reg, "particle.candle", uuid_cmp, candle_pos.getCenter(), Utils::Player::get_position( m_reg ).y() - 1 );
+    Factory::Particle::add_flame( m_reg, "particle.candle", uuid_cmp, candle_pos.getCenter(), Utils::Player::get_position( m_reg ).y() - 1 );
   }
 }
 
@@ -117,7 +117,7 @@ void CryptScene::on_enter()
     m_just_spawned = false;
     m_sys.find<Sys::Store::Type::CryptSystem>().setup();
     const auto kCryptShuffleTimeout = Sys::PersistSystem::get<Cmp::Persist::CryptShuffleTimeout>( m_reg ).get_value();
-    Crypt::Factory::create_crypt_shuffle_timer( m_reg, kCryptShuffleTimeout );
+    Factory::Crypt::create_crypt_shuffle_timer( m_reg, kCryptShuffleTimeout );
   }
 
   // prevent the player from wandering off before the scene has loaded
@@ -129,9 +129,9 @@ void CryptScene::on_exit()
 {
   // Cleanup any resources or entities specific to the CryptScene
   SPDLOG_INFO( "Exiting {}", get_name() );
-  Crypt::Factory::destroy_crypt_shuffle_timer( m_reg );
+  Factory::Crypt::destroy_crypt_shuffle_timer( m_reg );
 
-  Factory::remove_player_extra_life( m_reg );
+  Factory::Player::remove_player_extra_life( m_reg );
 
   // Hide the sudden position update/camera pan behind a forced loading screen.
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );

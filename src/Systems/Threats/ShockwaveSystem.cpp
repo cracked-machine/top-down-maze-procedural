@@ -169,7 +169,7 @@ void ShockwaveSystem::check_shockwave_player_collision()
           if ( Utils::Player::player_has_extra_life( reg() ) )
           {
             Utils::Player::get_position( reg() ).position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( reg() );
-            Factory::remove_player_extra_life( reg() );
+            Factory::Player::remove_player_extra_life( reg() );
             m_sound_bank.get_effect( "player_respawn" ).play();
           }
           else { get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SHOCKED, player_pos ) ); }
@@ -188,16 +188,16 @@ void ShockwaveSystem::update( sf::Time dt )
     if ( anim_cmp.m_sprite_type == "sprite.priest" )
     {
       // cooldown is handled in Factory function via Cmp::NpcShockwaveTimer per NPC
-      auto created_shockwave = Factory::create_shockwave( reg(), npc_entt );
+      auto created_shockwave = Factory::Npc::create_shockwave( reg(), npc_entt );
       if ( created_shockwave )
       {
-        Particle::Factory::add_shockwave( reg(), "particle.shockwave.priest", npc_uuid_cmp, npc_pos_cmp.getCenter(), 50000 );
+        Factory::Particle::add_shockwave( reg(), "particle.shockwave.priest", npc_uuid_cmp, npc_pos_cmp.getCenter(), 50000 );
         m_sound_bank.get_effect( "emit_shockwave_low" ).play();
         m_sound_bank.get_effect( "emit_shockwave_high" ).play();
       }
 
       // update the shockwave position so that it follows NPC
-      Particle::Factory::update_position( reg(), npc_uuid_cmp, npc_pos_cmp.getCenter() );
+      Factory::Particle::update_position( reg(), npc_uuid_cmp, npc_pos_cmp.getCenter() );
     }
   }
 

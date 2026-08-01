@@ -11,7 +11,7 @@
 
 #include <entt/entity/fwd.hpp>
 
-namespace Game::Particle::Factory
+namespace Game::Factory::Particle
 {
 
 void add_test( entt::registry &reg, Sys::ParticleSystem &psys, const std::string &tag )
@@ -48,7 +48,7 @@ void add_flame_for_player_inventory_slot( entt::registry &reg )
   for ( auto [inventory_entt, inventory_cmp, inventory_uuid_cmp] : reg.view<Cmp::PlayerInventorySlot, Cmp::UUID>().each() )
   {
     if ( not inventory_cmp.m_item.sprite_type.contains( "candle" ) ) continue;
-    Particle::Factory::add_flame( reg, "particle.candle", inventory_uuid_cmp, Utils::Player::get_position( reg ).getCenter(), 50000 );
+    Factory::Particle::add_flame( reg, "particle.candle", inventory_uuid_cmp, Utils::Player::get_position( reg ).getCenter(), 50000 );
     for ( auto [ps_entt, ps_owner, ps_uuid_cmp] : reg.view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
     {
       if ( ps_uuid_cmp != inventory_uuid_cmp ) continue;
@@ -147,4 +147,4 @@ void update_position( entt::registry &reg, Cmp::UUID uuid_cmp, sf::Vector2f pos 
   }
 }
 
-} // namespace Game::Particle::Factory
+} // namespace Game::Factory::Particle

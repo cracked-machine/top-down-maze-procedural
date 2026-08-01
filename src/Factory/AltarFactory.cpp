@@ -5,7 +5,7 @@
 #include <Sprites/SpriteMetaType.hpp>
 #include <entt/entity/registry.hpp>
 
-namespace Game::Factory
+namespace Game::Factory::Altar
 {
 
 void create_altar_sacrifice_anim( entt::registry &reg, Cmp::Position pos, Sprites::SpriteMetaType anim_type )
@@ -24,4 +24,4 @@ void create_altar_sacrifice_anim( entt::registry &reg, Cmp::Position pos, Sprite
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, pos.position.y * 4.f );
 }
 
-} // namespace Game::Factory
+} // namespace Game::Factory::Altar

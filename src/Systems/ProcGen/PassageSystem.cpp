@@ -113,7 +113,7 @@ void PassageSystem::add_spike_traps()
   {
     if ( passage_ids_used.contains( static_cast<int>( pblock_cmp.m_passage_id ) ) ) continue;
     passage_ids_used.insert( static_cast<int>( pblock_cmp.m_passage_id ) );
-    Crypt::Factory::add_spike_trap( reg(), pblock_entt, static_cast<int>( pblock_cmp.m_passage_id ) );
+    Factory::Crypt::add_spike_trap( reg(), pblock_entt, static_cast<int>( pblock_cmp.m_passage_id ) );
   }
 }
 
@@ -611,12 +611,12 @@ void PassageSystem::empty_open_passages()
 
   for ( auto &[entt, pos_cmp] : obstacles_to_remove )
   {
-    Factory::remove_obstacle( reg(), entt, Factory::DeleteExtras::Yes );
+    Factory::Obstacle::remove_obstacle( reg(), entt, Factory::Obstacle::DeleteExtras::Yes );
     pathfinding_navmesh->insert( entt, pos_cmp );
   }
   for ( auto &[entt, pos_cmp] : chests_to_remove )
   {
-    Crypt::Factory::destroy_crypt_chest( reg(), entt );
+    Factory::Crypt::destroy_crypt_chest( reg(), entt );
     pathfinding_navmesh->insert( entt, pos_cmp );
   }
 }
@@ -640,14 +640,14 @@ void PassageSystem::fill_all_passages()
 
     auto uuid = Cmp::UUID::generate();
 
-    Factory::add_obstacle( reg(), pos_entt );
-    Factory::decorate_obstacle( reg(), pos_entt, pos_cmp, ss_main, 0, pos_cmp.y() + ss_main.get_zorder( 0 ) );
+    Factory::Obstacle::add_obstacle( reg(), pos_entt );
+    Factory::Obstacle::decorate_obstacle( reg(), pos_entt, pos_cmp, ss_main, 0, pos_cmp.y() + ss_main.get_zorder( 0 ) );
     reg().emplace_or_replace<Cmp::UUID>( pos_entt, uuid );
 
     auto cap_entt = reg().create();
     Cmp::Position cap_position( { pos_cmp.x(), pos_cmp.y() - pos_cmp.size.y }, pos_cmp.size );
     reg().emplace_or_replace<Cmp::Position>( cap_entt, cap_position );
-    Factory::decorate_obstacle( reg(), cap_entt, cap_position, ss_cap, 0, pos_cmp.y() + ss_cap.get_zorder( 0 ), false );
+    Factory::Obstacle::decorate_obstacle( reg(), cap_entt, cap_position, ss_cap, 0, pos_cmp.y() + ss_cap.get_zorder( 0 ), false );
     reg().emplace_or_replace<Cmp::UUID>( cap_entt, uuid );
 
     if ( pathfinding_navmesh ) pathfinding_navmesh->remove( pos_entt, pos_cmp );

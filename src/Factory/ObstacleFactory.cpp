@@ -19,7 +19,7 @@
 #include <spdlog/spdlog.h>
 #include <stdexcept>
 
-namespace Game::Factory
+namespace Game::Factory::Obstacle
 {
 
 entt::entity create_world_pos( entt::registry &registry, const sf::Vector2f &pos )
@@ -154,4 +154,4 @@ void remove_obstacle( entt::registry &reg, entt::entity search_entt, DeleteExtra
   }
 }
 
-} // namespace Game::Factory
+} // namespace Game::Factory::Obstacle

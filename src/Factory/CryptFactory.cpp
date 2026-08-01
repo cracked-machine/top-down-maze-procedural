@@ -28,7 +28,7 @@
 #include <Utils/Player.hpp>
 #include <Utils/Random.hpp>
 
-namespace Game::Crypt::Factory
+namespace Game::Factory::Crypt
 {
 
 entt::entity create_crypt_exit( entt::registry &reg, sf::Vector2f spawn_pos_px )
@@ -178,4 +178,4 @@ void destroy_crypt_shuffle_timer( entt::registry &reg )
   if( not timer_view.empty() ) reg.destroy( timer_view.front());
 }
 
-} // namespace Game::Factory
+} // namespace Game::Factory::Crypt

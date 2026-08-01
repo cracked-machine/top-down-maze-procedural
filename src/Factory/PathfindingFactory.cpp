@@ -7,7 +7,7 @@
 #include <PathFinding/SmartPointers.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 
-namespace Game::Pathfinding::Factory
+namespace Game::Factory::Pathfinding
 {
 
 PathFinding::SpatialHashGridSharedPtr create_npc_navmesh( entt::registry &reg, const NpcBlockerFilter &blocks )
@@ -77,4 +77,4 @@ PathFinding::SpatialHashGridSharedPtr create_reserved_navmesh( entt::registry &r
   return reserved_navmesh;
 }
 
-} // namespace Game::Pathfinding::Factory
+} // namespace Game::Factory::Pathfinding

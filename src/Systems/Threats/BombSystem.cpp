@@ -142,7 +142,7 @@ void BombSystem::arm_player_bomb()
       auto realigned_epicenter_pos = Utils::snap_to_grid( destructable_pos_cmp );
       reg().emplace<Cmp::Position>( armed_epicenter_entity, realigned_epicenter_pos.position, realigned_epicenter_pos.size );
       place_concentric_bomb_pattern( armed_epicenter_entity, reg().get<Cmp::PlayerBlastRadius>( player_entt ).value );
-      Factory::destroy_inventory( reg(), "sprite.item.bomb" );
+      Factory::Player::destroy_inventory( reg(), "sprite.item.bomb" );
       Utils::Player::get_global_bomb_flash_clk( reg() ).restart();
     }
   }
@@ -168,7 +168,7 @@ void BombSystem::place_concentric_bomb_pattern( const entt::entity &epicenter_en
 
   // Mark epicenter as armed FIRST before any recursive processing
   int sequence_counter = 0;
-  Factory::create_armed( reg(), epicenter_entity, Cmp::Armed::EpiCenter::YES, sequence_counter++, centerTile.y + kZOrderOffset );
+  Factory::Bomb::create_armed( reg(), epicenter_entity, Cmp::Armed::EpiCenter::YES, sequence_counter++, centerTile.y + kZOrderOffset );
 
   // We dont detonate ReservedPositions so dont arm them in the first place
   // Also exclude NPCs since they're handled separately and may be missing Position component during death animation
@@ -213,7 +213,7 @@ void BombSystem::place_concentric_bomb_pattern( const entt::entity &epicenter_en
     // Arm each entity in the layer in clockwise order
     for ( const auto &[entity, pos] : layer_entities )
     {
-      Factory::create_armed( reg(), entity, Cmp::Armed::EpiCenter::NO, sequence_counter++, centerTile.y + kZOrderOffset );
+      Factory::Bomb::create_armed( reg(), entity, Cmp::Armed::EpiCenter::NO, sequence_counter++, centerTile.y + kZOrderOffset );
     }
   }
 }
@@ -245,7 +245,7 @@ void BombSystem::update()
     for ( auto [obst_entity, obst_cmp, obst_pos_cmp] : obstacle_view.each() )
     {
       if ( not obst_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
-      Factory::remove_obstacle( reg(), obst_entity, Factory::DeleteExtras::Yes );
+      Factory::Obstacle::remove_obstacle( reg(), obst_entity, Factory::Obstacle::DeleteExtras::Yes );
       pathfinding_navmesh->insert( obst_entity, obst_pos_cmp );
       player_navmesh->insert( obst_entity, obst_pos_cmp );
       if ( auto ghost_navmesh = m_ghost_navmesh.lock() ) { ghost_navmesh->insert( obst_entity, obst_pos_cmp ); }
@@ -259,7 +259,7 @@ void BombSystem::update()
 
       if ( loot_entt != entt::null ) { m_sound_bank.get_effect( "break_pot" ).play(); }
 
-      Factory::destroy_loot_container( reg(), loot_entt );
+      Factory::Loot::destroy_loot_container( reg(), loot_entt );
     }
 
     // detonate npc containers - these are activated by proximity so just destroy them
@@ -267,7 +267,7 @@ void BombSystem::update()
     for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_container_view.each() )
     {
       if ( not npc_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
-      Factory::destroy_npc_container( reg(), npc_entity );
+      Factory::Npc::destroy_npc_container( reg(), npc_entity );
     }
 
     // detonate nearby carryitems - cruel but fair
@@ -301,7 +301,7 @@ void BombSystem::update()
 
         // IMMEDIATELY mark as armed to prevent other recursive calls from processing it
         explosive_cmp->armed = true;
-        Factory::create_armed( reg(), carryitem_entt, Cmp::Armed::EpiCenter::YES, 0, carryitem_pos_cmp.position.y - 64 );
+        Factory::Bomb::create_armed( reg(), carryitem_entt, Cmp::Armed::EpiCenter::YES, 0, carryitem_pos_cmp.position.y - 64 );
         arm_entt( carryitem_entt );
         SPDLOG_INFO( "Chain reaction triggered for bomb entity {} ", static_cast<int>( carryitem_entt ) );
       }
@@ -335,10 +335,10 @@ void BombSystem::update()
       // notify npc system of death
       if ( npc_pos_cmp.findIntersection( armed_pos_cmp ) )
       {
-        Factory::create_npc_death_anim( reg(), npc_pos_cmp, "sprite.death.anim.explosion" );
+        Factory::Npc::create_npc_death_anim( reg(), npc_pos_cmp, "sprite.death.anim.explosion" );
 
         SPDLOG_INFO( "NPC entity {} exploded at {},{}", static_cast<int>( npc_entt ), npc_pos_cmp.position.x, npc_pos_cmp.position.y );
-        Factory::destroy_npc( reg(), npc_entt );
+        Factory::Npc::destroy_npc( reg(), npc_entt );
 
         auto [sprite_type, sprite_index] = m_sprite_factory.get_random_type_and_texture_index(
             std::vector<std::string>{ "sprite.graveyard.loot.health", "sprite.graveyard.loot.blast", "sprite.graveyard.loot.repair" } );
@@ -347,7 +347,7 @@ void BombSystem::update()
         if ( do_drop.gen() == 0 )
         {
           // clang-format off
-          auto dropped_loot_entt = Factory::create_loot_drop( 
+          auto dropped_loot_entt = Factory::Loot::create_loot_drop( 
             reg(), 
             Cmp::AnimData( Cmp::AnimData::Config{ .sprite_type = sprite_type, .frame_index_offset = sprite_index} ),                                        
             sf::FloatRect{ npc_pos_cmp.position, npc_pos_cmp.size }, 
@@ -380,10 +380,10 @@ void BombSystem::update()
     if ( not remaining_epicenter_bombs ) m_sound_bank.get_effect( "bomb_fuse" ).stop();
 
     // finally delete the armed component
-    Factory::destroy_armed( reg(), armed_entt );
+    Factory::Bomb::destroy_armed( reg(), armed_entt );
 
     // Replace the armed position with a detonated sprite for visual effect - make sure its z-order is furthest back
-    Factory::add_detonated( reg(), armed_entt, armed_pos_cmp );
+    Factory::Bomb::add_detonated( reg(), armed_entt, armed_pos_cmp );
   }
 
   auto remaining_armed_view = reg().view<Cmp::Armed>();

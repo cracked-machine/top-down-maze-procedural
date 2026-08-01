@@ -58,8 +58,8 @@ void HealingSpringScene::on_init()
   m_reg.emplace<Cmp::ZOrderValue>( floor_entity, -16.f );
 
   // create navmeshes for pathfinding
-  m_generic_npc_navmesh = Pathfinding::Factory::create_npc_navmesh( m_reg );
-  m_open_navmesh = Pathfinding::Factory::create_open_navmesh( m_reg );
+  m_generic_npc_navmesh = Factory::Pathfinding::create_npc_navmesh( m_reg );
+  m_open_navmesh = Factory::Pathfinding::create_open_navmesh( m_reg );
   reinit_navmesh();
 
   // Hide the sudden position update/camera pan behind a forced loading screen.

@@ -44,7 +44,7 @@
 #include <entt/entity/fwd.hpp>
 #include <entt/fwd.hpp>
 
-namespace Game::Factory
+namespace Game::Factory::Multiblock
 {
 
 template <typename T>
@@ -80,12 +80,12 @@ template <typename MULTIBLOCK, typename MBSEGMENT>
 std::pair<entt::entity, std::vector<entt::entity>>
 add_multiblock_with_segments( entt::registry &reg, sf::Vector2f position, const Sprites::SpriteSheet &ss, size_t ss_index = 0, float zorder = 0 );
 
-} // namespace Game::Factory
+} // namespace Game::Factory::Multiblock
 
 // Explicit instantiations are defined in MultiblockFactory.cpp for every MULTIBLOCK/MBSEGMENT
 // combination used across the codebase.
 // clang-format off
-namespace Game::Factory::detail
+namespace Game::Factory::Multiblock::detail
 {
 
 extern template void create_multiblock<Cmp::PlantMultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
@@ -133,9 +133,9 @@ extern template std::vector<entt::entity> create_multiblock_segments<Cmp::CryptB
 extern template std::vector<entt::entity> create_multiblock_segments<Cmp::HealingSpringBuildingMultiBlock, Cmp::HealingSpringBuildingSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
 extern template std::vector<entt::entity> create_multiblock_segments<Cmp::RuinBuildingMultiBlock, Cmp::RuinBuildingSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
 
-} // namespace Game::Factory::detail
+} // namespace Game::Factory::Multiblock::detail
 
-namespace Game::Factory
+namespace Game::Factory::Multiblock
 {
 
 extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
@@ -153,7 +153,7 @@ extern template std::pair<entt::entity, std::vector<entt::entity>> add_multibloc
 extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::HealingSpringBuildingMultiBlock, Cmp::HealingSpringBuildingSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
 extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::RuinBuildingMultiBlock, Cmp::RuinBuildingSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
 
-} // namespace Game::Factory
+} // namespace Game::Factory::Multiblock
 // clang-format on
 
 #endif // SRC_FACTORY_MULTIBLOCKFACTORY_HPP__

@@ -18,7 +18,7 @@ class SpriteFactory;
 
 } // namespace Game::Sprites
 
-namespace Game::Factory
+namespace Game::Factory::Plant
 {
 //! @brief Remove the components of plant multiblock and segment entities.
 //! Also keeps the scene navmeshes in sync: destroyed segments are removed from the
@@ -30,6 +30,6 @@ namespace Game::Factory
 void remove_plant_mb( entt::registry &reg, entt::entity plant_entt, const PathFinding::SpatialHashGridSharedPtr &npc_navmesh = nullptr,
                       const PathFinding::SpatialHashGridSharedPtr &player_navmesh = nullptr );
 
-} // namespace Game::Factory
+} // namespace Game::Factory::Plant
 
 #endif // SRC_FACTORY_PLANTFACTORY_HPP__

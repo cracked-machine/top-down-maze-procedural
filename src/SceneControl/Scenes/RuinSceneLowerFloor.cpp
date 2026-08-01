@@ -79,7 +79,7 @@ void RuinSceneLowerFloor::on_init()
   level_gen.add_ruin_rune_markers();
   auto max_cobwebs = Sys::PersistSystem::get<Cmp::Persist::RuinMaxCobwebs>( m_reg );
   level_gen.add_lowerfloor_cobwebs( max_cobwebs.get_value(), sf::FloatRect( { 0.f, 0.f }, map_size_pixel ) );
-  m_reserved_navmash = Pathfinding::Factory::create_reserved_navmesh( m_reg );
+  m_reserved_navmash = Factory::Pathfinding::create_reserved_navmesh( m_reg );
   auto init_chance = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenInitChance>( m_reg );
   level_gen.add_ruin_interior_obstacles( init_chance.get_value(), m_reserved_navmash );
 
@@ -105,12 +105,12 @@ void RuinSceneLowerFloor::on_init()
   m_sys.find<Sys::Store::Type::RuinSystem>().reset_player_curse();
 
   // create navmeshes for pathfinding
-  m_generic_npc_navmesh = Pathfinding::Factory::create_npc_navmesh( m_reg );
-  m_open_navmesh = Pathfinding::Factory::create_open_navmesh( m_reg );
+  m_generic_npc_navmesh = Factory::Pathfinding::create_npc_navmesh( m_reg );
+  m_open_navmesh = Factory::Pathfinding::create_open_navmesh( m_reg );
   reinit_navmesh();
 
-  Factory::add_inventory( m_reg, "item.candle" );
-  Particle::Factory::add_flame_for_player_inventory_slot( m_reg );
+  Factory::Player::add_inventory( m_reg, "item.candle" );
+  Factory::Particle::add_flame_for_player_inventory_slot( m_reg );
 
   // Hide the sudden position update/camera pan behind a forced loading screen.
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );

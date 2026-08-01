@@ -120,13 +120,13 @@ void SceneInputRouter::graveyard_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F5 )
       {
         auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
-        Factory::add_player_last_graveyard_pos( reg(), Utils::Player::get_position( reg() ), { 0.f, 0.f } );
+        Factory::Player::add_player_last_graveyard_pos( reg(), Utils::Player::get_position( reg() ), { 0.f, 0.f } );
 
         enqueue( Events::SceneManagerEvent::Type::ENTER_CRYPT );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F6 )
       {
-        Factory::add_player_last_graveyard_pos( reg(), Utils::Player::get_position( reg() ), { 0.f, 0.f } );
+        Factory::Player::add_player_last_graveyard_pos( reg(), Utils::Player::get_position( reg() ), { 0.f, 0.f } );
 
         enqueue( Events::SceneManagerEvent::Type::ENTER_SACREDSPRING );
       }
@@ -135,7 +135,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
         auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
         auto player_pos = Utils::Player::get_position( reg() ).position;
         get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
-        Factory::add_player_last_graveyard_pos( reg(), Utils::Player::get_position( reg() ), { 0.f, 0.f } );
+        Factory::Player::add_player_last_graveyard_pos( reg(), Utils::Player::get_position( reg() ), { 0.f, 0.f } );
 
         enqueue( Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER );
       }

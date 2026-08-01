@@ -50,7 +50,7 @@
 #include <entt/entity/fwd.hpp>
 #include <spdlog/spdlog.h>
 
-namespace Game::Factory
+namespace Game::Factory::Player
 {
 
 void create_player( entt::registry &reg )
@@ -203,4 +203,4 @@ void remove_player_extra_life( entt::registry &reg )
   }
 }
 
-} // namespace Game::Factory
+} // namespace Game::Factory::Player

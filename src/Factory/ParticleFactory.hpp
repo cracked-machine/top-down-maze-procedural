@@ -11,7 +11,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <entt/entity/fwd.hpp>
 
-namespace Game::Particle::Factory
+namespace Game::Factory::Particle
 {
 
 void add_test( entt::registry &reg, Sys::ParticleSystem &psys, const std::string &tag );
@@ -26,6 +26,6 @@ void delete_expired_particle_sprites( entt::registry &reg, const std::string &se
 void update_position( entt::registry &reg, const std::string &search_pattern, sf::Vector2f pos );
 void update_position( entt::registry &reg, Cmp::UUID uuid_cmp, sf::Vector2f pos );
 
-} // namespace Game::Particle::Factory
+} // namespace Game::Factory::Particle
 
 #endif // SRC_FACTORY_PARTICLEFACTORY_HPP__

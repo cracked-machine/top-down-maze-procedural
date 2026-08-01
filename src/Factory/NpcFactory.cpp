@@ -33,7 +33,7 @@
 #include <spdlog/spdlog.h>
 #include <utility>
 
-namespace Game::Factory
+namespace Game::Factory::Npc
 {
 
 void create_npc_container( entt::registry &reg, entt::entity entt, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
@@ -133,13 +133,13 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
     reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
-    Factory::destroy_npc_container( reg, position_entity );
+    Factory::Npc::destroy_npc_container( reg, position_entity );
   }
   else if ( npc_type == "npc.priest" )
   {
     reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
     reg.emplace_or_replace<Cmp::NpcShockwaveTimer>( new_pos_entity );
-    Factory::create_shockwave( reg, new_pos_entity );
+    Factory::Npc::create_shockwave( reg, new_pos_entity );
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
   }
@@ -246,7 +246,7 @@ std::vector<entt::entity> gen_npc_containers( entt::registry &reg, Sprites::Spri
         } );
       // clang-format on
 
-      Factory::create_npc_container( reg, random_entity, random_origin_position, npc_type, rand_npc_tex_idx, 0.f );
+      Factory::Npc::create_npc_container( reg, random_entity, random_origin_position, npc_type, rand_npc_tex_idx, 0.f );
       assigned_entts.push_back( random_entity );
       reserved_navmesh->insert( random_entity, random_origin_position );
     }
@@ -254,4 +254,4 @@ std::vector<entt::entity> gen_npc_containers( entt::registry &reg, Sprites::Spri
   return assigned_entts;
 }
 
-} // namespace Game::Factory
+} // namespace Game::Factory::Npc

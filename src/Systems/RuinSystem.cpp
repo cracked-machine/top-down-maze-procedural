@@ -86,7 +86,7 @@ void RuinSystem::check_entrance_collision()
     auto player_pos = Utils::Player::get_position( reg() ).position;
     get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
 
-    Factory::remove_player_last_graveyard_pos( reg() );
+    Factory::Player::remove_player_last_graveyard_pos( reg() );
     Cmp::Position last_known_pos(
         {
             door_pos_cmp.position.x,
@@ -94,7 +94,7 @@ void RuinSystem::check_entrance_collision()
         },
         Constants::kGridSizePxF );
     SPDLOG_INFO( "Last known graveyard position {}, {}", last_known_pos.position.x, last_known_pos.position.y );
-    Factory::add_player_last_graveyard_pos( reg(), last_known_pos );
+    Factory::Player::add_player_last_graveyard_pos( reg(), last_known_pos );
     break;
   }
 }
@@ -364,7 +364,7 @@ void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
       for ( auto [point, type] : bookshelf_row_candidate )
       {
         auto [ms, idx] = m_sprite_factory.get_random_type_and_texture_index( { type } );
-        Factory::create_bookcase( reg(), point.position(), m_sprite_factory.get_spritesheet_by_type( ms ), idx );
+        Factory::Ruin::create_bookcase( reg(), point.position(), m_sprite_factory.get_spritesheet_by_type( ms ), idx );
       }
 
       // ensure we have one horizontal gap inbetween bookcases
@@ -384,7 +384,7 @@ void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
       auto point = Cmp::RectBounds::scaled( { colpick * gridsize.x, row * gridsize.y }, gridsize, 1 );
       if ( has_collision( point ) or used_cols.contains( colpick ) ) continue;
       auto [ms, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.ruin.bookcase.mid" } );
-      Factory::create_bookcase( reg(), point.position(), m_sprite_factory.get_spritesheet_by_type( ms ), idx );
+      Factory::Ruin::create_bookcase( reg(), point.position(), m_sprite_factory.get_spritesheet_by_type( ms ), idx );
       used_cols.insert( colpick );
       break;
     }
@@ -394,7 +394,7 @@ void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
   int colpick = 8;
   auto point = Cmp::RectBounds::scaled( { colpick * gridsize.x, scene_dimensions.size.y - gridsize.y }, gridsize, 1 );
   auto [ms, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.ruin.bookcase.mid" } );
-  Factory::create_bookcase( reg(), point.position(), m_sprite_factory.get_spritesheet_by_type( ms ), idx );
+  Factory::Ruin::create_bookcase( reg(), point.position(), m_sprite_factory.get_spritesheet_by_type( ms ), idx );
   used_cols.insert( colpick );
 }
 
@@ -456,7 +456,7 @@ bool RuinSystem::check_activate_player_curse( sf::Vector2f scene_dimensions )
       }
       player_curse.active = true; // prevent the active curse from being re-activated
 
-      Factory::create_shadow_hand( m_reg, scene_dimensions, hand_ms );
+      Factory::Ruin::create_shadow_hand( m_reg, scene_dimensions, hand_ms );
       m_curse_activation_future = std::async( std::launch::async, []() { std::this_thread::sleep_for( std::chrono::seconds( 5 ) ); } );
     }
 
@@ -556,7 +556,7 @@ void RuinSystem::create_spiders( sf::FloatRect scene_boundary )
       auto new_spider_entity = reg().create();
       Cmp::Position position_cmp = reg().emplace<Cmp::Position>( new_spider_entity, rnd_pos_cmp.position, rnd_pos_cmp.size );
       [[maybe_unused]] Cmp::ZOrderValue zorder_cmp = reg().emplace<Cmp::ZOrderValue>( new_spider_entity, position_cmp.position.y );
-      Factory::create_npc( reg(), new_spider_entity, "npc.spider" );
+      Factory::Npc::create_npc( reg(), new_spider_entity, "npc.spider" );
     }
   }
 }
@@ -590,7 +590,7 @@ void RuinSystem::check_create_witch( sf::FloatRect scene_boundary )
       auto new_witch_entity = reg().create();
       Cmp::Position position_cmp = reg().emplace<Cmp::Position>( new_witch_entity, rnd_pos_cmp.position, rnd_pos_cmp.size );
       [[maybe_unused]] Cmp::ZOrderValue zorder_cmp = reg().emplace<Cmp::ZOrderValue>( new_witch_entity, position_cmp.position.y );
-      Factory::create_npc( reg(), new_witch_entity, "npc.witch" );
+      Factory::Npc::create_npc( reg(), new_witch_entity, "npc.witch" );
       break;
     }
   }

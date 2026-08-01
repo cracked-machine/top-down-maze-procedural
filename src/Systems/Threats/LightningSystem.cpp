@@ -39,7 +39,7 @@ void LightningSystem::update( sf::Time dt )
   {
     create_lightning_strike( dt );
     auto uuid = Cmp::UUID::generate();
-    Particle::Factory::add_smoke( reg(), "particle.smoke.player", uuid, Utils::Player::get_position( reg() ).getCenter(), 50000 );
+    Factory::Particle::add_smoke( reg(), "particle.smoke.player", uuid, Utils::Player::get_position( reg() ).getCenter(), 50000 );
     trigger_lightning = false;
 
     int lightning_dmg = Sys::PersistSystem::get<Cmp::Persist::LightningDamage>( reg() ).get_value();
@@ -53,11 +53,11 @@ void LightningSystem::update( sf::Time dt )
   }
 
   delete_expired_lightning_strikes();
-  Particle::Factory::delete_expired_particle_sprites( reg(), "particle.smoke.player" );
+  Factory::Particle::delete_expired_particle_sprites( reg(), "particle.smoke.player" );
 
   // update the position so that it follows player
   sf::Vector2f new_pos( Utils::Player::get_position( reg() ).x() + 8.f, Utils::Player::get_position( reg() ).y() );
-  Particle::Factory::update_position( reg(), "particle.smoke.player", new_pos );
+  Factory::Particle::update_position( reg(), "particle.smoke.player", new_pos );
 }
 
 bool LightningSystem::lightning_strike_exists()

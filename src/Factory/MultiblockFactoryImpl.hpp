@@ -14,7 +14,7 @@
 #include <Sprites/SpriteSheet.hpp>
 #include <Utils/Constants.hpp>
 
-namespace Game::Factory
+namespace Game::Factory::Multiblock
 {
 
 namespace detail
@@ -207,8 +207,8 @@ std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments(
   Cmp::Position new_pos_cmp( position, ss.get_sprite_size() );
   reg.emplace_or_replace<Cmp::Position>( mb_entt, new_pos_cmp.position, ss.get_sprite_size() );
   auto uuid = Cmp::UUID::generate();
-  Factory::detail::create_multiblock<MULTIBLOCK>( reg, mb_entt, uuid, new_pos_cmp, ss, ss_index );
-  auto segment_entt_list = Factory::detail::create_multiblock_segments<MULTIBLOCK, MBSEGMENT>( reg, mb_entt, uuid, new_pos_cmp, ss );
+  Multiblock::detail::create_multiblock<MULTIBLOCK>( reg, mb_entt, uuid, new_pos_cmp, ss, ss_index );
+  auto segment_entt_list = Multiblock::detail::create_multiblock_segments<MULTIBLOCK, MBSEGMENT>( reg, mb_entt, uuid, new_pos_cmp, ss );
 
   for ( auto [mb_entt, mb_cmp, mb_zorder_cmp] : reg.view<MULTIBLOCK, Cmp::ZOrderValue>().each() )
   {
@@ -231,6 +231,6 @@ std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments(
   return { mb_entt, segment_entt_list };
 }
 
-} // namespace Game::Factory
+} // namespace Game::Factory::Multiblock
 
 #endif // SRC_FACTORY_MULTIBLOCKFACTORYIMPL_HPP__

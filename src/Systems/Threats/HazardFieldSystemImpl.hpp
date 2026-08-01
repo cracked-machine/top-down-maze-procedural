@@ -60,7 +60,7 @@ sf::Vector2f HazardFieldSystem<HazardType>::init_hazard_field()
       Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC, Cmp::ReservedPosition>(), seed );
   if ( random_entity == entt::null ) { return {}; }
 
-  Factory::remove_obstacle( reg(), random_entity, Factory::DeleteExtras::Yes );
+  Factory::Obstacle::remove_obstacle( reg(), random_entity, Factory::Obstacle::DeleteExtras::Yes );
   reg().template emplace<HazardType>( random_entity );
   // clang-format off
   reg().template emplace_or_replace<Cmp::AnimData>( random_entity, Cmp::AnimData::Config{  
@@ -110,7 +110,7 @@ sf::Vector2f HazardFieldSystem<HazardType>::update_hazard_field()
     // add new hazard cell
     for ( auto [obstacle_entity, obstacle_cmp, obst_pos_cmp, obst_anim_cmp] : obstacle_view.each() )
     {
-      // only search for main obstacles, cap obstacles are removed implicitly by Factory::remove_obstacle()
+      // only search for main obstacles, cap obstacles are removed implicitly by Factory::Obstacle::remove_obstacle()
       if ( not obst_anim_cmp.m_sprite_type.contains( ".main" ) ) continue;
       if ( not hazard_hitbox.findIntersection( obst_pos_cmp ) ) continue;
       SPDLOG_DEBUG( "Hazard intersected with object {}", static_cast<uint32_t>( obstacle_entity ) );
@@ -122,7 +122,7 @@ sf::Vector2f HazardFieldSystem<HazardType>::update_hazard_field()
       SPDLOG_DEBUG( "hazard_pick:{}", hazard_pick );
       if ( hazard_pick == 0 )
       {
-        Factory::remove_obstacle( reg(), obstacle_entity, Factory::DeleteExtras::Yes );
+        Factory::Obstacle::remove_obstacle( reg(), obstacle_entity, Factory::Obstacle::DeleteExtras::Yes );
         reg().template emplace_or_replace<HazardType>( obstacle_entity );
         // clang-format off
         reg().template emplace_or_replace<Cmp::AnimData>( obstacle_entity, Cmp::AnimData::Config{  
@@ -220,7 +220,7 @@ void HazardFieldSystem<HazardType>::check_npc_hazard_field_collision()
     {
       if ( not npc_pos_cmp.findIntersection( hazard_pos_cmp ) ) continue;
 
-      auto loot_entity = Factory::destroy_npc( reg(), npc_entt );
+      auto loot_entity = Factory::Npc::destroy_npc( reg(), npc_entt );
       if ( loot_entity != entt::null )
       {
         SPDLOG_DEBUG( "Dropped RELIC_DROP loot at NPC death position." );

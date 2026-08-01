@@ -7,7 +7,7 @@
 #include <Sprites/SpriteSheet.hpp>
 #include <Utils/Random.hpp>
 
-namespace Game::Factory
+namespace Game::Factory::Loot
 {
 
 void create_loot_container( entt::registry &reg, entt::entity entt, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
@@ -56,7 +56,7 @@ std::vector<entt::entity> gen_loot_containers( entt::registry &reg, Sprites::Spr
       float zorder = sprite_factory.get_sprite_size_by_type( "sprite.graveyard.pots" ).y;
 
       Cmp::RandomInt pot_picker( 0, 2 );
-      Factory::create_loot_container( reg, random_entity, random_origin_position, "sprite.graveyard.pots", pot_picker.gen(), zorder );
+      Factory::Loot::create_loot_container( reg, random_entity, random_origin_position, "sprite.graveyard.pots", pot_picker.gen(), zorder );
       assigned_entts.push_back( random_entity );
       reserved_navmesh->insert( random_entity, random_origin_position );
     }
@@ -65,4 +65,4 @@ std::vector<entt::entity> gen_loot_containers( entt::registry &reg, Sprites::Spr
   return assigned_entts;
 }
 
-} // namespace Game::Factory
+} // namespace Game::Factory::Loot

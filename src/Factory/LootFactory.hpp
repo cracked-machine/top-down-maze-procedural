@@ -18,7 +18,7 @@ class SpriteFactory;
 
 } // namespace Game::Sprites
 
-namespace Game::Factory
+namespace Game::Factory::Loot
 {
 
 void create_loot_container( entt::registry &registry, entt::entity entt, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
@@ -94,6 +94,6 @@ void destroy_loot_drop( entt::registry &registry, entt::entity loot_entity );
 std::vector<entt::entity> gen_loot_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size,
                                                PathFinding::SpatialHashGridSharedPtr reserved_navmesh );
 
-} // namespace Game::Factory
+} // namespace Game::Factory::Loot
 
 #endif // SRC_FACTORY_LOOTFACTORY_HPP__

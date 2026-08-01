@@ -20,7 +20,7 @@ class SpriteFactory;
 
 #include <entt/entity/fwd.hpp>
 
-namespace Game::Crypt::Factory
+namespace Game::Factory::Crypt
 {
 
 entt::entity create_crypt_exit( entt::registry &reg, sf::Vector2f spawn_pos_px );
@@ -39,6 +39,6 @@ void destroy_crypt_chest( entt::registry &reg, entt::entity entt );
 void create_crypt_shuffle_timer( entt::registry &reg, float threshold );
 void destroy_crypt_shuffle_timer( entt::registry &reg );
 
-} // namespace Game::Crypt::Factory
+} // namespace Game::Factory::Crypt
 
 #endif // SRC_FACTORY_CRYPTFACTORY_HPP__

@@ -104,7 +104,7 @@ void ShopSystem::buy_shop_item( uint8_t item_idx )
       get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
 
       // add new carryitem into player inventory
-      Factory::add_inventory( reg(), item );
+      Factory::Player::add_inventory( reg(), item );
 
       // delete item from shop inventory
       auto &slots = inventory_cmp.m_slots;

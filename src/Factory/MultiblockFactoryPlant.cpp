@@ -1,6 +1,6 @@
 #include <Factory/MultiblockFactoryImpl.hpp>
 
-namespace Game::Factory
+namespace Game::Factory::Multiblock
 {
 
 namespace detail
@@ -20,4 +20,4 @@ template std::vector<entt::entity> create_multiblock_segments<Cmp::PlantMultiBlo
 template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
 // clang-format on
 
-} // namespace Game::Factory
+} // namespace Game::Factory::Multiblock

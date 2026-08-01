@@ -98,7 +98,7 @@ void GraveyardScene::on_init()
 
   // create the player, optionally increment the level counter
   auto player_view = m_reg.view<Cmp::PlayerCharacter>();
-  if ( player_view.size() == 0 ) { Factory::create_player( m_reg ); }
+  if ( player_view.size() == 0 ) { Factory::Player::create_player( m_reg ); }
   else
   {
     auto &level_depth_cmp = Utils::Player::get_level_depth( m_reg );
@@ -119,9 +119,9 @@ void GraveyardScene::on_init()
   level_gen.build_scene_from_data( *m_scene_data );
   m_sys.find<Sys::Store::Type::ExitSystem>().create_exit();
   level_gen.gen_graveyard_exterior_multiblocks();
-  m_reserved_navmash = Pathfinding::Factory::create_reserved_navmesh( m_reg );
-  Factory::gen_loot_containers( m_reg, m_sprite_factory, map_size_grid, m_reserved_navmash );
-  Factory::gen_npc_containers( m_reg, m_sprite_factory, map_size_grid, m_reserved_navmash );
+  m_reserved_navmash = Factory::Pathfinding::create_reserved_navmesh( m_reg );
+  Factory::Loot::gen_loot_containers( m_reg, m_sprite_factory, map_size_grid, m_reserved_navmash );
+  Factory::Npc::gen_npc_containers( m_reg, m_sprite_factory, map_size_grid, m_reserved_navmash );
   level_gen.gen_random_plants( map_size_grid, m_reserved_navmash );
 
   auto init_chance = Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenInitChance>( m_reg );
@@ -142,10 +142,10 @@ void GraveyardScene::on_init()
   //                  Sys::ProcGen::DLASystem::SpawnShape::Ellipse );
 
   // create navmeshes for pathfinding
-  m_generic_npc_navmesh = Pathfinding::Factory::create_npc_navmesh( m_reg );
-  m_ghost_navmesh = Pathfinding::Factory::create_ghost_navmesh( m_reg );
-  m_player_navmesh = Pathfinding::Factory::create_player_navmesh( m_reg );
-  m_open_navmesh = Pathfinding::Factory::create_open_navmesh( m_reg );
+  m_generic_npc_navmesh = Factory::Pathfinding::create_npc_navmesh( m_reg );
+  m_ghost_navmesh = Factory::Pathfinding::create_ghost_navmesh( m_reg );
+  m_player_navmesh = Factory::Pathfinding::create_player_navmesh( m_reg );
+  m_open_navmesh = Factory::Pathfinding::create_open_navmesh( m_reg );
   reinit_navmesh();
 
   // create floor background
@@ -165,19 +165,19 @@ void GraveyardScene::on_init()
   m_sys.find<Sys::Store::Type::WormholeSystem>().spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
 
   // auto &particle_system = m_sys.find<Sys::Store::Type::ParticleSystem>();
-  // Particle::Factory::add_test( m_reg, particle_system, "GraveyardParticleTest" );
-  // Particle::Factory::add_flame( m_reg, particle_system, "player.candle", Utils::Player::get_position( m_reg ).getCenter() );
-  // Particle::Factory::add_flame( m_reg, particle_system, "player.candle", sf::Vector2f{ 900.0, 900.0 } );
-  // Particle::Factory::add_smoke( m_reg, particle_system, "GraveyardParticleTest" );
-  // Particle::Factory::add_shockwave( m_reg, particle_system, "GraveyardParticleTest" );
+  // Factory::Particle::add_test( m_reg, particle_system, "GraveyardParticleTest" );
+  // Factory::Particle::add_flame( m_reg, particle_system, "player.candle", Utils::Player::get_position( m_reg ).getCenter() );
+  // Factory::Particle::add_flame( m_reg, particle_system, "player.candle", sf::Vector2f{ 900.0, 900.0 } );
+  // Factory::Particle::add_smoke( m_reg, particle_system, "GraveyardParticleTest" );
+  // Factory::Particle::add_shockwave( m_reg, particle_system, "GraveyardParticleTest" );
   // auto uuid = Cmp::UUID::generate();
-  // Particle::Factory::add_shockwave( m_reg, "GraveyardParticleTest", uuid, Utils::Player::get_position( m_reg ).getCenter(), 50000 );
+  // Factory::Particle::add_shockwave( m_reg, "GraveyardParticleTest", uuid, Utils::Player::get_position( m_reg ).getCenter(), 50000 );
 
   // add flame particle sprites for any candle items in the new game world. Use the Candle item UUID to initialise the ParticleSprite.
   for ( auto [candle_entt, candle_cmp, candle_pos, uuid_cmp] : m_reg.view<Cmp::WorldItem, Cmp::Position, Cmp::UUID>().each() )
   {
     if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
-    Particle::Factory::add_flame( m_reg, "particle.candle", uuid_cmp, candle_pos.getCenter(), Utils::Player::get_position( m_reg ).y() - 1 );
+    Factory::Particle::add_flame( m_reg, "particle.candle", uuid_cmp, candle_pos.getCenter(), Utils::Player::get_position( m_reg ).y() - 1 );
   }
 }
 

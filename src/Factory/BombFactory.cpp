@@ -15,7 +15,7 @@
 
 #include <Systems/BaseSystem.hpp>
 
-namespace Game::Factory
+namespace Game::Factory::Bomb
 {
 
 entt::entity create_armed( entt::registry &reg, entt::entity entity, Cmp::Armed::EpiCenter epi_center, int sequence, int zorder )
@@ -79,4 +79,4 @@ void add_detonated( entt::registry &reg, entt::entity armed_entity, Cmp::Positio
   reg.emplace_or_replace<Cmp::DestroyedObstacle>( armed_entity );
 }
 
-} // namespace Game::Factory
+} // namespace Game::Factory::Bomb

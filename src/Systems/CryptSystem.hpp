@@ -80,7 +80,7 @@ public:
   void check_chest_activation( Events::PlayerActionEvent::GameActions action );
 
   //! @brief Restores border Cmp::Obstacles to Cmp::CryptRoomEnd, Cmp::CryptRoomStart and Cmp::CryptRoomOpen areas
-  void create_room_borders( const Factory::UUIDEntityMap &uuid_map );
+  void create_room_borders( const Factory::Obstacle::UUIDEntityMap &uuid_map );
 
   void on_pause() override {}
   void on_resume() override {}
@@ -124,7 +124,7 @@ private:
   void close_open_rooms( const Cmp::Position &player_pos_cmp );
 
   //! @brief Restores missing Cmp::Obstacles components to Cmp::CryptRoomClosed areas
-  void fill_closed_rooms( const Factory::UUIDEntityMap &uuid_map );
+  void fill_closed_rooms( const Factory::Obstacle::UUIDEntityMap &uuid_map );
 
   //! @brief Change selected Cmp::CryptRoomClosed to Cmp::CryptRoomOpen.
   //! @param selected_rooms Set of entity ids to open
@@ -135,7 +135,7 @@ private:
   void open_all_rooms();
 
   //! @brief Removes Cmp::Obstacles from Cmp::CryptRoomOpen areas
-  void empty_open_rooms( const Factory::UUIDEntityMap &uuid_map );
+  void empty_open_rooms( const Factory::Obstacle::UUIDEntityMap &uuid_map );
 
   std::vector<entt::entity> get_available_room_positions();
   //! @brief Adds Cmp::Lever components to Cmp::CryptRoomOpen areas

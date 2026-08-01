@@ -142,7 +142,7 @@ void ActionSystem::check_player_smash_pot()
           wear_level.m_level -= Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
           SPDLOG_DEBUG( "Player wear level decreased to {} after digging!", weapons_level.m_level );
         }
-        Factory::destroy_loot_container( reg(), loot_entity );
+        Factory::Loot::destroy_loot_container( reg(), loot_entity );
       }
     }
   }
@@ -267,8 +267,8 @@ void ActionSystem::check_player_dig_obstacle_collision()
         m_sound_bank.get_effect( "pickaxe_final" ).play();
 
         // replace the obstacle with a detonated component
-        Factory::remove_obstacle( reg(), obstacle_entt, Factory::DeleteExtras::Yes );
-        Factory::add_detonated( reg(), obstacle_entt, obstacle_pos_cmp );
+        Factory::Obstacle::remove_obstacle( reg(), obstacle_entt, Factory::Obstacle::DeleteExtras::Yes );
+        Factory::Bomb::add_detonated( reg(), obstacle_entt, obstacle_pos_cmp );
 
         // add the position to the spatial grid so it can be used in pathfinding
         if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock() )
@@ -361,7 +361,7 @@ void ActionSystem::check_player_dig_plant_collision()
         }
         else if ( inventory_slot.m_item.sprite_type == "sprite.item.axe" )
         {
-          Factory::remove_plant_mb( reg(), plant_entt, m_npc_navmesh.lock(), m_player_navmesh.lock() );
+          Factory::Plant::remove_plant_mb( reg(), plant_entt, m_npc_navmesh.lock(), m_player_navmesh.lock() );
         }
       }
       get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG, plant_entt ) );

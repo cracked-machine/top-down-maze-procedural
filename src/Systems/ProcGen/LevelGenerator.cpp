@@ -98,7 +98,7 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
     if ( tile >= scene_data.wall_tileset().first_gid )
     {
       // get the relative index using the offset from the json data
-      Factory::add_wall_entity( reg(), new_pos, wall_ms, tile - scene_data.wall_tileset().first_gid );
+      Factory::Wall::add_wall_entity( reg(), new_pos, wall_ms, tile - scene_data.wall_tileset().first_gid );
     }
   }
 
@@ -111,25 +111,25 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
     if ( tile == scene_data.void_tile_id() )
     {
       Cmp::Position new_pos_cmp( new_pos, Constants::kGridSizePxF );
-      auto entt = Factory::create_void_pos( reg(), new_pos_cmp );
+      auto entt = Factory::Obstacle::create_void_pos( reg(), new_pos_cmp );
       m_void_sm->insert( entt, new_pos_cmp );
     }
-    else if ( tile == scene_data.open_tile_id() ) { Factory::create_world_pos( reg(), new_pos ); }
+    else if ( tile == scene_data.open_tile_id() ) { Factory::Obstacle::create_world_pos( reg(), new_pos ); }
     else if ( tile == scene_data.spawn_tile_id() )
     {
-      auto entity = Factory::create_world_pos( reg(), new_pos );
-      Factory::add_spawn_area( reg(), entity, m_sprite_factory, new_pos.y - 16.0f );
+      auto entity = Factory::Obstacle::create_world_pos( reg(), new_pos );
+      Factory::Player::add_spawn_area( reg(), entity, m_sprite_factory, new_pos.y - 16.0f );
     }
-    else if ( tile == scene_data.exit_tile_id() ) { Crypt::Factory::create_crypt_exit( reg(), new_pos ); }
-    else if ( tile == scene_data.reserved_tile_id() ) { Factory::add_reservedposition( reg(), new_pos ); }
+    else if ( tile == scene_data.exit_tile_id() ) { Factory::Crypt::create_crypt_exit( reg(), new_pos ); }
+    else if ( tile == scene_data.reserved_tile_id() ) { Factory::Wall::add_reservedposition( reg(), new_pos ); }
   }
 
   // Solid Layer
   for ( const auto &solid : scene_data.solid_objectlayer() )
   {
-    Factory::add_solid_player( reg(), solid );
-    Factory::add_solid_npc( reg(), solid );
-    Factory::add_no_move_dest( reg(), solid );
+    Factory::Wall::add_solid_player( reg(), solid );
+    Factory::Wall::add_solid_npc( reg(), solid );
+    Factory::Wall::add_no_move_dest( reg(), solid );
   }
 
   // Multiblock layer
@@ -138,41 +138,41 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
     const auto &ms = m_sprite_factory.get_spritesheet_by_type( ms_type );
     if ( ms_type == "sprite.graveyard.healingspring" )
     {
-      Factory::add_multiblock_with_segments<Cmp::HealingSpringMultiBlock, Cmp::HealingSpringSegment>( reg(), pos, ms );
+      Factory::Multiblock::add_multiblock_with_segments<Cmp::HealingSpringMultiBlock, Cmp::HealingSpringSegment>( reg(), pos, ms );
     }
     else if ( ms_type == "sprite.crypt.objective.closed" )
     {
-      Factory::add_multiblock_with_segments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>( reg(), pos, ms );
+      Factory::Multiblock::add_multiblock_with_segments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>( reg(), pos, ms );
     }
     else if ( ms_type == "sprite.crypt.altar.inactive" )
     {
-      Factory::add_multiblock_with_segments<Cmp::AltarMultiBlock, Cmp::AltarSegment>( reg(), pos, ms );
+      Factory::Multiblock::add_multiblock_with_segments<Cmp::AltarMultiBlock, Cmp::AltarSegment>( reg(), pos, ms );
     }
     else if ( ms_type == "npc.drknox" )
     {
       auto npc_entt = reg().create();
       reg().emplace_or_replace<Cmp::Position>( npc_entt, pos, Constants::kGridSizePxF );
-      Factory::create_npc( m_reg, npc_entt, ms_type );
+      Factory::Npc::create_npc( m_reg, npc_entt, ms_type );
     }
     else if ( ms_type == "sprite.ruin.stairs.up" )
     {
-      Factory::add_multiblock_with_segments<Cmp::RuinStairsLowerMultiBlock, Cmp::RuinStairsSegment>( reg(), pos, ms );
+      Factory::Multiblock::add_multiblock_with_segments<Cmp::RuinStairsLowerMultiBlock, Cmp::RuinStairsSegment>( reg(), pos, ms );
     }
     else if ( ms_type == "sprite.ruin.stairs.down" )
     {
-      Factory::add_multiblock_with_segments<Cmp::RuinStairsUpperMultiBlock, Cmp::RuinStairsSegment>( reg(), pos, ms );
+      Factory::Multiblock::add_multiblock_with_segments<Cmp::RuinStairsUpperMultiBlock, Cmp::RuinStairsSegment>( reg(), pos, ms );
     }
     else if ( ms_type == "sprite.ruin.stairs.balustrade" )
     {
-      Factory::add_multiblock_with_segments<Cmp::RuinStairsBalustradeMultiBlock, Cmp::RuinStairsSegment>( reg(), pos, ms );
+      Factory::Multiblock::add_multiblock_with_segments<Cmp::RuinStairsBalustradeMultiBlock, Cmp::RuinStairsSegment>( reg(), pos, ms );
     }
     else if ( ms_type == "sprite.ruin.stairs.gate" )
     {
-      Factory::add_multiblock_with_segments<Cmp::RuinStairsGateMultiBlock, Cmp::RuinGateSegment>( reg(), pos, ms );
+      Factory::Multiblock::add_multiblock_with_segments<Cmp::RuinStairsGateMultiBlock, Cmp::RuinGateSegment>( reg(), pos, ms );
     }
     else if ( ms_type == "sprite.ruin.hex" )
     {
-      Factory::add_multiblock_with_segments<Cmp::RuinHexagramMultiBlock, Cmp::RuinHexagramSegment>( m_reg, pos, ms );
+      Factory::Multiblock::add_multiblock_with_segments<Cmp::RuinHexagramMultiBlock, Cmp::RuinHexagramSegment>( m_reg, pos, ms );
     }
     else if ( ms_type.contains( "item." ) )
     {
@@ -198,7 +198,7 @@ void LevelGenerator::add_graveyard_exterior_obstacles( float init_chance, PathFi
   {
     if ( Cmp::RandomFloat{ 0.f, 1.f }.gen() < init_chance )
     {
-      if ( Factory::add_obstacle( reg(), entity, reserved_navmesh ) )
+      if ( Factory::Obstacle::add_obstacle( reg(), entity, reserved_navmesh ) )
       {
         m_obstacle_sm->insert( entity, pos_cmp );
         reserved_navmesh->insert( entity, pos_cmp );
@@ -218,13 +218,13 @@ void LevelGenerator::decorate_graveyard_exterior_obstacles()
     auto uuid = Cmp::UUID::generate();
     auto [_, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.wall.int.main" } );
 
-    Factory::decorate_obstacle( reg(), obstacle_entt, obstacle_pos_cmp, ss_main, rand_obst_tex_idx );
+    Factory::Obstacle::decorate_obstacle( reg(), obstacle_entt, obstacle_pos_cmp, ss_main, rand_obst_tex_idx );
     reg().emplace_or_replace<Cmp::UUID>( obstacle_entt, uuid );
 
     auto cap_entt = reg().create();
     Cmp::Position cap_position( { obstacle_pos_cmp.x(), obstacle_pos_cmp.y() - obstacle_pos_cmp.size.y }, obstacle_pos_cmp.size );
     reg().emplace_or_replace<Cmp::Position>( cap_entt, cap_position );
-    Factory::decorate_obstacle( reg(), cap_entt, cap_position, ss_cap, rand_obst_tex_idx, obstacle_pos_cmp.y() + 1, false );
+    Factory::Obstacle::decorate_obstacle( reg(), cap_entt, cap_position, ss_cap, rand_obst_tex_idx, obstacle_pos_cmp.y() + 1, false );
     reg().emplace_or_replace<Cmp::UUID>( cap_entt, uuid );
   }
 }
@@ -238,7 +238,7 @@ void LevelGenerator::add_ruin_interior_obstacles( float init_chance, PathFinding
     {
       if ( Cmp::RandomFloat{ 0.f, 1.f }.gen() < init_chance )
       {
-        Factory::add_obstacle( reg(), entity );
+        Factory::Obstacle::add_obstacle( reg(), entity );
         m_obstacle_sm->insert( entity, pos_cmp );
         reserved_navmesh->insert( entity, pos_cmp );
       }
@@ -257,14 +257,14 @@ void LevelGenerator::decorate_ruin_interior_obstacles()
   for ( auto [obstacle_entt, obstacle_cmp, obstacle_pos_cmp] : obstacle_view.each() )
   {
     auto uuid = Cmp::UUID::generate();
-    Factory::decorate_obstacle( reg(), obstacle_entt, obstacle_pos_cmp, ss_main, ss_main_idx );
+    Factory::Obstacle::decorate_obstacle( reg(), obstacle_entt, obstacle_pos_cmp, ss_main, ss_main_idx );
     reg().emplace_or_replace<Cmp::UUID>( obstacle_entt, uuid );
     reg().emplace_or_replace<Cmp::Moveable>( obstacle_entt );
 
     auto cap_entt = reg().create();
     Cmp::Position cap_position( { obstacle_pos_cmp.x(), obstacle_pos_cmp.y() - obstacle_pos_cmp.size.y }, obstacle_pos_cmp.size );
     reg().emplace_or_replace<Cmp::Position>( cap_entt, cap_position );
-    Factory::decorate_obstacle( reg(), cap_entt, cap_position, ss_cap, ss_cap_idx, obstacle_pos_cmp.y(), false );
+    Factory::Obstacle::decorate_obstacle( reg(), cap_entt, cap_position, ss_cap, ss_cap_idx, obstacle_pos_cmp.y(), false );
     reg().emplace_or_replace<Cmp::UUID>( cap_entt, uuid );
   }
 }
@@ -278,7 +278,7 @@ void LevelGenerator::add_ruin_rune_markers()
     reg().emplace_or_replace<Cmp::ReservedPosition>( rnd_entt );
     auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.ruin.runemarking.inactive" } );
     float zorder = m_sprite_factory.get_spritesheet_by_type( "sprite.ruin.runemarking.inactive" ).get_zorder( 0 );
-    auto rune_entt = Factory::create_rune_marker( reg(), rnd_pos, zorder, idx );
+    auto rune_entt = Factory::Ruin::create_rune_marker( reg(), rnd_pos, zorder, idx );
 
     SPDLOG_INFO( "Added rune to {},{}", rnd_pos.x(), rnd_pos.y() );
 
@@ -309,7 +309,7 @@ void LevelGenerator::add_lowerfloor_cobwebs( int num_cobwebs, sf::FloatRect scen
 
     if ( has_collision( Cmp::RectBounds::scaled( { rnd_pos.position }, gridsize, 1 ) ) ) continue;
     auto [ms, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.ruin.cobweb" } );
-    Factory::create_cobweb( reg(), rnd_entt, rnd_pos.position, m_sprite_factory.get_spritesheet_by_type( ms ), idx );
+    Factory::Ruin::create_cobweb( reg(), rnd_entt, rnd_pos.position, m_sprite_factory.get_spritesheet_by_type( ms ), idx );
     m_non_obstacle_sm->insert( rnd_entt, rnd_pos );
   }
 }
@@ -348,7 +348,7 @@ void LevelGenerator::gen_graveyard_exterior_multiblocks()
       const auto &spritesheet = m_sprite_factory.get_spritesheet_by_type( sprite_metatype );
       if ( auto pos = find_spawn_pos( spritesheet ) )
       {
-        Factory::add_multiblock_with_segments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( reg(), pos->position, spritesheet, unused_index );
+        Factory::Multiblock::add_multiblock_with_segments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( reg(), pos->position, spritesheet, unused_index );
       }
     }
   }
@@ -359,7 +359,7 @@ void LevelGenerator::gen_graveyard_exterior_multiblocks()
   {
     if ( auto pos = find_spawn_pos( altar_spritesheet ) )
     {
-      Factory::add_multiblock_with_segments<Cmp::AltarMultiBlock, Cmp::AltarSegment>( reg(), pos->position, altar_spritesheet );
+      Factory::Multiblock::add_multiblock_with_segments<Cmp::AltarMultiBlock, Cmp::AltarSegment>( reg(), pos->position, altar_spritesheet );
     }
   }
 
@@ -369,7 +369,7 @@ void LevelGenerator::gen_graveyard_exterior_multiblocks()
   {
     if ( auto pos = find_spawn_pos( crypt_spritesheet ) )
     {
-      Factory::add_multiblock_with_segments<Cmp::CryptBuildingMultiBlock, Cmp::CryptBuildingSegment>( reg(), pos->position, crypt_spritesheet );
+      Factory::Multiblock::add_multiblock_with_segments<Cmp::CryptBuildingMultiBlock, Cmp::CryptBuildingSegment>( reg(), pos->position, crypt_spritesheet );
       SPDLOG_INFO( "Added {} to {},{}", crypt_spritesheet.get_sprite_type(), pos->position.x, pos->position.y );
     }
   }
@@ -379,7 +379,7 @@ void LevelGenerator::gen_graveyard_exterior_multiblocks()
   {
     if ( auto pos = find_spawn_pos( healingspring_spritesheet ) )
     {
-      Factory::add_multiblock_with_segments<Cmp::HealingSpringBuildingMultiBlock, Cmp::HealingSpringBuildingSegment>( reg(), pos->position,
+      Factory::Multiblock::add_multiblock_with_segments<Cmp::HealingSpringBuildingMultiBlock, Cmp::HealingSpringBuildingSegment>( reg(), pos->position,
                                                                                                                       healingspring_spritesheet );
       SPDLOG_INFO( "Added {} to {},{}", healingspring_spritesheet.get_sprite_type(), pos->position.x, pos->position.y );
     }
@@ -390,7 +390,7 @@ void LevelGenerator::gen_graveyard_exterior_multiblocks()
   {
     if ( auto pos = find_spawn_pos( ruin_spritesheet ) )
     {
-      Factory::add_multiblock_with_segments<Cmp::RuinBuildingMultiBlock, Cmp::RuinBuildingSegment>( reg(), pos->position, ruin_spritesheet );
+      Factory::Multiblock::add_multiblock_with_segments<Cmp::RuinBuildingMultiBlock, Cmp::RuinBuildingSegment>( reg(), pos->position, ruin_spritesheet );
       SPDLOG_INFO( "Added {} to {},{}", ruin_spritesheet.get_sprite_type(), pos->position.x, pos->position.y );
     }
   }
@@ -514,7 +514,7 @@ std::vector<entt::entity> LevelGenerator::gen_random_plants( sf::Vector2u map_gr
       if ( reserved_navmesh->at( random_pos ).empty() )
       {
         // now create the plant at a new entt
-        auto [mb_entt, _] = Factory::add_multiblock_with_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>(
+        auto [mb_entt, _] = Factory::Multiblock::add_multiblock_with_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>(
             reg(), random_pos.position, m_sprite_factory.get_spritesheet_by_type( rand_plant_type ) );
         SPDLOG_DEBUG( "Created plant at {},{}", random_pos.position.x, random_pos.position.y );
         assigned_entts.push_back( random_entity );

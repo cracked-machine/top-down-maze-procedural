@@ -85,7 +85,7 @@ void LootSystem::check_loot_collision()
       // pc_health_cmp.health = std::min( pc_health_cmp.health + health_bonus.get_value(), 100 );
       Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ health_bonus.get_value() }, {}, {}, {}, {}, {} } );
       m_sound_bank.get_effect( "get_loot" ).play();
-      Factory::destroy_loot_drop( reg(), effect.loot_entity );
+      Factory::Loot::destroy_loot_drop( reg(), effect.loot_entity );
     }
     else if ( effect.type == "sprite.graveyard.loot.repair" )
     {
@@ -102,7 +102,7 @@ void LootSystem::check_loot_collision()
             // increase weapon level by 50, up to max level 100
             wear_level_cmp->m_level = std::clamp( wear_level_cmp->m_level + 50.f, 0.f, 100.f );
             m_sound_bank.get_effect( "get_loot" ).play();
-            Factory::destroy_loot_drop( reg(), effect.loot_entity );
+            Factory::Loot::destroy_loot_drop( reg(), effect.loot_entity );
           }
         }
       }
@@ -111,7 +111,7 @@ void LootSystem::check_loot_collision()
     {
       blast_radius.value = std::clamp( blast_radius.value + 1, 0, 5 );
       m_sound_bank.get_effect( "get_loot" ).play();
-      Factory::destroy_loot_drop( reg(), effect.loot_entity );
+      Factory::Loot::destroy_loot_drop( reg(), effect.loot_entity );
 
       // signal UI to flash
       auto flash_entt = reg().create();
@@ -122,7 +122,7 @@ void LootSystem::check_loot_collision()
       auto &pc_cadaver_count = reg().get<Cmp::PlayerCadaverCount>( effect.player_entity );
       pc_cadaver_count.increment_count( 1 );
       m_sound_bank.get_effect( "get_loot" ).play();
-      Factory::destroy_loot_drop( reg(), effect.loot_entity );
+      Factory::Loot::destroy_loot_drop( reg(), effect.loot_entity );
       m_sound_bank.get_effect( "secret" ).play();
 
       // signal UI to flash
@@ -138,7 +138,7 @@ void LootSystem::check_loot_collision()
       auto &wealth_cmp = reg().get<Cmp::PlayerWealth>( effect.player_entity );
       wealth_cmp.wealth += 1;
       m_sound_bank.get_effect( "get_loot" ).play();
-      Factory::destroy_loot_drop( reg(), effect.loot_entity );
+      Factory::Loot::destroy_loot_drop( reg(), effect.loot_entity );
     }
     else
     {

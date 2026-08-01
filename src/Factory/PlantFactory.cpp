@@ -20,7 +20,7 @@
 #include <entt/entity/registry.hpp>
 #include <vector>
 
-namespace Game::Factory
+namespace Game::Factory::Plant
 {
 
 void remove_plant_mb( entt::registry &reg, entt::entity plant_entt, const PathFinding::SpatialHashGridSharedPtr &npc_navmesh,
@@ -72,4 +72,4 @@ void remove_plant_mb( entt::registry &reg, entt::entity plant_entt, const PathFi
   if ( reg.valid( plant_entt ) ) reg.destroy( plant_entt );
 }
 
-} // namespace Game::Factory
+} // namespace Game::Factory::Plant

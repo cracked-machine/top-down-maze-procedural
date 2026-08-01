@@ -77,9 +77,9 @@ void ExitSystem::create_exit()
   }
 
   // Remove the existing wall obstacle first
-  Factory::remove_obstacle( reg(), selected_entity, Factory::DeleteExtras::Yes );
+  Factory::Obstacle::remove_obstacle( reg(), selected_entity, Factory::Obstacle::DeleteExtras::Yes );
 
-  Factory::add_multiblock_with_segments<Cmp::GraveExitMultiBlock, Cmp::GraveExitSegment>( reg(), selected_pos_cmp.position, kGraveExitSpritesheet );
+  Factory::Multiblock::add_multiblock_with_segments<Cmp::GraveExitMultiBlock, Cmp::GraveExitSegment>( reg(), selected_pos_cmp.position, kGraveExitSpritesheet );
   SPDLOG_INFO( "Exit spawned at position ({}, {})", selected_pos_cmp.position.x, selected_pos_cmp.position.y );
 }
 
@@ -107,12 +107,12 @@ void ExitSystem::unlock_exit()
     {
       if ( not exit_pos_cmp.findIntersection( exit_mb_cmp ) ) continue;
       anim_cmp.m_sprite_type = "sprite.graveyard.exit.unlocked";
-      Factory::detail::update_segments<Cmp::GraveExitMultiBlock, Cmp::GraveExitSegment>(
+      Factory::Multiblock::detail::update_segments<Cmp::GraveExitMultiBlock, Cmp::GraveExitSegment>(
           reg(), m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.exit.unlocked" ), exit_mb_entt, exit_mb_cmp );
     }
 
     if ( m_sound_bank.get_effect( "secret" ).getStatus() == sf::Sound::Status::Stopped ) m_sound_bank.get_effect( "secret" ).play();
-    Factory::destroy_inventory( reg(), "sprite.item.exitkey" );
+    Factory::Player::destroy_inventory( reg(), "sprite.item.exitkey" );
   }
 }
 
@@ -148,7 +148,7 @@ void ExitSystem::check_exit_collision()
       SPDLOG_INFO( "Player reached the exit zone!" );
       Utils::get_system_cmp( reg() ).level_complete = true;
       m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::LEVEL_COMPLETE );
-      Factory::remove_player_last_graveyard_pos( reg() );
+      Factory::Player::remove_player_last_graveyard_pos( reg() );
     }
   }
 }

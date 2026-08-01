@@ -14,7 +14,7 @@
 
 #include <entt/entity/registry.hpp>
 
-namespace Game::Factory
+namespace Game::Factory::Wall
 {
 
 void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, const Sprites::SpriteSheet &ms, std::size_t sprite_index )
@@ -83,4 +83,4 @@ void add_no_move_dest( entt::registry &reg, sf::FloatRect rect )
   }
 }
 
-} // namespace Game::Factory
+} // namespace Game::Factory::Wall

@@ -21,7 +21,7 @@
 
 #include <entt/entity/registry.hpp>
 
-namespace Game::Factory
+namespace Game::Factory::Ruin
 {
 
 void create_bookcase( entt::registry &reg, sf::Vector2f spawn_position, const Sprites::SpriteSheet &bookcase_ms, int sprite_index )
@@ -114,4 +114,4 @@ entt::entity create_rune_marker( entt::registry &reg, Cmp::Position pos, float z
   return rune_entt;
 }
 
-} // namespace Game::Factory
+} // namespace Game::Factory::Ruin

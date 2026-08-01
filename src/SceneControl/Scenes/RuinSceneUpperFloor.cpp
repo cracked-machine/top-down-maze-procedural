@@ -83,12 +83,12 @@ void RuinSceneUpperFloor::on_init()
   m_reg.emplace<Cmp::ZOrderValue>( floor_entity, -16.f );
 
   // create navmeshes for pathfinding
-  m_generic_npc_navmesh = Pathfinding::Factory::create_npc_navmesh( m_reg );
-  m_open_navmesh = Pathfinding::Factory::create_open_navmesh( m_reg );
+  m_generic_npc_navmesh = Factory::Pathfinding::create_npc_navmesh( m_reg );
+  m_open_navmesh = Factory::Pathfinding::create_open_navmesh( m_reg );
   reinit_navmesh();
 
   // Add a flame ParticleSprite for a candle in the player inventory
-  Particle::Factory::add_flame_for_player_inventory_slot( m_reg );
+  Factory::Particle::add_flame_for_player_inventory_slot( m_reg );
 }
 
 void RuinSceneUpperFloor::on_enter()

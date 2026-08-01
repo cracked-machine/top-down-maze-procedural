@@ -7,7 +7,7 @@
 #include <entt/entity/fwd.hpp>
 #include <entt/fwd.hpp>
 
-namespace Game::Factory
+namespace Game::Factory::Player
 {
 
 void create_player( entt::registry &registry );
@@ -26,6 +26,6 @@ Cmp::Position add_player_last_graveyard_pos( entt::registry &reg, Cmp::Position 
 void remove_player_last_graveyard_pos( entt::registry &reg );
 void remove_player_extra_life( entt::registry &reg );
 
-} // namespace Game::Factory
+} // namespace Game::Factory::Player
 
 #endif // SRC_FACTORY_PLAYERFACTORY_HPP__

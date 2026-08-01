@@ -102,14 +102,14 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
     else if ( sacrifice_anim_type == SacrificeAnimType::JEWELS ) { sprite_type = "sprite.graveyard.altar.relic.anim"; }
     else if ( sacrifice_anim_type == SacrificeAnimType::WITCHESJAR ) { sprite_type = "sprite.graveyard.altar.relic.anim"; }
 
-    Factory::destroy_inventory( reg(), sacrifice_type );
+    Factory::Player::destroy_inventory( reg(), sacrifice_type );
 
     float altar_sacrifice_anim_height = m_sprite_factory.get_spritesheet_by_type( sprite_type ).get_sprite_size().y;
     // get the center (topleft coord), then adjust to center the altar_sacrifice_anim, then adjust for altar_sacrifice_anim height
     Cmp::Position new_pos( altar_cmp.getCenter() - sf::Vector2{ 8.f, 4.f } - sf::Vector2{ 0.f, altar_sacrifice_anim_height },
                            Constants::kGridSizePxF );
     m_sound_bank.get_effect( "shrine_lighting" ).play();
-    Factory::create_altar_sacrifice_anim( reg(), new_pos, sprite_type );
+    Factory::Altar::create_altar_sacrifice_anim( reg(), new_pos, sprite_type );
 
     m_altar_activation_clock.restart();
   };
@@ -137,9 +137,9 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
     {
       // player gains extra life protection
       anim_cmp->m_sprite_type = "sprite.crypt.altar.active";
-      Particle::Factory::add_sparkles( m_reg, "altar.sparkles", 0.5, 25.f, *altar_uuid_cmp,
+      Factory::Particle::add_sparkles( m_reg, "altar.sparkles", 0.5, 25.f, *altar_uuid_cmp,
                                        { altar_cmp.position.x + 8.f, altar_cmp.position.y + 24.f }, 5000 );
-      Factory::destroy_inventory( reg(), sacrifice_type );
+      Factory::Player::destroy_inventory( reg(), sacrifice_type );
       auto flash_entt = reg().create();
       reg().emplace_or_replace<Cmp::FlashUIHealth>( flash_entt );
       reg().emplace_or_replace<Cmp::PlayerExtraLife>( Utils::Player::get_entity( reg() ) );
@@ -153,8 +153,8 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
       {
         if ( anim_cmp.m_sprite_type.contains( "ghost" ) )
         {
-          Factory::create_npc_death_anim( reg(), npc_pos_cmp, "sprite.death.anim.banish" );
-          Factory::destroy_npc( reg(), npc_entt );
+          Factory::Npc::create_npc_death_anim( reg(), npc_pos_cmp, "sprite.death.anim.banish" );
+          Factory::Npc::destroy_npc( reg(), npc_entt );
         }
       }
     }
@@ -171,7 +171,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
       {
         case 0: {
           reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 1 ); } );
-          Particle::Factory::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[0], 5000 );
+          Factory::Particle::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[0], 5000 );
           SPDLOG_DEBUG( "Altar activated to state ONE." );
           // Apply the effects from exhuming this item to the player stats
           auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
@@ -185,7 +185,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
         }
         case 1: {
           reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 2 ); } );
-          Particle::Factory::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[1], 5000 );
+          Factory::Particle::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[1], 5000 );
           SPDLOG_DEBUG( "Altar activated to state TWO." );
           // Apply the effects from exhuming this item to the player stats
           auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
@@ -199,7 +199,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
         }
         case 2: {
           reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 3 ); } );
-          Particle::Factory::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[2], 5000 );
+          Factory::Particle::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[2], 5000 );
           SPDLOG_DEBUG( "Altar activated to state THREE." );
           // Apply the effects from exhuming this item to the player stats
           auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
@@ -213,7 +213,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
         }
         case 3: {
           reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 4 ); } );
-          Particle::Factory::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[3], 5000 );
+          Factory::Particle::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[3], 5000 );
 
           SPDLOG_DEBUG( "Altar activated to state FOUR." );
           // Apply the effects from exhuming this item to the player stats

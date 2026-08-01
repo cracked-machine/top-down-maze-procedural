@@ -59,7 +59,7 @@ void CellAutomataSystem::iterate( uint16_t iterations, uint8_t birth_threshold, 
         // make sure we dont delete the player character by accident
         if ( not reg().any_of<Cmp::PlayerCharacter>( pos_entt ) )
         {
-          Factory::remove_obstacle( reg(), pos_entt );
+          Factory::Obstacle::remove_obstacle( reg(), pos_entt );
           reserved_navmesh->remove( pos_entt, pos_cmp );
         }
       }

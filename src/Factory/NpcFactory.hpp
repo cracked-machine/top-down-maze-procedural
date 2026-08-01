@@ -19,7 +19,7 @@ class SpriteFactory;
 
 } // namespace Game::Sprites
 
-namespace Game::Factory
+namespace Game::Factory::Npc
 {
 
 void create_npc_container( entt::registry &registry, entt::entity entt, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
@@ -43,6 +43,6 @@ bool create_shockwave( entt::registry &registry, entt::entity npc_entt );
 std::vector<entt::entity> gen_npc_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size,
                                               PathFinding::SpatialHashGridSharedPtr reserved_navmesh );
 
-} // namespace Game::Factory
+} // namespace Game::Factory::Npc
 
 #endif // SRC_FACTORY_NPCFACTORY_HPP__
