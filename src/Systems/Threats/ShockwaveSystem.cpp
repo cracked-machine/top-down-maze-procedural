@@ -153,11 +153,14 @@ void ShockwaveSystem::check_shockwave_player_collision()
     {
       // dont spam death events if the player is already dead
       if ( player_mort_cmp.state == Cmp::PlayerMortality::State::DEAD ) continue;
-      if ( player_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value() ) continue;
+      if ( not player_cmp.skip_damage_cooldown_once &&
+           player_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value() )
+        continue;
       if ( intersects_with_visible_segments( shockwave, player_pos ) )
       {
 
         player_stats_cmp.apply_modifiers( priest_projectile_action.action );
+        player_cmp.skip_damage_cooldown_once = false;
         m_sound_bank.get_effect( "damage_player" ).play();
         player_cmp.m_damage_cooldown_timer.restart();
         SPDLOG_INFO( "Player (health:{}) INTERSECTS with Shockwave (position: {},{} - effective_radius: {})", player_stats_cmp.health(),

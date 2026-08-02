@@ -57,6 +57,8 @@
 #include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
 
+#include <array>
+
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Time.hpp>
@@ -470,7 +472,9 @@ void NpcSystem::check_once_collision()
     for ( auto [npc_entity, npc_cmp, npc_pos_cmp, npc_dir_cmp] : npc_collision_view.each() )
     {
       if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), npc_pos_cmp ) ) continue;
-      if ( player_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < player_dmg_cooldown.get_value() ) continue;
+      if ( not player_cmp.skip_damage_cooldown_once &&
+           player_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < player_dmg_cooldown.get_value() )
+        continue;
 
       auto npc_collision_action = npc_cmp.actions.at( std::type_index( typeid( Cmp::CollisionAction ) ) );
       auto &[action, timer] = npc_collision_action;
@@ -481,16 +485,11 @@ void NpcSystem::check_once_collision()
       if ( not player_pos.findIntersection( npc_pos_cmp_bounds_current.getBounds() ) ) continue;
 
       Utils::Player::get_player_stats( reg() ).apply_modifiers( action );
+      player_cmp.skip_damage_cooldown_once = false;
 
       m_sound_bank.get_effect( "damage_player" ).play();
 
-      if ( Utils::Player::get_player_stats( reg() ).health() <= 0 )
-      {
-        player_mort.state = Cmp::PlayerMortality::State::HAUNTED;
-        get_systems_event_queue().enqueue(
-            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::HAUNTED, Utils::Player::get_position( reg() ) ) );
-        return;
-      }
+      if ( check_player_death( player_mort ) ) return;
 
       player_cmp.m_damage_cooldown_timer.restart();
 
@@ -524,36 +523,67 @@ void NpcSystem::check_timed_collision( sf::Time dt )
 
     npc_action_timer = sf::Time::Zero;
 
-    if ( Utils::Player::get_player_stats( reg() ).health() <= 0 )
-    {
-      player_mort.state = Cmp::PlayerMortality::State::HAUNTED;
-      get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::HAUNTED, Utils::Player::get_position( reg() ) ) );
-      return;
-    }
+    if ( check_player_death( player_mort ) ) return;
   }
+}
+
+bool NpcSystem::check_player_death( Cmp::PlayerMortality &player_mort )
+{
+  if ( Utils::Player::get_player_stats( reg() ).health() > 0 ) return false;
+
+  player_mort.state = Cmp::PlayerMortality::State::HAUNTED;
+  get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::HAUNTED, Utils::Player::get_position( reg() ) ) );
+  return true;
 }
 
 void NpcSystem::find_pushback_position( const Cmp::Direction &npc_direction )
 {
   auto &player_pos = Utils::Player::get_position( reg() );
 
-  auto new_position = Utils::snap_to_grid( player_pos.position + ( npc_direction.componentWiseMul( Constants::kGridSizePxF ) ) );
-  SPDLOG_DEBUG( "Player position was {},{} - Knockback direction is {}, {} - New Position should be {},{}", player_pos.position.x,
-                player_pos.position.y, npc_direction.x, npc_direction.y, new_position.x, new_position.y );
+  // returns the name of the component blocking `rect`, or an empty string if it's clear
+  auto blocking_component_name = [&]( const Cmp::RectBounds &rect ) -> std::string
+  {
+    if ( Utils::Collision::check_cmp<Cmp::Obstacle>( reg(), rect ) ) return "Obstacle";
+    if ( Utils::Collision::check_cmp<Cmp::PlantSegment>( reg(), rect ) ) return "PlantSegment";
+    if ( Utils::Collision::check_cmp<Cmp::Wall>( reg(), rect ) ) return "Wall";
+    if ( Utils::Collision::check_cmp<Cmp::AltarSegment>( reg(), rect ) ) return "AltarSegment";
+    if ( Utils::Collision::check_cmp<Cmp::GraveSegment>( reg(), rect ) ) return "GraveSegment";
+    if ( Utils::Collision::check_cmp<Cmp::GraveExitSegment>( reg(), rect ) ) return "GraveExitSegment";
+    if ( Utils::Collision::check_cmp<Cmp::CryptBuildingSegment>( reg(), rect ) ) return "CryptBuildingSegment";
+    if ( Utils::Collision::check_cmp<Cmp::RuinBuildingSegment>( reg(), rect ) ) return "RuinBuildingSegment";
+    if ( Utils::Collision::check_cmp<Cmp::CryptObjectiveSegment>( reg(), rect ) ) return "CryptObjectiveSegment";
+    return {};
+  };
 
-  // make sure player isnt knocked into an obstacle or multiblock
-  auto new_pos_rect = Cmp::RectBounds::scaled( new_position, Constants::kGridSizePxF, 1.f );
-  if ( Utils::Collision::check_cmp<Cmp::Obstacle>( reg(), new_pos_rect ) ) return;
-  if ( Utils::Collision::check_cmp<Cmp::PlantSegment>( reg(), new_pos_rect ) ) return;
-  if ( Utils::Collision::check_cmp<Cmp::Wall>( reg(), new_pos_rect ) ) return;
-  if ( Utils::Collision::check_cmp<Cmp::AltarSegment>( reg(), new_pos_rect ) ) return;
-  if ( Utils::Collision::check_cmp<Cmp::GraveSegment>( reg(), new_pos_rect ) ) return;
-  if ( Utils::Collision::check_cmp<Cmp::GraveExitSegment>( reg(), new_pos_rect ) ) return;
-  if ( Utils::Collision::check_cmp<Cmp::CryptBuildingSegment>( reg(), new_pos_rect ) ) return;
-  if ( Utils::Collision::check_cmp<Cmp::RuinBuildingSegment>( reg(), new_pos_rect ) ) return;
-  if ( Utils::Collision::check_cmp<Cmp::CryptObjectiveSegment>( reg(), new_pos_rect ) ) return;
+  // Try the NPC's own approach direction first; if that cell is blocked, fall back through
+  // the remaining cardinal directions instead of giving up on knockback entirely.
+  const sf::Vector2f primary_direction = npc_direction;
+  const std::array<sf::Vector2f, 4> cardinal_directions{ { { 0.f, -1.f }, { 0.f, 1.f }, { -1.f, 0.f }, { 1.f, 0.f } } };
 
-  player_pos.position = new_position;
+  std::vector<sf::Vector2f> candidate_directions{ primary_direction };
+  for ( const auto &dir : cardinal_directions )
+  {
+    if ( dir != primary_direction ) candidate_directions.push_back( dir );
+  }
+
+  for ( const auto &direction : candidate_directions )
+  {
+    auto new_position = Utils::snap_to_grid( player_pos.position + direction.componentWiseMul( Constants::kGridSizePxF ) );
+    auto new_pos_rect = Cmp::RectBounds::scaled( new_position, Constants::kGridSizePxF, 1.f );
+
+    auto blocker = blocking_component_name( new_pos_rect );
+    if ( not blocker.empty() )
+    {
+      SPDLOG_INFO( "Knockback direction {},{} blocked by {} at {},{}", direction.x, direction.y, blocker, new_position.x, new_position.y );
+      continue;
+    }
+
+    SPDLOG_INFO( "Knockback succeeded: player moved to {},{}", new_position.x, new_position.y );
+    player_pos.position = new_position;
+    return;
+  }
+
+  SPDLOG_INFO( "Knockback blocked in all directions" );
 }
 
 } // namespace Game::Sys

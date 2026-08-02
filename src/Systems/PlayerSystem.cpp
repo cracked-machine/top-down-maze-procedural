@@ -172,6 +172,14 @@ void PlayerSystem::enable_damage_cooldown()
   }
 }
 
+void PlayerSystem::force_expire_damage_cooldown()
+{
+  for ( auto [player_entt, player_cmp] : reg().view<Cmp::PlayerCharacter>().each() )
+  {
+    player_cmp.skip_damage_cooldown_once = true;
+  }
+}
+
 void PlayerSystem::move_obstacle( const sf::FloatRect &target_position )
 {
   // check if player can move the obstacle
@@ -751,12 +759,13 @@ void PlayerSystem::blink_player()
   // damage cooldown blink effect
   for ( auto [player_entt, player_cmp] : reg().view<Cmp::PlayerCharacter>().each() )
   {
+
     auto &pc_damage_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( reg() );
     bool is_in_damage_cooldown = player_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value();
     bool blink_visible = ( player_cmp.m_damage_cooldown_timer.getElapsedTime().asMilliseconds() / 100 ) % 2 == 0;
 
     auto &alpha_cmp = Utils::Player::get_alpha( reg() );
-    if ( not is_in_damage_cooldown || ( is_in_damage_cooldown && blink_visible ) ) { alpha_cmp = 255; }
+    if ( not is_in_damage_cooldown or player_cmp.skip_damage_cooldown_once or ( is_in_damage_cooldown and blink_visible ) ) { alpha_cmp = 255; }
     else { alpha_cmp = 0; }
   }
 }

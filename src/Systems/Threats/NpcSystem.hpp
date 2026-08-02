@@ -21,6 +21,7 @@ class Direction;
 class LerpPosition;
 class NPC;
 class NpcShockwave;
+class PlayerMortality;
 
 } // namespace Game::Cmp
 
@@ -103,6 +104,11 @@ private:
   //! @brief Find a suitable knockback position for the player
   //! @param npc_direction
   void find_pushback_position( const Cmp::Direction &npc_direction );
+
+  //! @brief Transition the player to HAUNTED and enqueue the mortality event if health has depleted.
+  //! @param player_mort
+  //! @return true if the player died
+  bool check_player_death( Cmp::PlayerMortality &player_mort );
 
   //! @brief Update pathfinding for all NPCs.
   //! @param dt
