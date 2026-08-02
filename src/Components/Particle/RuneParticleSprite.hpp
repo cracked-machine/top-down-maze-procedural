@@ -27,6 +27,7 @@ public:
   RuneParticleSprite( size_t count );
 
   void simulate( sf::Time dt ) override;
+  void draw( sf::RenderTarget &target, sf::RenderStates states ) const override;
 };
 
 } // namespace Game::Cmp::Particle
