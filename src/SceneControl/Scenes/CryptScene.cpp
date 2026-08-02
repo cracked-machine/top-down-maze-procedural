@@ -89,9 +89,6 @@ void CryptScene::on_init()
   m_reg.emplace<Sprites::Containers::VertexFloor>( floor_entity, floortiles );
   m_reg.emplace<Cmp::ZOrderValue>( floor_entity, -16.f );
 
-  // Factory::Player::add_inventory( m_reg, "item.candle" );
-  // Factory::Particle::add_flame_for_player_inventory_slot( m_reg );
-
   for ( auto [candle_entt, candle_cmp, candle_pos, uuid_cmp] : m_reg.view<Cmp::WorldItem, Cmp::Position, Cmp::UUID>().each() )
   {
     if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;

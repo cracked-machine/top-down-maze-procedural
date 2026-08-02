@@ -10,6 +10,7 @@
 #include <Components/Ruin/RuinBookcase.hpp>
 #include <Components/Ruin/RuinCobweb.hpp>
 #include <Components/Ruin/RuneMarking.hpp>
+#include <Components/UUID.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/RuinFactory.hpp>
@@ -101,6 +102,7 @@ entt::entity create_rune_marker( entt::registry &reg, Cmp::Position pos, float z
   auto rune_entt = reg.create();
   reg.emplace_or_replace<Cmp::ReservedPosition>( rune_entt );
   reg.emplace_or_replace<Cmp::Position>( rune_entt, pos );
+  reg.emplace_or_replace<Cmp::UUID>( rune_entt, Cmp::UUID::generate() );
 
   reg.emplace_or_replace<Cmp::ZOrderValue>( rune_entt, zorder );
   reg.emplace_or_replace<Cmp::RuneMarking>( rune_entt );

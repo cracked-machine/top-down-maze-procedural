@@ -56,6 +56,7 @@
 #include <Factory/LootFactory.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/NpcFactory.hpp>
+#include <Factory/ParticleFactory.hpp>
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
@@ -231,8 +232,8 @@ void PlayerSystem::move_obstacle( const sf::FloatRect &target_position )
       }
 
       // if we moved obstacle onto rune marking then set it as activated.
-      auto rune_view = reg().view<Cmp::RuneMarking, Cmp::Position, Cmp::ZOrderValue, Cmp::AnimData>();
-      for ( auto [rune_entt, rune_cmp, rune_pos_cmp, rune_zorder_cmp, rune_anim_cmp] : rune_view.each() )
+      auto rune_view = reg().view<Cmp::RuneMarking, Cmp::Position, Cmp::ZOrderValue, Cmp::AnimData, Cmp::UUID>();
+      for ( auto [rune_entt, rune_cmp, rune_pos_cmp, rune_zorder_cmp, rune_anim_cmp, rune_uuid_cmp] : rune_view.each() )
       {
         // Check if ANY obstacle (not just the moved one) is on this rune.
         // Undo the visual y offset so intersection uses the logical rune position —
@@ -258,6 +259,18 @@ void PlayerSystem::move_obstacle( const sf::FloatRect &target_position )
         {
           const std::string sprite_type = any_obstacle_on_rune ? "sprite.ruin.runemarking.active" : "sprite.ruin.runemarking.inactive";
 
+          if ( any_obstacle_on_rune )
+          {
+            Factory::Particle::add_rune_sparkles( m_reg, "ruin.rune.particles", 0.5, 25.f, rune_uuid_cmp,
+                                                  { rune_pos_cmp.position.x + 8.f, rune_pos_cmp.position.y }, 5000 );
+          }
+          else
+          {
+            for ( auto [ps_entt, ps_cmp, ps_uuid_cmp] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+            {
+              if ( ps_cmp.sprite->get_tag() == "ruin.rune.particles" and ps_uuid_cmp == rune_uuid_cmp ) reg().destroy( ps_entt );
+            }
+          }
           // shift the rune on the y-axis to adjust for the front-facing perspective
           if ( any_obstacle_on_rune ) { rune_pos_cmp.position.y -= 8.f; }
           else { rune_pos_cmp.position.y += 8.f; }

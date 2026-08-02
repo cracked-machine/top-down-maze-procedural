@@ -15,8 +15,10 @@ namespace Game::Factory::Particle
 {
 
 void add_test( entt::registry &reg, Sys::ParticleSystem &psys, const std::string &tag );
-void add_sparkles( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp, sf::Vector2f pos,
-                   float zorder );
+void add_crypt_altar_sparkles( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp,
+                               sf::Vector2f pos, float zorder );
+void add_rune_sparkles( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp, sf::Vector2f pos,
+                        float zorder );
 void add_flame( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp, sf::Vector2f pos, float zorder );
 void add_flame_for_player_inventory_slot( entt::registry &reg );
 void add_smoke( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp, sf::Vector2f pos, float zorder );

@@ -194,7 +194,7 @@ void remove_player_extra_life( entt::registry &reg )
 
   for ( auto [ps_entt, ps_cmp] : reg.view<Sys::ParticleSpriteOwner>().each() )
   {
-    if ( ps_cmp.sprite->get_tag() == "altar.sparkles" ) reg.destroy( ps_entt );
+    if ( ps_cmp.sprite->get_tag() == "crypt.altar.particles" ) reg.destroy( ps_entt );
   }
 
   for ( auto [altar_mb_entt, altar_mb_cmp, altar_anim_cmp] : reg.view<Cmp::AltarMultiBlock, Cmp::AnimData>().each() )

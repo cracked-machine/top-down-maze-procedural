@@ -1,4 +1,4 @@
-#include <Components/Particle/Sparkles.hpp>
+#include <Components/Particle/CryptAltarParticleSprite.hpp>
 
 #include <random>
 
@@ -8,7 +8,7 @@ namespace Game::Cmp::Particle
 //! @brief Implementation detail — do not use externally
 namespace detail
 {
-void ParticleSparkles::emit()
+void CryptAltarParticle::emit()
 {
   // create random number generator
   static std::random_device rd;
@@ -20,10 +20,10 @@ void ParticleSparkles::emit()
 };
 } // namespace detail
 
-Sparkles::Sparkles( size_t count )
+CryptAltarParticleSprite::CryptAltarParticleSprite( size_t count )
     : ParticleSpriteBase( count ) {};
 
-void Sparkles::simulate( sf::Time dt )
+void CryptAltarParticleSprite::simulate( sf::Time dt )
 {
   for ( auto &p : m_particles_list )
   {

@@ -35,7 +35,7 @@ public:
   void on_init() override;
   void on_enter() override;
   void on_exit() override;
-  std::string get_name() const override { return "RuinSceneLowerFloor"; }
+  [[nodiscard]] std::string get_name() const override { return "RuinSceneLowerFloor"; }
 
   entt::registry &registry() override;
 
