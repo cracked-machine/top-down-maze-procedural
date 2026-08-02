@@ -18,6 +18,7 @@
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
+#include <Components/UUID.hpp>
 #include <Components/Wall.hpp>
 #include <Components/Wormhole/WormholeJump.hpp>
 #include <Components/Wormhole/WormholeMultiBlock.hpp>
@@ -28,6 +29,7 @@
 #include <Factory/LootFactory.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
+#include <Factory/ParticleFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
@@ -165,14 +167,12 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
     return;
   }
 
-  // 3. set the entities obstacle component to "broken" so we have something for the shader effect
-  // to mangle
-  const auto &wormhole_ms = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.hazard.wormhole" );
-  Cmp::WormholeMultiBlock wormhole_block( random_pos.position, wormhole_ms.get_px_size() );
+  // 3. Create the sprite
+  const auto &wormhole_ss = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.hazard.wormhole" );
+  Cmp::WormholeMultiBlock wormhole_block( random_pos.position, wormhole_ss.get_px_size() );
 
-  auto obstacle_view = reg().view<Cmp::Position>();
   auto navmesh = m_npc_navmesh.lock();
-  for ( auto [entity, obstacle_pos] : obstacle_view.each() )
+  for ( auto [entity, obstacle_pos] : reg().view<Cmp::Position>().each() )
   {
     if ( obstacle_pos.findIntersection( wormhole_block ) )
     {
@@ -186,6 +186,8 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
     }
   }
 
+  auto uuid_cmp = Cmp::UUID::generate();
+
   // 4. add the wormhole component to the entity
   // get the erntity that owns the center grid position of the 3x3 area
   sf::Vector2f center_pos = random_pos.position + Constants::kGridSizePxF;
@@ -194,14 +196,18 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
   reg().emplace<Cmp::WormholeSingularity>( center_entity );
 
   // getReg().emplace_or_replace<Cmp::WormholeSingularity>( random_entity );
-  reg().emplace_or_replace<Cmp::WormholeMultiBlock>( random_entity, random_pos.position, wormhole_ms.get_px_size() );
+  reg().emplace_or_replace<Cmp::WormholeMultiBlock>( random_entity, random_pos.position, wormhole_ss.get_px_size() );
   // clang-format off
   reg().emplace_or_replace<Cmp::AnimData>( random_entity, Cmp::AnimData::Config{  
         .sprite_type = "sprite.graveyard.hazard.wormhole",
         .enabled = true
   });
   // clang-format on
+  reg().emplace_or_replace<Cmp::UUID>( random_entity, uuid_cmp.data );
   reg().emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - 16 );
+
+  Factory::Particle::add_wormhole_ps( reg(), "graveyard.wormhole.particles", 1.f, 25.f, uuid_cmp, sf::Vector2f( center_pos.x + 8, center_pos.y + 8 ),
+                                      5000.f );
 
   SPDLOG_INFO( "Wormhole spawned at position ({}, {}) with zorder: {}", random_pos.position.x, random_pos.position.y,
                random_pos.position.y - random_pos.size.y );
@@ -313,6 +319,10 @@ void WormholeSystem::check_player_wormhole_collision()
     // respawn the wormhole now all entities have teleported
     SPDLOG_INFO( "Teleportation complete. Jump candidates: {}", jump_view.size() );
     despawn_wormhole();
+    for ( auto [ps_entt, ps_cmp, ps_uuid_cmp] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+    {
+      if ( ps_cmp.sprite->get_tag() == "graveyard.wormhole.particles" ) reg().destroy( ps_entt );
+    }
     spawn_wormhole( WormholeSystem::SpawnPhase::Respawn );
   }
 }

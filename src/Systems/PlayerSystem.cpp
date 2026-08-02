@@ -269,8 +269,8 @@ void PlayerSystem::move_obstacle( const sf::FloatRect &target_position )
 
           if ( any_obstacle_on_rune )
           {
-            Factory::Particle::add_rune_sparkles( m_reg, "ruin.rune.particles", 1.f, 10.f, rune_uuid_cmp,
-                                                  { rune_pos_cmp.position.x + 8.f, rune_pos_cmp.position.y }, 5000 );
+            Factory::Particle::add_rune_ps( m_reg, "ruin.rune.particles", 1.f, 10.f, rune_uuid_cmp,
+                                            { rune_pos_cmp.position.x + 8.f, rune_pos_cmp.position.y }, 5000 );
           }
           else
           {

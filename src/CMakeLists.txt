@@ -12,6 +12,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Components/Particle/Smoke.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Particle/CryptAltarParticleSprite.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Particle/RuneParticleSprite.cpp
+    ${CMAKE_SOURCE_DIR}/src/Components/Particle/WormholeParticleSprite.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Crypt/CryptRoomBase.cpp
     ${CMAKE_SOURCE_DIR}/src/Debug/AssertHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Shaders/BaseShaderSprite.cpp

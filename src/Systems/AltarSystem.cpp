@@ -137,8 +137,8 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
     {
       // player gains extra life protection
       anim_cmp->m_sprite_type = "sprite.crypt.altar.active";
-      Factory::Particle::add_crypt_altar_sparkles( m_reg, "crypt.altar.particles", 0.5, 25.f, *altar_uuid_cmp,
-                                                   { altar_cmp.position.x + 8.f, altar_cmp.position.y + 24.f }, 5000 );
+      Factory::Particle::add_crypt_altar_ps( m_reg, "crypt.altar.particles", 0.5, 25.f, *altar_uuid_cmp,
+                                             { altar_cmp.position.x + 8.f, altar_cmp.position.y + 24.f }, 5000 );
       Factory::Player::destroy_inventory( reg(), sacrifice_type );
       auto flash_entt = reg().create();
       reg().emplace_or_replace<Cmp::FlashUIHealth>( flash_entt );

@@ -3,6 +3,7 @@
 #include <Components/Particle/ParticleSpriteTest.hpp>
 #include <Components/Particle/RuneParticleSprite.hpp>
 #include <Components/Particle/ShockWave.hpp>
+#include <Components/Particle/WormholeParticleSprite.hpp>
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
 #include <Components/Position.hpp>
 #include <Factory/ParticleFactory.hpp>
@@ -26,8 +27,8 @@ void add_test( entt::registry &reg, Sys::ParticleSystem &psys, const std::string
   psys.add( std::make_pair( psprite, Cmp::ZOrderValue( 10000.f ) ) );
 }
 
-void add_crypt_altar_sparkles( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp,
-                               sf::Vector2f pos, float zorder )
+void add_crypt_altar_ps( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp, sf::Vector2f pos,
+                         float zorder )
 {
   auto ps = Cmp::Particle::CryptAltarParticleSprite( 1000 );
   ps.set_tag( tag );
@@ -44,8 +45,8 @@ void add_crypt_altar_sparkles( entt::registry &reg, const std::string &tag, floa
   SPDLOG_INFO( "Created flame ParticleSprite {}", static_cast<uint32_t>( entt ) );
 }
 
-void add_rune_sparkles( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp, sf::Vector2f pos,
-                        float zorder )
+void add_rune_ps( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp, sf::Vector2f pos,
+                  float zorder )
 {
   auto ps = Cmp::Particle::RuneParticleSprite( 1000 );
   ps.set_tag( tag );
@@ -56,6 +57,23 @@ void add_rune_sparkles( entt::registry &reg, const std::string &tag, float lifet
 
   auto entt = reg.create();
   reg.emplace_or_replace<Sys::ParticleSpriteOwner>( entt, Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::RuneParticleSprite>( ps ) ) );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
+  reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
+  SPDLOG_INFO( "Created flame ParticleSprite {}", static_cast<uint32_t>( entt ) );
+}
+
+void add_wormhole_ps( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp, sf::Vector2f pos,
+                      float zorder )
+{
+  auto ps = Cmp::Particle::WormholeParticleSprite( 1000 );
+  ps.set_tag( tag );
+  ps.set_emitter_position( pos );
+  ps.set_lifetime_ms( std::uniform_int_distribution<int>( 0, sf::seconds( lifetime_seconds ).asMilliseconds() ) );
+  ps.set_speed( std::uniform_real_distribution<float>( 1.f, speed ) );
+  ps.set_angle( std::uniform_real_distribution<float>( 1.f, 360.f ) );
+
+  auto entt = reg.create();
+  reg.emplace_or_replace<Sys::ParticleSpriteOwner>( entt, Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::WormholeParticleSprite>( ps ) ) );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
   reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
   SPDLOG_INFO( "Created flame ParticleSprite {}", static_cast<uint32_t>( entt ) );
