@@ -31,6 +31,7 @@
 #include <Factory/BombFactory.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
+#include <Factory/ParticleFactory.hpp>
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
@@ -65,6 +66,8 @@ ActionSystem::ActionSystem( entt::registry &reg, sf::RenderWindow &window, Sprit
 
 void ActionSystem::update( [[maybe_unused]] sf::Time dt )
 {
+  // destroy obstacle-dig particle sprite entities once all their particles have expired
+  Factory::Particle::delete_expired_particle_sprites( reg(), "graveyard.obstacle.dig.particle" );
 
   // abort if still in cooldown
   auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( reg() ).get_value();
@@ -196,8 +199,7 @@ void ActionSystem::check_player_dig_obstacle_collision()
   }
 
   // Iterate through all entities with Position and Obstacle components
-  auto position_view = reg().view<Cmp::Position, Cmp::Obstacle, Cmp::AbsoluteAlpha, Cmp::AnimData, Cmp::UUID>(
-      entt::exclude<Cmp::SelectedPosition> );
+  auto position_view = reg().view<Cmp::Position, Cmp::Obstacle, Cmp::AbsoluteAlpha, Cmp::AnimData, Cmp::UUID>( entt::exclude<Cmp::SelectedPosition> );
   for ( auto [obstacle_entt, obstacle_pos_cmp, obstacle_cmp, obstacle_alpha_cmp, obstacle_anim_cmp, obstacle_uuid_cmp] : position_view.each() )
   {
     if ( not obstacle_anim_cmp.m_sprite_type.contains( ".main" ) ) continue;
@@ -258,6 +260,12 @@ void ActionSystem::check_player_dig_obstacle_collision()
         cap_obstacle_alpha.setAlpha( new_alpha_value );
       }
 
+      // give the particle sprite its own UUID rather than the obstacle's — reusing the
+      // obstacle's UUID makes remove_obstacle()'s DeleteExtras::Yes cleanup (which destroys
+      // every entity sharing that UUID) destroy the particle sprite before it can render
+      auto dig_particle_uuid = Cmp::UUID::generate();
+      Factory::Particle::add_obstacledig_ps( reg(), "graveyard.obstacle.dig.particle", 1.f, 75.f, dig_particle_uuid, obstacle_pos_cmp.position, obstacle_pos_cmp.y() );
+
       float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
       Utils::Player::reduce_inventory_wear_level( reg(), reduction_amount );
 
@@ -273,8 +281,7 @@ void ActionSystem::check_player_dig_obstacle_collision()
         // add the position to the spatial grid so it can be used in pathfinding
         if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock() )
           pathfinding_navmesh->insert( obstacle_entt, obstacle_pos_cmp );
-        if ( PathFinding::SpatialHashGridSharedPtr ghost_navmesh = m_ghost_navmesh.lock() )
-          ghost_navmesh->insert( obstacle_entt, obstacle_pos_cmp );
+        if ( PathFinding::SpatialHashGridSharedPtr ghost_navmesh = m_ghost_navmesh.lock() ) ghost_navmesh->insert( obstacle_entt, obstacle_pos_cmp );
         if ( PathFinding::SpatialHashGridSharedPtr player_navmesh = m_player_navmesh.lock() )
           player_navmesh->insert( obstacle_entt, obstacle_pos_cmp );
 

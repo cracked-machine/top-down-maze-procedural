@@ -1,11 +1,13 @@
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Particle/CryptAltarParticleSprite.hpp>
+#include <Components/Particle/ObstacleDigParticleSprite.hpp>
 #include <Components/Particle/ParticleSpriteTest.hpp>
 #include <Components/Particle/RuneParticleSprite.hpp>
 #include <Components/Particle/ShockWave.hpp>
 #include <Components/Particle/WormholeParticleSprite.hpp>
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
 #include <Components/Position.hpp>
+#include <Components/Random.hpp>
 #include <Factory/ParticleFactory.hpp>
 #include <SFML/System/Time.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -74,6 +76,27 @@ void add_wormhole_ps( entt::registry &reg, const std::string &tag, float lifetim
 
   auto entt = reg.create();
   reg.emplace_or_replace<Sys::ParticleSpriteOwner>( entt, Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::WormholeParticleSprite>( ps ) ) );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
+  reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
+  SPDLOG_INFO( "Created flame ParticleSprite {}", static_cast<uint32_t>( entt ) );
+}
+
+void add_obstacledig_ps( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp, sf::Vector2f pos,
+                         float zorder )
+{
+  auto ps = Cmp::Particle::ObstacleDigParticleSprite( 50 );
+  ps.set_tag( tag );
+  ps.set_generations( 1 );
+
+  ps.set_emitter_position( { pos.x + Cmp::RandomFloat( 4.f, 12.f ).gen(), pos.y + Cmp::RandomFloat( 4.f, 12.f ).gen() } );
+
+  ps.set_lifetime_ms( std::uniform_int_distribution<int>( 0, sf::seconds( lifetime_seconds ).asMilliseconds() ) );
+  ps.set_speed( std::uniform_real_distribution<float>( speed, speed ) );
+  ps.set_angle( std::uniform_real_distribution<float>( 1.f, 360.f ) );
+
+  auto entt = reg.create();
+  reg.emplace_or_replace<Sys::ParticleSpriteOwner>( entt,
+                                                    Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::ObstacleDigParticleSprite>( ps ) ) );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
   reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
   SPDLOG_INFO( "Created flame ParticleSprite {}", static_cast<uint32_t>( entt ) );

@@ -21,6 +21,8 @@ void add_rune_ps( entt::registry &reg, const std::string &tag, float lifetime_se
                   float zorder );
 void add_wormhole_ps( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp, sf::Vector2f pos,
                       float zorder );
+void add_obstacledig_ps( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp, sf::Vector2f pos,
+                         float zorder );
 void add_flame( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp, sf::Vector2f pos, float zorder );
 void add_flame_for_player_inventory_slot( entt::registry &reg );
 void add_smoke( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp, sf::Vector2f pos, float zorder );
