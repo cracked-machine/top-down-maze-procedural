@@ -28,6 +28,11 @@ struct ObstacleDigParticle : public Cmp::Particle::ParticleBase
   //! @brief Per-particle jittered vertex angles, randomized on emit() to give each particle an irregular polygon shape
   std::array<float, kVertexCount> m_vertex_angles{};
 
+  //! @brief Running phase (radians) for the vertical bounce oscillation. Advanced each frame by the
+  //!        current bounce frequency rather than derived from elapsed time directly, so the frequency
+  //!        can ramp up smoothly over the particle's lifetime without a discontinuity in the wave
+  float m_bounce_phase = 0.f;
+
 private:
   void emit() override;
 };

@@ -264,7 +264,7 @@ void ActionSystem::check_player_dig_obstacle_collision()
       // obstacle's UUID makes remove_obstacle()'s DeleteExtras::Yes cleanup (which destroys
       // every entity sharing that UUID) destroy the particle sprite before it can render
       auto dig_particle_uuid = Cmp::UUID::generate();
-      Factory::Particle::add_obstacledig_ps( reg(), "graveyard.obstacle.dig.particle", 1.f, 75.f, dig_particle_uuid, obstacle_pos_cmp.position, obstacle_pos_cmp.y() );
+      Factory::Particle::add_obstacledig_ps( reg(), "graveyard.obstacle.dig.particle", 2.f, 50.f, dig_particle_uuid, obstacle_pos_cmp.position, obstacle_pos_cmp.y() );
 
       float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
       Utils::Player::reduce_inventory_wear_level( reg(), reduction_amount );

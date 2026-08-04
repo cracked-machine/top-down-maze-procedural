@@ -1,6 +1,7 @@
 #include <Components/Particle/ObstacleDigParticleSprite.hpp>
 
 #include <Components/Random.hpp>
+#include <cmath>
 #include <random>
 
 namespace Game::Cmp::Particle
@@ -27,10 +28,14 @@ void ObstacleDigParticle::emit()
   static constexpr float kBaseStep = 2.f * std::numbers::pi_v<float> / static_cast<float>( kVertexCount );
   static std::uniform_real_distribution<float> jitter_dist( -kBaseStep * 0.4f, kBaseStep * 0.4f );
 
+  // desync each particle's bounce so they don't all wobble in lockstep
+  static std::uniform_real_distribution<float> bounce_phase_dist( 0.f, 2.f * std::numbers::pi_v<float> );
+
   const sf::Angle angle = sf::degrees( m_angle_range( rng ) );
   const float speed = m_speed_range( rng );
   m_vertex.position = m_emitter_position;
   m_velocity = sf::Vector2f( speed, angle );
+  m_bounce_phase = bounce_phase_dist( rng );
 
   for ( int i = 0; i < kVertexCount; ++i )
     m_vertex_angles[i] = ( kBaseStep * static_cast<float>( i ) ) + jitter_dist( rng );
@@ -50,7 +55,7 @@ void ObstacleDigParticleSprite::simulate( sf::Time dt )
     // if the particle is dead, respawn it
     if ( p.m_lifetime <= sf::Time::Zero ) p.do_emit();
 
-    // cube the lifetime ratio so speed drops off sharply early on and eases out near zero,
+    // quad the lifetime ratio so speed drops off sharply early on and eases out near zero,
     // rather than bleeding off at a constant rate. Ease out against this particle's OWN initial
     // lifetime, not the sprite-wide max, otherwise short-lived particles start already decelerated
     const float initial_lifetime = p.m_initial_lifetime.asSeconds();
@@ -59,6 +64,23 @@ void ObstacleDigParticleSprite::simulate( sf::Time dt )
 
     // update the position of the corresponding vertex
     p.m_vertex.position += p.m_velocity * speed_falloff * dt.asSeconds();
+
+    // bounce: a sine wave on the Y-axis whose frequency ramps up towards the end of the
+    // particle's life (like a dropped object's bounces getting quicker as it settles), while
+    // its amplitude fades out with the same lifetime ratio so the bounce dies down with it.
+    // Frequency is integrated into a running phase rather than evaluated at elapsed time
+    // directly, otherwise the ramp would produce a discontinuous jump in the wave each frame.
+    constexpr float kBounceFreqStart = 1.5f;
+    constexpr float kBounceFreqEnd = 5.f;
+    constexpr float kBounceAmplitude = 20.f;
+
+    // Finetune the curve until the particles don't bounce when they come to a stop
+    const float bounce_amplitude_falloff = std::pow( lifetime_ratio, 2.5f );
+
+    const float bounce_freq = kBounceFreqStart + ( ( kBounceFreqEnd - kBounceFreqStart ) * ( 1.f - lifetime_ratio ) );
+    p.m_bounce_phase += 2.f * std::numbers::pi_v<float> * bounce_freq * dt.asSeconds();
+    const float bounce_speed = kBounceAmplitude * bounce_amplitude_falloff * std::sin( p.m_bounce_phase );
+    p.m_vertex.position.y += bounce_speed * dt.asSeconds();
 
     p.m_vertex.color.a = 255;
     p.m_vertex.color.r = 60 + p.m_color_variation;
