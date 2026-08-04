@@ -81,10 +81,10 @@ void add_wormhole_ps( entt::registry &reg, const std::string &tag, float lifetim
   SPDLOG_INFO( "Created flame ParticleSprite {}", static_cast<uint32_t>( entt ) );
 }
 
-void add_obstacledig_ps( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp, sf::Vector2f pos,
-                         float zorder )
+void add_obstacledig_ps( entt::registry &reg, const std::string &tag, int particle_count, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp,
+                         sf::Vector2f pos, float zorder )
 {
-  auto ps = Cmp::Particle::ObstacleDigParticleSprite( 50 );
+  auto ps = Cmp::Particle::ObstacleDigParticleSprite( particle_count );
   ps.set_tag( tag );
   ps.set_generations( 1 );
 

@@ -57,9 +57,12 @@ void GraveSystem::check_player_grave_collision()
   auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( reg() ).get_value();
   if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) ) { return; }
 
-  // Cooldown has expired: Remove any existing SelectedPosition components from the registry
-  auto selected_position_view = reg().view<Cmp::SelectedPosition>();
-  for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
+  // Cooldown has expired: remove any existing SelectedPosition from graves only. This function's own
+  // cooldown clock only restarts on an actual grave dig, so it sits expired (and this runs) on every
+  // DIG event while digging anything else — clearing the whole registry's SelectedPosition here would
+  // also wipe unrelated selections (e.g. the obstacle currently being dug) set by other systems
+  auto selected_position_view = reg().view<Cmp::SelectedPosition, Cmp::GraveMultiBlock>();
+  for ( auto [existing_sel_entity, sel_cmp, grave_mb_cmp] : selected_position_view.each() )
   {
     reg().remove<Cmp::SelectedPosition>( existing_sel_entity );
   }

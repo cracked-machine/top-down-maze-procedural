@@ -249,27 +249,26 @@ void ActionSystem::check_player_dig_obstacle_collision()
       // calculate new alpha value and apply to the current obstacle and any obstacle with matching UUID (cap sprite obstacles)
       auto damage_per_hit = Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( reg() ).get_value();
       if ( inventory_slot_type.contains( "pickaxe" ) ) { /* no damage gradient for pickaxe */ }
-      else if ( inventory_slot_type.contains( "shovel" ) or inventory_slot_type.contains( "axe" ) ) { damage_per_hit = damage_per_hit / 10; }
-      auto new_alpha_value = std::max( 0, obstacle_alpha_cmp.getAlpha() - Utils::Maths::to_percent( 255.f, damage_per_hit ) );
-      obstacle_alpha_cmp.setAlpha( new_alpha_value );
-      auto cap_obstacle_view = reg().view<Cmp::Obstacle, Cmp::UUID, Cmp::AbsoluteAlpha, Cmp::Position>();
-      for ( auto [cap_obstacle_entt, cap_obstacle_cmp, cap_obstacle_uuid_cmp, cap_obstacle_alpha, cap_pos_cmp] : cap_obstacle_view.each() )
+      else if ( inventory_slot_type.contains( "shovel" ) or inventory_slot_type.contains( "axe" ) ) { damage_per_hit = damage_per_hit / 5; }
+      // auto new_alpha_value = std::max( 0, obstacle_alpha_cmp.getAlpha() - Utils::Maths::to_percent( 255.f, damage_per_hit ) );
+      // obstacle_alpha_cmp.setAlpha( new_alpha_value );
+      obstacle_cmp.damage += damage_per_hit;
+
+      // cap sprite obstacles are created via decorate_obstacle() only, so unlike the main obstacle
+      // they never get a Cmp::Obstacle component — exclude it here to actually reach them, rather
+      // than requiring it and only ever matching (and redundantly re-setting) the main obstacle itself
+      auto cap_obstacle_view = reg().view<Cmp::UUID, Cmp::AbsoluteAlpha, Cmp::Position>( entt::exclude<Cmp::Obstacle> );
+      for ( auto [cap_obstacle_entt, cap_obstacle_uuid_cmp, cap_obstacle_alpha, cap_pos_cmp] : cap_obstacle_view.each() )
       {
         if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), cap_pos_cmp ) ) continue;
         if ( obstacle_uuid_cmp != cap_obstacle_uuid_cmp ) continue;
-        cap_obstacle_alpha.setAlpha( new_alpha_value );
+        // cap_obstacle_alpha.setAlpha( new_alpha_value );
       }
-
-      // give the particle sprite its own UUID rather than the obstacle's — reusing the
-      // obstacle's UUID makes remove_obstacle()'s DeleteExtras::Yes cleanup (which destroys
-      // every entity sharing that UUID) destroy the particle sprite before it can render
-      auto dig_particle_uuid = Cmp::UUID::generate();
-      Factory::Particle::add_obstacledig_ps( reg(), "graveyard.obstacle.dig.particle", 2.f, 50.f, dig_particle_uuid, obstacle_pos_cmp.position, obstacle_pos_cmp.y() );
 
       float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
       Utils::Player::reduce_inventory_wear_level( reg(), reduction_amount );
 
-      if ( obstacle_alpha_cmp.getAlpha() == 0 )
+      if ( obstacle_cmp.damage >= 100 )
       {
         // select the final smash sound
         m_sound_bank.get_effect( "pickaxe_final" ).play();
@@ -286,12 +285,20 @@ void ActionSystem::check_player_dig_obstacle_collision()
           player_navmesh->insert( obstacle_entt, obstacle_pos_cmp );
 
         SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
+
+        auto dig_particle_uuid = Cmp::UUID::generate();
+        Factory::Particle::add_obstacledig_ps( reg(), "graveyard.obstacle.dig.particle", 50, 2.f, 50.f, dig_particle_uuid, obstacle_pos_cmp.position,
+                                               obstacle_pos_cmp.y() );
       }
       else
       {
         // select all pickaxe sounds except the final smash sound
         Cmp::RandomInt random_picker( 1, 6 );
         m_sound_bank.get_effect( "pickaxe" + std::to_string( random_picker.gen() ) ).play();
+
+        auto dig_particle_uuid = Cmp::UUID::generate();
+        Factory::Particle::add_obstacledig_ps( reg(), "graveyard.obstacle.dig.particle", 5, 2.f, 50.f, dig_particle_uuid, obstacle_pos_cmp.position,
+                                               obstacle_pos_cmp.y() );
       }
     }
   }

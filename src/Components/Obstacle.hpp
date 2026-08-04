@@ -8,6 +8,7 @@ namespace Game::Cmp
 struct Obstacle
 {
   bool m_enabled{ true };
+  int damage{ 0 };
 };
 
 } // namespace Game::Cmp

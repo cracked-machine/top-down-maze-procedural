@@ -75,15 +75,15 @@ void ParticleSystem::update( sf::Time dt )
 void ParticleSystem::check_collsion( const sf::FloatRect &target, const std::vector<std::string> &excl_ps_tag_list )
 {
   if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), target ) ) return;
-  for ( auto [entt, owner] : reg().view<ParticleSpriteOwner>().each() )
+  for ( auto [entt, ps_cmp] : reg().view<ParticleSpriteOwner>().each() )
   {
-    bool excluded = std::ranges::any_of( excl_ps_tag_list, [&owner]( const std::string &tag ) { return owner.sprite->get_tag() == tag; } );
+    bool excluded = std::ranges::any_of( excl_ps_tag_list, [&ps_cmp]( const std::string &tag ) { return ps_cmp.sprite->get_tag() == tag; } );
     if ( excluded ) continue;
 
-    if ( owner.sprite->is_active() )
+    if ( ps_cmp.sprite->is_active() )
     {
       SPDLOG_DEBUG( "Simulating" );
-      owner.sprite->check_particle_collision( target );
+      ps_cmp.sprite->check_particle_collision( target );
     }
   }
 }

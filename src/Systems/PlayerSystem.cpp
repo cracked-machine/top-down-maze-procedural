@@ -658,9 +658,11 @@ void PlayerSystem::check_player_axe_npc_kill()
 
   if ( Utils::Player::get_inventory_wear_level( reg() ) <= 0 ) { return; }
 
-  // Cooldown has expired: Remove any existing SelectedPosition components from the registry
-  auto selected_position_view = reg().view<Cmp::SelectedPosition>();
-  for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
+  // Remove any existing SelectedPosition from NPCs only — this runs every frame the attack button is
+  // held with no cooldown of its own, so clearing the whole registry's SelectedPosition here would
+  // also wipe unrelated selections (e.g. the obstacle currently being dug) set by other systems
+  auto selected_position_view = reg().view<Cmp::SelectedPosition, Cmp::NPC>();
+  for ( auto [existing_sel_entity, sel_cmp, npc_cmp] : selected_position_view.each() )
   {
     reg().remove<Cmp::SelectedPosition>( existing_sel_entity );
   }
