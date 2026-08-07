@@ -251,7 +251,7 @@ void ActionSystem::check_player_dig_obstacle_collision()
 
       // calculate new alpha value and apply to the current obstacle and any obstacle with matching UUID (cap sprite obstacles)
       auto damage_per_hit = Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( reg() ).get_value();
-      if ( inventory_slot_type.contains( "pickaxe" ) ) { /* no damage gradient for pickaxe */ }
+      if ( inventory_slot_type.contains( "pickaxe" ) ) { damage_per_hit = damage_per_hit / 2; }
       else if ( inventory_slot_type.contains( "shovel" ) or inventory_slot_type.contains( "axe" ) ) { damage_per_hit = damage_per_hit / 5; }
       obstacle_cmp.damage += damage_per_hit;
 
@@ -301,34 +301,73 @@ void ActionSystem::check_player_dig_obstacle_collision()
         Cmp::RandomInt random_picker( 1, 6 );
         m_sound_bank.get_effect( "pickaxe" + std::to_string( random_picker.gen() ) ).play();
 
-        auto dig_particle_uuid = Cmp::UUID::generate();
-        Factory::Particle::add_obstacledig_ps( reg(), "graveyard.obstacle.dig.particle", 5, 2.f, 50.f, dig_particle_uuid, obstacle_pos_cmp.position,
-                                               obstacle_pos_cmp.y() );
-
-        sf::Vector2f crack_start_pos( obstacle_pos_cmp.getCenter().x, obstacle_pos_cmp.getCenter().y - 4.f ); // offset for obstacle cap
-        constexpr float kCrackLengthRatio = 0.4f;
-        float crack_length = Constants::kGridSizePxF.x * kCrackLengthRatio;
-
-        // Cracks land on one of the fixed 45deg-spaced slots around the circle (picked at random,
-        // not in sequence), so repeated hits don't cluster but also don't form a predictable ring.
-        // The slots themselves are rotated by an angle derived from the obstacle's UUID so they're
-        // stable across hits but differ per obstacle instance.
-        constexpr float kCrackAngleStepDeg = 70.f;
-        constexpr int kCrackSlotCount = static_cast<int>( 360.f / kCrackAngleStepDeg );
-        int crack_slot = Cmp::RandomInt( 0, kCrackSlotCount - 1 ).gen();
-        float base_angle_deg = static_cast<float>( std::hash<Cmp::UUID>{}( obstacle_uuid_cmp ) % 360 );
-        float crack_angle_deg = std::fmod( base_angle_deg + ( static_cast<float>( crack_slot ) * kCrackAngleStepDeg ), 360.f );
-        float crack_angle = crack_angle_deg * std::numbers::pi_v<float> / 180.f;
-        sf::Vector2f crack_end_pos = crack_start_pos + sf::Vector2f{ std::cos( crack_angle ), std::sin( crack_angle ) } * crack_length;
-        Cmp::ObstacleCrack::AngleDeviations crack_angles{ .inner = 1.f, .outer = 1.f };
-        Cmp::ObstacleCrack obstacle_crack_cmp( crack_start_pos, crack_end_pos, crack_angles, sf::Time::Zero );
-        for ( auto _ : std::views::iota( 0, 3 ) )
+        constexpr int kCracksPerHit = 3;
+        for ( auto crack_iter : std::views::iota( 0, kCracksPerHit ) )
         {
-          LightningSystem::divide_lightning_segments( obstacle_crack_cmp.sequence, obstacle_crack_cmp.m_deviations, 1 );
+
+          auto dig_particle_uuid = Cmp::UUID::generate();
+          Factory::Particle::add_obstacledig_ps( reg(), "graveyard.obstacle.dig.particle", 5, 2.f, 50.f, dig_particle_uuid, obstacle_pos_cmp.position,
+                                                 obstacle_pos_cmp.y() );
+
+          sf::Vector2f crack_start_pos( obstacle_pos_cmp.getCenter().x, obstacle_pos_cmp.getCenter().y - 12.f ); // offset for obstacle cap
+          constexpr float kCrackLengthRatio = 0.4f;
+          float crack_length = Constants::kGridSizePxF.x * kCrackLengthRatio;
+
+          // Cracks land on one of the fixed kCrackAngleStepDeg-spaced slots around the circle (picked
+          // at random, not in sequence), and never within kCrackAngleStepDeg of a crack already on
+          // this obstacle (checked directly via circular distance, not slot indices, since the slot
+          // grid itself is rotated per crack_iter below). The grid's own rotation is derived from the
+          // obstacle's UUID so it's stable across hits but differs per obstacle instance, with each of
+          // the kCracksPerHit cracks generated for this hit additionally offset from one another so
+          // they don't all draw from the same rotated grid.
+          constexpr float kCrackAngleStepDeg = 70.f;
+          constexpr int kCrackSlotCount = static_cast<int>( 360.f / kCrackAngleStepDeg );
+          float base_angle_deg = static_cast<float>( std::hash<Cmp::UUID>{}( obstacle_uuid_cmp ) % 360 ) +
+                                  ( static_cast<float>( crack_iter ) * ( 360.f / static_cast<float>( kCracksPerHit ) ) );
+
+          auto circular_angle_diff_deg = []( float a, float b )
+          {
+            float diff = std::fmod( std::abs( a - b ), 360.f );
+            return diff > 180.f ? 360.f - diff : diff;
+          };
+
+          std::vector<float> used_angles_deg;
+          for ( auto [ob_crack_entt, ob_crack_cmp, ob_crack_uuid] : reg().view<Cmp::ObstacleCrack, Cmp::UUID>().each() )
+          {
+            if ( ob_crack_uuid != obstacle_uuid_cmp ) continue;
+            if ( ob_crack_cmp.sequence.size() < 2 or ob_crack_cmp.sequence.front().empty() or ob_crack_cmp.sequence.back().empty() ) continue;
+
+            sf::Vector2f existing_dir = ob_crack_cmp.sequence.back().front().position - ob_crack_cmp.sequence.front().front().position;
+            float existing_angle_deg = std::atan2( existing_dir.y, existing_dir.x ) * 180.f / std::numbers::pi_v<float>;
+            if ( existing_angle_deg < 0.f ) existing_angle_deg += 360.f;
+            used_angles_deg.push_back( existing_angle_deg );
+          }
+
+          std::vector<int> free_slots;
+          for ( int slot = 0; slot < kCrackSlotCount; ++slot )
+          {
+            float candidate_deg = std::fmod( base_angle_deg + ( static_cast<float>( slot ) * kCrackAngleStepDeg ), 360.f );
+            bool too_close = std::ranges::any_of( used_angles_deg, [&]( float used_deg )
+                                                   { return circular_angle_diff_deg( candidate_deg, used_deg ) < kCrackAngleStepDeg; } );
+            if ( not too_close ) free_slots.push_back( slot );
+          }
+          // every slot on this obstacle is already taken - fall back to a plain random pick
+          int crack_slot = free_slots.empty() ? Cmp::RandomInt( 0, kCrackSlotCount - 1 ).gen()
+                                              : free_slots[Cmp::RandomInt( 0, static_cast<int>( free_slots.size() ) - 1 ).gen()];
+
+          float crack_angle_deg = std::fmod( base_angle_deg + ( static_cast<float>( crack_slot ) * kCrackAngleStepDeg ), 360.f );
+          float crack_angle = crack_angle_deg * std::numbers::pi_v<float> / 180.f;
+          sf::Vector2f crack_end_pos = crack_start_pos + sf::Vector2f{ std::cos( crack_angle ), std::sin( crack_angle ) } * crack_length;
+          Cmp::ObstacleCrack::AngleDeviations crack_angles{ .inner = 1.f, .outer = 1.f };
+          Cmp::ObstacleCrack obstacle_crack_cmp( crack_start_pos, crack_end_pos, crack_angles, sf::Time::Zero );
+          for ( auto _ : std::views::iota( 0, 3 ) )
+          {
+            LightningSystem::divide_lightning_segments( obstacle_crack_cmp.sequence, obstacle_crack_cmp.m_deviations, 1 );
+          }
+          auto entt_main = reg().create();
+          reg().emplace_or_replace<Cmp::ObstacleCrack>( entt_main, obstacle_crack_cmp );
+          reg().emplace_or_replace<Cmp::UUID>( entt_main, obstacle_uuid_cmp );
         }
-        auto entt_main = reg().create();
-        reg().emplace_or_replace<Cmp::ObstacleCrack>( entt_main, obstacle_crack_cmp );
-        reg().emplace_or_replace<Cmp::UUID>( entt_main, obstacle_uuid_cmp );
       }
     }
   }
