@@ -93,6 +93,8 @@ private:
   //! @brief Used by GraveyardScene when player is struck by lightning
   void render_lightning_strike();
 
+  void render_obstacle_cracks();
+
   //! @brief Flashes the screen
   //! @param color
   void render_screen_flash( sf::Color color );

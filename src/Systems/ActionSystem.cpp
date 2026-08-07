@@ -4,6 +4,7 @@
 #include <Components/AnimData.hpp>
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/Direction.hpp>
+#include <Components/FractalCurve.hpp>
 #include <Components/Grave/PlantMultiBlock.hpp>
 #include <Components/Grave/PlantSegment.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
@@ -42,11 +43,13 @@
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Stores/ItemStore.hpp>
+#include <Systems/Threats/LightningSystem.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
+#include <numbers>
 
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/System/Time.hpp>
@@ -250,8 +253,6 @@ void ActionSystem::check_player_dig_obstacle_collision()
       auto damage_per_hit = Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( reg() ).get_value();
       if ( inventory_slot_type.contains( "pickaxe" ) ) { /* no damage gradient for pickaxe */ }
       else if ( inventory_slot_type.contains( "shovel" ) or inventory_slot_type.contains( "axe" ) ) { damage_per_hit = damage_per_hit / 5; }
-      // auto new_alpha_value = std::max( 0, obstacle_alpha_cmp.getAlpha() - Utils::Maths::to_percent( 255.f, damage_per_hit ) );
-      // obstacle_alpha_cmp.setAlpha( new_alpha_value );
       obstacle_cmp.damage += damage_per_hit;
 
       // cap sprite obstacles are created via decorate_obstacle() only, so unlike the main obstacle
@@ -262,12 +263,12 @@ void ActionSystem::check_player_dig_obstacle_collision()
       {
         if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), cap_pos_cmp ) ) continue;
         if ( obstacle_uuid_cmp != cap_obstacle_uuid_cmp ) continue;
-        // cap_obstacle_alpha.setAlpha( new_alpha_value );
       }
 
       float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
       Utils::Player::reduce_inventory_wear_level( reg(), reduction_amount );
 
+      // Destroy the obstacle?
       if ( obstacle_cmp.damage >= 100 )
       {
         // select the final smash sound
@@ -275,6 +276,10 @@ void ActionSystem::check_player_dig_obstacle_collision()
 
         // replace the obstacle with a detonated component
         Factory::Obstacle::remove_obstacle( reg(), obstacle_entt, Factory::Obstacle::DeleteExtras::Yes );
+        for ( auto [ob_crack_entt, ob_crack_cmp, ob_crack_uuid] : reg().view<Cmp::ObstacleCrack, Cmp::UUID>().each() )
+        {
+          if ( ob_crack_uuid == obstacle_uuid_cmp ) reg().destroy( ob_crack_entt );
+        }
         Factory::Bomb::add_detonated( reg(), obstacle_entt, obstacle_pos_cmp );
 
         // add the position to the spatial grid so it can be used in pathfinding
@@ -299,6 +304,31 @@ void ActionSystem::check_player_dig_obstacle_collision()
         auto dig_particle_uuid = Cmp::UUID::generate();
         Factory::Particle::add_obstacledig_ps( reg(), "graveyard.obstacle.dig.particle", 5, 2.f, 50.f, dig_particle_uuid, obstacle_pos_cmp.position,
                                                obstacle_pos_cmp.y() );
+
+        sf::Vector2f crack_start_pos( obstacle_pos_cmp.getCenter().x, obstacle_pos_cmp.getCenter().y - 4.f ); // offset for obstacle cap
+        constexpr float kCrackLengthRatio = 0.4f;
+        float crack_length = Constants::kGridSizePxF.x * kCrackLengthRatio;
+
+        // Cracks land on one of the fixed 45deg-spaced slots around the circle (picked at random,
+        // not in sequence), so repeated hits don't cluster but also don't form a predictable ring.
+        // The slots themselves are rotated by an angle derived from the obstacle's UUID so they're
+        // stable across hits but differ per obstacle instance.
+        constexpr float kCrackAngleStepDeg = 70.f;
+        constexpr int kCrackSlotCount = static_cast<int>( 360.f / kCrackAngleStepDeg );
+        int crack_slot = Cmp::RandomInt( 0, kCrackSlotCount - 1 ).gen();
+        float base_angle_deg = static_cast<float>( std::hash<Cmp::UUID>{}( obstacle_uuid_cmp ) % 360 );
+        float crack_angle_deg = std::fmod( base_angle_deg + ( static_cast<float>( crack_slot ) * kCrackAngleStepDeg ), 360.f );
+        float crack_angle = crack_angle_deg * std::numbers::pi_v<float> / 180.f;
+        sf::Vector2f crack_end_pos = crack_start_pos + sf::Vector2f{ std::cos( crack_angle ), std::sin( crack_angle ) } * crack_length;
+        Cmp::ObstacleCrack::AngleDeviations crack_angles{ .inner = 1.f, .outer = 1.f };
+        Cmp::ObstacleCrack obstacle_crack_cmp( crack_start_pos, crack_end_pos, crack_angles, sf::Time::Zero );
+        for ( auto _ : std::views::iota( 0, 3 ) )
+        {
+          LightningSystem::divide_lightning_segments( obstacle_crack_cmp.sequence, obstacle_crack_cmp.m_deviations, 1 );
+        }
+        auto entt_main = reg().create();
+        reg().emplace_or_replace<Cmp::ObstacleCrack>( entt_main, obstacle_crack_cmp );
+        reg().emplace_or_replace<Cmp::UUID>( entt_main, obstacle_uuid_cmp );
       }
     }
   }

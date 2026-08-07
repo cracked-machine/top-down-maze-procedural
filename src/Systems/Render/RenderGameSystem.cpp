@@ -18,11 +18,11 @@
 #include <Components/Crypt/CryptRoomOpen.hpp>
 #include <Components/Crypt/CryptRoomStart.hpp>
 #include <Components/Exit.hpp>
+#include <Components/FractalCurve.hpp>
 #include <Components/Grave/GraveMultiBlock.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/LastDirection.hpp>
-#include <Components/LightningStrike.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Npc/NpcShockwave.hpp>
 #include <Components/Persistent/ArmedBlinkFreq.hpp>
@@ -228,6 +228,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   render_arrow_compass();
 
   render_lightning_strike();
+  render_obstacle_cracks();
   render_overlay_sys.render_shop_inventory_overlay();
   render_overlay_sys.render_grimoire_inventory_overlay();
 
@@ -635,6 +636,61 @@ void RenderGameSystem::render_lightning_strike()
           {
             sf::Vector2f diverge_pos = world_to_screen( next_vertex.position );
             draw_screen( Utils::Maths::thick_line_rect( first_pos, diverge_pos, kAuxStrikeLineColor, kAuxLineThickness ) );
+          }
+        }
+      }
+    }
+  }
+}
+
+void RenderGameSystem::render_obstacle_cracks()
+{
+
+  const auto kAuxStrikeLineColor = sf::Color( 0, 0, 0, 255 );
+  const auto kMainStrikeLineColor = sf::Color( 0, 0, 0, 255 );
+
+  const float kMainLineThickness = 3.f;
+  const float kAuxLineThickness = 2.f;
+
+  for ( auto [ob_crack_entt, ob_crack_cmp] : reg().view<Cmp::ObstacleCrack>().each() )
+  {
+
+    if ( ob_crack_cmp.sequence.size() < 2 )
+    {
+      SPDLOG_WARN( "Lightning component has empty sequence. Skipping rendering step." );
+      return;
+    }
+
+    // Draw the sequence of vertices by iterating pairs of vertices from the current and next row.
+    // Main strike line is index zero (thick/blue). Aux strike lines are other indices (thin/white).
+    const auto &ls_seq_row = ob_crack_cmp.sequence;
+    for ( auto curr_row_iter = ls_seq_row.begin(); curr_row_iter < ls_seq_row.end(); curr_row_iter++ )
+    {
+      auto next_row_iter = std::next( curr_row_iter );
+      if ( next_row_iter == ls_seq_row.end() ) { break; }
+
+      // next row's convergence point - all vertices in the current row connect to this
+      sf::Vector2f converge_pos = world_to_screen( next_row_iter->at( 0 ).position );
+
+      for ( auto [curr_row_idx, current_vertex] : std::views::enumerate( *curr_row_iter ) )
+      {
+        sf::Vector2f first_pos = world_to_screen( current_vertex.position );
+
+        // always converge non-zero index vertex back to the main line (zero-index)
+        if ( curr_row_idx > 0 ) { draw_screen( Utils::Maths::thick_line_rect( first_pos, converge_pos, kAuxStrikeLineColor, kAuxLineThickness ) ); }
+        else if ( curr_row_idx == 0 )
+        {
+          // always draw main line on zero-index
+          draw_screen( Utils::Maths::thick_line_rect( first_pos, converge_pos, kMainStrikeLineColor, kMainLineThickness ) );
+
+          for ( auto [next_row_idx, next_vertex] : std::views::enumerate( *next_row_iter ) )
+          {
+            // always diverge zero-index vertex out to available non-zero index vertex on next row
+            if ( next_row_idx > 0 )
+            {
+              sf::Vector2f diverge_pos = world_to_screen( next_vertex.position );
+              draw_screen( Utils::Maths::thick_line_rect( first_pos, diverge_pos, kAuxStrikeLineColor, kAuxLineThickness ) );
+            }
           }
         }
       }

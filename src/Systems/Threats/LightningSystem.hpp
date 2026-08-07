@@ -1,8 +1,8 @@
 #ifndef SRC_SYSTEMS_THREATS_LIGHTNINGSYSTEM_HPP__
 #define SRC_SYSTEMS_THREATS_LIGHTNINGSYSTEM_HPP__
 
+#include <Components/FractalCurve.hpp>
 #include <Events/LightningEvent.hpp>
-#include <Components/LightningStrike.hpp>
 #include <Systems/BaseSystem.hpp>
 
 namespace Game::Cmp
@@ -41,6 +41,14 @@ public:
   //! @brief event handlers for resuming system clocks
   void on_resume() override {};
 
+  //! @brief Used to create the lightning strike "zig-zag" sections. Called N times by LightningSystem::create_lightning_strike().
+  //! @note It takes each existing segment and divides into two segments. The dividing vertex point is then offset at perpendicular distance
+  //! @param ls_seq
+  //! @param deviations
+  //! @param lines_per_strike
+  static void divide_lightning_segments( std::vector<std::vector<sf::Vertex>> &ls_seq, Cmp::LightningStrike::AngleDeviations deviations,
+                                         int lines_per_strike );
+
 private:
   //! @brief
   bool trigger_lightning{ false };
@@ -48,14 +56,6 @@ private:
   //! @brief Create a lightning strike object
   //! @param dt
   void create_lightning_strike( sf::Time dt );
-
-  //! @brief Used to create the lightning strike "zig-zag" sections. Called N times by LightningSystem::create_lightning_strike().
-  //! @note It takes each existing segment and divides into two segments. The dividing vertex point is then offset at perpendicular distance
-  //! @param ls_seq
-  //! @param deviations
-  //! @param lines_per_strike
-  void divide_lightning_segments( std::vector<std::vector<sf::Vertex>> &ls_seq, Cmp::LightningStrike::AngleDeviations deviations,
-                                  int lines_per_strike );
 
   //! @brief If the Cmp::LightningStrike timer has expired then delete the entity
   void delete_expired_lightning_strikes();

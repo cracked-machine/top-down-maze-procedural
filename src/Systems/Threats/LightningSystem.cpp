@@ -1,5 +1,4 @@
 #include <Audio/SoundBank.hpp>
-#include <Components/LightningStrike.hpp>
 #include <Components/Persistent/LightningDamage.hpp>
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Position.hpp>
