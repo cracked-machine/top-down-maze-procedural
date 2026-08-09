@@ -6,7 +6,7 @@ namespace Game::Events
 
 struct PlayerActionEvent
 {
-  enum class GameActions { DROP_BOMB, GRAVE_BOMB, ACTIVATE, DIG, ATTACK, DROP_CARRYITEM, SELECT, DESELECT, GRIMOIRE };
+  enum class GameActions { DROP_BOMB, GRAVE_BOMB, ACTIVATE, DIG, ATTACK, DROP_CARRYITEM, SELECT, DESELECT, GRIMOIRE, DRAW_BOW, RELEASE_BOW };
 
   explicit PlayerActionEvent( GameActions act, entt::entity entt = entt::null )
       : action( act ),

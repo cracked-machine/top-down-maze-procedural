@@ -445,7 +445,11 @@ void PlayerSystem::update_arrow_trajectory( sf::Time dt )
     if ( arrow_cmp.m_fixed_time_step_accumulator >= arrow_cmp.fixed_time_step_max() )
     {
       // update the arrow position from its direction
-      if ( arrow_pos_cmp.getCenter() == arrow_cmp.m_destination ) { arrow_cmp.m_in_flight = false; }
+      if ( arrow_pos_cmp.getCenter() == arrow_cmp.m_destination )
+      {
+        if ( arrow_cmp.m_in_flight ) m_sound_bank.get_effect( "hit_pot" ).play();
+        arrow_cmp.m_in_flight = false;
+      }
       else
       {
         sf::Vector2f remaining = arrow_cmp.m_destination - arrow_pos_cmp.getCenter();
@@ -774,9 +778,6 @@ void PlayerSystem::check_player_axe_npc_kill()
 
 void PlayerSystem::check_player_fire_arrow()
 {
-  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
-  if ( inventory_slot_type != "sprite.item.bow" ) { return; }
-
   auto mouse_pos = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
   SPDLOG_INFO( "Firing arrow to {},{}", mouse_pos.position.x, mouse_pos.position.y );
 
@@ -1048,6 +1049,19 @@ void PlayerSystem::on_player_action_event( Game::Events::PlayerActionEvent ev )
   {
     // axe attack?!
     check_player_axe_npc_kill();
+  }
+  else if ( ev.action == Game::Events::PlayerActionEvent::GameActions::DRAW_BOW )
+  {
+    // draw the bow
+    auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
+    if ( inventory_slot_type != "sprite.item.bow" ) { return; }
+    if ( m_sound_bank.get_effect( "crypt_open" ).getStatus() != sf::Sound::Status::Playing ) m_sound_bank.get_effect( "crypt_open" ).play();
+  }
+  else if ( ev.action == Game::Events::PlayerActionEvent::GameActions::RELEASE_BOW )
+  {
+    // release an arrow
+    auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
+    if ( inventory_slot_type != "sprite.item.bow" ) { return; }
     check_player_fire_arrow();
   }
   else if ( ev.action == Game::Events::PlayerActionEvent::GameActions::DIG )

@@ -23,7 +23,7 @@ public:
   [[nodiscard]] sf::Time fixed_time_step_max() const { return m_fixed_time_step_max; }
 
 private:
-  float m_speed{ 5.f };
+  float m_speed{ 10.f };
   sf::Time m_fixed_time_step_max{ sf::microseconds( 1.f ) };
 };
 

@@ -1,6 +1,7 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/Altar/AltarSegment.hpp>
 #include <Components/AnimData.hpp>
+#include <Components/ArrowProjectile.hpp>
 #include <Components/Crypt/CryptBuildingSegment.hpp>
 #include <Components/Crypt/CryptObjectiveSegment.hpp>
 #include <Components/DeathPosition.hpp>
@@ -108,6 +109,7 @@ void NpcSystem::update( sf::Time dt )
     check_once_collision();
     check_timed_collision( dt );
   }
+  check_arrow_collision();
 }
 
 void NpcSystem::check_npc_container_collision()
@@ -524,6 +526,23 @@ void NpcSystem::check_timed_collision( sf::Time dt )
     npc_action_timer = sf::Time::Zero;
 
     if ( check_player_death( player_mort ) ) return;
+  }
+}
+
+void NpcSystem::check_arrow_collision()
+{
+  for ( auto [arrow_entt, arrow_cmp, arrow_pos_cmp] : reg().view<Cmp::ArrowProjectile, Cmp::Position>().each() )
+  {
+    for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : reg().view<Cmp::NPC, Cmp::Position>().each() )
+    {
+      if ( not npc_pos_cmp.findIntersection( arrow_pos_cmp ) ) continue;
+      Factory::Npc::destroy_npc( reg(), npc_entt );
+    }
+    for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : reg().view<Cmp::NpcContainer, Cmp::Position>().each() )
+    {
+      if ( not npc_pos_cmp.findIntersection( arrow_pos_cmp ) ) continue;
+      Factory::Npc::destroy_npc_container( reg(), npc_entt );
+    }
   }
 }
 

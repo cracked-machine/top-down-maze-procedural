@@ -23,6 +23,7 @@
 #include <Events/SaveSettingsEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <SFML/Window/Mouse.hpp>
 #include <SceneControl/Events/ProcessCryptSceneInputEvent.hpp>
 #include <SceneControl/Events/ProcessGameoverSceneInputEvent.hpp>
 #include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
@@ -163,6 +164,20 @@ void SceneInputRouter::graveyard_scene_state_handler()
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::P ) { enqueue( Events::SceneManagerEvent::Type::PAUSE_GAME ); }
     }
+    else if ( const auto *mouseReleased = event->getIf<sf::Event::MouseButtonReleased>() )
+    {
+      if ( mouseReleased->button == sf::Mouse::Button::Left )
+      {
+        get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::RELEASE_BOW ) );
+      }
+    }
+    else if ( const auto *mousePressed = event->getIf<sf::Event::MouseButtonPressed>() )
+    {
+      if ( mousePressed->button == sf::Mouse::Button::Left )
+      {
+        get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DRAW_BOW ) );
+      }
+    }
   }
 
   process_move_keys();
@@ -182,6 +197,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
   }
   if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
   {
+    // get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DRAW_BOW ) );
     get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::ATTACK ) );
     get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG ) );
   }
