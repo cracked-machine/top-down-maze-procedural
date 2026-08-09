@@ -1,6 +1,7 @@
 
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AbsoluteOffset.hpp>
+#include <Components/AbsoluteRenderOffset.hpp>
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/Altar/AltarMultiBlock.hpp>
 #include <Components/AnimData.hpp>
@@ -144,8 +145,12 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
       auto *new_angle_cmp = reg().try_get<Cmp::AbsoluteRotation>( entity );
       if ( new_angle_cmp ) new_angle_value = sf::degrees( new_angle_cmp->getAngle() );
 
-      safe_render_sprite_world( anim_cmp.m_sprite_type, pos_cmp, anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame, { 1.f, 1.f }, alpha_value,
-                                new_origin_value, new_angle_value );
+      sf::FloatRect render_pos_cmp = pos_cmp;
+      auto *render_offset_cmp = reg().try_get<Cmp::AbsoluteRenderOffset>( entity );
+      if ( render_offset_cmp ) render_pos_cmp.position += render_offset_cmp->getOffset();
+
+      safe_render_sprite_world( anim_cmp.m_sprite_type, render_pos_cmp, anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame, { 1.f, 1.f },
+                                alpha_value, new_origin_value, new_angle_value );
 
       if ( reg().any_of<Cmp::SeeingStone>( entity ) )
       {

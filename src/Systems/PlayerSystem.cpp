@@ -1,6 +1,7 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AbsoluteOffset.hpp>
+#include <Components/AbsoluteRenderOffset.hpp>
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/Altar/AltarMultiBlock.hpp>
 #include <Components/AnimData.hpp>
@@ -82,6 +83,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <algorithm>
 #include <spdlog/spdlog.h>
 
 namespace Game::Sys
@@ -444,20 +446,38 @@ void PlayerSystem::update_arrow_trajectory( sf::Time dt )
   {
     if ( arrow_cmp.m_fixed_time_step_accumulator >= arrow_cmp.fixed_time_step_max() )
     {
-      // update the arrow position from its direction
       if ( arrow_pos_cmp.getCenter() == arrow_cmp.m_destination )
       {
+        // arrow has reached destination
         if ( arrow_cmp.m_in_flight ) m_sound_bank.get_effect( "hit_pot" ).play();
         arrow_cmp.m_in_flight = false;
+        reg().emplace_or_replace<Cmp::AbsoluteRenderOffset>( arrow_entt, sf::Vector2f{ 0.f, 0.f } );
       }
       else
       {
+        // Arrow still in flight; update the arrow position/angle using its latest direction
         sf::Vector2f remaining = arrow_cmp.m_destination - arrow_pos_cmp.getCenter();
         if ( remaining.length() <= arrow_cmp.speed() ) { arrow_pos_cmp.position = arrow_cmp.m_destination - arrow_pos_cmp.size / 2.f; }
         else if ( auto direction = Utils::Maths::normalized( remaining ) )
         {
           arrow_pos_cmp.position += *direction * arrow_cmp.speed();
           reg().emplace_or_replace<Cmp::AbsoluteRotation>( arrow_entt, ( *direction ).angle().asDegrees() );
+        }
+
+        // Displace the sprite along a parabolic arc that peaks halfway between origin and destination.
+        // The underlying Position stays on the straight line so NPC hit detection is unaffected.
+        // The arc is drawn perpendicular to the flight path: a vertical bulge for a mostly-horizontal
+        // shot, a horizontal bulge for a mostly-vertical shot, so it stays visible either way.
+        static const float kParabolaHeight = 0.5f;
+        sf::Vector2f flight_vector = arrow_cmp.m_destination - arrow_cmp.m_origin;
+        float total_distance = flight_vector.length();
+        if ( total_distance > 0.f )
+        {
+          float progress = std::clamp( ( arrow_pos_cmp.getCenter() - arrow_cmp.m_origin ).length() / total_distance, 0.f, 1.f );
+          float arc_magnitude = -kParabolaHeight * arrow_cmp.arc_height() * progress * ( 1.f - progress );
+          sf::Vector2f arc_offset = std::abs( flight_vector.x ) >= std::abs( flight_vector.y ) ? sf::Vector2f{ 0.f, arc_magnitude }
+                                                                                               : sf::Vector2f{ arc_magnitude, 0.f };
+          reg().emplace_or_replace<Cmp::AbsoluteRenderOffset>( arrow_entt, arc_offset );
         }
       }
 

@@ -6,6 +6,9 @@ namespace Game::Cmp
 {
 
 //! @brief Fired arrow projectile
+//! @note User input triggered by SceneInputRouter.
+//! @note Arrow physics are managed by PlayerSystem.
+//! @note NPC collision detection is managed by NPCSystem.
 class ArrowProjectile
 {
 public:
@@ -21,10 +24,13 @@ public:
 
   [[nodiscard]] float speed() const { return m_speed; }
   [[nodiscard]] sf::Time fixed_time_step_max() const { return m_fixed_time_step_max; }
+  //! @brief Peak height (in pixels) of the visual arc between origin and destination
+  [[nodiscard]] float arc_height() const { return m_arc_height; }
 
 private:
   float m_speed{ 10.f };
   sf::Time m_fixed_time_step_max{ sf::microseconds( 1.f ) };
+  float m_arc_height{ 40.f };
 };
 
 } // namespace Game::Cmp
