@@ -94,7 +94,8 @@ private:
   void check_player_axe_npc_kill();
 
   //! @brief If player is carrying bow then fire arrow in direction of mouse position
-  void check_player_fire_arrow();
+  //! @param charge_fraction How far to the mouse position the arrow should travel, in [0,1]
+  void check_player_fire_arrow( float charge_fraction );
 
   void move_obstacle( const sf::FloatRect &target_position );
   void check_player_can_push( sf::Time dt );
@@ -168,6 +169,11 @@ private:
 
   //! @brief Prevent the player from moving when running
   sf::Clock m_movement_suppress_clock{};
+
+  //! @brief Tracks how long the bow has been held drawn, between DRAW_BOW and RELEASE_BOW.
+  sf::Clock m_bow_draw_clock;
+  //! @brief True while the bow is being drawn (left mouse button held with bow equipped).
+  bool m_bow_drawing{ false };
 };
 
 } // namespace Game::Sys

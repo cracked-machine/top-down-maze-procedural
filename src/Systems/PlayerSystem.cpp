@@ -35,6 +35,7 @@
 #include <Components/Player/PlayerNoPath.hpp>
 #include <Components/Player/TorchRadius.hpp>
 #include <Components/Position.hpp>
+#include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinCobweb.hpp>
@@ -86,6 +87,7 @@
 #include <algorithm>
 #include <cmath>
 #include <spdlog/spdlog.h>
+#include <string>
 
 namespace Game::Sys
 {
@@ -447,41 +449,7 @@ void PlayerSystem::update_arrow_trajectory( sf::Time dt )
   {
     if ( arrow_cmp.m_fixed_time_step_accumulator >= arrow_cmp.fixed_time_step_max() )
     {
-      if ( arrow_pos_cmp.getCenter() == arrow_cmp.m_destination )
-      {
-        // arrow has reached destination
-        if ( arrow_cmp.m_in_flight )
-        {
-          m_sound_bank.get_effect( "hit_pot" ).play();
-          arrow_cmp.m_in_flight = false;
-          if ( auto *rotation_cmp = reg().try_get<Cmp::AbsoluteRotation>( arrow_entt ) ) arrow_cmp.m_rest_angle = rotation_cmp->getAngle();
-
-          // Re-pivot rotation around the arrowhead (tip) instead of the sprite centre, so the impact
-          // point stays fixed in place while the fletching end wiggles around it. AbsoluteOffset is a
-          // local pivot in sprite space (tip = far edge along the sprite's default facing direction);
-          // AbsoluteRenderOffset compensates in world space so the tip lands exactly where the sprite's
-          // centre used to be, accounting for whatever angle the arrow was flying at on impact -
-          // otherwise the sprite visibly snaps sideways the instant it switches pivot.
-          float rest_rad = sf::degrees( arrow_cmp.m_rest_angle ).asRadians();
-          float half_width = arrow_pos_cmp.size.x / 2.f;
-          sf::Vector2f tip_from_centre{ std::cos( rest_rad ) * half_width, std::sin( rest_rad ) * half_width };
-          reg().emplace_or_replace<Cmp::AbsoluteOffset>( arrow_entt, sf::Vector2f{ arrow_pos_cmp.size.x, arrow_pos_cmp.size.y / 2.f } );
-          reg().emplace_or_replace<Cmp::AbsoluteRenderOffset>( arrow_entt, tip_from_centre - sf::Vector2f{ half_width, 0.f } );
-        }
-
-        // Wiggle the arrow briefly on impact, decaying back to its resting angle.
-        static const sf::Time kWiggleDuration = sf::seconds( 0.2f );
-        static const float kWiggleFrequencyHz = 100.f;
-        static const float kWiggleAmplitudeDeg = 1.f;
-        if ( arrow_cmp.m_landed_elapsed < kWiggleDuration )
-        {
-          arrow_cmp.m_landed_elapsed += dt;
-          float decay = 1.f - ( arrow_cmp.m_landed_elapsed.asSeconds() / kWiggleDuration.asSeconds() );
-          float wiggle_deg = kWiggleAmplitudeDeg * decay * std::sin( arrow_cmp.m_landed_elapsed.asSeconds() * kWiggleFrequencyHz );
-          reg().emplace_or_replace<Cmp::AbsoluteRotation>( arrow_entt, arrow_cmp.m_rest_angle + wiggle_deg );
-        }
-      }
-      else
+      if ( arrow_cmp.m_in_flight )
       {
         // Arrow still in flight; update the arrow position/angle using its latest direction
         sf::Vector2f remaining = arrow_cmp.m_destination - arrow_pos_cmp.getCenter();
@@ -506,6 +474,54 @@ void PlayerSystem::update_arrow_trajectory( sf::Time dt )
           sf::Vector2f arc_offset = std::abs( flight_vector.x ) >= std::abs( flight_vector.y ) ? sf::Vector2f{ 0.f, arc_magnitude }
                                                                                                : sf::Vector2f{ arc_magnitude, 0.f };
           reg().emplace_or_replace<Cmp::AbsoluteRenderOffset>( arrow_entt, arc_offset );
+        }
+      }
+
+      // Checked unconditionally (not just when already landed) so that the impact sound/effects fire
+      // on the exact same tick the arrow snaps to its destination above, instead of one tick later.
+      if ( arrow_pos_cmp.getCenter() == arrow_cmp.m_destination )
+      {
+        // arrow has reached destination
+        if ( arrow_cmp.m_in_flight )
+        {
+          m_sound_bank.get_effect( std::string( "arrow_hit" ) + std::to_string( Cmp::RandomInt( 1, 4 ).gen() ) ).play();
+          m_sound_bank.get_effect( "draw_bow" ).stop();
+          m_sound_bank.get_effect( "release_bow" ).stop();
+          arrow_cmp.m_in_flight = false;
+          if ( auto *rotation_cmp = reg().try_get<Cmp::AbsoluteRotation>( arrow_entt ) ) arrow_cmp.m_rest_angle = rotation_cmp->getAngle();
+
+          // Re-pivot rotation around the arrowhead (tip) instead of the sprite centre, so the impact
+          // point stays fixed in place while the fletching end wiggles around it. AbsoluteOffset is a
+          // local pivot in sprite space (tip = far edge along the sprite's default facing direction);
+          // AbsoluteRenderOffset compensates in world space so the tip lands exactly where the sprite's
+          // centre used to be, accounting for whatever angle the arrow was flying at on impact -
+          // otherwise the sprite visibly snaps sideways the instant it switches pivot.
+          float rest_rad = sf::degrees( arrow_cmp.m_rest_angle ).asRadians();
+          float half_width = arrow_pos_cmp.size.x / 2.f;
+          sf::Vector2f tip_from_centre{ std::cos( rest_rad ) * half_width, std::sin( rest_rad ) * half_width };
+          reg().emplace_or_replace<Cmp::AbsoluteOffset>( arrow_entt, sf::Vector2f{ arrow_pos_cmp.size.x, arrow_pos_cmp.size.y / 2.f } );
+          reg().emplace_or_replace<Cmp::AbsoluteRenderOffset>( arrow_entt, tip_from_centre - sf::Vector2f{ half_width, 0.f } );
+        }
+
+        arrow_cmp.m_landed_elapsed += dt;
+
+        // Destroy spent arrows a while after they land so they don't pile up.
+        static const sf::Time kDestroyDelay = sf::seconds( 5.f );
+        if ( arrow_cmp.m_landed_elapsed >= kDestroyDelay )
+        {
+          reg().destroy( arrow_entt );
+          continue;
+        }
+
+        // Wiggle the arrow briefly on impact, decaying back to its resting angle.
+        static const sf::Time kWiggleDuration = sf::seconds( 0.2f );
+        static const float kWiggleFrequencyHz = 100.f;
+        static const float kWiggleAmplitudeDeg = 1.f;
+        if ( arrow_cmp.m_landed_elapsed < kWiggleDuration )
+        {
+          float decay = 1.f - ( arrow_cmp.m_landed_elapsed.asSeconds() / kWiggleDuration.asSeconds() );
+          float wiggle_deg = kWiggleAmplitudeDeg * decay * std::sin( arrow_cmp.m_landed_elapsed.asSeconds() * kWiggleFrequencyHz );
+          reg().emplace_or_replace<Cmp::AbsoluteRotation>( arrow_entt, arrow_cmp.m_rest_angle + wiggle_deg );
         }
       }
 
@@ -824,7 +840,7 @@ void PlayerSystem::check_player_axe_npc_kill()
   }
 }
 
-void PlayerSystem::check_player_fire_arrow()
+void PlayerSystem::check_player_fire_arrow( float charge_fraction )
 {
   auto mouse_pos = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
   SPDLOG_INFO( "Firing arrow to {},{}", mouse_pos.position.x, mouse_pos.position.y );
@@ -832,7 +848,13 @@ void PlayerSystem::check_player_fire_arrow()
   auto arrow_entt = reg().create();
   auto arrow_origin = Utils::Player::get_position( reg() );
   reg().emplace_or_replace<Cmp::Position>( arrow_entt, arrow_origin.position, arrow_origin.size );
-  reg().emplace_or_replace<Cmp::ArrowProjectile>( arrow_entt, Utils::Player::get_position( reg() ).getCenter(), mouse_pos.getCenter() );
+
+  // Charge scales how far along the origin->mouse line the arrow actually travels;
+  // a weak draw drops the arrow short instead of always reaching the cursor.
+  sf::Vector2f origin_center = arrow_origin.getCenter();
+  sf::Vector2f arrow_destination = origin_center + ( mouse_pos.getCenter() - origin_center ) * charge_fraction;
+
+  reg().emplace_or_replace<Cmp::ArrowProjectile>( arrow_entt, origin_center, arrow_destination );
   reg().emplace_or_replace<Cmp::ZOrderValue>( arrow_entt, 50000 );
   reg().emplace_or_replace<Cmp::AbsoluteOffset>( arrow_entt, arrow_origin.size / 2.f );
   if ( auto angle = Utils::Maths::angle( mouse_pos.getCenter() - arrow_origin.getCenter() ) )
@@ -1103,14 +1125,25 @@ void PlayerSystem::on_player_action_event( Game::Events::PlayerActionEvent ev )
     // draw the bow
     auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
     if ( inventory_slot_type != "sprite.item.bow" ) { return; }
-    if ( m_sound_bank.get_effect( "crypt_open" ).getStatus() != sf::Sound::Status::Playing ) m_sound_bank.get_effect( "crypt_open" ).play();
+    if ( m_sound_bank.get_effect( "draw_bow" ).getStatus() != sf::Sound::Status::Playing ) m_sound_bank.get_effect( "draw_bow" ).play();
+    m_bow_drawing = true;
+    m_bow_draw_clock.restart();
   }
   else if ( ev.action == Game::Events::PlayerActionEvent::GameActions::RELEASE_BOW )
   {
-    // release an arrow
+    // release an arrow; how far it flies depends on how long the bow was held drawn
     auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
     if ( inventory_slot_type != "sprite.item.bow" ) { return; }
-    check_player_fire_arrow();
+
+    m_sound_bank.get_effect( "release_bow" ).play();
+
+    static const float kMinChargeFraction = 0.25f;
+    static const float kFullDrawSeconds = 1.f;
+    float charge_fraction = m_bow_drawing ? std::clamp( m_bow_draw_clock.getElapsedTime().asSeconds() / kFullDrawSeconds, kMinChargeFraction, 1.f )
+                                          : 1.f;
+    m_bow_drawing = false;
+
+    check_player_fire_arrow( charge_fraction );
   }
   else if ( ev.action == Game::Events::PlayerActionEvent::GameActions::DIG )
   {

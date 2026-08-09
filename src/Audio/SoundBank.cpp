@@ -39,6 +39,13 @@ void SoundBank::init()
   sounds.emplace( "axe_whip", EffectsData{ "res/audio/axe_whip.wav" } );
   sounds.emplace( "skele_death", EffectsData{ "res/audio/skele_death.wav" } );
 
+  sounds.emplace( "draw_bow", EffectsData{ "res/audio/draw_bow.mp3" } );
+  sounds.emplace( "release_bow", EffectsData{ "res/audio/release_bow.mp3" } );
+  sounds.emplace( "arrow_hit1", EffectsData{ "res/audio/arrow_hit1.mp3" } );
+  sounds.emplace( "arrow_hit2", EffectsData{ "res/audio/arrow_hit2.mp3" } );
+  sounds.emplace( "arrow_hit3", EffectsData{ "res/audio/arrow_hit3.mp3" } );
+  sounds.emplace( "arrow_hit4", EffectsData{ "res/audio/arrow_hit4.mp3" } );
+
   sounds.emplace( "pickaxe1", EffectsData{ "res/audio/pickaxe1.wav" } );
   sounds.emplace( "pickaxe2", EffectsData{ "res/audio/pickaxe2.wav" } );
   sounds.emplace( "pickaxe3", EffectsData{ "res/audio/pickaxe3.wav" } );
