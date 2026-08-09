@@ -1,8 +1,10 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/AbsoluteAlpha.hpp>
+#include <Components/AbsoluteOffset.hpp>
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/Altar/AltarMultiBlock.hpp>
 #include <Components/AnimData.hpp>
+#include <Components/ArrowProjectile.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Exit.hpp>
 #include <Components/FootStepTimer.hpp>
@@ -129,6 +131,8 @@ void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
   {
     open_navmesh->update( Utils::Player::get_entity( reg() ), old_player_pos, Utils::Player::get_position( reg() ) );
   }
+
+  update_arrow_trajectory( dt );
 }
 
 void PlayerSystem::play_footsteps_sound( FootStepSfx type )
@@ -430,6 +434,32 @@ void PlayerSystem::update_player_animation()
       if ( std::abs( direction_cmp.x ) >= std::abs( direction_cmp.y ) ) { last_dir = sf::Vector2f{ direction_cmp.x > 0.f ? 1.f : -1.f, 0.f }; }
       else { last_dir = sf::Vector2f{ 0.f, direction_cmp.y > 0.f ? 1.f : -1.f }; }
     }
+  }
+}
+
+void PlayerSystem::update_arrow_trajectory( sf::Time dt )
+{
+
+  for ( auto [arrow_entt, arrow_cmp, arrow_pos_cmp] : reg().view<Cmp::ArrowProjectile, Cmp::Position>().each() )
+  {
+    if ( arrow_cmp.m_fixed_time_step_accumulator >= arrow_cmp.fixed_time_step_max() )
+    {
+      // update the arrow position from its direction
+      if ( arrow_pos_cmp.getCenter() == arrow_cmp.m_destination ) { arrow_cmp.m_in_flight = false; }
+      else
+      {
+        sf::Vector2f remaining = arrow_cmp.m_destination - arrow_pos_cmp.getCenter();
+        if ( remaining.length() <= arrow_cmp.speed() ) { arrow_pos_cmp.position = arrow_cmp.m_destination - arrow_pos_cmp.size / 2.f; }
+        else if ( auto direction = Utils::Maths::normalized( remaining ) )
+        {
+          arrow_pos_cmp.position += *direction * arrow_cmp.speed();
+          reg().emplace_or_replace<Cmp::AbsoluteRotation>( arrow_entt, ( *direction ).angle().asDegrees() );
+        }
+      }
+
+      arrow_cmp.m_fixed_time_step_accumulator = sf::Time::Zero;
+    }
+    else { arrow_cmp.m_fixed_time_step_accumulator += dt; }
   }
 }
 
@@ -742,6 +772,33 @@ void PlayerSystem::check_player_axe_npc_kill()
   }
 }
 
+void PlayerSystem::check_player_fire_arrow()
+{
+  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
+  if ( inventory_slot_type != "sprite.item.bow" ) { return; }
+
+  auto mouse_pos = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
+  SPDLOG_INFO( "Firing arrow to {},{}", mouse_pos.position.x, mouse_pos.position.y );
+
+  auto arrow_entt = reg().create();
+  auto arrow_origin = Utils::Player::get_position( reg() );
+  reg().emplace_or_replace<Cmp::Position>( arrow_entt, arrow_origin.position, arrow_origin.size );
+  reg().emplace_or_replace<Cmp::ArrowProjectile>( arrow_entt, Utils::Player::get_position( reg() ).getCenter(), mouse_pos.getCenter() );
+  reg().emplace_or_replace<Cmp::ZOrderValue>( arrow_entt, 50000 );
+  reg().emplace_or_replace<Cmp::AbsoluteOffset>( arrow_entt, arrow_origin.size / 2.f );
+  if ( auto angle = Utils::Maths::angle( mouse_pos.getCenter() - arrow_origin.getCenter() ) )
+  {
+    reg().emplace_or_replace<Cmp::AbsoluteRotation>( arrow_entt, angle->asDegrees() );
+  }
+  // clang-format off
+    reg().emplace_or_replace<Cmp::AnimData>( arrow_entt, Cmp::AnimData::Config{
+          .sprite_type = "sprite.item.arrow",
+          .frame_index_offset = 0,
+          .enabled = true
+    });
+  // clang-format on
+}
+
 void PlayerSystem::fade_player_on_wormhole_jump()
 {
   auto player_entt = Utils::Player::get_entity( reg() );
@@ -991,6 +1048,7 @@ void PlayerSystem::on_player_action_event( Game::Events::PlayerActionEvent ev )
   {
     // axe attack?!
     check_player_axe_npc_kill();
+    check_player_fire_arrow();
   }
   else if ( ev.action == Game::Events::PlayerActionEvent::GameActions::DIG )
   {

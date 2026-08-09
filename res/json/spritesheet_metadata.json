@@ -1093,6 +1093,34 @@
         }
       }
     },
+    "sprite.item.bow": {
+      "spritesheet": {
+        "displayname": "Bow",
+        "zorder": [0],
+        "texture_path": "res/textures/inventoryitems.png",
+        "sprite_indices": [360],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "x": 1,
+          "y": 1
+        }
+      }
+    },
+    "sprite.item.arrow": {
+      "spritesheet": {
+        "displayname": "Arrow",
+        "zorder": [0],
+        "texture_path": "res/textures/graveyard.png",
+        "sprite_indices": [18],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "x": 1,
+          "y": 1
+        }
+      }
+    },
     "sprite.item.bomb": {
       "spritesheet": {
         "displayname": "Dynamite",
