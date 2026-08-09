@@ -41,6 +41,7 @@ void SoundBank::init()
 
   sounds.emplace( "draw_bow", EffectsData{ "res/audio/draw_bow.mp3" } );
   sounds.emplace( "release_bow", EffectsData{ "res/audio/release_bow.mp3" } );
+
   sounds.emplace( "arrow_hit1", EffectsData{ "res/audio/arrow_hit1.mp3" } );
   sounds.emplace( "arrow_hit2", EffectsData{ "res/audio/arrow_hit2.mp3" } );
   sounds.emplace( "arrow_hit3", EffectsData{ "res/audio/arrow_hit3.mp3" } );

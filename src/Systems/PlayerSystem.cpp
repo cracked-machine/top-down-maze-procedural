@@ -484,7 +484,7 @@ void PlayerSystem::update_arrow_trajectory( sf::Time dt )
         // arrow has reached destination
         if ( arrow_cmp.m_in_flight )
         {
-          m_sound_bank.get_effect( std::string( "arrow_hit" ) + std::to_string( Cmp::RandomInt( 1, 4 ).gen() ) ).play();
+          m_sound_bank.get_effect( std::string( "arrow_hit" + std::to_string( Cmp::RandomInt( 1, 4 ).gen() ) ) ).play();
           m_sound_bank.get_effect( "draw_bow" ).stop();
           m_sound_bank.get_effect( "release_bow" ).stop();
           arrow_cmp.m_in_flight = false;

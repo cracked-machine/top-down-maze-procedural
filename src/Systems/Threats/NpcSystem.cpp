@@ -58,6 +58,7 @@
 #include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
 
+#include <algorithm>
 #include <array>
 
 #include <SFML/Audio/Sound.hpp>
@@ -535,6 +536,8 @@ void NpcSystem::check_arrow_collision()
   {
     for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : reg().view<Cmp::NPC, Cmp::Position>().each() )
     {
+      if ( not arrow_cmp.m_in_flight ) continue;
+      if ( std::ranges::any_of( npc_cmp.sprite_type_list, []( const auto &s ) { return s.contains( "ghost" ); } ) ) continue;
       if ( not npc_pos_cmp.findIntersection( arrow_pos_cmp ) ) continue;
       Factory::Npc::destroy_npc( reg(), npc_entt );
     }
