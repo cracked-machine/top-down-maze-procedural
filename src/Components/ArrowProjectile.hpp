@@ -21,6 +21,10 @@ public:
   sf::Vector2f m_destination;
   sf::Time m_fixed_time_step_accumulator{ sf::Time::Zero };
   bool m_in_flight{ true };
+  //! @brief Time elapsed since the arrow landed; drives the post-impact wiggle
+  sf::Time m_landed_elapsed{ sf::Time::Zero };
+  //! @brief Resting rotation angle (degrees) the wiggle oscillates around
+  float m_rest_angle{ 0.f };
 
   [[nodiscard]] float speed() const { return m_speed; }
   [[nodiscard]] sf::Time fixed_time_step_max() const { return m_fixed_time_step_max; }

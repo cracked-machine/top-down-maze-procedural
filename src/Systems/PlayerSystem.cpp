@@ -84,6 +84,7 @@
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <algorithm>
+#include <cmath>
 #include <spdlog/spdlog.h>
 
 namespace Game::Sys
@@ -449,9 +450,36 @@ void PlayerSystem::update_arrow_trajectory( sf::Time dt )
       if ( arrow_pos_cmp.getCenter() == arrow_cmp.m_destination )
       {
         // arrow has reached destination
-        if ( arrow_cmp.m_in_flight ) m_sound_bank.get_effect( "hit_pot" ).play();
-        arrow_cmp.m_in_flight = false;
-        reg().emplace_or_replace<Cmp::AbsoluteRenderOffset>( arrow_entt, sf::Vector2f{ 0.f, 0.f } );
+        if ( arrow_cmp.m_in_flight )
+        {
+          m_sound_bank.get_effect( "hit_pot" ).play();
+          arrow_cmp.m_in_flight = false;
+          if ( auto *rotation_cmp = reg().try_get<Cmp::AbsoluteRotation>( arrow_entt ) ) arrow_cmp.m_rest_angle = rotation_cmp->getAngle();
+
+          // Re-pivot rotation around the arrowhead (tip) instead of the sprite centre, so the impact
+          // point stays fixed in place while the fletching end wiggles around it. AbsoluteOffset is a
+          // local pivot in sprite space (tip = far edge along the sprite's default facing direction);
+          // AbsoluteRenderOffset compensates in world space so the tip lands exactly where the sprite's
+          // centre used to be, accounting for whatever angle the arrow was flying at on impact -
+          // otherwise the sprite visibly snaps sideways the instant it switches pivot.
+          float rest_rad = sf::degrees( arrow_cmp.m_rest_angle ).asRadians();
+          float half_width = arrow_pos_cmp.size.x / 2.f;
+          sf::Vector2f tip_from_centre{ std::cos( rest_rad ) * half_width, std::sin( rest_rad ) * half_width };
+          reg().emplace_or_replace<Cmp::AbsoluteOffset>( arrow_entt, sf::Vector2f{ arrow_pos_cmp.size.x, arrow_pos_cmp.size.y / 2.f } );
+          reg().emplace_or_replace<Cmp::AbsoluteRenderOffset>( arrow_entt, tip_from_centre - sf::Vector2f{ half_width, 0.f } );
+        }
+
+        // Wiggle the arrow briefly on impact, decaying back to its resting angle.
+        static const sf::Time kWiggleDuration = sf::seconds( 0.2f );
+        static const float kWiggleFrequencyHz = 100.f;
+        static const float kWiggleAmplitudeDeg = 1.f;
+        if ( arrow_cmp.m_landed_elapsed < kWiggleDuration )
+        {
+          arrow_cmp.m_landed_elapsed += dt;
+          float decay = 1.f - ( arrow_cmp.m_landed_elapsed.asSeconds() / kWiggleDuration.asSeconds() );
+          float wiggle_deg = kWiggleAmplitudeDeg * decay * std::sin( arrow_cmp.m_landed_elapsed.asSeconds() * kWiggleFrequencyHz );
+          reg().emplace_or_replace<Cmp::AbsoluteRotation>( arrow_entt, arrow_cmp.m_rest_angle + wiggle_deg );
+        }
       }
       else
       {
