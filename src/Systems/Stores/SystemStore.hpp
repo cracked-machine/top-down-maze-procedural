@@ -21,6 +21,7 @@ namespace Game::Sys
 // Forward declare all system classes
 class BaseSystem;
 class AnimSystem;
+class ArrowSystem;
 class AltarSystem;
 class BombSystem;
 class CorruptionHazardSystem;
@@ -58,6 +59,7 @@ public:
   enum class Type {
     AnimSystem,
     AltarSystem,
+    ArrowSystem,
     BombSystem,
     CellAutomataSystem,
     CorruptionHazardSystem,
@@ -127,6 +129,7 @@ private:
 template<> struct Store::SystemTraits<Store::Type::ActionSystem>           { using type = ActionSystem; };
 template<> struct Store::SystemTraits<Store::Type::AltarSystem>            { using type = AltarSystem; };
 template<> struct Store::SystemTraits<Store::Type::AnimSystem>             { using type = AnimSystem; };
+template<> struct Store::SystemTraits<Store::Type::ArrowSystem>            { using type = ArrowSystem; };
 template<> struct Store::SystemTraits<Store::Type::BombSystem>             { using type = BombSystem; };
 template<> struct Store::SystemTraits<Store::Type::CellAutomataSystem>     { using type = ProcGen::CellAutomataSystem; };
 template<> struct Store::SystemTraits<Store::Type::CorruptionHazardSystem> { using type = CorruptionHazardSystem; };

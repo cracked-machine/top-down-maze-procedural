@@ -37,6 +37,7 @@
 #include <Systems/ActionSystem.hpp>
 #include <Systems/AltarSystem.hpp>
 #include <Systems/AnimSystem.hpp>
+#include <Systems/ArrowSystem.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/CryptSystem.hpp>
 #include <Systems/ExitSystem.hpp>
@@ -279,6 +280,7 @@ void GraveyardScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::GrimoireSystem>().update( dt );
   m_sys.find<Sys::Store::Type::ExitSystem>().update_exit_zorder();
   m_sys.find<Sys::Store::Type::ExitSystem>().check_exit_collision();
+  m_sys.find<Sys::Store::Type::ArrowSystem>().update( dt );
 
   for ( auto [ob_entt, ob_cmp, pos_cmp, uuid_cmp] : m_reg.view<Cmp::Obstacle, Cmp::Position, Cmp::UUID>().each() )
   {

@@ -70,10 +70,6 @@ private:
   //! @brief Change to animation spritesheet for the players current direction.
   void update_player_animation();
 
-  //! @brief Update the arrow trajectory
-  //! @param dt
-  void update_arrow_trajectory( sf::Time dt );
-
   //! @brief Check if the player is dead
   //! @note This checks if the Cmp::PlayerMortality == State::DEAD, not check Cmp:PlayerStats (that is other system responsibility).
   void check_player_mortality();
@@ -92,10 +88,6 @@ private:
 
   //! @brief If player is carry suitable weapon did the action event occur in NPC vicinity?
   void check_player_axe_npc_kill();
-
-  //! @brief If player is carrying bow then fire arrow in direction of mouse position
-  //! @param charge_fraction How far to the mouse position the arrow should travel, in [0,1]
-  void check_player_fire_arrow( float charge_fraction );
 
   void move_obstacle( const sf::FloatRect &target_position );
   void check_player_can_push( sf::Time dt );

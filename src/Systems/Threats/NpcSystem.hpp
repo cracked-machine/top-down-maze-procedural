@@ -101,9 +101,6 @@ private:
   //! @note Player cooldown and knockback are DISABLED.
   void check_timed_collision( sf::Time dt );
 
-  //! @brief Check if NPC is hit by arrow
-  void check_arrow_collision();
-
   //! @brief Find a suitable knockback position for the player
   //! @param npc_direction
   void find_pushback_position( const Cmp::Direction &npc_direction );

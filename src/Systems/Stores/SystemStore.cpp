@@ -3,6 +3,7 @@
 #include <Systems/ActionSystem.hpp>
 #include <Systems/AltarSystem.hpp>
 #include <Systems/AnimSystem.hpp>
+#include <Systems/ArrowSystem.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/CryptSystem.hpp>
 #include <Systems/ExitSystem.hpp>
@@ -42,7 +43,8 @@ Store::Store( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, 
               entt::dispatcher &scenemanager_event_dispatcher )
 {
   // clang-format off
-  m_sysmap.emplace( Type::ActionSystem, std::make_unique<ActionSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::ActionSystem, std::make_unique<ActionSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::ArrowSystem, std::make_unique<ArrowSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::AltarSystem, std::make_unique<AltarSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::AnimSystem, std::make_unique<AnimSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::BombSystem, std::make_unique<BombSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
