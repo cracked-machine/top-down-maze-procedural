@@ -18,11 +18,11 @@ public:
   {
   }
 
-  //! @brief
+  //! @brief The position when the arrow was created.
   sf::Vector2f m_origin;
-  //! @brief
+  //! @brief  The mouse pointer position when the arrow was created.
   sf::Vector2f m_destination;
-  //! @brief
+  //! @brief The update delay counter
   sf::Time m_fixed_time_step_accumulator{ sf::Time::Zero };
 
   //! @brief Time elapsed since the arrow landed; drives the post-impact wiggle
@@ -30,14 +30,24 @@ public:
   //! @brief Resting rotation angle (degrees) the wiggle oscillates around
   float m_rest_angle{ 0.f };
 
+  //! @brief Get the speed member
+  //! @return float
   [[nodiscard]] float speed() const { return m_speed; }
+
+  //! @brief get the update delay threshold
   [[nodiscard]] sf::Time fixed_time_step_max() const { return m_fixed_time_step_max; }
+
   //! @brief Peak height (in pixels) of the visual arc between origin and destination
   [[nodiscard]] float arc_height() const { return m_arc_height; }
 
 private:
+  //! @brief The speed modifier for the arrow velocity
   float m_speed{ 10.f };
+
+  //! @brief The update delay threshold.
   sf::Time m_fixed_time_step_max{ sf::microseconds( 1.f ) };
+
+  //! @brief The max height arc for the parabola
   float m_arc_height{ 40.f };
 };
 

@@ -81,13 +81,13 @@ void ArrowSystem::update_arrow_trajectory( sf::Time dt )
         // The underlying Position stays on the straight line so NPC hit detection is unaffected.
         // The arc is drawn perpendicular to the flight path: a vertical bulge for a mostly-horizontal
         // shot, a horizontal bulge for a mostly-vertical shot, so it stays visible either way.
-        static const float kParabolaHeight = 0.5f;
+        static const float kParabolaHeight = 15.f;
         sf::Vector2f flight_vector = arrow_cmp.m_destination - arrow_cmp.m_origin;
         float total_distance = flight_vector.length();
         if ( total_distance > 0.f )
         {
           float progress = std::clamp( ( arrow_pos_cmp.getCenter() - arrow_cmp.m_origin ).length() / total_distance, 0.f, 1.f );
-          float arc_magnitude = -kParabolaHeight * arrow_cmp.arc_height() * progress * ( 1.f - progress );
+          float arc_magnitude = kParabolaHeight * progress * ( 1.f - progress );
           sf::Vector2f arc_offset = std::abs( flight_vector.x ) >= std::abs( flight_vector.y ) ? sf::Vector2f{ 0.f, arc_magnitude }
                                                                                                : sf::Vector2f{ arc_magnitude, 0.f };
           reg().emplace_or_replace<Cmp::AbsoluteRenderOffset>( arrow_entt, arc_offset );
