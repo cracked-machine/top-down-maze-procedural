@@ -1,7 +1,6 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/Altar/AltarSegment.hpp>
 #include <Components/AnimData.hpp>
-#include <Components/ArrowProjectile.hpp>
 #include <Components/Crypt/CryptBuildingSegment.hpp>
 #include <Components/Crypt/CryptObjectiveSegment.hpp>
 #include <Components/DeathPosition.hpp>

@@ -2,10 +2,11 @@
 #include <Components/AbsoluteOffset.hpp>
 #include <Components/AbsoluteRenderOffset.hpp>
 #include <Components/AbsoluteRotation.hpp>
-#include <Components/ArrowProjectile.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcContainer.hpp>
 #include <Components/Random.hpp>
+#include <Components/Weapons/Arrow.hpp>
+#include <Components/Weapons/InFlight.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Systems/ArrowSystem.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -48,7 +49,7 @@ void ArrowSystem::on_player_action_event( Game::Events::PlayerActionEvent ev )
                                           : 1.f;
     m_bow_drawing = false;
 
-    check_player_fire_arrow( charge_fraction );
+    create_player_arrow( charge_fraction );
   }
 }
 
@@ -61,11 +62,11 @@ void ArrowSystem::update( sf::Time dt )
 void ArrowSystem::update_arrow_trajectory( sf::Time dt )
 {
 
-  for ( auto [arrow_entt, arrow_cmp, arrow_pos_cmp] : reg().view<Cmp::ArrowProjectile, Cmp::Position>().each() )
+  for ( auto [arrow_entt, arrow_cmp, arrow_pos_cmp] : reg().view<Cmp::Weapons::Projectiles::Arrow, Cmp::Position>().each() )
   {
     if ( arrow_cmp.m_fixed_time_step_accumulator >= arrow_cmp.fixed_time_step_max() )
     {
-      if ( arrow_cmp.m_in_flight )
+      if ( reg().any_of<Cmp::Weapons::Projectiles::InFlight>( arrow_entt ) )
       {
         // Arrow still in flight; update the arrow position/angle using its latest direction
         sf::Vector2f remaining = arrow_cmp.m_destination - arrow_pos_cmp.getCenter();
@@ -98,12 +99,13 @@ void ArrowSystem::update_arrow_trajectory( sf::Time dt )
       if ( arrow_pos_cmp.getCenter() == arrow_cmp.m_destination )
       {
         // arrow has reached destination
-        if ( arrow_cmp.m_in_flight )
+        if ( reg().any_of<Cmp::Weapons::Projectiles::InFlight>( arrow_entt ) )
         {
           m_sound_bank.get_effect( std::string( "arrow_hit" + std::to_string( Cmp::RandomInt( 1, 4 ).gen() ) ) ).play();
           m_sound_bank.get_effect( "draw_bow" ).stop();
           m_sound_bank.get_effect( "release_bow" ).stop();
-          arrow_cmp.m_in_flight = false;
+          reg().remove<Cmp::Weapons::Projectiles::InFlight>( arrow_entt );
+
           if ( auto *rotation_cmp = reg().try_get<Cmp::AbsoluteRotation>( arrow_entt ) ) arrow_cmp.m_rest_angle = rotation_cmp->getAngle();
 
           // Re-pivot rotation around the arrowhead (tip) instead of the sprite centre, so the impact
@@ -149,11 +151,11 @@ void ArrowSystem::update_arrow_trajectory( sf::Time dt )
 
 void ArrowSystem::check_npc_arrow_collision()
 {
-  for ( auto [arrow_entt, arrow_cmp, arrow_pos_cmp] : reg().view<Cmp::ArrowProjectile, Cmp::Position>().each() )
+  for ( auto [arrow_entt, arrow_cmp, arrow_pos_cmp] : reg().view<Cmp::Weapons::Projectiles::Arrow, Cmp::Position>().each() )
   {
     for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : reg().view<Cmp::NPC, Cmp::Position>().each() )
     {
-      if ( not arrow_cmp.m_in_flight ) continue;
+      if ( not reg().any_of<Cmp::Weapons::Projectiles::InFlight>( arrow_entt ) ) continue;
       if ( std::ranges::any_of( npc_cmp.sprite_type_list, []( const auto &s ) { return s.contains( "ghost" ); } ) ) continue;
       if ( not npc_pos_cmp.findIntersection( arrow_pos_cmp ) ) continue;
       Factory::Npc::destroy_npc( reg(), npc_entt );
@@ -166,7 +168,7 @@ void ArrowSystem::check_npc_arrow_collision()
   }
 }
 
-void ArrowSystem::check_player_fire_arrow( float charge_fraction )
+void ArrowSystem::create_player_arrow( float charge_fraction )
 {
   auto mouse_pos = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
   SPDLOG_INFO( "Firing arrow to {},{}", mouse_pos.position.x, mouse_pos.position.y );
@@ -180,7 +182,8 @@ void ArrowSystem::check_player_fire_arrow( float charge_fraction )
   sf::Vector2f origin_center = arrow_origin.getCenter();
   sf::Vector2f arrow_destination = origin_center + ( mouse_pos.getCenter() - origin_center ) * charge_fraction;
 
-  reg().emplace_or_replace<Cmp::ArrowProjectile>( arrow_entt, origin_center, arrow_destination );
+  reg().emplace_or_replace<Cmp::Weapons::Projectiles::InFlight>( arrow_entt );
+  reg().emplace_or_replace<Cmp::Weapons::Projectiles::Arrow>( arrow_entt, origin_center, arrow_destination );
   reg().emplace_or_replace<Cmp::ZOrderValue>( arrow_entt, 50000 );
   reg().emplace_or_replace<Cmp::AbsoluteOffset>( arrow_entt, arrow_origin.size / 2.f );
   if ( auto angle = Utils::Maths::angle( mouse_pos.getCenter() - arrow_origin.getCenter() ) )

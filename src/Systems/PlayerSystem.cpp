@@ -5,7 +5,6 @@
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/Altar/AltarMultiBlock.hpp>
 #include <Components/AnimData.hpp>
-#include <Components/ArrowProjectile.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Exit.hpp>
 #include <Components/FootStepTimer.hpp>
@@ -52,6 +51,7 @@
 #include <Components/Stats/SpawnAction.hpp>
 #include <Components/System.hpp>
 #include <Components/UUID.hpp>
+#include <Components/Wall.hpp>
 #include <Components/Wormhole/WormholeJump.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/DropInventoryEvent.hpp>
@@ -79,7 +79,6 @@
 #include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
 
-#include <Components/Wall.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Time.hpp>

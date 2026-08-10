@@ -44,7 +44,7 @@ private:
 
   //! @brief If player is carrying bow then fire arrow in direction of mouse position
   //! @param charge_fraction How far to the mouse position the arrow should travel, in [0,1]
-  void check_player_fire_arrow( float charge_fraction );
+  void create_player_arrow( float charge_fraction );
 };
 
 } // namespace Game::Sys

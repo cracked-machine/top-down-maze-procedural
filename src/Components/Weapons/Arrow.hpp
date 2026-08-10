@@ -2,25 +2,29 @@
 #define SRC_COMPONENTS_ARROWPROJECTILE_HPP__
 
 #include <SFML/System/Time.hpp>
-namespace Game::Cmp
+
+namespace Game::Cmp::Weapons::Projectiles
 {
 
 //! @brief Fired arrow projectile
 //! @note User input triggered by SceneInputRouter.
-//! @note Arrow physics are managed by PlayerSystem.
-//! @note NPC collision detection is managed by NPCSystem.
-class ArrowProjectile
+//! @note Arrow physics are managed by ArrowSystem.
+class Arrow
 {
 public:
-  ArrowProjectile( sf::Vector2f origin, sf::Vector2f destination )
+  Arrow( sf::Vector2f origin, sf::Vector2f destination )
       : m_origin( origin ),
         m_destination( destination )
   {
   }
+
+  //! @brief
   sf::Vector2f m_origin;
+  //! @brief
   sf::Vector2f m_destination;
+  //! @brief
   sf::Time m_fixed_time_step_accumulator{ sf::Time::Zero };
-  bool m_in_flight{ true };
+
   //! @brief Time elapsed since the arrow landed; drives the post-impact wiggle
   sf::Time m_landed_elapsed{ sf::Time::Zero };
   //! @brief Resting rotation angle (degrees) the wiggle oscillates around
@@ -37,6 +41,6 @@ private:
   float m_arc_height{ 40.f };
 };
 
-} // namespace Game::Cmp
+} // namespace Game::Cmp::Weapons::Projectiles
 
 #endif // SRC_COMPONENTS_ARROWPROJECTILE_HPP__
