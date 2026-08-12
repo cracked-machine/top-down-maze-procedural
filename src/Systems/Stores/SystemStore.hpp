@@ -56,6 +56,7 @@ class WormholeSystem;
 class Store
 {
 public:
+  //! @brief Key for the SystemStore concrete classes
   enum class Type {
     AnimSystem,
     AltarSystem,
@@ -94,13 +95,23 @@ public:
     WormholeSystem,
   };
 
-  // System type traits - explicit specializations
+  //! @brief System type traits - Maps each Sys::Store::Type enum value to its concrete class.
+  //! @tparam T
   template <Type T>
   struct SystemTraits;
 
+  //! @brief Construct a new Store object
+  //! @param window
+  //! @param sprite_factory
+  //! @param sound_bank
+  //! @param nav_event_dispatcher
+  //! @param scenemanager_event_dispatcher
   Store( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank, entt::dispatcher &nav_event_dispatcher,
          entt::dispatcher &scenemanager_event_dispatcher );
 
+  //! @brief Find the concrete class using the Sys::Store::Type enum
+  //! @tparam T
+  //! @return auto&
   template <Type T>
   auto &find()
   {
@@ -113,15 +124,32 @@ public:
     return static_cast<SystemType &>( *it->second );
   }
 
+  //! @brief Get the first element of the SystemStore
   auto begin() { return m_sysmap.begin(); }
-  auto end() { return m_sysmap.end(); }
-  auto size() const { return m_sysmap.size(); }
 
-  void init_weak_ptrs();
+  //! @brief Get the last element of the SystemStore
+  auto end() { return m_sysmap.end(); }
+
+  //! @brief Get the size of the SystemStore
+  [[nodiscard]] auto size() const { return m_sysmap.size(); }
 
 private:
+  //! @brief The SystemStore container keyed by Type enum
   std::map<Type, std::unique_ptr<BaseSystem>> m_sysmap;
-  entt::registry m_initial_reg; // Temporary registry for initialization
+
+  //! @brief Empty registry for initialization
+  entt::registry m_initial_reg;
+
+  //! @brief Wrapper function that ensures matching pairs are emplaced into SystemStore.
+  //! @tparam T
+  //! @tparam Args
+  //! @param args
+  template <Type T, typename... Args>
+  void emplace( Args &&...args )
+  {
+    using SystemType = typename SystemTraits<T>::type;
+    m_sysmap.emplace( T, std::make_unique<SystemType>( std::forward<Args>( args )... ) );
+  }
 };
 
 // Explicit template specializations for SystemTraits
@@ -139,7 +167,7 @@ template<> struct Store::SystemTraits<Store::Type::ExitSystem>             { usi
 template<> struct Store::SystemTraits<Store::Type::FootstepSystem>         { using type = FootstepSystem; };
 template<> struct Store::SystemTraits<Store::Type::GraveSystem>            { using type = GraveSystem; };
 template<> struct Store::SystemTraits<Store::Type::GrimoireSystem>         { using type = GrimoireSystem; };
-template<> struct Store::SystemTraits<Store::Type::HealingSpringSystem>         { using type = HealingSpringSystem; };
+template<> struct Store::SystemTraits<Store::Type::HealingSpringSystem>    { using type = HealingSpringSystem; };
 template<> struct Store::SystemTraits<Store::Type::ItemStore>              { using type = ItemStore; };
 template<> struct Store::SystemTraits<Store::Type::ItemSystem>             { using type = ItemSystem; };
 template<> struct Store::SystemTraits<Store::Type::NpcStore>               { using type = NpcStore; };

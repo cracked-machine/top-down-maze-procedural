@@ -42,44 +42,41 @@ namespace Game::Sys
 Store::Store( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank, entt::dispatcher &nav_event_dispatcher,
               entt::dispatcher &scenemanager_event_dispatcher )
 {
-  // clang-format off
-    m_sysmap.emplace( Type::ActionSystem, std::make_unique<ActionSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::ArrowSystem, std::make_unique<ArrowSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::AltarSystem, std::make_unique<AltarSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::AnimSystem, std::make_unique<AnimSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::BombSystem, std::make_unique<BombSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::CellAutomataSystem, std::make_unique<ProcGen::CellAutomataSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::DiffusionLtdAggrSystem, std::make_unique<ProcGen::DLASystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::CorruptionHazardSystem, std::make_unique<CorruptionHazardSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::CryptSystem, std::make_unique<Game::Sys::CryptSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
-    m_sysmap.emplace( Type::ExitSystem, std::make_unique<ExitSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
-    m_sysmap.emplace( Type::FootstepSystem, std::make_unique<FootstepSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::GraveSystem, std::make_unique<GraveSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::GrimoireSystem, std::make_unique<GrimoireSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::HealingSpringSystem, std::make_unique<HealingSpringSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
-    m_sysmap.emplace( Type::ItemStore, std::make_unique<ItemStore>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::ItemSystem, std::make_unique<ItemSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::NpcStore, std::make_unique<NpcStore>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::RuinSystem, std::make_unique<RuinSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
-    m_sysmap.emplace( Type::LightningSystem, std::make_unique<LightningSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::LootSystem, std::make_unique<LootSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::NpcSystem, std::make_unique<NpcSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::ParticleSystem, std::make_unique<ParticleSystem>(m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::PassageSystem, std::make_unique<PassageSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::PlayerSystem, std::make_unique<PlayerSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
-    m_sysmap.emplace( Type::PersistSystem, std::make_unique<PersistSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::LevelGenerator, std::make_unique<ProcGen::LevelGenerator>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::RenderGameSystem, std::make_unique<RenderGameSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::RenderMenuSystem, std::make_unique<RenderMenuSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::RenderOverlaySystem, std::make_unique<RenderOverlaySystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::ShaderSystem, std::make_unique<ShaderSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::SceneInputRouter, std::make_unique<SceneInputRouter>( m_initial_reg, window, sprite_factory, sound_bank, nav_event_dispatcher, scenemanager_event_dispatcher ) );
-    m_sysmap.emplace( Type::ShockwaveSystem, std::make_unique<ShockwaveSystem>( m_initial_reg, window, sprite_factory, sound_bank) );
-    m_sysmap.emplace( Type::ShockwaveSystem, std::make_unique<ShaderSystem>( m_initial_reg, window, sprite_factory, sound_bank) );
-    m_sysmap.emplace( Type::ShopSystem, std::make_unique<ShopSystem>(  m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
-    m_sysmap.emplace( Type::SinkHoleHazardSystem, std::make_unique<SinkHoleHazardSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::WormholeSystem, std::make_unique<WormholeSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-  // clang-format on
+  emplace<Type::ActionSystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::ArrowSystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::AltarSystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::AnimSystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::BombSystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::CellAutomataSystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::DiffusionLtdAggrSystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::CorruptionHazardSystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::CryptSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher );
+  emplace<Type::ExitSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher );
+  emplace<Type::FootstepSystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::GraveSystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::GrimoireSystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::HealingSpringSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher );
+  emplace<Type::ItemStore>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::ItemSystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::NpcStore>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::RuinSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher );
+  emplace<Type::LightningSystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::LootSystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::NpcSystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::ParticleSystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::PassageSystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::PlayerSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher );
+  emplace<Type::PersistSystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::LevelGenerator>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::RenderGameSystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::RenderMenuSystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::RenderOverlaySystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::ShaderSystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::SceneInputRouter>( m_initial_reg, window, sprite_factory, sound_bank, nav_event_dispatcher, scenemanager_event_dispatcher );
+  emplace<Type::ShockwaveSystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::ShopSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher );
+  emplace<Type::SinkHoleHazardSystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::WormholeSystem>( m_initial_reg, window, sprite_factory, sound_bank );
 }
 
 } // namespace Game::Sys
