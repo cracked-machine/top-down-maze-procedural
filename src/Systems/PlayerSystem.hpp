@@ -138,10 +138,6 @@ private:
   //! @brief Use this to send events to the scene manager
   entt::dispatcher &m_scenemanager_event_dispatcher;
 
-  //! @brief The duration between PlayerMortalityEvent and the death.
-  //!        Allows play of death animation before exiting the Scene.
-  sf::Clock m_post_death_timer;
-
   //! @brief Synchronizes the action stat modifiers.
   sf::Time m_timed_action_sync_clock;
 

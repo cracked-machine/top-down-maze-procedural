@@ -32,6 +32,7 @@
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Player/PlayerNoPath.hpp>
+#include <Components/Player/PostDeathTimeout.hpp>
 #include <Components/Player/TorchRadius.hpp>
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
@@ -100,7 +101,6 @@ PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprit
   std::ignore = get_systems_event_queue().sink<Events::PlayerMortalityEvent>().connect<&PlayerSystem::on_player_mortality_event>( this );
   std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&PlayerSystem::on_player_action_event>( this );
   std::ignore = get_systems_event_queue().sink<Events::DropInventoryEvent>().connect<&PlayerSystem::on_drop_inventory_event>( this );
-  m_post_death_timer.reset();
 }
 
 void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
@@ -113,7 +113,8 @@ void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
   fade_player_on_wormhole_jump();
   blink_player();
 
-  if ( not m_post_death_timer.isRunning() )
+  auto *player_post_death_timeout = reg().try_get<Cmp::Player::PostDeathTimeout>( Utils::Player::get_entity( reg() ) );
+  if ( not player_post_death_timeout )
   {
     check_player_can_push( dt );
     check_player_can_pull( dt );
@@ -135,8 +136,6 @@ void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
   {
     open_navmesh->update( Utils::Player::get_entity( reg() ), old_player_pos, Utils::Player::get_position( reg() ) );
   }
-
-  // update_arrow_trajectory( dt );
 }
 
 void PlayerSystem::play_footsteps_sound( FootStepSfx type )
@@ -447,7 +446,9 @@ void PlayerSystem::check_player_mortality()
   auto player_view = reg().view<Cmp::PlayerCharacter, Cmp::PlayerMortality, Cmp::Position>();
   for ( auto [entity, pc_cmp, mortality_cmp, player_pos_cmp] : player_view.each() )
   {
-    if ( ( mortality_cmp.state == Cmp::PlayerMortality::State::DEAD ) and ( m_post_death_timer.getElapsedTime() > sf::seconds( 5.f ) ) )
+    auto *player_post_death_timeout = reg().try_get<Cmp::Player::PostDeathTimeout>( Utils::Player::get_entity( reg() ) );
+    if ( player_post_death_timeout and player_post_death_timeout->getElapsedTime() < sf::seconds( 5.f ) ) continue;
+    if ( mortality_cmp.state == Cmp::PlayerMortality::State::DEAD )
     {
       if ( Utils::Player::player_has_extra_life( reg() ) )
       {
@@ -457,13 +458,13 @@ void PlayerSystem::check_player_mortality()
         Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ 100 }, {}, {}, {}, {}, {} } );
         Utils::Player::get_mortality( reg() ).state = Cmp::PlayerMortality::State::ALIVE;
         Utils::Player::get_zorder( reg() ).setZOrder( Utils::Player::get_position( reg() ).y() );
-        m_post_death_timer.reset();
+        reg().remove<Cmp::Player::PostDeathTimeout>( Utils::Player::get_entity( reg() ) );
       }
       else
       {
         // reg().remove<Cmp::AnimData>( Utils::Player::get_entity( reg() ) );
         SPDLOG_DEBUG( "Player has progressed to deadness." );
-        m_post_death_timer.reset();
+        reg().remove<Cmp::Player::PostDeathTimeout>( Utils::Player::get_entity( reg() ) );
         stop_footsteps_sound();
 
         m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::GAME_OVER );
@@ -1034,7 +1035,7 @@ void PlayerSystem::on_player_mortality_event( Game::Events::PlayerMortalityEvent
 
   auto common_death_throes = [&]()
   {
-    m_post_death_timer.restart();
+    reg().emplace_or_replace<Cmp::Player::PostDeathTimeout>( Utils::Player::get_entity( reg() ) );
     Utils::Player::get_zorder( reg() ).setZOrder( -100 ); // hide the player under the game during animation
     stop_footsteps_sound();
     Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ -100 }, {}, {}, {}, {}, {} } );
