@@ -47,8 +47,7 @@ WormholeSystem::WormholeSystem( entt::registry &reg, sf::RenderWindow &window, S
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
 
-  // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in
-  // the constructor
+  // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
   get_systems_event_queue().sink<Events::PauseClocksEvent>().connect<&Sys::WormholeSystem::on_pause>( this );
   get_systems_event_queue().sink<Events::ResumeClocksEvent>().connect<&Sys::WormholeSystem::on_resume>( this );
 
