@@ -40,6 +40,7 @@
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinBuildingMultiBlock.hpp>
+#include <Components/SceneSettings/ShowDebugStats.hpp>
 #include <Components/SceneSettings/ShowPathFinding.hpp>
 #include <Components/SelectedPosition.hpp>
 #include <Components/Spring/HealingSpringBuildingMultiBlock.hpp>
@@ -103,7 +104,6 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   // check for updates to the System modes
   for ( auto [entt, sys_cmp] : reg().view<Cmp::System>().each() )
   {
-    m_show_debug_stats = sys_cmp.show_debug_stats;
     m_shaders_enabled = sys_cmp.shaders_enabled;
     m_show_playernopath = sys_cmp.show_playernopath;
     m_show_reserved = sys_cmp.show_reserved;
@@ -119,7 +119,8 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   // re-populate the z-order queue with the latest entity/component data
   refresh_z_order_queue();
 
-  bool debug_tick = m_show_debug_stats and ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval );
+  bool debug_tick = Utils::get_scene_setting_cmp<Cmp::SceneSettings::ShowDebugStats>( reg() ).enabled and
+                    ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval );
 
   // main render begin
   m_window.clear();
@@ -298,7 +299,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   render_overlay_sys.render_crypt_maze_timer( { static_cast<float>( display_size.x ) / 2.f, 0.f }, 100 );
 
   // these debug shapes are only drawn within the current view to prevent FPS drops
-  if ( m_show_debug_stats )
+  if ( Utils::get_scene_setting_cmp<Cmp::SceneSettings::ShowDebugStats>( reg() ).enabled )
   {
     render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
     render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
@@ -327,7 +328,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
     m_debug_update_timer.restart();
   }
 
-  if ( m_show_debug_stats ) render_overlay_sys.draw_debug_overlay( m_window );
+  if ( Utils::get_scene_setting_cmp<Cmp::SceneSettings::ShowDebugStats>( reg() ).enabled ) render_overlay_sys.draw_debug_overlay( m_window );
 
   m_window.display();
 }

@@ -4,6 +4,7 @@
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/SceneSettings/CurrentScene.hpp>
+#include <Components/SceneSettings/ShowDebugStats.hpp>
 #include <Components/SceneSettings/ShowPathFinding.hpp>
 #include <Components/System.hpp>
 #include <Factory/MultiblockFactory.hpp>
@@ -45,6 +46,7 @@ void HealingSpringScene::on_init()
   m_reg.emplace_or_replace<Cmp::SceneSettings::CurrentScene>( sys_cmp_entt, Cmp::SceneSettings::SceneId::HEALING_SPRING );
   m_reg.emplace_or_replace<Cmp::SceneSettings::CollisionDetection>( sys_cmp_entt, true );
   m_reg.emplace_or_replace<Cmp::SceneSettings::ShowPathFinding>( sys_cmp_entt, false );
+  m_reg.emplace_or_replace<Cmp::SceneSettings::ShowDebugStats>( sys_cmp_entt, false );
 
   // initialise the persistent player start position from the scene configuration (json) data
   auto [_, player_start_pos_px] = m_scene_data->get_player_start_position();

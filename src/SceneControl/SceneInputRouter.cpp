@@ -12,6 +12,7 @@
 #include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
+#include <Components/SceneSettings/ShowDebugStats.hpp>
 #include <Components/SceneSettings/ShowPathFinding.hpp>
 #include <Components/Stats/BaseAction.hpp>
 #include <Components/System.hpp>
@@ -522,11 +523,9 @@ void SceneInputRouter::toggle_show_pathfinding()
 
 void SceneInputRouter::toggle_show_debug()
 {
-  for ( auto [entt, sys_cmp] : reg().view<Cmp::System>().each() )
-  {
-    sys_cmp.show_debug_stats = not sys_cmp.show_debug_stats;
-    SPDLOG_INFO( "Show debug stats is now {}", sys_cmp.show_debug_stats ? "ENABLED" : "DISABLED" );
-  }
+  bool &current_setting = Utils::get_scene_setting_cmp<Cmp::SceneSettings::ShowDebugStats>( reg() ).enabled;
+  current_setting = not current_setting;
+  SPDLOG_INFO( "Show debug stats is now {}", current_setting ? "ENABLED" : "DISABLED" );
 }
 
 void SceneInputRouter::toggle_show_nopath()
