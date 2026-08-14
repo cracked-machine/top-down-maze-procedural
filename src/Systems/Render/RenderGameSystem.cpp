@@ -105,9 +105,6 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   for ( auto [entt, sys_cmp] : reg().view<Cmp::System>().each() )
   {
     m_shaders_enabled = sys_cmp.shaders_enabled;
-    m_show_playernopath = sys_cmp.show_playernopath;
-    m_show_reserved = sys_cmp.show_reserved;
-    m_show_npcnopath = sys_cmp.show_npcnopath;
   }
 
   const Cmp::Position player_pos_cmp = Utils::Player::get_position( reg() );
@@ -240,32 +237,6 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
 
   // lava pit outline
   render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPit>( sf::Color( 16, 16, 16 ), 0.5f );
-
-  // Debug overlays
-  if ( m_show_npcnopath )
-  {
-    for ( auto [entt, npcnopath_cmp, pos_cmp] : reg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
-    {
-      auto rectbounds = Cmp::RectBounds::scaled( pos_cmp.position, pos_cmp.size, 1.f );
-      render_rectbounds( rectbounds, sf::Color::Red );
-    }
-  }
-  if ( m_show_playernopath )
-  {
-    for ( auto [entt, playernopath_cmp, pos_cmp] : reg().view<Cmp::PlayerNoPath, Cmp::Position>().each() )
-    {
-      auto rectbounds = Cmp::RectBounds::scaled( pos_cmp.position, pos_cmp.size, 1.f );
-      render_rectbounds( rectbounds, sf::Color::Red );
-    }
-  }
-  if ( m_show_reserved )
-  {
-    for ( auto [entt, reserved_cmp, pos_cmp] : reg().view<Cmp::ReservedPosition, Cmp::Position>().each() )
-    {
-      auto rectbounds = Cmp::RectBounds::scaled( pos_cmp.position, pos_cmp.size, 1.f );
-      render_rectbounds( rectbounds, sf::Color::Red );
-    }
-  }
 
   if ( Utils::get_scene_setting_cmp<Cmp::SceneSettings::ShowPathFinding>( reg() ).enabled )
   {

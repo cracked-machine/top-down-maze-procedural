@@ -89,9 +89,6 @@ protected:
   Cmp::Font m_font = Cmp::Font( "res/fonts/tuffy.ttf" );
 
   // System mode flags
-  bool m_show_npcnopath{ false };
-  bool m_show_playernopath{ false };
-  bool m_show_reserved{ false };
   bool m_shaders_enabled{ true };
 
   //! @brief The render target reference. Initialised to the sf::RenderWindow.

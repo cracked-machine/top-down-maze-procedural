@@ -120,7 +120,6 @@ void SceneInputRouter::graveyard_scene_state_handler()
       if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F5 )
       {
         auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
@@ -220,7 +219,6 @@ void SceneInputRouter::crypt_scene_state_handler()
       if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_shaders(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
@@ -286,7 +284,6 @@ void SceneInputRouter::healing_spring_scene_state_handler()
       if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_shaders(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
@@ -336,7 +333,6 @@ void SceneInputRouter::shop_scene_state_handler()
       if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_shaders(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
@@ -391,7 +387,6 @@ void SceneInputRouter::ruin_scene_state_handler()
       if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_shaders(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
@@ -526,42 +521,6 @@ void SceneInputRouter::toggle_show_debug()
   bool &current_setting = Utils::get_scene_setting_cmp<Cmp::SceneSettings::ShowDebugStats>( reg() ).enabled;
   current_setting = not current_setting;
   SPDLOG_INFO( "Show debug stats is now {}", current_setting ? "ENABLED" : "DISABLED" );
-}
-
-void SceneInputRouter::toggle_show_nopath()
-{
-
-  for ( auto [entt, sys_cmp] : reg().view<Cmp::System>().each() )
-  {
-    if ( not sys_cmp.show_npcnopath and not sys_cmp.show_playernopath and not sys_cmp.show_reserved )
-    {
-      sys_cmp.show_npcnopath = true;
-      sys_cmp.show_playernopath = false;
-      sys_cmp.show_reserved = false;
-      SPDLOG_INFO( "Show NpcNoPathFinding is now ENABLED" );
-    }
-    else if ( sys_cmp.show_npcnopath )
-    {
-      sys_cmp.show_npcnopath = false;
-      sys_cmp.show_playernopath = true;
-      sys_cmp.show_reserved = false;
-      SPDLOG_INFO( "Show PlayerNoPath is now ENABLED" );
-    }
-    else if ( sys_cmp.show_playernopath )
-    {
-      sys_cmp.show_npcnopath = false;
-      sys_cmp.show_playernopath = false;
-      sys_cmp.show_reserved = true;
-      SPDLOG_INFO( "Show reserved is now ENABLED" );
-    }
-    else
-    {
-      sys_cmp.show_npcnopath = false;
-      sys_cmp.show_playernopath = false;
-      sys_cmp.show_reserved = false;
-      SPDLOG_INFO( "Show PlayerNoPath, NpcNoPathFinding and reserved are now DISABLED" );
-    }
-  }
 }
 
 void SceneInputRouter::toggle_shaders()

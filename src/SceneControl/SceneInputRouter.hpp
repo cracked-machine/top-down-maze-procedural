@@ -53,7 +53,6 @@ private:
   void toggle_collision_detection();
   void toggle_show_pathfinding();
   void toggle_show_debug();
-  void toggle_show_nopath();
   void toggle_shaders();
   void queue_suicide_event();
   void queue_buy_item_event( uint8_t item_idx );

@@ -7,9 +7,6 @@ namespace Game::Cmp
 class System
 {
 public:
-  bool show_npcnopath = false;    // F4 cycle
-  bool show_playernopath = false; // F4 cycle
-  bool show_reserved = false;     // F4 cycle
   bool level_complete = false;
   bool shaders_enabled = true; // F9
   bool particle_test_enabled = true;
