@@ -12,6 +12,7 @@
 #include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
+#include <Components/SceneSettings/Shaders.hpp>
 #include <Components/SceneSettings/ShowDebugStats.hpp>
 #include <Components/SceneSettings/ShowPathFinding.hpp>
 #include <Components/Stats/BaseAction.hpp>
@@ -504,32 +505,30 @@ void SceneInputRouter::resize_window( sf::Vector2u size )
 
 void SceneInputRouter::toggle_collision_detection()
 {
-  bool &current_setting = Utils::get_scene_setting_cmp<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled;
+  bool &current_setting = Utils::scene_setting<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled;
   current_setting = not current_setting;
   SPDLOG_INFO( "Collisions are now {}", current_setting ? "ENABLED" : "DISABLED" );
 }
 
 void SceneInputRouter::toggle_show_pathfinding()
 {
-  bool &current_setting = Utils::get_scene_setting_cmp<Cmp::SceneSettings::ShowPathFinding>( reg() ).enabled;
+  bool &current_setting = Utils::scene_setting<Cmp::SceneSettings::ShowPathFinding>( reg() ).enabled;
   current_setting = not current_setting;
   SPDLOG_INFO( "Show pathfinding is now {}", current_setting ? "ENABLED" : "DISABLED" );
 }
 
 void SceneInputRouter::toggle_show_debug()
 {
-  bool &current_setting = Utils::get_scene_setting_cmp<Cmp::SceneSettings::ShowDebugStats>( reg() ).enabled;
+  bool &current_setting = Utils::scene_setting<Cmp::SceneSettings::ShowDebugStats>( reg() ).enabled;
   current_setting = not current_setting;
   SPDLOG_INFO( "Show debug stats is now {}", current_setting ? "ENABLED" : "DISABLED" );
 }
 
 void SceneInputRouter::toggle_shaders()
 {
-  for ( auto [_entt, _sys] : reg().view<Cmp::System>().each() )
-  {
-    _sys.shaders_enabled = not _sys.shaders_enabled;
-    SPDLOG_INFO( "Dark mode is now {}", _sys.shaders_enabled ? "ENABLED" : "DISABLED" );
-  }
+  bool &current_setting = Utils::scene_setting<Cmp::SceneSettings::Shaders>( reg() ).enabled;
+  current_setting = not current_setting;
+  SPDLOG_INFO( "Shaders are now {}", current_setting ? "ENABLED" : "DISABLED" );
 }
 
 void SceneInputRouter::queue_suicide_event()

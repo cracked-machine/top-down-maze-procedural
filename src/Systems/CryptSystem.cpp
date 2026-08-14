@@ -101,7 +101,7 @@ void CryptSystem::update( sf::Time dt )
   }
 
   // check collisions with lava pit/spike traps
-  if ( Utils::get_scene_setting_cmp<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled )
+  if ( Utils::scene_setting<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled )
   {
     check_lava_pit_collision();
     check_spike_trap_collision();

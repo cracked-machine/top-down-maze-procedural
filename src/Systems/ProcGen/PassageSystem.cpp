@@ -656,7 +656,7 @@ void PassageSystem::fill_all_passages()
   }
 
   // Player squish check — done once after all walls are placed - except if player has extra life.
-  if ( Utils::get_scene_setting_cmp<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled )
+  if ( Utils::scene_setting<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled )
   {
     if ( not m_passage_block_grid.at( Utils::Player::get_position( reg() ) ).empty() )
     {

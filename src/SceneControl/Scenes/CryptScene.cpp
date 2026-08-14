@@ -12,6 +12,7 @@
 #include <Components/Player/PlayerNoPath.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/SceneSettings/CurrentScene.hpp>
+#include <Components/SceneSettings/Shaders.hpp>
 #include <Components/SceneSettings/ShowDebugStats.hpp>
 #include <Components/SceneSettings/ShowPathFinding.hpp>
 #include <Components/System.hpp>
@@ -60,6 +61,7 @@ void CryptScene::on_init()
   m_reg.emplace_or_replace<Cmp::SceneSettings::CollisionDetection>( sys_cmp_entt, true );
   m_reg.emplace_or_replace<Cmp::SceneSettings::ShowPathFinding>( sys_cmp_entt, false );
   m_reg.emplace_or_replace<Cmp::SceneSettings::ShowDebugStats>( sys_cmp_entt, false );
+  m_reg.emplace_or_replace<Cmp::SceneSettings::Shaders>( sys_cmp_entt, true );
 
   // initialise the persistent player start position from the scene configuration (json) data
   auto [_, player_start_pos_px] = m_scene_data->get_player_start_position();

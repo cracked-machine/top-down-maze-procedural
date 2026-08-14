@@ -138,7 +138,7 @@ void ShockwaveSystem::remove_intersecting_segments( const sf::FloatRect &rect, C
 
 void ShockwaveSystem::check_shockwave_player_collision()
 {
-  if ( not Utils::get_scene_setting_cmp<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled ) return;
+  if ( not Utils::scene_setting<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled ) return;
 
   // we need the projectile_action modifiers for this NPC type.
   auto priest_npc_cmp = Sys::NpcStore::instance().get_item( "npc.priest" );

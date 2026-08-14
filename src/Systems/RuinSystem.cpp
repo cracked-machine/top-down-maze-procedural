@@ -491,7 +491,7 @@ void RuinSystem::update_shadow_hand_pos( sf::Vector2f scene_dimensions )
 
 void RuinSystem::check_player_shadow_hand_collision( sf::Time dt )
 {
-  if ( not Utils::get_scene_setting_cmp<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled ) return;
+  if ( not Utils::scene_setting<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled ) return;
 
   static constexpr float kActionEffectInterval = 0.05f;
   m_shadowhand_action_effects_time += dt;

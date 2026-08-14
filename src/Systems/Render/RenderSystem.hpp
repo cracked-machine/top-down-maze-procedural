@@ -88,9 +88,6 @@ protected:
   //! @brief Default font for rendering text
   Cmp::Font m_font = Cmp::Font( "res/fonts/tuffy.ttf" );
 
-  // System mode flags
-  bool m_shaders_enabled{ true };
-
   //! @brief The render target reference. Initialised to the sf::RenderWindow.
   std::reference_wrapper<sf::RenderTarget> m_current_target{ m_window };
 

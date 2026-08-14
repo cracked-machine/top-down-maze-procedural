@@ -44,7 +44,7 @@ sf::Vector2f HazardFieldSystem<HazardType>::update()
   add_hazard_cell = update_hazard_field();
   check_npc_hazard_field_collision();
 
-  if ( not Utils::get_scene_setting_cmp<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled ) { check_player_hazard_field_collision(); }
+  if ( not Utils::scene_setting<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled ) { check_player_hazard_field_collision(); }
 
   return add_hazard_cell;
 }

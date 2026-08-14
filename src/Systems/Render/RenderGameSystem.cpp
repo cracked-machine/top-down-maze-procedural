@@ -40,6 +40,7 @@
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinBuildingMultiBlock.hpp>
+#include <Components/SceneSettings/Shaders.hpp>
 #include <Components/SceneSettings/ShowDebugStats.hpp>
 #include <Components/SceneSettings/ShowPathFinding.hpp>
 #include <Components/SelectedPosition.hpp>
@@ -101,12 +102,6 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
 {
   using namespace Sprites;
 
-  // check for updates to the System modes
-  for ( auto [entt, sys_cmp] : reg().view<Cmp::System>().each() )
-  {
-    m_shaders_enabled = sys_cmp.shaders_enabled;
-  }
-
   const Cmp::Position player_pos_cmp = Utils::Player::get_position( reg() );
 
   // make sure the local view is centered on the player mid-point and not at their top-left corner
@@ -116,7 +111,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   // re-populate the z-order queue with the latest entity/component data
   refresh_z_order_queue();
 
-  bool debug_tick = Utils::get_scene_setting_cmp<Cmp::SceneSettings::ShowDebugStats>( reg() ).enabled and
+  bool debug_tick = Utils::scene_setting<Cmp::SceneSettings::ShowDebugStats>( reg() ).enabled and
                     ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval );
 
   // main render begin
@@ -188,7 +183,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
       auto &shader_sprite_owner = reg().get<ShaderSpriteOwner>( entity );
       if ( not shader_sprite_owner.sprite ) continue;
       shader_sprite_owner.sprite->update( reg() );
-      if ( m_shaders_enabled ) { draw_world( *shader_sprite_owner.sprite ); }
+      if ( Utils::scene_setting<Cmp::SceneSettings::Shaders>( reg() ).enabled ) { draw_world( *shader_sprite_owner.sprite ); }
     }
     else if ( reg().all_of<ParticleSpriteOwner>( entity ) )
     {
@@ -238,7 +233,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   // lava pit outline
   render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPit>( sf::Color( 16, 16, 16 ), 0.5f );
 
-  if ( Utils::get_scene_setting_cmp<Cmp::SceneSettings::ShowPathFinding>( reg() ).enabled )
+  if ( Utils::scene_setting<Cmp::SceneSettings::ShowPathFinding>( reg() ).enabled )
   {
 
     Cmp::Position player_center_hitbox( player_pos_cmp.getCenter(), { 1.f, 1.f } );
@@ -270,7 +265,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   render_overlay_sys.render_crypt_maze_timer( { static_cast<float>( display_size.x ) / 2.f, 0.f }, 100 );
 
   // these debug shapes are only drawn within the current view to prevent FPS drops
-  if ( Utils::get_scene_setting_cmp<Cmp::SceneSettings::ShowDebugStats>( reg() ).enabled )
+  if ( Utils::scene_setting<Cmp::SceneSettings::ShowDebugStats>( reg() ).enabled )
   {
     render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
     render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
@@ -299,7 +294,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
     m_debug_update_timer.restart();
   }
 
-  if ( Utils::get_scene_setting_cmp<Cmp::SceneSettings::ShowDebugStats>( reg() ).enabled ) render_overlay_sys.draw_debug_overlay( m_window );
+  if ( Utils::scene_setting<Cmp::SceneSettings::ShowDebugStats>( reg() ).enabled ) render_overlay_sys.draw_debug_overlay( m_window );
 
   m_window.display();
 }

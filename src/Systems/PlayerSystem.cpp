@@ -360,7 +360,7 @@ void PlayerSystem::update_player_position( sf::Time dt )
   bool moved_perp = false;
   Cmp::Direction resolved_dir_vector;
 
-  bool collision_detect_enabled = Utils::get_scene_setting_cmp<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled;
+  bool collision_detect_enabled = Utils::scene_setting<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled;
 
   if ( not collision_detect_enabled or is_valid_move( next_horizontal_move ) )
   {

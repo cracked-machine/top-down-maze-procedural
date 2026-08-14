@@ -21,6 +21,7 @@
 #include <Components/Ruin/RuinBuildingMultiBlock.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/SceneSettings/CurrentScene.hpp>
+#include <Components/SceneSettings/Shaders.hpp>
 #include <Components/SceneSettings/ShowDebugStats.hpp>
 #include <Components/SceneSettings/ShowPathFinding.hpp>
 #include <Components/SelectedPosition.hpp>
@@ -91,6 +92,7 @@ void GraveyardScene::on_init()
   m_reg.emplace_or_replace<Cmp::SceneSettings::CollisionDetection>( sys_cmp_entt, true );
   m_reg.emplace_or_replace<Cmp::SceneSettings::ShowPathFinding>( sys_cmp_entt, false );
   m_reg.emplace_or_replace<Cmp::SceneSettings::ShowDebugStats>( sys_cmp_entt, false );
+  m_reg.emplace_or_replace<Cmp::SceneSettings::Shaders>( sys_cmp_entt, true );
 
   m_sys.find<Sys::Store::Type::ItemStore>().init_store();
   m_sys.find<Sys::Store::Type::NpcStore>().init_store();

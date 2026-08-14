@@ -8,7 +8,6 @@ class System
 {
 public:
   bool level_complete = false;
-  bool shaders_enabled = true; // F9
   bool particle_test_enabled = true;
 };
 

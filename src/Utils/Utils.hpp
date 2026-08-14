@@ -58,7 +58,7 @@ Cmp::System &get_system_cmp( entt::registry &reg );
 //! @param reg
 //! @return SCENESETTING&
 template <typename SCENESETTING>
-SCENESETTING &get_scene_setting_cmp( entt::registry &reg )
+SCENESETTING &scene_setting( entt::registry &reg )
 {
   entt::entity scene_entt = entt::null;
   SCENESETTING *scene_setting_cmp = nullptr;
