@@ -9,6 +9,7 @@
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
+#include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/System.hpp>
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -43,7 +44,7 @@ sf::Vector2f HazardFieldSystem<HazardType>::update()
   add_hazard_cell = update_hazard_field();
   check_npc_hazard_field_collision();
 
-  if ( not Utils::get_system_cmp( reg() ).collisions_disabled ) { check_player_hazard_field_collision(); }
+  if ( not Utils::get_scene_setting_cmp<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled ) { check_player_hazard_field_collision(); }
 
   return add_hazard_cell;
 }

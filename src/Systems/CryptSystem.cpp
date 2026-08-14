@@ -35,6 +35,7 @@
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
+#include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/Stats/SpawnAction.hpp>
 #include <Components/System.hpp>
 #include <Components/VoidPosition.hpp>
@@ -100,7 +101,7 @@ void CryptSystem::update( sf::Time dt )
   }
 
   // check collisions with lava pit/spike traps
-  if ( not Utils::get_system_cmp( reg() ).collisions_disabled )
+  if ( Utils::get_scene_setting_cmp<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled )
   {
     check_lava_pit_collision();
     check_spike_trap_collision();

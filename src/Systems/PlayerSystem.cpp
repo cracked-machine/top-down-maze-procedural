@@ -40,6 +40,7 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinCobweb.hpp>
 #include <Components/Ruin/RuneMarking.hpp>
+#include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/SelectedPosition.hpp>
 #include <Components/Spring/HealingSpringMultiBlock.hpp>
 #include <Components/Stats/BaseAction.hpp>
@@ -118,7 +119,7 @@ void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
   {
     check_player_can_push( dt );
     check_player_can_pull( dt );
-    update_player_position( dt, Utils::get_system_cmp( reg() ).collisions_disabled );
+    update_player_position( dt );
     update_player_animation();
 
     Utils::Player::get_zorder( reg() ).setZOrder( Utils::Player::get_position( reg() ).position.y );
@@ -337,7 +338,7 @@ void PlayerSystem::check_player_can_pull( sf::Time dt )
   move_obstacle( prev_vertical_move );
 }
 
-void PlayerSystem::update_player_position( sf::Time dt, bool collision_disabled )
+void PlayerSystem::update_player_position( sf::Time dt )
 {
   auto movement_delay = Sys::PersistSystem::get<Cmp::Persist::PostPullMovementDelay>( reg() );
   if ( m_movement_suppress_clock.getElapsedTime().asSeconds() < movement_delay.get_value() ) return;
@@ -359,7 +360,9 @@ void PlayerSystem::update_player_position( sf::Time dt, bool collision_disabled 
   bool moved_perp = false;
   Cmp::Direction resolved_dir_vector;
 
-  if ( is_valid_move( next_horizontal_move ) or collision_disabled )
+  bool collision_detect_enabled = Utils::get_scene_setting_cmp<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled;
+
+  if ( not collision_detect_enabled or is_valid_move( next_horizontal_move ) )
   {
     can_move = true;
     resolved_dir_vector.x = direction.x;
@@ -384,7 +387,7 @@ void PlayerSystem::update_player_position( sf::Time dt, bool collision_disabled 
     }
   }
 
-  if ( is_valid_move( next_vertical_move ) or collision_disabled )
+  if ( not collision_detect_enabled or is_valid_move( next_vertical_move ) )
   {
     can_move = true;
     resolved_dir_vector.y = direction.y;

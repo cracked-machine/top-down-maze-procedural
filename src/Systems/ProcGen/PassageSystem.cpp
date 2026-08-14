@@ -13,6 +13,7 @@
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Random.hpp>
 #include <Components/ReservedPosition.hpp>
+#include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/SpawnArea.hpp>
 #include <Components/System.hpp>
 #include <Components/UUID.hpp>
@@ -655,7 +656,7 @@ void PassageSystem::fill_all_passages()
   }
 
   // Player squish check — done once after all walls are placed - except if player has extra life.
-  if ( not Utils::get_system_cmp( reg() ).collisions_disabled )
+  if ( Utils::get_scene_setting_cmp<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled )
   {
     if ( not m_passage_block_grid.at( Utils::Player::get_position( reg() ) ).empty() )
     {

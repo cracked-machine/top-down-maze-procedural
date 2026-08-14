@@ -6,6 +6,7 @@
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
+#include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/Stats/ProjectileAction.hpp>
 #include <Components/System.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
@@ -137,7 +138,7 @@ void ShockwaveSystem::remove_intersecting_segments( const sf::FloatRect &rect, C
 
 void ShockwaveSystem::check_shockwave_player_collision()
 {
-  if ( Utils::get_system_cmp( reg() ).collisions_disabled ) return;
+  if ( not Utils::get_scene_setting_cmp<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled ) return;
 
   // we need the projectile_action modifiers for this NPC type.
   auto priest_npc_cmp = Sys::NpcStore::instance().get_item( "npc.priest" );

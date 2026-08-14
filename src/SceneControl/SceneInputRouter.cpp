@@ -11,6 +11,7 @@
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
+#include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/Stats/BaseAction.hpp>
 #include <Components/System.hpp>
 #include <Events/BuyShopItemEvent.hpp>
@@ -506,11 +507,9 @@ void SceneInputRouter::resize_window( sf::Vector2u size )
 
 void SceneInputRouter::toggle_collision_detection()
 {
-  for ( auto [entt, sys_cmp] : reg().view<Cmp::System>().each() )
-  {
-    sys_cmp.collisions_disabled = not sys_cmp.collisions_disabled;
-    SPDLOG_INFO( "Collisions are now {}", sys_cmp.collisions_disabled ? "DISABLED" : "ENABLED" );
-  }
+  bool &current_setting = Utils::get_scene_setting_cmp<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled;
+  current_setting = not current_setting;
+  SPDLOG_INFO( "Collisions are now {}", current_setting ? "ENABLED" : "DISABLED" );
 }
 
 void SceneInputRouter::toggle_show_pathfinding()

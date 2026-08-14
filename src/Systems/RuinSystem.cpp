@@ -26,6 +26,7 @@
 #include <Components/Ruin/RuinStairsSegment.hpp>
 #include <Components/Ruin/RuinStairsUpperMultiBlock.hpp>
 #include <Components/Ruin/RuneMarking.hpp>
+#include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/Stats/BaseAction.hpp>
 #include <Components/Stats/CollisionAction.hpp>
 #include <Components/System.hpp>
@@ -490,7 +491,7 @@ void RuinSystem::update_shadow_hand_pos( sf::Vector2f scene_dimensions )
 
 void RuinSystem::check_player_shadow_hand_collision( sf::Time dt )
 {
-  if ( Utils::get_system_cmp( reg() ).collisions_disabled ) return;
+  if ( not Utils::get_scene_setting_cmp<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled ) return;
 
   static constexpr float kActionEffectInterval = 0.05f;
   m_shadowhand_action_effects_time += dt;

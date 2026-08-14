@@ -32,7 +32,8 @@
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinBuildingSegment.hpp>
-#include <Components/Scene/CurrentScene.hpp>
+#include <Components/SceneSettings/CollisionDetection.hpp>
+#include <Components/SceneSettings/CurrentScene.hpp>
 #include <Components/SpawnArea.hpp>
 #include <Components/Stats/BaseAction.hpp>
 #include <Components/Stats/CollisionAction.hpp>
@@ -107,13 +108,13 @@ void NpcSystem::update( sf::Time dt )
   update_sfx();
   update_movement( dt );
 
-  if ( not Utils::get_system_cmp( reg() ).collisions_disabled )
+  if ( Utils::get_scene_setting_cmp<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled )
   {
     check_once_collision();
     check_timed_collision( dt );
   }
 
-  if ( Utils::get_current_scene_cmp( reg() ).id == Cmp::SceneId::GRAVEYARD )
+  if ( Utils::get_scene_setting_cmp<Cmp::SceneSettings::CurrentScene>( reg() ).id == Cmp::SceneSettings::SceneId::GRAVEYARD )
   {
     m_watchman_spawn_timer += dt;
     if ( m_watchman_spawn_timer.asSeconds() >= Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanSpawnCooldown>( reg() ).get_value() )

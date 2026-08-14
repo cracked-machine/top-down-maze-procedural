@@ -65,7 +65,7 @@ private:
   //! @brief
   //! @param dt
   //! @param collision_disabled
-  void update_player_position( sf::Time dt, bool collision_disabled );
+  void update_player_position( sf::Time dt );
 
   //! @brief Change to animation spritesheet for the players current direction.
   void update_player_animation();

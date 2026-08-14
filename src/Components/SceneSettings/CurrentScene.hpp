@@ -1,11 +1,10 @@
 #ifndef SRC_COMPONENTS_CURRENTSCENE_HPP__
 #define SRC_COMPONENTS_CURRENTSCENE_HPP__
 
-namespace Game::Cmp
+namespace Game::Cmp::SceneSettings
 {
 
-enum class SceneId
-{
+enum class SceneId {
   GRAVEYARD,
   SHOP,
   HEALING_SPRING,
@@ -24,6 +23,6 @@ struct CurrentScene
   SceneId id;
 };
 
-} // namespace Game::Cmp
+} // namespace Game::Cmp::SceneSettings
 
 #endif // SRC_COMPONENTS_CURRENTSCENE_HPP__

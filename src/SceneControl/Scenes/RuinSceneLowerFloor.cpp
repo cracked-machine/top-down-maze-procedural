@@ -13,7 +13,8 @@
 #include <Components/Ruin/RuinFloorAccess.hpp>
 #include <Components/Ruin/RuinObjectiveType.hpp>
 #include <Components/Ruin/RuinStairsLowerMultiBlock.hpp>
-#include <Components/Scene/CurrentScene.hpp>
+#include <Components/SceneSettings/CollisionDetection.hpp>
+#include <Components/SceneSettings/CurrentScene.hpp>
 #include <Components/System.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ParticleFactory.hpp>
@@ -64,7 +65,8 @@ void RuinSceneLowerFloor::on_init()
 
   auto sys_cmp_entt = m_reg.create();
   m_reg.emplace<Cmp::System>( sys_cmp_entt );
-  m_reg.emplace_or_replace<Cmp::CurrentScene>( sys_cmp_entt, Cmp::SceneId::RUIN_LOWER_FLOOR );
+  m_reg.emplace_or_replace<Cmp::SceneSettings::CurrentScene>( sys_cmp_entt, Cmp::SceneSettings::SceneId::RUIN_LOWER_FLOOR );
+  m_reg.emplace_or_replace<Cmp::SceneSettings::CollisionDetection>( sys_cmp_entt, true );
 
   // initialise the persistent player start position from the scene data
   auto [_, player_start_pos_px] = m_scene_data->get_player_start_position();

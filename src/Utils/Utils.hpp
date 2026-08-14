@@ -53,10 +53,22 @@ bool is_graveyard_exit_locked( entt::registry &reg );
 //! @return Cmp::System&
 Cmp::System &get_system_cmp( entt::registry &reg );
 
-//! @brief Get the current scene cmp object
+//! @brief Get the scene setting cmp object
+//! @tparam SCENESETTING
 //! @param reg
-//! @return Cmp::CurrentScene&
-Cmp::CurrentScene &get_current_scene_cmp( entt::registry &reg );
+//! @return SCENESETTING&
+template <typename SCENESETTING>
+SCENESETTING &get_scene_setting_cmp( entt::registry &reg )
+{
+  entt::entity scene_entt = entt::null;
+  SCENESETTING *scene_setting_cmp = nullptr;
+  auto scene_setting_view = reg.view<SCENESETTING>();
+  if ( scene_setting_view->empty() ) { throw std::runtime_error( "Unable to get scene setting component!" ); }
+  scene_entt = scene_setting_view.front();
+  if ( scene_entt == entt::null ) { throw std::runtime_error( "Unable to get entity for scene setting component!" ); }
+  scene_setting_cmp = reg.try_get<SCENESETTING>( scene_entt );
+  return *scene_setting_cmp;
+}
 
 //! @brief Get the Grid Position object
 //! @param entity The entity to get the grid position for.
