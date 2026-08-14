@@ -40,6 +40,7 @@
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinBuildingMultiBlock.hpp>
+#include <Components/SceneSettings/ShowPathFinding.hpp>
 #include <Components/SelectedPosition.hpp>
 #include <Components/Spring/HealingSpringBuildingMultiBlock.hpp>
 #include <Components/System.hpp>
@@ -102,7 +103,6 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   // check for updates to the System modes
   for ( auto [entt, sys_cmp] : reg().view<Cmp::System>().each() )
   {
-    m_show_path_finding = sys_cmp.show_path_finding;
     m_show_debug_stats = sys_cmp.show_debug_stats;
     m_shaders_enabled = sys_cmp.shaders_enabled;
     m_show_playernopath = sys_cmp.show_playernopath;
@@ -266,7 +266,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
     }
   }
 
-  if ( m_show_path_finding )
+  if ( Utils::get_scene_setting_cmp<Cmp::SceneSettings::ShowPathFinding>( reg() ).enabled )
   {
 
     Cmp::Position player_center_hitbox( player_pos_cmp.getCenter(), { 1.f, 1.f } );

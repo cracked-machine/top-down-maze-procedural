@@ -89,7 +89,6 @@ protected:
   Cmp::Font m_font = Cmp::Font( "res/fonts/tuffy.ttf" );
 
   // System mode flags
-  bool m_show_path_finding{ false };
   bool m_show_debug_stats{ false };
   bool m_show_npcnopath{ false };
   bool m_show_playernopath{ false };

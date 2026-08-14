@@ -7,7 +7,6 @@ namespace Game::Cmp
 class System
 {
 public:
-  bool show_path_finding = false; // F2
   bool show_debug_stats = false;  // F3
   bool show_npcnopath = false;    // F4 cycle
   bool show_playernopath = false; // F4 cycle

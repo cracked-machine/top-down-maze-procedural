@@ -11,6 +11,7 @@
 #include <Components/Ruin/RuinStairsUpperMultiBlock.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/SceneSettings/CurrentScene.hpp>
+#include <Components/SceneSettings/ShowPathFinding.hpp>
 #include <Components/System.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/ParticleFactory.hpp>
@@ -59,6 +60,7 @@ void RuinSceneUpperFloor::on_init()
   m_reg.emplace<Cmp::System>( sys_cmp_entt );
   m_reg.emplace_or_replace<Cmp::SceneSettings::CurrentScene>( sys_cmp_entt, Cmp::SceneSettings::SceneId::RUIN_UPPER_FLOOR );
   m_reg.emplace_or_replace<Cmp::SceneSettings::CollisionDetection>( sys_cmp_entt, true );
+  m_reg.emplace_or_replace<Cmp::SceneSettings::ShowPathFinding>( sys_cmp_entt, false );
 
   // initialise the persistent player start position from the scene data
   auto [_, player_start_pos_px] = m_scene_data->get_player_start_position();

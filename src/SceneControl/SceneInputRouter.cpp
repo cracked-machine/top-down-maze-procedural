@@ -12,6 +12,7 @@
 #include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
+#include <Components/SceneSettings/ShowPathFinding.hpp>
 #include <Components/Stats/BaseAction.hpp>
 #include <Components/System.hpp>
 #include <Events/BuyShopItemEvent.hpp>
@@ -514,11 +515,9 @@ void SceneInputRouter::toggle_collision_detection()
 
 void SceneInputRouter::toggle_show_pathfinding()
 {
-  for ( auto [entt, sys_cmp] : reg().view<Cmp::System>().each() )
-  {
-    sys_cmp.show_path_finding = not sys_cmp.show_path_finding;
-    SPDLOG_INFO( "Show Pathfinding is now {}", sys_cmp.show_path_finding ? "ENABLED" : "DISABLED" );
-  }
+  bool &current_setting = Utils::get_scene_setting_cmp<Cmp::SceneSettings::ShowPathFinding>( reg() ).enabled;
+  current_setting = not current_setting;
+  SPDLOG_INFO( "Show pathfinding is now {}", current_setting ? "ENABLED" : "DISABLED" );
 }
 
 void SceneInputRouter::toggle_show_debug()
