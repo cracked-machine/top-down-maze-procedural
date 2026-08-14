@@ -19,6 +19,7 @@
 #include <Components/Player/PlayerLevelDepth.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinBuildingMultiBlock.hpp>
+#include <Components/Scene/CurrentScene.hpp>
 #include <Components/SelectedPosition.hpp>
 #include <Components/UUID.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -83,6 +84,7 @@ void GraveyardScene::on_init()
 
   auto sys_cmp_entt = m_reg.create();
   m_reg.emplace<Cmp::System>( sys_cmp_entt );
+  m_reg.emplace_or_replace<Cmp::CurrentScene>( sys_cmp_entt, Cmp::SceneId::GRAVEYARD );
 
   m_sys.find<Sys::Store::Type::ItemStore>().init_store();
   m_sys.find<Sys::Store::Type::NpcStore>().init_store();

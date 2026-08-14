@@ -27,6 +27,7 @@ class PlayerRuinLocation;
 class ZOrderValue;
 class System;
 class LerpPosition;
+class CurrentScene;
 } // namespace Game::Cmp
 
 namespace Game::Utils
@@ -51,6 +52,11 @@ bool is_graveyard_exit_locked( entt::registry &reg );
 //! @param reg
 //! @return Cmp::System&
 Cmp::System &get_system_cmp( entt::registry &reg );
+
+//! @brief Get the current scene cmp object
+//! @param reg
+//! @return Cmp::CurrentScene&
+Cmp::CurrentScene &get_current_scene_cmp( entt::registry &reg );
 
 //! @brief Get the Grid Position object
 //! @param entity The entity to get the grid position for.

@@ -17,6 +17,7 @@
 #include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
+#include <Components/Scene/CurrentScene.hpp>
 #include <Components/System.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -174,6 +175,18 @@ Cmp::System &get_system_cmp( entt::registry &reg )
   if ( system_entt == entt::null ) { throw std::runtime_error( "Unable to get entity for Cmp::System!" ); }
   system_cmp = reg.try_get<Cmp::System>( system_entt );
   return *system_cmp;
+}
+
+Cmp::CurrentScene &get_current_scene_cmp( entt::registry &reg )
+{
+  entt::entity scene_entt = entt::null;
+  Cmp::CurrentScene *scene_cmp = nullptr;
+  auto scene_view = reg.view<Cmp::CurrentScene>();
+  if ( scene_view->empty() ) { throw std::runtime_error( "Unable to get component Cmp::CurrentScene!" ); }
+  scene_entt = scene_view.front();
+  if ( scene_entt == entt::null ) { throw std::runtime_error( "Unable to get entity for Cmp::CurrentScene!" ); }
+  scene_cmp = reg.try_get<Cmp::CurrentScene>( scene_entt );
+  return *scene_cmp;
 }
 
 sf::FloatRect get_mouse_bounds_in_gameview( const sf::RenderWindow &window, const sf::View &gameview )

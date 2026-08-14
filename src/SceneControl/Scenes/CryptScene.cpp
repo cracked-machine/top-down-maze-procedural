@@ -10,6 +10,7 @@
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/Player/PlayerNoPath.hpp>
+#include <Components/Scene/CurrentScene.hpp>
 #include <Components/System.hpp>
 #include <Events/CryptRoomEvent.hpp>
 #include <Factory/CryptFactory.hpp>
@@ -52,6 +53,7 @@ void CryptScene::on_init()
 
   auto sys_cmp_entt = m_reg.create();
   m_reg.emplace<Cmp::System>( sys_cmp_entt );
+  m_reg.emplace_or_replace<Cmp::CurrentScene>( sys_cmp_entt, Cmp::SceneId::CRYPT );
 
   // initialise the persistent player start position from the scene configuration (json) data
   auto [_, player_start_pos_px] = m_scene_data->get_player_start_position();

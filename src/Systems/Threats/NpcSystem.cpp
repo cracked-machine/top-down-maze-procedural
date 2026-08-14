@@ -32,6 +32,7 @@
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinBuildingSegment.hpp>
+#include <Components/Scene/CurrentScene.hpp>
 #include <Components/SpawnArea.hpp>
 #include <Components/Stats/BaseAction.hpp>
 #include <Components/Stats/CollisionAction.hpp>
@@ -112,11 +113,14 @@ void NpcSystem::update( sf::Time dt )
     check_timed_collision( dt );
   }
 
-  m_watchman_spawn_timer += dt;
-  if ( m_watchman_spawn_timer.asSeconds() >= Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanSpawnCooldown>( reg() ).get_value() )
+  if ( Utils::get_current_scene_cmp( reg() ).id == Cmp::SceneId::GRAVEYARD )
   {
-    spawn_watchman();
-    m_watchman_spawn_timer = sf::Time::Zero;
+    m_watchman_spawn_timer += dt;
+    if ( m_watchman_spawn_timer.asSeconds() >= Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanSpawnCooldown>( reg() ).get_value() )
+    {
+      spawn_watchman();
+      m_watchman_spawn_timer = sf::Time::Zero;
+    }
   }
 }
 
