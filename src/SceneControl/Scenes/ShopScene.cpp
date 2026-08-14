@@ -8,7 +8,7 @@
 #include <Components/SceneSettings/ShowDebugStats.hpp>
 #include <Components/SceneSettings/ShowPathFinding.hpp>
 #include <Components/Shop/ShopInventory.hpp>
-#include <Components/System.hpp>
+
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/PathfindingFactory.hpp>
@@ -47,7 +47,6 @@ void ShopScene::on_init()
   m_sys.find<Sys::Store::Type::ShopSystem>().create_shop_inventory();
 
   auto sys_cmp_entt = m_reg.create();
-  m_reg.emplace<Cmp::System>( sys_cmp_entt );
   m_reg.emplace_or_replace<Cmp::SceneSettings::CurrentScene>( sys_cmp_entt, Cmp::SceneSettings::SceneId::SHOP );
   m_reg.emplace_or_replace<Cmp::SceneSettings::CollisionDetection>( sys_cmp_entt, true );
   m_reg.emplace_or_replace<Cmp::SceneSettings::ShowPathFinding>( sys_cmp_entt, false );

@@ -35,7 +35,7 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinObjectiveType.hpp>
 #include <Components/Stats/PlayerStats.hpp>
-#include <Components/System.hpp>
+
 #include <Components/UUID.hpp>
 #include <Components/VoidPosition.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -237,7 +237,6 @@ void RegistryTransfer::init_missing_cmp_storages( entt::registry &registry )
   registry.storage<Cmp::ZOrderValue>();
   registry.storage<Cmp::SeeingStone>();
   registry.storage<Cmp::Explosive>();
-  registry.storage<Cmp::System>();
   registry.storage<Cmp::PlayerLastGraveyardPosition>();
   registry.storage<Cmp::PlayerRuinLocation>();
   registry.storage<Cmp::RuinObjectiveType>();

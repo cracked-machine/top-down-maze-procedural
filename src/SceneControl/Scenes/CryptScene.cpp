@@ -15,7 +15,7 @@
 #include <Components/SceneSettings/Shaders.hpp>
 #include <Components/SceneSettings/ShowDebugStats.hpp>
 #include <Components/SceneSettings/ShowPathFinding.hpp>
-#include <Components/System.hpp>
+
 #include <Events/CryptRoomEvent.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Factory/ParticleFactory.hpp>
@@ -56,7 +56,6 @@ void CryptScene::on_init()
   SPDLOG_INFO( "levelgen_tilelayer size: {}", m_scene_data->levelgen_tilelayer().size() );
 
   auto sys_cmp_entt = m_reg.create();
-  m_reg.emplace<Cmp::System>( sys_cmp_entt );
   m_reg.emplace_or_replace<Cmp::SceneSettings::CurrentScene>( sys_cmp_entt, Cmp::SceneSettings::SceneId::CRYPT );
   m_reg.emplace_or_replace<Cmp::SceneSettings::CollisionDetection>( sys_cmp_entt, true );
   m_reg.emplace_or_replace<Cmp::SceneSettings::ShowPathFinding>( sys_cmp_entt, false );

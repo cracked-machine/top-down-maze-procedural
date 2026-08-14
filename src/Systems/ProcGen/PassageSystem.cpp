@@ -15,7 +15,7 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/SpawnArea.hpp>
-#include <Components/System.hpp>
+
 #include <Components/UUID.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/CryptFactory.hpp>

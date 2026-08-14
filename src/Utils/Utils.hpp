@@ -48,11 +48,6 @@ entt::entity get_world_pos_entt( entt::registry &reg, Cmp::Position match );
 std::optional<sf::Vector2f> get_pixel_position( entt::registry &registry, entt::entity entity );
 bool is_graveyard_exit_locked( entt::registry &reg );
 
-//! @brief Get the system cmp object
-//! @param reg
-//! @return Cmp::System&
-Cmp::System &get_system_cmp( entt::registry &reg );
-
 //! @brief Get the scene setting cmp object
 //! @tparam SCENESETTING
 //! @param reg

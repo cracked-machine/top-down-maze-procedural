@@ -14,7 +14,7 @@
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/System.hpp>
+
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/PlayerActionEvent.hpp>
@@ -79,7 +79,8 @@ void ExitSystem::create_exit()
   // Remove the existing wall obstacle first
   Factory::Obstacle::remove_obstacle( reg(), selected_entity, Factory::Obstacle::DeleteExtras::Yes );
 
-  Factory::Multiblock::add_multiblock_with_segments<Cmp::GraveExitMultiBlock, Cmp::GraveExitSegment>( reg(), selected_pos_cmp.position, kGraveExitSpritesheet );
+  Factory::Multiblock::add_multiblock_with_segments<Cmp::GraveExitMultiBlock, Cmp::GraveExitSegment>( reg(), selected_pos_cmp.position,
+                                                                                                      kGraveExitSpritesheet );
   SPDLOG_INFO( "Exit spawned at position ({}, {})", selected_pos_cmp.position.x, selected_pos_cmp.position.y );
 }
 
@@ -146,7 +147,6 @@ void ExitSystem::check_exit_collision()
     if ( Utils::Player::get_position( reg() ).findIntersection( adjusted_exit_pos ) )
     {
       SPDLOG_INFO( "Player reached the exit zone!" );
-      Utils::get_system_cmp( reg() ).level_complete = true;
       m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::LEVEL_COMPLETE );
       Factory::Player::remove_player_last_graveyard_pos( reg() );
     }

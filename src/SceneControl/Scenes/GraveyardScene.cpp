@@ -87,7 +87,6 @@ void GraveyardScene::on_init()
   m_persistent_sys.load_state();
 
   auto sys_cmp_entt = m_reg.create();
-  m_reg.emplace<Cmp::System>( sys_cmp_entt );
   m_reg.emplace_or_replace<Cmp::SceneSettings::CurrentScene>( sys_cmp_entt, Cmp::SceneSettings::SceneId::GRAVEYARD );
   m_reg.emplace_or_replace<Cmp::SceneSettings::CollisionDetection>( sys_cmp_entt, true );
   m_reg.emplace_or_replace<Cmp::SceneSettings::ShowPathFinding>( sys_cmp_entt, false );

@@ -18,7 +18,7 @@
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/SceneSettings/CurrentScene.hpp>
-#include <Components/System.hpp>
+
 #include <Components/ZOrderValue.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/View.hpp>
@@ -163,18 +163,6 @@ bool is_graveyard_exit_locked( entt::registry &reg )
     return exit_cmp.m_locked;
   }
   throw std::runtime_error( "No exit was found in the game!" );
-}
-
-Cmp::System &get_system_cmp( entt::registry &reg )
-{
-  entt::entity system_entt = entt::null;
-  Cmp::System *system_cmp = nullptr;
-  auto system_view = reg.view<Cmp::System>();
-  if ( system_view->empty() ) { throw std::runtime_error( "Unable to get component Cmp::System!" ); }
-  system_entt = system_view.front();
-  if ( system_entt == entt::null ) { throw std::runtime_error( "Unable to get entity for Cmp::System!" ); }
-  system_cmp = reg.try_get<Cmp::System>( system_entt );
-  return *system_cmp;
 }
 
 sf::FloatRect get_mouse_bounds_in_gameview( const sf::RenderWindow &window, const sf::View &gameview )

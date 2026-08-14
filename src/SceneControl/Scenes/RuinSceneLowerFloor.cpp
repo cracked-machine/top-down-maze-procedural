@@ -18,7 +18,7 @@
 #include <Components/SceneSettings/Shaders.hpp>
 #include <Components/SceneSettings/ShowDebugStats.hpp>
 #include <Components/SceneSettings/ShowPathFinding.hpp>
-#include <Components/System.hpp>
+
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ParticleFactory.hpp>
 #include <Factory/PathfindingFactory.hpp>
@@ -67,7 +67,6 @@ void RuinSceneLowerFloor::on_init()
   m_scene_data = std::make_shared<SceneData>( "res/scenes/ruinlower.json" );
 
   auto sys_cmp_entt = m_reg.create();
-  m_reg.emplace<Cmp::System>( sys_cmp_entt );
   m_reg.emplace_or_replace<Cmp::SceneSettings::CurrentScene>( sys_cmp_entt, Cmp::SceneSettings::SceneId::RUIN_LOWER_FLOOR );
   m_reg.emplace_or_replace<Cmp::SceneSettings::CollisionDetection>( sys_cmp_entt, true );
   m_reg.emplace_or_replace<Cmp::SceneSettings::ShowPathFinding>( sys_cmp_entt, false );

@@ -8,7 +8,7 @@
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/Stats/ProjectileAction.hpp>
-#include <Components/System.hpp>
+
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ParticleFactory.hpp>

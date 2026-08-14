@@ -37,7 +37,7 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/Stats/SpawnAction.hpp>
-#include <Components/System.hpp>
+
 #include <Components/VoidPosition.hpp>
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
