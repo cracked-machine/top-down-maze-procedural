@@ -128,6 +128,13 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
   }
+  else if ( npc_type == "npc.nightwatchman" )
+  {
+    reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
+    auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
+    Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
+    Factory::Npc::destroy_npc_container( reg, position_entity );
+  }
   else if ( npc_type == "npc.skeleton" )
   {
     reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );

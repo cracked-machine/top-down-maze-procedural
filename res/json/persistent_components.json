@@ -240,13 +240,21 @@
     "detail": "NPC Death Animation Framerate",
     "format": "%.2f"
   },
-  "NpcSkeleGraveyardSpawnCount": {
+  "NpcWatchmanSpawnMax": {
     "type": "int",
-    "value": 1,
+    "value": 10,
     "min_value": 1,
     "max_value": 200,
-    "detail": "NPC Skeleton Graveyard Spawn Count",
-    "format": "%.2f"
+    "detail": "NPC Watchman Spawn Max",
+    "format": "%d"
+  },
+    "NpcWatchmanSpawnCooldown": {
+    "type": "float",
+    "value": 300.0,
+    "min_value": 60.0,
+    "max_value": 900.0,
+    "detail": "NPC Watchman Spawn Cooldown (sec)",
+    "format": "%.1f"
   },
   
   "NpcPushBack": {

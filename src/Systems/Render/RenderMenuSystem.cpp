@@ -36,6 +36,8 @@
 #include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
 #include <Components/Persistent/NpcShockwaveResolution.hpp>
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
+#include <Components/Persistent/NpcWatchmanSpawnCooldown.hpp>
+#include <Components/Persistent/NpcWatchmanSpawnMax.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerAnimFramerate.hpp>
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
@@ -228,6 +230,8 @@ void RenderMenuSystem::render_settings_widgets( sf::Time dt, sf::FloatRect title
     Sys::PersistSystem::get<Cmp::Persist::RuinMaxCobwebs>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::RuinMaxSpiders>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::CryptShuffleTimeout>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanSpawnMax>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanSpawnCooldown>( reg() ).render_widget();
 
     // Loot Settings
     ImGui::SeparatorText( "Loot Settings" );

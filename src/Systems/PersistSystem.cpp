@@ -1,12 +1,5 @@
 
 
-#include <Components/Persistent/CryptShuffleTimeout.hpp>
-#include <Components/Persistent/RuinMaxSpiders.hpp>
-#define JSON_NOEXCEPTION
-#include <fstream>
-#include <nlohmann/json.hpp>
-#include <spdlog/spdlog.h>
-
 #include <Components/Persistent/ArmedBlinkFreq.hpp>
 #include <Components/Persistent/ArmedBlockColourBorder.hpp>
 #include <Components/Persistent/ArmedBlockColourFill.hpp>
@@ -19,6 +12,7 @@
 #include <Components/Persistent/CorruptionDamage.hpp>
 #include <Components/Persistent/CorruptionSeed.hpp>
 #include <Components/Persistent/CryptNpcSpawnCount.hpp>
+#include <Components/Persistent/CryptShuffleTimeout.hpp>
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
@@ -42,7 +36,8 @@
 #include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
 #include <Components/Persistent/NpcShockwaveResolution.hpp>
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
-#include <Components/Persistent/NpcSkeleGraveyardSpawnCount.hpp>
+#include <Components/Persistent/NpcWatchmanSpawnCooldown.hpp>
+#include <Components/Persistent/NpcWatchmanSpawnMax.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerAnimFramerate.hpp>
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
@@ -54,6 +49,7 @@
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Persistent/PostPullMovementDelay.hpp>
 #include <Components/Persistent/RuinMaxCobwebs.hpp>
+#include <Components/Persistent/RuinMaxSpiders.hpp>
 #include <Components/Persistent/RuinProcGenBirthThreshold.hpp>
 #include <Components/Persistent/RuinProcGenInitChance.hpp>
 #include <Components/Persistent/RuinProcGenMaxIterations.hpp>
@@ -69,6 +65,10 @@
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
+
+#include <fstream>
+#include <nlohmann/json.hpp>
+#include <spdlog/spdlog.h>
 
 namespace Game::Sys
 {
@@ -132,7 +132,8 @@ void PersistSystem::initialize_type_registry()
   register_type.operator()<NpcShockwaveMaxRadius>("NpcShockwaveMaxRadius");
   register_type.operator()<NpcShockwaveResolution>("NpcShockwaveResolution");
   register_type.operator()<NpcShockwaveSpeed>("NpcShockwaveSpeed");
-  register_type.operator()<NpcSkeleGraveyardSpawnCount>("NpcSkeleGraveyardSpawnCount");
+  register_type.operator()<NpcWatchmanSpawnMax>("NpcWatchmanSpawnMax");
+  register_type.operator()<NpcWatchmanSpawnCooldown>("NpcWatchmanSpawnCooldown");
   register_type.operator()<PcDamageDelay>("PcDamageDelay");
   register_type.operator()<PlayerAnimFramerate>("PlayerAnimFramerate");
   register_type.operator()<PlayerDiagonalLerpSpeedModifier>("PlayerDiagonalLerpSpeedModifier");

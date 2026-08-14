@@ -739,6 +739,7 @@ void CryptSystem::decorate_interior_wall( entt::entity main_entt, Cmp::Position 
   Cmp::Position cap_position( { main_pos_cmp.x(), main_pos_cmp.y() - main_pos_cmp.size.y }, main_pos_cmp.size );
   reg().emplace_or_replace<Cmp::Position>( cap_entt, cap_position );
   Factory::Obstacle::decorate_obstacle( reg(), cap_entt, cap_position, ss_cap, tile_idx, main_pos_cmp.y() + ss_cap.get_zorder( tile_idx ), false );
+  reg().emplace_or_replace<Cmp::ReservedPosition>( cap_entt );
   reg().emplace_or_replace<Cmp::UUID>( cap_entt, uuid );
 }
 
