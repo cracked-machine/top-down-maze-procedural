@@ -56,6 +56,7 @@
 #include <Systems/PersistSystem.hpp>
 #include <Systems/ProcGen/LevelGenerator.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Systems/Stores/ItemStore.hpp>
 #include <Utils/Collision.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Optimizations.hpp>
@@ -135,7 +136,11 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
   // Multiblock layer
   for ( const auto &[ms_type, pos] : scene_data.multiblock_objectlayer() )
   {
-    const auto &ms = m_sprite_factory.get_spritesheet_by_type( ms_type );
+    // Item markers share this layer but are named by item id (e.g. "item.axe"), which isn't
+    // itself a valid sprite key - resolve the item's actual sprite type before lookup.
+    const Sprites::SpriteMetaType sprite_lookup_type =
+        ms_type.contains( "item." ) ? Sys::ItemStore::instance().get_item( ms_type ).sprite_type : ms_type;
+    const auto &ms = m_sprite_factory.get_spritesheet_by_type( sprite_lookup_type );
     if ( ms_type == "sprite.graveyard.healingspring" )
     {
       Factory::Multiblock::add_multiblock_with_segments<Cmp::HealingSpringMultiBlock, Cmp::HealingSpringSegment>( reg(), pos, ms );

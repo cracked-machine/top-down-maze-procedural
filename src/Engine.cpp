@@ -16,9 +16,11 @@
 #include <Systems/Stores/SystemStore.hpp>
 #include <Systems/Threats/HazardFieldSystem.hpp>
 #include <Systems/Threats/HazardFieldSystemImpl.hpp>
+#include <Utils/Utils.hpp>
 #include <imgui-SFML.h>
 
 #include <memory>
+#include <sstream>
 #include <stacktrace>
 
 namespace Game
@@ -135,13 +137,29 @@ void Engine::show_error_screen( const std::string &error_msg )
   // Show only the error message on screen, not the stack trace
   std::string screen_message = "Fatal Error\n\n" + error_msg + "\n\nPress any key to exit" + "\n\nFull stack trace saved to log.txt";
 
-  sf::Text error_text( font, screen_message, 24 );
+  static constexpr unsigned int kCharSize = 24;
+  static constexpr float kScreenMargin = 50.f;
+  const float max_text_width = static_cast<float>( m_window->getSize().x ) - ( kScreenMargin * 2.f );
+  const float avg_char_width = font.getGlyph( 'M', kCharSize, false ).advance;
+  const auto max_chars_per_line = static_cast<std::size_t>( max_text_width / avg_char_width );
+  screen_message = Utils::wrap_text_to_width( screen_message, max_chars_per_line );
+
+  sf::Text error_text( font, screen_message, kCharSize );
   error_text.setFillColor( sf::Color::White );
-  error_text.setPosition( { 50, 50 } );
+  error_text.setPosition( { kScreenMargin, kScreenMargin } );
+
+  // The crash may have happened mid-render with the game's world camera view still active;
+  // reset to the default view so the text's position maps to actual screen pixels.
+  m_window->setView( m_window->getDefaultView() );
 
   m_window->clear( sf::Color::Black );
   m_window->draw( error_text );
   m_window->display();
+
+  // Discard any events already queued before the error screen was shown (e.g. a movement key
+  // still held down when the exception hit), so the wait loop below only reacts to input made
+  // after the message is actually visible.
+  while ( m_window->pollEvent() ) {}
 
   // Wait for key press
   while ( m_window->isOpen() )

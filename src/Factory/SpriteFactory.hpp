@@ -4,6 +4,7 @@
 #include <Sprites/SpriteSheet.hpp>
 
 #include <SFML/System/Vector2.hpp>
+#include <source_location>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -46,8 +47,10 @@ public:
   //! This method searches for and returns a SpriteSheet that corresponds to the given
   //! SpriteMetaType. If the type is not found, it returns the error sprite.
   //! @param type The SpriteMetaType to search for
-  //! @return Sprites::SpriteSheet& const& The SpriteSheet object if found, error sprite otherwise
-  const Sprites::SpriteSheet &get_spritesheet_by_type( const SpriteMetaType &type );
+  //! @param loc Call site captured for the error message if the type is not found
+  //! @return Sprites::SpriteSheet& const& The SpriteSheet object if found
+  //! @throws std::runtime_error if the type is not found
+  const Sprites::SpriteSheet &get_spritesheet_by_type( const SpriteMetaType &type, std::source_location loc = std::source_location::current() );
 
   //! @brief Get a vector of all SpriteMetaType objects
   //! @return std::vector<SpriteMetaType>
@@ -55,8 +58,14 @@ public:
   std::unordered_set<SpriteMetaType> get_all_sprite_types_set();
 
   // Returns the pixel bounds of first sprite in array. Assumes that all sprites in the multi-sprite have the same size
-  sf::Vector2f get_sprite_size_by_type( const SpriteMetaType &type ) { return get_spritedata_by_type( type ).get_sprite_size(); }
-  std::string get_display_name_by_type( const SpriteMetaType &type ) { return get_spritedata_by_type( type ).get_display_name(); }
+  sf::Vector2f get_sprite_size_by_type( const SpriteMetaType &type, std::source_location loc = std::source_location::current() )
+  {
+    return get_spritedata_by_type( type, loc ).get_sprite_size();
+  }
+  std::string get_display_name_by_type( const SpriteMetaType &type, std::source_location loc = std::source_location::current() )
+  {
+    return get_spritedata_by_type( type, loc ).get_display_name();
+  }
 
 private:
   //! @brief Retrieves sprite metadata by sprite type
@@ -64,8 +73,10 @@ private:
   //! sprite type. This method allows lookup of sprite configuration data such as
   //! texture coordinates, dimensions, and other properties based on the sprite type.
   //! @param type The SpriteMetaType to search for
-  //! @return SpriteMetaData&  The SpriteMetaData if found, m_error_metadata otherwise
-  const SpriteSheet &get_spritedata_by_type( const SpriteMetaType &type );
+  //! @param loc Call site captured for the error message if the type is not found
+  //! @return SpriteMetaData& The SpriteMetaData if found
+  //! @throws std::runtime_error if the type is not found
+  const SpriteSheet &get_spritedata_by_type( const SpriteMetaType &type, std::source_location loc = std::source_location::current() );
 
   // Internal use function used by get_random_type_and_texture_index()
   const SpriteSheet &get_random_spritedata( std::vector<SpriteMetaType> type_list );

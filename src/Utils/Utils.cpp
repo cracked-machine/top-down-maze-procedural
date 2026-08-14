@@ -26,6 +26,7 @@
 #include <cmath>
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
+#include <sstream>
 #include <stdexcept>
 
 namespace Game::Utils
@@ -204,6 +205,42 @@ entt::entity get_world_pos_entt( entt::registry &reg, Cmp::Position match )
     if ( world_pos_cmp.findIntersection( match ) ) return world_pos_entt;
   }
   return entt::null;
+}
+
+std::string wrap_text_to_width( const std::string &text, std::size_t max_chars_per_line )
+{
+  std::string result;
+  std::istringstream lines( text );
+  std::string line;
+  bool first_line = true;
+  while ( std::getline( lines, line ) )
+  {
+    if ( not first_line ) result += '\n';
+    first_line = false;
+
+    std::size_t line_len = 0;
+    std::istringstream words( line );
+    std::string word;
+    bool first_word = true;
+    while ( words >> word )
+    {
+      if ( not first_word and line_len + 1 + word.size() > max_chars_per_line )
+      {
+        result += '\n';
+        line_len = 0;
+        first_word = true;
+      }
+      if ( not first_word )
+      {
+        result += ' ';
+        ++line_len;
+      }
+      result += word;
+      line_len += word.size();
+      first_word = false;
+    }
+  }
+  return result;
 }
 
 } // namespace Game::Utils

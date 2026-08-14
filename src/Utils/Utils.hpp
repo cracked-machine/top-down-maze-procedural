@@ -4,8 +4,10 @@
 #include <Sprites/SpriteMetaType.hpp>
 #include <Utils/Constants.hpp>
 
+#include <cstddef>
 #include <entt/entity/fwd.hpp>
 #include <optional>
+#include <string>
 
 // Forward declarations
 namespace sf
@@ -43,6 +45,10 @@ sf::Vector2f snap_to_grid( const sf::Vector2f &position, Rounding rounding = Rou
 sf::FloatRect snap_to_grid( const Cmp::Position &position, Rounding rounding ) noexcept;
 sf::FloatRect get_mouse_bounds_in_gameview( const sf::RenderWindow &window, const sf::View &gameview );
 entt::entity get_world_pos_entt( entt::registry &reg, Cmp::Position match );
+
+//! @brief Word-wraps text to fit within max_chars_per_line, preserving existing newlines as hard breaks.
+//! @note Approximate (assumes roughly-uniform character width) - fine for a fatal-error debug screen.
+std::string wrap_text_to_width( const std::string &text, std::size_t max_chars_per_line );
 
 // Entity/registry utility functions - declarations only
 std::optional<sf::Vector2f> get_pixel_position( entt::registry &registry, entt::entity entity );

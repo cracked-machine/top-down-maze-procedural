@@ -9,6 +9,8 @@
 #include <regex>
 #include <spdlog/fmt/bundled/ranges.h>
 #include <spdlog/spdlog.h>
+#include <sstream>
+#include <stdexcept>
 #include <string>
 #include <utility>
 
@@ -122,7 +124,10 @@ std::vector<SpriteMetaType> SpriteFactory::get_all_sprite_types_by_pattern( cons
   return types;
 }
 
-const Sprites::SpriteSheet &SpriteFactory::get_spritesheet_by_type( const SpriteMetaType &type ) { return get_spritedata_by_type( type ); }
+const Sprites::SpriteSheet &SpriteFactory::get_spritesheet_by_type( const SpriteMetaType &type, std::source_location loc )
+{
+  return get_spritedata_by_type( type, loc );
+}
 
 std::vector<SpriteMetaType> SpriteFactory::get_all_sprite_types()
 {
@@ -147,11 +152,15 @@ std::unordered_set<SpriteMetaType> SpriteFactory::get_all_sprite_types_set()
   return types;
 }
 
-const SpriteSheet &SpriteFactory::get_spritedata_by_type( const SpriteMetaType &type )
+const SpriteSheet &SpriteFactory::get_spritedata_by_type( const SpriteMetaType &type, std::source_location loc )
 {
   auto it = m_sprite_metadata_map.find( type );
   if ( it != m_sprite_metadata_map.end() ) { return it->second; }
-  return m_error_metadata;
+
+  SPDLOG_ERROR( "Failed to locate sprite '{}'\n. Called from: {}:{} in '{}'", type, loc.file_name(), loc.line(), loc.function_name() );
+  std::ostringstream ss;
+  ss << "Failed to locate sprite '" << type << "'. Called from " << loc.file_name() << ":" << loc.line() << " in '" << loc.function_name() << "'";
+  throw std::runtime_error( ss.str() );
 }
 
 const SpriteSheet &SpriteFactory::get_random_spritedata( std::vector<SpriteMetaType> type_list )
