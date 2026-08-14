@@ -1,6 +1,6 @@
 #include <Components/Crypt/CryptRoomLavaPit.hpp>
 #include <Components/Crypt/CryptRoomLavaPitCell.hpp>
-#include <Components/Npc/Npc.hpp>
+#include <Components/Npc/Wisp.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/Player/TorchRadius.hpp>
 #include <Components/Position.hpp>
@@ -41,9 +41,9 @@ void NightStaticShader::update( entt::registry &reg )
   auto [item_entt, item_type] = Utils::Player::get_inventory_type( reg );
   if ( item_type.contains( "candle" ) ) { torch_positions.push_back( Utils::Player::get_position( reg ).getCenter() ); }
 
-  for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : reg.view<Cmp::NPC, Cmp::Position>().each() )
+  for ( auto [npc_entt, npc_wisp_cmp, npc_pos_cmp] : reg.view<Cmp::Npc::Wisp, Cmp::Position>().each() )
   {
-    if ( npc_cmp.sprite_type_list.front().contains( "wisp" ) ) { torch_positions.push_back( npc_pos_cmp.getCenter() ); }
+    torch_positions.push_back( npc_pos_cmp.getCenter() );
   }
 
   // add light for lavapit cells

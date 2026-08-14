@@ -2,7 +2,7 @@
 #include <Components/AnimData.hpp>
 #include <Components/Armable.hpp>
 #include <Components/DestroyedObstacle.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerNoPath.hpp>
@@ -67,7 +67,7 @@ void decorate_obstacle( entt::registry &reg, entt::entity entity, Cmp::Position 
   if ( reg.any_of<Cmp::PlayerCharacter, Cmp::ReservedPosition>( entity ) ) { return; }
   if ( reg.all_of<Cmp::DestroyedObstacle>( entity ) ) { reg.remove<Cmp::DestroyedObstacle>( entity ); }
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
-  reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
+  reg.emplace_or_replace<Cmp::Npc::NoPathFinding>( entity );
   if ( blocking ) { reg.emplace_or_replace<Cmp::PlayerNoPath>( entity ); }
   reg.emplace_or_replace<Cmp::AbsoluteAlpha>( entity, 255 );
   reg.emplace_or_replace<Cmp::Armable>( entity );
@@ -93,7 +93,7 @@ void remove_obstacle( entt::registry &reg, entt::entity search_entt, DeleteExtra
 
   reg.remove<Cmp::Obstacle>( search_entt );
   reg.remove<Cmp::ZOrderValue>( search_entt );
-  reg.remove<Cmp::NpcNoPathFinding>( search_entt );
+  reg.remove<Cmp::Npc::NoPathFinding>( search_entt );
   reg.remove<Cmp::PlayerNoPath>( search_entt );
   reg.remove<Cmp::AbsoluteAlpha>( search_entt );
   reg.remove<Cmp::AnimData>( search_entt );
@@ -126,7 +126,7 @@ void remove_obstacle( entt::registry &reg, entt::entity search_entt, DeleteExtra
 
   reg.remove<Cmp::Obstacle>( search_entt );
   reg.remove<Cmp::ZOrderValue>( search_entt );
-  reg.remove<Cmp::NpcNoPathFinding>( search_entt );
+  reg.remove<Cmp::Npc::NoPathFinding>( search_entt );
   reg.remove<Cmp::PlayerNoPath>( search_entt );
   reg.remove<Cmp::AbsoluteAlpha>( search_entt );
   reg.remove<Cmp::AnimData>( search_entt );

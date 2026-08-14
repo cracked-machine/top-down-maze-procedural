@@ -4,7 +4,7 @@
 #include <Components/Grave/PlantMultiBlock.hpp>
 #include <Components/Grave/PlantSegment.hpp>
 #include <Components/Inventory/WorldItem.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
 // #include <Components/PlantObstacle.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerNoPath.hpp>
@@ -62,7 +62,7 @@ void remove_plant_mb( entt::registry &reg, entt::entity plant_entt, const PathFi
       {
         reg.remove<Cmp::ReservedPosition>( tile_entt );
         // the tile is walkable again for NPCs, unless it blocks in its own right (e.g. an obstacle)
-        if ( npc_navmesh && not reg.any_of<Cmp::NpcNoPathFinding>( tile_entt ) ) { npc_navmesh->insert( tile_entt, tile_pos_cmp ); }
+        if ( npc_navmesh && not reg.any_of<Cmp::Npc::NoPathFinding>( tile_entt ) ) { npc_navmesh->insert( tile_entt, tile_pos_cmp ); }
         break;
       }
     }

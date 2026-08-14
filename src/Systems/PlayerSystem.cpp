@@ -20,7 +20,8 @@
 #include <Components/Moveable.hpp>
 #include <Components/NoMoveDest.hpp>
 #include <Components/Npc/Npc.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
+#include <Components/Npc/Wisp.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
@@ -494,9 +495,9 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
   if ( m_timed_action_sync_clock.asSeconds() >= kTimedActionSyncClockMax )
   {
     // add the NPC modifiers to the `net_modifier` every kTimedActionSyncClockMax.
-    for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : reg().view<Cmp::NPC, Cmp::Position>().each() )
+    for ( auto [npc_entt, npc_cmp, npc_pos_cmp, npc_anim_cmp] : reg().view<Cmp::Npc::NPC, Cmp::Position, Cmp::AnimData>().each() )
     {
-      mod_log << " " << npc_cmp.sprite_type_list.front() << "(actions";
+      mod_log << " " << npc_anim_cmp.m_sprite_type << "(actions";
       for ( auto &[action_type, npc_action_pair] : npc_cmp.actions )
       {
         // These are handled as one time modifiers handled by specific systems/factories. Note the tick action field is ignored.
@@ -591,10 +592,10 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
       }
 
       // apply candle item modifiers to the player when standing inside radius of wisp NPC
-      for ( auto [altar_entt, npc_cmp, npc_pos_cmp] : reg().view<Cmp::NPC, Cmp::Position>().each() )
+      for ( auto [altar_entt, npc_cmp, npc_pos_cmp] : reg().view<Cmp::Npc::NPC, Cmp::Position>().each() )
       {
         if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), npc_pos_cmp ) ) continue;
-        if ( not npc_cmp.sprite_type_list.front().contains( "wisp" ) ) continue;
+        if ( not reg().any_of<Cmp::Npc::Wisp>( altar_entt ) ) continue;
 
         float player_distance = Utils::Maths::getEuclideanDistance( npc_pos_cmp.getCenter(), Utils::Player::get_position( reg() ).position );
         if ( player_distance > torch_radius.value ) continue;
@@ -627,7 +628,7 @@ void PlayerSystem::update_timed_action_clocks( sf::Time dt )
       SPDLOG_DEBUG( "PlayerInventorySlot item_action_timer {}", item_action_timer.asSeconds() );
     }
   }
-  for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::NPC>().each() )
+  for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::Npc::NPC>().each() )
   {
     for ( auto &[action_type, npc_action_pair] : npc_cmp.actions )
     {
@@ -673,14 +674,14 @@ void PlayerSystem::check_player_axe_npc_kill()
   // Remove any existing SelectedPosition from NPCs only — this runs every frame the attack button is
   // held with no cooldown of its own, so clearing the whole registry's SelectedPosition here would
   // also wipe unrelated selections (e.g. the obstacle currently being dug) set by other systems
-  auto selected_position_view = reg().view<Cmp::SelectedPosition, Cmp::NPC>();
+  auto selected_position_view = reg().view<Cmp::SelectedPosition, Cmp::Npc::NPC>();
   for ( auto [existing_sel_entity, sel_cmp, npc_cmp] : selected_position_view.each() )
   {
     reg().remove<Cmp::SelectedPosition>( existing_sel_entity );
   }
 
   // Iterate through all entities with Position and Obstacle components
-  auto position_view = reg().view<Cmp::Position, Cmp::NPC, Cmp::AnimData>( entt::exclude<Cmp::SelectedPosition> );
+  auto position_view = reg().view<Cmp::Position, Cmp::Npc::NPC, Cmp::AnimData>( entt::exclude<Cmp::SelectedPosition> );
   SPDLOG_DEBUG( "position_view size: {}", position_view.size_hint() );
   for ( auto [npc_entity, npc_pos_cmp, npc_cmp, anim_cmp] : position_view.each() )
   {
@@ -819,7 +820,7 @@ void PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entit
     {
       for ( auto seg_entt : segment_entt_list )
       {
-        if ( not reg().any_of<Cmp::NpcNoPathFinding>( seg_entt ) ) continue;
+        if ( not reg().any_of<Cmp::Npc::NoPathFinding>( seg_entt ) ) continue;
         auto seg_pos_cmp = reg().get<Cmp::Position>( seg_entt );
         for ( auto blocked_entt : npc_navmesh->at( seg_pos_cmp ) )
         {
@@ -846,7 +847,7 @@ void PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entit
   //clang-format on
   reg().emplace_or_replace<Cmp::ZOrderValue>( world_item_entt, pos.y - 1.f );
   reg().emplace_or_replace<Cmp::WorldItem>( world_item_entt, inventory_slot_cmp->m_item );
-  reg().emplace_or_replace<Cmp::NpcNoPathFinding>( world_item_entt );
+  reg().emplace_or_replace<Cmp::Npc::NoPathFinding>( world_item_entt );
 
   // try to copy any relevant components over to the new world carryitem entt
   auto *inventory_slot_level_cmp = reg().try_get<Cmp::InventoryWearLevel>( inventory_slot_entt );

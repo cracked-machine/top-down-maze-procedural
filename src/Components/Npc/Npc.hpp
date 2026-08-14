@@ -6,7 +6,7 @@
 
 #include <typeindex>
 
-namespace Game::Cmp
+namespace Game::Cmp::Npc
 {
 
 class NPC
@@ -45,6 +45,6 @@ public:
   float m_lerp_speed{0};
   float m_frame_rate{0};
 };
-} // namespace Game::Cmp
+} // namespace Game::Cmp::Npc
 
 #endif // SRC_COMPONENTS_NPC_NPC_HPP__

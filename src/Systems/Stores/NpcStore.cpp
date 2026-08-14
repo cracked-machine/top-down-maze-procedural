@@ -15,7 +15,7 @@ namespace Game::Sys
 {
 
 NpcStore::NpcStore( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-    : StoreSingleton<NpcStore, Cmp::NPC>( reg, window, sprite_factory, sound_bank )
+    : StoreSingleton<NpcStore, Cmp::Npc::NPC>( reg, window, sprite_factory, sound_bank )
 {
   s_instance = this;
   m_json_file_path = "res/json/npc.json";
@@ -37,7 +37,7 @@ void NpcStore::init_store()
     auto lerp_speed = item_value.at( "lerpspeed" );
     auto frame_rate = item_value.at( "framerate" );
 
-    Cmp::NPC npc( mtype_list, lerp_speed, frame_rate );
+    Cmp::Npc::NPC npc( mtype_list, lerp_speed, frame_rate );
     for ( const auto &action_entry : item_value.at( "actions" ) )
     {
       for ( const auto &[action_key, action_value] : action_entry.items() )

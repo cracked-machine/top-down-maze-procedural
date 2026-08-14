@@ -3,7 +3,8 @@
 #include <Components/AbsoluteRenderOffset.hpp>
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/Npc/Npc.hpp>
-#include <Components/Npc/NpcContainer.hpp>
+#include <Components/Npc/Container.hpp>
+#include <Components/Npc/Ghost.hpp>
 #include <Components/Random.hpp>
 #include <Components/Weapons/Arrow.hpp>
 #include <Components/Weapons/InFlight.hpp>
@@ -153,14 +154,14 @@ void ArrowSystem::check_npc_arrow_collision()
 {
   for ( auto [arrow_entt, arrow_cmp, arrow_pos_cmp] : reg().view<Cmp::Weapons::Projectiles::Arrow, Cmp::Position>().each() )
   {
-    for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : reg().view<Cmp::NPC, Cmp::Position>().each() )
+    for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : reg().view<Cmp::Npc::NPC, Cmp::Position>().each() )
     {
       if ( not reg().any_of<Cmp::Weapons::Projectiles::InFlight>( arrow_entt ) ) continue;
-      if ( std::ranges::any_of( npc_cmp.sprite_type_list, []( const auto &s ) { return s.contains( "ghost" ); } ) ) continue;
+      if ( reg().any_of<Cmp::Npc::Ghost>( npc_entt ) ) continue;
       if ( not npc_pos_cmp.findIntersection( arrow_pos_cmp ) ) continue;
       Factory::Npc::destroy_npc( reg(), npc_entt );
     }
-    for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : reg().view<Cmp::NpcContainer, Cmp::Position>().each() )
+    for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : reg().view<Cmp::Npc::Container, Cmp::Position>().each() )
     {
       if ( not npc_pos_cmp.findIntersection( arrow_pos_cmp ) ) continue;
       Factory::Npc::destroy_npc_container( reg(), npc_entt );

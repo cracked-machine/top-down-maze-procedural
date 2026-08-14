@@ -58,7 +58,7 @@ std::vector<PathNode> astar( entt::registry &reg, const PathFinding::SpatialHash
       if ( not neighbour_pos ) continue;
 
       // Skip other NPCs so they don't block each other's pathfinding
-      if ( reg.any_of<Cmp::NPC>( neighbour_entt ) ) continue;
+      if ( reg.any_of<Cmp::Npc::NPC>( neighbour_entt ) ) continue;
 
       auto heuristic = Utils::Maths::getManhattanDistance( neighbour_pos->position, goal.position );
 

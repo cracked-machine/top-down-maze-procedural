@@ -19,11 +19,15 @@ namespace Game::Cmp
 {
 class Direction;
 class LerpPosition;
-class NPC;
-class NpcShockwave;
 class PlayerMortality;
 
 } // namespace Game::Cmp
+
+namespace Game::Cmp::Npc
+{
+class NPC;
+class Shockwave;
+} // namespace Game::Cmp::Npc
 
 namespace Game::PathFinding
 {
@@ -73,8 +77,8 @@ public:
 private:
   //! @brief Pick the navmesh matching an NPC's traversal type: wisps roam the open
   //! navmesh, ghosts use the plant-permeable ghost navmesh, everyone else the npc navmesh
-  //! @param npc_cmp
-  PathFinding::SpatialHashGridSharedPtr navmesh_for( const Cmp::NPC &npc_cmp );
+  //! @param npc_entity
+  PathFinding::SpatialHashGridSharedPtr navmesh_for( entt::entity npc_entity );
 
   //! @brief Updates lerp movement for all NPCs
   //! @param dt

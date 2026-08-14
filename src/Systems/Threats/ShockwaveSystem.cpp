@@ -1,5 +1,5 @@
 #include <Audio/SoundBank.hpp>
-#include <Components/Npc/NpcShockwave.hpp>
+#include <Components/Npc/Shockwave.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
@@ -68,7 +68,7 @@ Sprites::Shockwave::CircleSegments ShockwaveSystem::split_segment_by_obstacle( c
   return result;
 }
 
-bool ShockwaveSystem::intersects_with_visible_segments( const Cmp::NpcShockwave &shockwave, const sf::FloatRect &player_pos )
+bool ShockwaveSystem::intersects_with_visible_segments( const Cmp::Npc::Shockwave &shockwave, const sf::FloatRect &player_pos )
 {
   sf::Vector2f position = shockwave.sprite.get_position();
   float radius = shockwave.sprite.get_radius();
@@ -119,7 +119,7 @@ bool ShockwaveSystem::intersects_with_visible_segments( const Cmp::NpcShockwave 
   return false;
 }
 
-void ShockwaveSystem::remove_intersecting_segments( const sf::FloatRect &rect, Cmp::NpcShockwave &shockwave )
+void ShockwaveSystem::remove_intersecting_segments( const sf::FloatRect &rect, Cmp::Npc::Shockwave &shockwave )
 {
   Sprites::Shockwave::CircleSegments new_segments;
 
@@ -146,9 +146,9 @@ void ShockwaveSystem::check_shockwave_player_collision()
   auto &pc_damage_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( reg() );
   auto player_view = reg().view<Cmp::PlayerCharacter, Cmp::Position, Cmp::PlayerStats, Cmp::PlayerMortality>();
 
-  for ( auto entt : reg().view<Cmp::NpcShockwave>() )
+  for ( auto entt : reg().view<Cmp::Npc::Shockwave>() )
   {
-    Cmp::NpcShockwave &shockwave = reg().get<Cmp::NpcShockwave>( entt );
+    Cmp::Npc::Shockwave &shockwave = reg().get<Cmp::Npc::Shockwave>( entt );
 
     for ( auto [player_entity, player_cmp, player_pos, player_stats_cmp, player_mort_cmp] : player_view.each() )
     {
@@ -186,12 +186,12 @@ void ShockwaveSystem::check_shockwave_player_collision()
 void ShockwaveSystem::update( sf::Time dt )
 {
   // emit shockwaves from each NPC
-  for ( auto [npc_entt, npc_cmp, anim_cmp, npc_pos_cmp, npc_uuid_cmp] : reg().view<Cmp::NPC, Cmp::AnimData, Cmp::Position, Cmp::UUID>().each() )
+  for ( auto [npc_entt, npc_cmp, anim_cmp, npc_pos_cmp, npc_uuid_cmp] : reg().view<Cmp::Npc::NPC, Cmp::AnimData, Cmp::Position, Cmp::UUID>().each() )
   {
     if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), npc_pos_cmp ) ) continue;
     if ( anim_cmp.m_sprite_type == "sprite.priest" )
     {
-      // cooldown is handled in Factory function via Cmp::NpcShockwaveTimer per NPC
+      // cooldown is handled in Factory function via Cmp::Npc::ShockwaveTimer per NPC
       auto created_shockwave = Factory::Npc::create_shockwave( reg(), npc_entt );
       if ( created_shockwave )
       {
@@ -209,9 +209,9 @@ void ShockwaveSystem::update( sf::Time dt )
   auto speed_value = Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveSpeed>( reg() ).get_value();
   auto max_radius = Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveMaxRadius>( reg() );
 
-  for ( auto entt : reg().view<Cmp::NpcShockwave>() )
+  for ( auto entt : reg().view<Cmp::Npc::Shockwave>() )
   {
-    auto &sw_cmp = reg().get<Cmp::NpcShockwave>( entt );
+    auto &sw_cmp = reg().get<Cmp::Npc::Shockwave>( entt );
     float current_radius = sw_cmp.sprite.get_radius();
 
     // Exponential scaling - shockwave accelerates as it grows
@@ -230,7 +230,7 @@ void ShockwaveSystem::update( sf::Time dt )
   check_shockwave_player_collision();
 }
 
-void ShockwaveSystem::check_shockwave_obstacle_collision( [[maybe_unused]] entt::entity shockwave_entity, Cmp::NpcShockwave &shockwave )
+void ShockwaveSystem::check_shockwave_obstacle_collision( [[maybe_unused]] entt::entity shockwave_entity, Cmp::Npc::Shockwave &shockwave )
 {
   auto obstacle_view = reg().view<Cmp::Obstacle, Cmp::Position, Cmp::AnimData>();
 

@@ -1,7 +1,7 @@
 #ifndef SRC_SYSTEMS_THREATS_SHOCKWAVESYSTEM_HPP__
 #define SRC_SYSTEMS_THREATS_SHOCKWAVESYSTEM_HPP__
 
-#include <Components/Npc/NpcShockwave.hpp>
+#include <Components/Npc/Shockwave.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <Sprites/Shockwave.hpp>
@@ -27,7 +27,7 @@ public:
   //! @brief Remove segments that intersect with a rectangle
   //! @param rect
   //! @param shockwave
-  static void remove_intersecting_segments( const sf::FloatRect &rect, Cmp::NpcShockwave &shockwave );
+  static void remove_intersecting_segments( const sf::FloatRect &rect, Cmp::Npc::Shockwave &shockwave );
 
   //! @brief Entrypoint for collision checking
   void check_shockwave_player_collision();
@@ -44,7 +44,7 @@ private:
   //! @brief Check if shockwave has collided with an obstacle and needs to be segmented.
   //! @param shockwave_entity
   //! @param shockwave
-  void check_shockwave_obstacle_collision( entt::entity shockwave_entity, Cmp::NpcShockwave &shockwave );
+  void check_shockwave_obstacle_collision( entt::entity shockwave_entity, Cmp::Npc::Shockwave &shockwave );
 
   //! @brief Check if the player position intersects with the shockwave segments. Knockback player if there is a collision.
   //! @param reg
@@ -52,7 +52,7 @@ private:
   //! @param player_pos
   //! @return true If any segment intersected with player position
   //! @return false If no segments intersected with player position
-  bool intersects_with_visible_segments( const Cmp::NpcShockwave &shockwave, const sf::FloatRect &player_pos );
+  bool intersects_with_visible_segments( const Cmp::Npc::Shockwave &shockwave, const sf::FloatRect &player_pos );
 
   //! @brief Checks segments for intersections with a rectangle at sample intervals. Splits existing segments where samples intersect.
   //! @param segment

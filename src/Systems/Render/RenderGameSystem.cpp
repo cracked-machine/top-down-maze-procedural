@@ -24,8 +24,8 @@
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/LastDirection.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
-#include <Components/Npc/NpcShockwave.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
+#include <Components/Npc/Shockwave.hpp>
 #include <Components/Persistent/ArmedBlinkFreq.hpp>
 #include <Components/Persistent/CameraSmoothSpeed.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
@@ -240,7 +240,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
     render_overlay_sys.render_lerp_positions();
     render_overlay_sys.render_spatial_grid_neighbours( player_center_hitbox, sf::Color::Cyan, PathFinding::QueryCompass::CARDINAL );
 
-    for ( auto [npc_entt, npc_cmp, npc_pos_cmp, anim_cmp] : reg().view<Cmp::NPC, Cmp::Position, Cmp::AnimData>().each() )
+    for ( auto [npc_entt, npc_cmp, npc_pos_cmp, anim_cmp] : reg().view<Cmp::Npc::NPC, Cmp::Position, Cmp::AnimData>().each() )
     {
       auto query_compass = PathFinding::QueryCompass::CARDINAL;
       if ( anim_cmp.m_sprite_type.contains( "sprite.ghost" ) ) query_compass = PathFinding::QueryCompass::BOTH;
@@ -370,7 +370,7 @@ void RenderGameSystem::update_camera( sf::Time deltaTime )
 
 void RenderGameSystem::render_shockwaves()
 {
-  for ( auto [npc_sh_entt, npc_sw_cmp] : reg().view<Cmp::NpcShockwave>().each() )
+  for ( auto [npc_sh_entt, npc_sw_cmp] : reg().view<Cmp::Npc::Shockwave>().each() )
   {
     for ( const auto &segment : npc_sw_cmp.sprite.get_visible_segments() )
     {

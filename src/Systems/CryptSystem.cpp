@@ -22,7 +22,7 @@
 #include <Components/Exit.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/CryptNpcSpawnCount.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>

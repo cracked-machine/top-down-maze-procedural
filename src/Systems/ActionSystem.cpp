@@ -13,7 +13,7 @@
 #include <Components/LootContainer.hpp>
 #include <Components/Moveable.hpp>
 #include <Components/Npc/Npc.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>

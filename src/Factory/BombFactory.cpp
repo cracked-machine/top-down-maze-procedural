@@ -1,7 +1,7 @@
 #include <Components/AnimData.hpp>
 #include <Components/Armed.hpp>
 #include <Components/DestroyedObstacle.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Persistent/ArmedBlockColourBorder.hpp>
 #include <Components/Persistent/ArmedBlockColourFill.hpp>
 #include <Components/Persistent/ArmedOffDelay.hpp>
@@ -54,10 +54,10 @@ entt::entity create_armed( entt::registry &reg, entt::entity entity, Cmp::Armed:
   {
     reg.emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ .sprite_type = "sprite.item.bomb" } );
     reg.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
-    reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
+    reg.emplace_or_replace<Cmp::Npc::NoPathFinding>( entity );
   }
 
-  reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
+  reg.emplace_or_replace<Cmp::Npc::NoPathFinding>( entity );
 
   return entity;
 }
@@ -67,12 +67,12 @@ void destroy_armed( entt::registry &reg, entt::entity armed_entity )
   reg.remove<Cmp::Armed>( armed_entity );
   reg.remove<Cmp::AnimData>( armed_entity );
   reg.remove<Cmp::ZOrderValue>( armed_entity );
-  if ( reg.all_of<Cmp::NpcNoPathFinding>( armed_entity ) ) { reg.remove<Cmp::NpcNoPathFinding>( armed_entity ); }
+  if ( reg.all_of<Cmp::Npc::NoPathFinding>( armed_entity ) ) { reg.remove<Cmp::Npc::NoPathFinding>( armed_entity ); }
 }
 
 void add_detonated( entt::registry &reg, entt::entity armed_entity, Cmp::Position &armed_pos_cmp )
 {
-  reg.remove<Cmp::NpcNoPathFinding>( armed_entity );
+  reg.remove<Cmp::Npc::NoPathFinding>( armed_entity );
   reg.remove<Cmp::PlayerNoPath>( armed_entity );
   reg.emplace_or_replace<Cmp::AnimData>( armed_entity, Cmp::AnimData::Config{ .sprite_type = "sprite.graveyard.detonated" } );
   reg.emplace_or_replace<Cmp::ZOrderValue>( armed_entity, armed_pos_cmp.position.y - 256.f );

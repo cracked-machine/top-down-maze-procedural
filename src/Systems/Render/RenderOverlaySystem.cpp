@@ -34,7 +34,7 @@
 #include <Components/LerpPosition.hpp>
 #include <Components/Moveable.hpp>
 #include <Components/Npc/Npc.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/CryptShuffleTimeout.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
@@ -543,7 +543,7 @@ void RenderOverlaySystem::render_ui_misc_stats()
                std::to_string( Utils::Player::get_last_direction( reg() ).y ) + "]" );
 
     draw_line( " Entities - " + std::to_string( reg().view<entt::entity>().size() ) );
-    draw_line( " NPCs - " + std::to_string( reg().view<Cmp::NPC>().size() ) );
+    draw_line( " NPCs - " + std::to_string( reg().view<Cmp::Npc::NPC>().size() ) );
     draw_line( " Corruption - " + std::to_string( reg().view<Cmp::CorruptionCell>().size() ) );
     draw_line( " Sinkhole - " + std::to_string( reg().view<Cmp::CorruptionCell>().size() ) );
     draw_line( " CryptPassageBlocks - " + std::to_string( reg().view<Cmp::CryptPassageBlock>().size() ) );
@@ -663,7 +663,7 @@ void RenderOverlaySystem::render_ui_npc_list()
 
     draw_line( "--- NPCs ---", sf::Color::Yellow );
 
-    auto npc_view = reg().view<Cmp::NPC, Cmp::Position, Cmp::AnimData>();
+    auto npc_view = reg().view<Cmp::Npc::NPC, Cmp::Position, Cmp::AnimData>();
     for ( auto [npc_entity, npc_cmp, npc_pos_cmp, npc_anim_cmp] : npc_view.each() )
     {
       // clang-format off
@@ -678,7 +678,7 @@ void RenderOverlaySystem::render_ui_npc_list()
 
 void RenderOverlaySystem::render_lerp_positions()
 {
-  auto lerp_view = reg().view<Cmp::LerpPosition, Cmp::Direction, Cmp::NPC, Cmp::Position>();
+  auto lerp_view = reg().view<Cmp::LerpPosition, Cmp::Direction, Cmp::Npc::NPC, Cmp::Position>();
   for ( auto [entity, lerp_pos_cmp, dir_cmp, npc_cmp, npc_pos_cmp] : lerp_view.each() )
   {
     sf::RectangleShape lerp_start_pos_rect( Constants::kGridSizePxF );
@@ -716,7 +716,7 @@ void RenderOverlaySystem::render_spatial_grid_neighbours( const Cmp::Position &q
     {
       auto *neighbour_pos = reg().try_get<Cmp::Position>( neighbour_entt );
       if ( not neighbour_pos ) continue;
-      if ( reg().any_of<Cmp::PlayerCharacter, Cmp::NPC>( neighbour_entt ) ) continue;
+      if ( reg().any_of<Cmp::PlayerCharacter, Cmp::Npc::NPC>( neighbour_entt ) ) continue;
 
       sf::RectangleShape rectangle;
       rectangle.setSize( neighbour_pos->size );
@@ -793,7 +793,7 @@ void RenderOverlaySystem::render_ui_entity_inspect()
       }
       if ( reg().all_of<Cmp::VoidPosition>( entity ) ) draw_line( "  Void", sf::Color::White );
       if ( reg().all_of<Cmp::ReservedPosition>( entity ) ) draw_line( "  ReservedPosition", sf::Color::Red );
-      if ( reg().all_of<Cmp::NpcNoPathFinding>( entity ) ) draw_line( "  NpcNoPathFinding", sf::Color::Red );
+      if ( reg().all_of<Cmp::Npc::NoPathFinding>( entity ) ) draw_line( "  NpcNoPathFinding", sf::Color::Red );
       if ( reg().all_of<Cmp::PlayerNoPath>( entity ) ) draw_line( " PlayerNoPath", sf::Color::Red );
       if ( reg().all_of<Cmp::Moveable>( entity ) ) draw_line( " Moveable", sf::Color::Green );
       if ( reg().all_of<Cmp::SelectedPosition>( entity ) ) draw_line( " Selected", sf::Color::Green );

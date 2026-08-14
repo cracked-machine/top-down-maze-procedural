@@ -86,13 +86,13 @@ void update_segments( entt::registry &reg, const Sprites::SpriteSheet &ss, [[may
 
     if ( new_solid_mask )
     {
-      reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
+      reg.emplace_or_replace<Cmp::Npc::NoPathFinding>( entity );
       reg.emplace_or_replace<Cmp::PlayerNoPath>( entity );
       if constexpr ( std::is_same_v<MBSEGMENT, Cmp::PlantSegment> ) { reg.emplace_or_replace<Cmp::PlayerNoPath>( entity, false ); }
     }
     else
     {
-      reg.remove<Cmp::NpcNoPathFinding>( entity );
+      reg.remove<Cmp::Npc::NoPathFinding>( entity );
       reg.remove<Cmp::PlayerNoPath>( entity );
     }
   }
@@ -128,7 +128,7 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &reg, entt:
   {
     if ( not pos_cmp.findIntersection( new_multiblock_bounds ) ) continue;
     if ( not reg.all_of<Cmp::Armable>( pos_entity ) ) continue;
-    if ( reg.any_of<MULTIBLOCK, MBSEGMENT, Cmp::ReservedPosition, Cmp::PlayerCharacter, Cmp::NPC, Cmp::WorldItem>( pos_entity ) ) continue;
+    if ( reg.any_of<MULTIBLOCK, MBSEGMENT, Cmp::ReservedPosition, Cmp::PlayerCharacter, Cmp::Npc::NPC, Cmp::WorldItem>( pos_entity ) ) continue;
     world_pos_entt_list.push_back( pos_entity );
   }
 

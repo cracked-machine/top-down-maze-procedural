@@ -1,7 +1,7 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/Exit.hpp>
 #include <Components/Inventory/FlashUIWealth.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
 #include <Components/Player/PlayerWealth.hpp>

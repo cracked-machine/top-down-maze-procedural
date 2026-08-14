@@ -4,7 +4,7 @@
 #include <Components/Grave/GraveExitMultiBlock.hpp>
 #include <Components/Grave/GraveExitSegment.hpp>
 #include <Components/Npc/Npc.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Persistent/ExitKeyRequirement.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
@@ -56,7 +56,7 @@ void ExitSystem::create_exit()
   int attempt_count = 0;
   while ( true )
   {
-    auto exclude_list = Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC, Cmp::ReservedPosition>{};
+    auto exclude_list = Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::Npc::NPC, Cmp::ReservedPosition>{};
     auto [rand_entity, rand_pos_cmp] = Utils::Rnd::get_random_position( reg(), {}, exclude_list, 0 );
     Cmp::Position multiblock_hitbox( rand_pos_cmp.position, kGraveExitSpritesheet.get_px_size() );
 

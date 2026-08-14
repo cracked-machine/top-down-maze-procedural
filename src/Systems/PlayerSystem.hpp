@@ -11,7 +11,8 @@
 // clang-format off
 namespace Game::Events { class DropInventoryEvent; class PlayerActionEvent; class PlayerMortalityEvent; }
 namespace Game::Sprites { class SpriteSheet; }
-namespace Game::Cmp { class Direction; class LerpPosition; class NpcShockwave; class Position; class PlayerMortality; class AnimData; }
+namespace Game::Cmp { class Direction; class LerpPosition; class Position; class PlayerMortality; class AnimData; }
+namespace Game::Cmp::Npc { class Shockwave; }
 namespace Game::Cmp::Peristent { class EffectsVolume; } 
 namespace Game::PathFinding { class SpatialHashGrid; }
 // clang-format on

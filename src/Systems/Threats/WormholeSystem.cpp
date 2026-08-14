@@ -11,8 +11,8 @@
 #include <Components/LerpPosition.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/Npc/Npc.hpp>
-#include <Components/Npc/NpcContainer.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/Container.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/WormholeSeed.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
@@ -86,7 +86,7 @@ std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsi
   {
     auto [random_entity, random_pos] = Utils::Rnd::get_random_position(
         reg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{},
-        Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, current_seed );
+        Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::Npc::NPC, Cmp::ReservedPosition>{}, current_seed );
 
     const auto &wormhole_ms = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.hazard.wormhole" );
     Cmp::WormholeMultiBlock wormhole_block( random_pos.position, wormhole_ms.get_px_size() );
@@ -175,7 +175,7 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
   {
     if ( obstacle_pos.findIntersection( wormhole_block ) )
     {
-      bool was_obstacle = reg().all_of<Cmp::NpcNoPathFinding>( entity );
+      bool was_obstacle = reg().all_of<Cmp::Npc::NoPathFinding>( entity );
       Factory::Obstacle::remove_obstacle( reg(), entity );
       Factory::Loot::destroy_loot_container( reg(), entity );
       Factory::Npc::destroy_npc_container( reg(), entity );
@@ -293,7 +293,7 @@ void WormholeSystem::check_player_wormhole_collision()
 
       // Get unique random position for this actor entity
       auto [new_spawn_entity, new_spawn_pos_cmp] = Utils::Rnd::get_random_position(
-          reg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{}, Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC>{}, 0 );
+          reg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{}, Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::Npc::NPC>{}, 0 );
 
       Factory::Obstacle::remove_obstacle( reg(), new_spawn_entity, Factory::Obstacle::DeleteExtras::Yes );
       if ( auto teleport_navmesh = m_npc_navmesh.lock() ) teleport_navmesh->insert( new_spawn_entity, new_spawn_pos_cmp );

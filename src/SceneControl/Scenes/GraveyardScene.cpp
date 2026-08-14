@@ -5,7 +5,7 @@
 #include <Components/Inventory/Grimoire.hpp>
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/LerpPosition.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/Persistent/GraveyardProcGenBirthThreshold.hpp>

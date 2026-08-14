@@ -1,5 +1,5 @@
 #include <Components/Grave/PlantSegment.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Player/PlayerNoPath.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
@@ -19,7 +19,7 @@ PathFinding::SpatialHashGridSharedPtr create_npc_navmesh( entt::registry &reg, c
   // position: decorations like obstacle caps also carry NpcNoPathFinding, but they only
   // exclude themselves - the tile underneath them must stay walkable.
   PathFinding::SpatialHashGrid blocked_positions;
-  for ( auto [nopath_entt, nopath_cmp, reserved_cmp, pos_cmp] : reg.view<Cmp::NpcNoPathFinding, Cmp::ReservedPosition, Cmp::Position>().each() )
+  for ( auto [nopath_entt, nopath_cmp, reserved_cmp, pos_cmp] : reg.view<Cmp::Npc::NoPathFinding, Cmp::ReservedPosition, Cmp::Position>().each() )
   {
     if ( blocks && not blocks( nopath_entt ) ) continue;
     blocked_positions.insert( nopath_entt, pos_cmp );
@@ -27,7 +27,7 @@ PathFinding::SpatialHashGridSharedPtr create_npc_navmesh( entt::registry &reg, c
 
   // create a restricted navmesh for pathfinding
   PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
-  for ( auto [pos_entt, pos_cmp] : reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> ).each() )
+  for ( auto [pos_entt, pos_cmp] : reg.view<Cmp::Position>( entt::exclude<Cmp::Npc::NoPathFinding> ).each() )
   {
     if ( not blocked_positions.at( pos_cmp ).empty() ) continue;
     pathfinding_navmesh->insert( pos_entt, pos_cmp );

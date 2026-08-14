@@ -1,7 +1,7 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/Npc/Npc.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Persistent/RuinMaxCobwebs.hpp>
 #include <Components/Persistent/RuinProcGenBirthThreshold.hpp>

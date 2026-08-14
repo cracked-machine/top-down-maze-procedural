@@ -12,7 +12,7 @@
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/Npc/Npc.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Particle/Flame.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerExtraLife.hpp>
@@ -149,7 +149,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
     {
       // player kills all spawned ghosts in the game
       common_activation( SacrificeAnimType::WITCHESJAR );
-      for ( auto [npc_entt, npc_cmp, npc_pos_cmp, anim_cmp] : reg().view<Cmp::NPC, Cmp::Position, Cmp::AnimData>().each() )
+      for ( auto [npc_entt, npc_cmp, npc_pos_cmp, anim_cmp] : reg().view<Cmp::Npc::NPC, Cmp::Position, Cmp::AnimData>().each() )
       {
         if ( anim_cmp.m_sprite_type.contains( "ghost" ) )
         {

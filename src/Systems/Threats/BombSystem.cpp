@@ -12,8 +12,8 @@
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/Npc/Npc.hpp>
-#include <Components/Npc/NpcContainer.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/Container.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Persistent/ArmedOffDelay.hpp>
 #include <Components/Persistent/BombDamage.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
@@ -172,7 +172,7 @@ void BombSystem::place_concentric_bomb_pattern( const entt::entity &epicenter_en
 
   // We dont detonate ReservedPositions so dont arm them in the first place
   // Also exclude NPCs since they're handled separately and may be missing Position component during death animation
-  auto all_obstacle_view = reg().view<Cmp::Armable, Cmp::Position>( exclude<Cmp::NPC, Cmp::Exit, Cmp::ReservedPosition> );
+  auto all_obstacle_view = reg().view<Cmp::Armable, Cmp::Position>( exclude<Cmp::Npc::NPC, Cmp::Exit, Cmp::ReservedPosition> );
 
   // For each layer from 1 to BLAST_RADIUS
   for ( int layer = 1; layer <= blast_radius; layer++ )
@@ -263,7 +263,7 @@ void BombSystem::update()
     }
 
     // detonate npc containers - these are activated by proximity so just destroy them
-    auto npc_container_view = reg().view<Cmp::NpcContainer, Cmp::Position>();
+    auto npc_container_view = reg().view<Cmp::Npc::Container, Cmp::Position>();
     for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_container_view.each() )
     {
       if ( not npc_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
@@ -329,7 +329,7 @@ void BombSystem::update()
     }
 
     // Check if NPC was killed by explosion
-    for ( auto [npc_entt, npc_cmp, npc_pos_cmp, npc_anim_cmp] : reg().view<Cmp::NPC, Cmp::Position, Cmp::AnimData>().each() )
+    for ( auto [npc_entt, npc_cmp, npc_pos_cmp, npc_anim_cmp] : reg().view<Cmp::Npc::NPC, Cmp::Position, Cmp::AnimData>().each() )
     {
       if ( npc_anim_cmp.m_sprite_type.contains( "sprite.ghost" ) ) continue;
       // notify npc system of death

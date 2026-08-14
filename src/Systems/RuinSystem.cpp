@@ -2,7 +2,8 @@
 #include <Components/Direction.hpp>
 #include <Components/Exit.hpp>
 #include <Components/Npc/Npc.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
+#include <Components/Npc/ShadowHand.hpp>
 #include <Components/Persistent/RuinMaxSpiders.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerCurse.hpp>
@@ -159,12 +160,12 @@ void RuinSystem::check_puzzle_status()
     for ( auto [gate_entt, gate_cmp, gate_zorder_cmp] : reg().view<Cmp::RuinStairsGateMultiBlock, Cmp::ZOrderValue>().each() )
     {
       gate_zorder_cmp.setZOrder( -1000.f );
-      reg().remove<Cmp::NpcNoPathFinding>( gate_entt );
+      reg().remove<Cmp::Npc::NoPathFinding>( gate_entt );
       reg().remove<Cmp::PlayerNoPath>( gate_entt );
     }
     for ( auto [gate_entt, gate_cmp] : reg().view<Cmp::RuinGateSegment>().each() )
     {
-      reg().remove<Cmp::NpcNoPathFinding>( gate_entt );
+      reg().remove<Cmp::Npc::NoPathFinding>( gate_entt );
       reg().remove<Cmp::PlayerNoPath>( gate_entt );
     }
 
@@ -179,12 +180,12 @@ void RuinSystem::check_puzzle_status()
     {
       const auto &gate_sprite_sheet = m_sprite_factory.get_spritesheet_by_type( "sprite.ruin.stairs.gate" );
       gate_zorder_cmp.setZOrder( gate_sprite_sheet.get_zorder( 0 ) );
-      reg().emplace_or_replace<Cmp::NpcNoPathFinding>( gate_entt );
+      reg().emplace_or_replace<Cmp::Npc::NoPathFinding>( gate_entt );
       reg().emplace_or_replace<Cmp::PlayerNoPath>( gate_entt );
     }
     for ( auto [gate_entt, gate_cmp] : reg().view<Cmp::RuinGateSegment>().each() )
     {
-      reg().emplace_or_replace<Cmp::NpcNoPathFinding>( gate_entt );
+      reg().emplace_or_replace<Cmp::Npc::NoPathFinding>( gate_entt );
       reg().emplace_or_replace<Cmp::PlayerNoPath>( gate_entt );
     }
     m_puzzle_solved = false;
@@ -285,7 +286,7 @@ void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
   auto has_collision = [&]( Cmp::RectBounds pos )
   {
     if ( Utils::Collision::check_cmp<Cmp::RuinBookcase>( reg(), pos ) ) { return true; }
-    if ( Utils::Collision::check_cmp<Cmp::NpcNoPathFinding>( reg(), pos ) ) { return true; }
+    if ( Utils::Collision::check_cmp<Cmp::Npc::NoPathFinding>( reg(), pos ) ) { return true; }
     if ( Utils::Collision::check_cmp<Cmp::ReservedPosition>( reg(), pos ) ) { return true; }
 
     // ensure bookcase is inside scene
@@ -482,9 +483,8 @@ void RuinSystem::update_shadow_hand_pos( sf::Vector2f scene_dimensions )
 
   float shadow_hand_speed = 0.45f;
 
-  for ( auto [hand_entt, hand_cmp, hand_pos] : reg().view<Cmp::NPC, Cmp::Position>().each() )
+  for ( auto [hand_entt, hand_cmp, hand_pos] : reg().view<Cmp::Npc::ShadowHand, Cmp::Position>().each() )
   {
-    if ( hand_cmp.sprite_type_list.front() != "sprite.shadowhand" ) continue;
     if ( hand_pos.position.x + shadow_hand_speed < max_shadow_hand_xpos ) { hand_pos.position.x += shadow_hand_speed; }
   }
 }
@@ -504,7 +504,7 @@ void RuinSystem::check_player_shadow_hand_collision( sf::Time dt )
   if ( Utils::Player::get_mortality( reg() ).state == Cmp::PlayerMortality::State::DEAD ) { return; }
 
   const auto player_pos = Utils::Player::get_position( reg() );
-  if ( Utils::Collision::check_cmp<Cmp::NPC>( reg(), Cmp::RectBounds::scaled( player_pos.position, Constants::kGridSizePxF, 1.f ) ) )
+  if ( Utils::Collision::check_cmp<Cmp::Npc::NPC>( reg(), Cmp::RectBounds::scaled( player_pos.position, Constants::kGridSizePxF, 1.f ) ) )
   {
     // damage player
     Utils::Player::get_player_stats( reg() ).apply_modifiers( npc_collision_action.action );
@@ -527,7 +527,7 @@ void RuinSystem::create_spiders( sf::FloatRect scene_boundary )
 {
   auto has_collision = [&]( const Cmp::RectBounds &pos )
   {
-    if ( Utils::Collision::check_cmp<Cmp::NpcNoPathFinding>( reg(), pos ) ) { return true; }
+    if ( Utils::Collision::check_cmp<Cmp::Npc::NoPathFinding>( reg(), pos ) ) { return true; }
     if ( Utils::Collision::check_cmp<Cmp::RuinStairsSegment>( reg(), pos ) ) { return true; }
     if ( Utils::Collision::check_cmp<Cmp::ReservedPosition>( reg(), pos ) ) { return true; }
 
@@ -543,7 +543,7 @@ void RuinSystem::create_spiders( sf::FloatRect scene_boundary )
   for ( auto _ : std::views::iota( 0, max_attempts ) )
   {
     size_t spiders_count = 0;
-    for ( auto [npc_entt, npc_cmp, npc_sprite_cmp] : reg().view<Cmp::NPC, Cmp::AnimData>().each() )
+    for ( auto [npc_entt, npc_cmp, npc_sprite_cmp] : reg().view<Cmp::Npc::NPC, Cmp::AnimData>().each() )
     {
       if ( npc_sprite_cmp.m_sprite_type == "sprite.spider" ) { spiders_count++; }
     }
@@ -567,7 +567,7 @@ void RuinSystem::check_create_witch( sf::FloatRect scene_boundary )
   auto has_collision = [&]( const Cmp::RectBounds &pos )
   {
     if ( Utils::Collision::check_cmp<Cmp::RuinBookcase>( reg(), pos ) ) { return true; }
-    if ( Utils::Collision::check_cmp<Cmp::NpcNoPathFinding>( reg(), pos ) ) { return true; }
+    if ( Utils::Collision::check_cmp<Cmp::Npc::NoPathFinding>( reg(), pos ) ) { return true; }
     if ( Utils::Collision::check_cmp<Cmp::RuinStairsSegment>( reg(), pos ) ) { return true; }
 
     // ensure spider is inside scene
@@ -576,7 +576,7 @@ void RuinSystem::check_create_witch( sf::FloatRect scene_boundary )
   };
 
   bool witch_exists = false;
-  for ( auto [npc_entt, npc_cmp, npc_sprite_cmp] : reg().view<Cmp::NPC, Cmp::AnimData>().each() )
+  for ( auto [npc_entt, npc_cmp, npc_sprite_cmp] : reg().view<Cmp::Npc::NPC, Cmp::AnimData>().each() )
   {
     if ( npc_sprite_cmp.m_sprite_type == "sprite.witch" ) { witch_exists = true; }
   }

@@ -19,7 +19,7 @@
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/LastDirection.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Player/PlayerBlastRadius.hpp>
 #include <Components/Player/PlayerCadaverCount.hpp>
@@ -115,7 +115,7 @@ RegistryTransfer::RegCopy RegistryTransfer::copy_reg( IScene &scene, Scene::RegC
       if ( source_registry.any_of<Cmp::PlayerCharacter>( entity ) ) { continue; }
 
       // Skip transfer on deny list components
-      if ( source_registry.any_of<Cmp::ReservedPosition, Cmp::Obstacle, Cmp::Armable, Cmp::NpcNoPathFinding, Cmp::FootStepTimer, Cmp::FootStepAlpha,
+      if ( source_registry.any_of<Cmp::ReservedPosition, Cmp::Obstacle, Cmp::Armable, Cmp::Npc::NoPathFinding, Cmp::FootStepTimer, Cmp::FootStepAlpha,
                                   Cmp::CryptRoomOpen, Cmp::CryptRoomClosed, Cmp::CryptRoomStart, Cmp::CryptRoomEnd, Cmp::CryptPassageBlock,
                                   Cmp::CryptLever, Cmp::CryptObjectiveMultiBlock, Cmp::VoidPosition>( entity ) )
       {

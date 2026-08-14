@@ -1,21 +1,21 @@
-#ifndef SRC_COMPONENTS_NPC_NPCTARGET_HPP__
-#define SRC_COMPONENTS_NPC_NPCTARGET_HPP__
+#ifndef SRC_COMPONENTS_NPC_TARGET_HPP__
+#define SRC_COMPONENTS_NPC_TARGET_HPP__
 
 #include <Components/Position.hpp>
 
-namespace Game::Cmp
+namespace Game::Cmp::Npc
 {
 //! @brief Used for NPC pathfinding if their target is not the player.
 // Add this component to an entity that already has a Cmp::Position to mark it as a NPC target
-struct NpcTarget
+struct Target
 {
-  NpcTarget( entt::entity id )
+  Target( entt::entity id )
       : id( id )
   {
   }
   entt::entity id{ entt::null };
 };
 
-} // namespace Game::Cmp
+} // namespace Game::Cmp::Npc
 
-#endif // SRC_COMPONENTS_NPC_NPCTARGET_HPP__
+#endif // SRC_COMPONENTS_NPC_TARGET_HPP__

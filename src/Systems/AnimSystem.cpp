@@ -23,7 +23,7 @@ namespace Game::Sys
 void AnimSystem::update( sf::Time dt )
 {
 
-  auto anim_view = reg().view<Cmp::AnimData, Cmp::Position>( entt::exclude<Cmp::NPC> );
+  auto anim_view = reg().view<Cmp::AnimData, Cmp::Position>( entt::exclude<Cmp::Npc::NPC> );
   for ( auto [anim_entt, anim_cmp, pos_cmp] : anim_view.each() )
   {
     if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), pos_cmp ) ) continue;
@@ -82,7 +82,7 @@ void AnimSystem::update( sf::Time dt )
   //   }
 
   // NPC Movement: only update animation for NPC that are actively pathfinding
-  auto pathfinding_npc_view = reg().view<Cmp::NPC, Cmp::Direction, Cmp::AnimData, Cmp::Position>();
+  auto pathfinding_npc_view = reg().view<Cmp::Npc::NPC, Cmp::Direction, Cmp::AnimData, Cmp::Position>();
   for ( auto [entity, npc_cmp, direction_cmp, anim_cmp, pos_cmp] : pathfinding_npc_view.each() )
   {
     if ( !Utils::is_visible_in_view( RenderSystem::get_world_view(), pos_cmp ) ) continue;

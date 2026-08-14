@@ -1,6 +1,6 @@
 #include <Components/AnimData.hpp>
 #include <Components/NoMoveDest.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerNoPath.hpp>
@@ -65,7 +65,7 @@ void add_solid_npc( entt::registry &reg, sf::FloatRect rect )
     if ( pos_cmp.findIntersection( rect ) )
     {
       reg.emplace_or_replace<Cmp::ReservedPosition>( entt );
-      reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entt );
+      reg.emplace_or_replace<Cmp::Npc::NoPathFinding>( entt );
     }
   }
 }

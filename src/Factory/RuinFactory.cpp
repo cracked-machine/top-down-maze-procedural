@@ -1,7 +1,8 @@
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Npc/Npc.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
+#include <Components/Npc/ShadowHand.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Player/PlayerNoPath.hpp>
 #include <Components/Position.hpp>
@@ -28,7 +29,7 @@ namespace Game::Factory::Ruin
 void create_bookcase( entt::registry &reg, sf::Vector2f spawn_position, const Sprites::SpriteSheet &bookcase_ms, int sprite_index )
 {
   // We must modify the **existing** Cmp::Position-owning entity so that we don't have
-  // new entity with Cmp::NpcNoPathFinding and existing entity without. This screws up path finding
+  // new entity with Cmp::Npc::NoPathFinding and existing entity without. This screws up path finding
   Cmp::Position search_pos( spawn_position, bookcase_ms.get_sprite_size() );
   for ( auto [existing_entt, existing_pos_cmp] : reg.view<Cmp::Position>().each() )
   {
@@ -44,7 +45,7 @@ void create_bookcase( entt::registry &reg, sf::Vector2f spawn_position, const Sp
       // clang-format on
       reg.emplace_or_replace<Cmp::ZOrderValue>( existing_entt, -5.f );
       reg.emplace_or_replace<Cmp::RuinBookcase>( existing_entt );
-      reg.emplace_or_replace<Cmp::NpcNoPathFinding>( existing_entt );
+      reg.emplace_or_replace<Cmp::Npc::NoPathFinding>( existing_entt );
       reg.emplace_or_replace<Cmp::PlayerNoPath>( existing_entt );
       break;
     }
@@ -70,11 +71,7 @@ void create_cobweb( entt::registry &reg, entt::entity selected_entt, sf::Vector2
 
 void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, const Sprites::SpriteSheet &hand_ms, int sprite_index )
 {
-  bool exists = false;
-  for ( auto [hand_entt, hand_cmp] : reg.view<Cmp::NPC>().each() )
-  {
-    if ( hand_cmp.sprite_type_list.front() == "sprite.shadowhand" ) exists = true;
-  }
+  bool exists = not reg.view<Cmp::Npc::ShadowHand>().empty();
 
   if ( not exists )
   {
@@ -93,7 +90,8 @@ void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, con
     // clang-format on
     reg.emplace_or_replace<Cmp::ZOrderValue>( shadowhand_entt, hand_ms.get_zorder( 0 ) ); // above everythign
     reg.emplace_or_replace<Cmp::AbsoluteAlpha>( shadowhand_entt, 200 );
-    reg.emplace_or_replace<Cmp::NPC>( shadowhand_entt, npc_shadowhand_cmp );
+    reg.emplace_or_replace<Cmp::Npc::NPC>( shadowhand_entt, npc_shadowhand_cmp );
+    reg.emplace_or_replace<Cmp::Npc::ShadowHand>( shadowhand_entt );
   }
 }
 

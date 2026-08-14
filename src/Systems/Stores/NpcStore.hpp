@@ -9,13 +9,13 @@
 namespace Game::Sys
 {
 
-class NpcStore : public StoreSingleton<NpcStore, Cmp::NPC>
+class NpcStore : public StoreSingleton<NpcStore, Cmp::Npc::NPC>
 {
 public:
   NpcStore( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
   ~NpcStore() {}
 
-  //! @brief Populates m_store with Cmp::NPC components
+  //! @brief Populates m_store with Cmp::Npc::NPC components
   void init_store();
 };
 

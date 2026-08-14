@@ -5,11 +5,19 @@
 #include <Components/Direction.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/Npc/Npc.hpp>
-#include <Components/Npc/NpcContainer.hpp>
-#include <Components/Npc/NpcFriendly.hpp>
-#include <Components/Npc/NpcLerpSpeed.hpp>
-#include <Components/Npc/NpcShockwave.hpp>
-#include <Components/Npc/NpcShockwaveTimer.hpp>
+#include <Components/Npc/Container.hpp>
+#include <Components/Npc/Drknox.hpp>
+#include <Components/Npc/Friendly.hpp>
+#include <Components/Npc/Ghost.hpp>
+#include <Components/Npc/LerpSpeed.hpp>
+#include <Components/Npc/Priest.hpp>
+#include <Components/Npc/Shockwave.hpp>
+#include <Components/Npc/ShockwaveTimer.hpp>
+#include <Components/Npc/Skeleton.hpp>
+#include <Components/Npc/Spider.hpp>
+#include <Components/Npc/Watchman.hpp>
+#include <Components/Npc/Wisp.hpp>
+#include <Components/Npc/Witch.hpp>
 #include <Components/Persistent/NpcShockwaveFreq.hpp>
 #include <Components/Persistent/NpcShockwaveResolution.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
@@ -41,7 +49,7 @@ void create_npc_container( entt::registry &reg, entt::entity entt, Cmp::Position
 {
   reg.emplace_or_replace<Cmp::ReservedPosition>( entt );
   reg.emplace_or_replace<Cmp::Armable>( entt );
-  reg.emplace_or_replace<Cmp::NpcContainer>( entt );
+  reg.emplace_or_replace<Cmp::Npc::Container>( entt );
   // clang-format off
   reg.emplace_or_replace<Cmp::AnimData>( entt, Cmp::AnimData::Config{ 
         .sprite_type = std::move(sprite_type), 
@@ -56,7 +64,7 @@ void destroy_npc_container( entt::registry &registry, entt::entity npc_container
 {
   registry.remove<Cmp::ReservedPosition>( npc_container_entity );
   registry.remove<Cmp::Armed>( npc_container_entity );
-  registry.remove<Cmp::NpcContainer>( npc_container_entity );
+  registry.remove<Cmp::Npc::Container>( npc_container_entity );
   registry.remove<Cmp::AnimData>( npc_container_entity );
   registry.remove<Cmp::ZOrderValue>( npc_container_entity );
 }
@@ -64,10 +72,10 @@ void destroy_npc_container( entt::registry &registry, entt::entity npc_container
 bool create_shockwave( entt::registry &registry, entt::entity npc_entt )
 {
   // get the shockwave timer for the NPC
-  auto *shockwave_timer = registry.try_get<Cmp::NpcShockwaveTimer>( npc_entt );
+  auto *shockwave_timer = registry.try_get<Cmp::Npc::ShockwaveTimer>( npc_entt );
   if ( not shockwave_timer )
   {
-    SPDLOG_DEBUG( "Unable to get Cmp::NpcShockwaveTimer from NPC entity" );
+    SPDLOG_DEBUG( "Unable to get Cmp::Npc::ShockwaveTimer from NPC entity" );
     return false;
   }
 
@@ -84,7 +92,7 @@ bool create_shockwave( entt::registry &registry, entt::entity npc_entt )
     }
     auto npc_sw_entt = registry.create();
     int circle_resolution = Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveResolution>( registry ).get_value();
-    registry.emplace_or_replace<Cmp::NpcShockwave>( npc_sw_entt, npc_pos->getCenter(), circle_resolution );
+    registry.emplace_or_replace<Cmp::Npc::Shockwave>( npc_sw_entt, npc_pos->getCenter(), circle_resolution );
 
     shockwave_timer->restart(); // make sure we restart the timer
     return true;
@@ -110,7 +118,7 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
   reg.emplace_or_replace<Cmp::Direction>( new_pos_entity, sf::Vector2f{ 0, 0 } );
   reg.emplace_or_replace<Cmp::UUID>( new_pos_entity, Cmp::UUID::generate() );
   auto npc_cmp = Sys::NpcStore::instance().get_item( npc_type );
-  reg.emplace_or_replace<Cmp::NPC>( new_pos_entity, npc_cmp );
+  reg.emplace_or_replace<Cmp::Npc::NPC>( new_pos_entity, npc_cmp );
 
   // clang-format off
   reg.emplace_or_replace<Cmp::AnimData>( new_pos_entity, Cmp::AnimData::Config{ 
@@ -124,52 +132,60 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
 
   if ( npc_type == "npc.ghost" )
   {
-    reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
+    reg.emplace_or_replace<Cmp::Npc::Ghost>( new_pos_entity );
+    reg.emplace_or_replace<Cmp::Npc::LerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
   }
   else if ( npc_type == "npc.nightwatchman" )
   {
-    reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
+    reg.emplace_or_replace<Cmp::Npc::Watchman>( new_pos_entity );
+    reg.emplace_or_replace<Cmp::Npc::LerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
     Factory::Npc::destroy_npc_container( reg, position_entity );
   }
   else if ( npc_type == "npc.skeleton" )
   {
-    reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
+    reg.emplace_or_replace<Cmp::Npc::Skeleton>( new_pos_entity );
+    reg.emplace_or_replace<Cmp::Npc::LerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
     Factory::Npc::destroy_npc_container( reg, position_entity );
   }
   else if ( npc_type == "npc.priest" )
   {
-    reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
-    reg.emplace_or_replace<Cmp::NpcShockwaveTimer>( new_pos_entity );
+    reg.emplace_or_replace<Cmp::Npc::Priest>( new_pos_entity );
+    reg.emplace_or_replace<Cmp::Npc::LerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
+    reg.emplace_or_replace<Cmp::Npc::ShockwaveTimer>( new_pos_entity );
     Factory::Npc::create_shockwave( reg, new_pos_entity );
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
   }
   else if ( npc_type == "npc.witch" )
   {
-    reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
+    reg.emplace_or_replace<Cmp::Npc::Witch>( new_pos_entity );
+    reg.emplace_or_replace<Cmp::Npc::LerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
   }
   else if ( npc_type == "npc.wisp" )
   {
-    reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
+    reg.emplace_or_replace<Cmp::Npc::Wisp>( new_pos_entity );
+    reg.emplace_or_replace<Cmp::Npc::LerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
     reg.emplace_or_replace<Cmp::Direction>( new_pos_entity, sf::Vector2f{ 1, 1 } );
-    reg.emplace_or_replace<Cmp::NpcFriendly>( new_pos_entity );
+    reg.emplace_or_replace<Cmp::Npc::Friendly>( new_pos_entity );
   }
   else if ( npc_type == "npc.spider" )
   {
-    reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
+    reg.emplace_or_replace<Cmp::Npc::Spider>( new_pos_entity );
+    reg.emplace_or_replace<Cmp::Npc::LerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
     reg.emplace_or_replace<Cmp::Direction>( new_pos_entity, sf::Vector2f{ 1, 1 } );
   }
   else if ( npc_type == "npc.drknox" )
   {
-    reg.emplace_or_replace<Cmp::NpcFriendly>( new_pos_entity );
+    reg.emplace_or_replace<Cmp::Npc::Drknox>( new_pos_entity );
+    reg.emplace_or_replace<Cmp::Npc::Friendly>( new_pos_entity );
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
   }
@@ -186,7 +202,7 @@ entt::entity destroy_npc( entt::registry &reg, entt::entity npc_entity )
   if ( not npc_pos_cmp ) { SPDLOG_WARN( "Cannot process loot drop for NPC entity {} without a Position component", static_cast<int>( npc_entity ) ); }
 
   // apply destroy action effect to player
-  auto *npc_cmp = reg.try_get<Cmp::NPC>( npc_entity );
+  auto *npc_cmp = reg.try_get<Cmp::Npc::NPC>( npc_entity );
   if ( npc_cmp )
   {
     auto action_timer_pair = npc_cmp->actions.at( std::type_index( typeid( Cmp::DestroyAction ) ) );
@@ -194,7 +210,7 @@ entt::entity destroy_npc( entt::registry &reg, entt::entity npc_entity )
   }
 
   // kill npc once we are done
-  reg.remove<Cmp::NPC>( npc_entity );
+  reg.remove<Cmp::Npc::NPC>( npc_entity );
   reg.remove<Cmp::Position>( npc_entity );
   reg.remove<Cmp::Direction>( npc_entity );
   reg.remove<Cmp::AnimData>( npc_entity );

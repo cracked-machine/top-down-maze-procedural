@@ -11,7 +11,7 @@
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/LastDirection.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Particle/ParticleSpriteBase.hpp>
 #include <Components/Persistent/BlastRadius.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>

@@ -1,5 +1,5 @@
 #include <Audio/SoundBank.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>

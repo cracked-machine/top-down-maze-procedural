@@ -4,7 +4,7 @@
 #include <Components/Inventory/Explosive.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/UUID.hpp>
@@ -48,7 +48,7 @@ void ItemSystem::create_world_item( Cmp::Position pos, const std::string &item, 
   });
   // clang-format on
   reg().emplace_or_replace<Cmp::ZOrderValue>( world_item_entt, pos.position.y - 1.f + zorder );
-  reg().emplace_or_replace<Cmp::NpcNoPathFinding>( world_item_entt );
+  reg().emplace_or_replace<Cmp::Npc::NoPathFinding>( world_item_entt );
   // Use a UUID to identify the InventoryItem/PlayerInventorySlot when the entity is destroyed.
   reg().emplace_or_replace<Cmp::UUID>( world_item_entt, Cmp::UUID::generate() );
   if ( item == "item.axe" || item == "item.pickaxe" || item == "item.shovel" )
@@ -87,7 +87,7 @@ void ItemSystem::create_seeing_stone( Cmp::Position pos, const std::string &item
   // clang-format on
   reg().emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
   reg().emplace_or_replace<Cmp::WorldItem>( world_carry_item_entt, Sys::ItemStore::instance().get_item( item ) );
-  reg().emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
+  reg().emplace_or_replace<Cmp::Npc::NoPathFinding>( world_carry_item_entt );
   reg().emplace_or_replace<Cmp::SeeingStone>( world_carry_item_entt, false, pick );
 
   SPDLOG_INFO( "Placed {} at {},{}", item, pos.position.x, pos.position.y );
@@ -105,7 +105,7 @@ void ItemSystem::create_explosive( Cmp::Position pos, const std::string &item, f
   //clang-format on
   reg().emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
   reg().emplace_or_replace<Cmp::WorldItem>( world_carry_item_entt, Sys::ItemStore::instance().get_item( item ) );
-  reg().emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
+  reg().emplace_or_replace<Cmp::Npc::NoPathFinding>( world_carry_item_entt );
   reg().emplace_or_replace<Cmp::Explosive>( world_carry_item_entt, false );
 
   SPDLOG_INFO( "Placed {} at {},{}", item, pos.position.x, pos.position.y );

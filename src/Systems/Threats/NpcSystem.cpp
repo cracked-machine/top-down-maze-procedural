@@ -11,12 +11,15 @@
 #include <Components/Grave/PlantSegment.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/Npc/Npc.hpp>
-#include <Components/Npc/NpcContainer.hpp>
-#include <Components/Npc/NpcFriendly.hpp>
-#include <Components/Npc/NpcLerpSpeed.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
-#include <Components/Npc/NpcShockwave.hpp>
-#include <Components/Npc/NpcTarget.hpp>
+#include <Components/Npc/Container.hpp>
+#include <Components/Npc/Friendly.hpp>
+#include <Components/Npc/Ghost.hpp>
+#include <Components/Npc/LerpSpeed.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
+#include <Components/Npc/Shockwave.hpp>
+#include <Components/Npc/Target.hpp>
+#include <Components/Npc/Watchman.hpp>
+#include <Components/Npc/Wisp.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/Persistent/NpcActivateScale.hpp>
@@ -129,7 +132,7 @@ void NpcSystem::check_npc_container_collision()
 {
 
   auto player_pos = Utils::Player::get_position( reg() );
-  auto npccontainer_collision_view = reg().view<Cmp::NpcContainer, Cmp::Position>();
+  auto npccontainer_collision_view = reg().view<Cmp::Npc::Container, Cmp::Position>();
 
   for ( auto [npccontainer_entt, npccontainer_cmp, npccontainer_pos_cmp] : npccontainer_collision_view.each() )
   {
@@ -149,9 +152,9 @@ void NpcSystem::spawn_wisp()
   // allow only max number of wisp
   const static int MAX_WISP_COUNT = 1;
   int wisp_count = 0;
-  for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::NPC>().each() )
+  for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::Npc::NPC>().each() )
   {
-    if ( npc_cmp.sprite_type_list.front().contains( "wisp" ) ) wisp_count++;
+    if ( reg().any_of<Cmp::Npc::Wisp>( npc_entt ) ) wisp_count++;
   }
   if ( wisp_count >= MAX_WISP_COUNT ) return;
 
@@ -169,7 +172,7 @@ void NpcSystem::spawn_wisp()
     target_entt = new_target_entt;
     target_pos = new_target_pos;
   }
-  reg().emplace_or_replace<Cmp::NpcTarget>( target_entt, npc_entt );
+  reg().emplace_or_replace<Cmp::Npc::Target>( target_entt, npc_entt );
 
   // register the wisp in the open navmesh so A* can find a valid start cell
   if ( auto open_navmesh = m_open_navmesh.lock() )
@@ -185,9 +188,9 @@ void NpcSystem::spawn_wisp()
 void NpcSystem::spawn_watchman()
 {
   size_t watchman_npc_count = 0;
-  for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::NPC>().each() )
+  for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::Npc::NPC>().each() )
   {
-    if ( npc_cmp.sprite_type_list.front().contains( "nightwatchman" ) ) { watchman_npc_count++; }
+    if ( reg().any_of<Cmp::Npc::Watchman>( npc_entt ) ) { watchman_npc_count++; }
   }
 
   if ( watchman_npc_count < Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanSpawnMax>( reg() ).get_value() and
@@ -206,7 +209,7 @@ void NpcSystem::reset_wisp_target( entt::entity wisp_entt )
   const static float kWispTargetResetTimeout = 10.f;
   if ( m_wisp_target_reset_clock.getElapsedTime().asSeconds() < kWispTargetResetTimeout ) return;
 
-  for ( auto [old_target_entt, old_npc_target_cmp, old_npc_target_pos_cmp] : reg().view<Cmp::NpcTarget, Cmp::Position>().each() )
+  for ( auto [old_target_entt, old_npc_target_cmp, old_npc_target_pos_cmp] : reg().view<Cmp::Npc::Target, Cmp::Position>().each() )
   {
     if ( old_npc_target_cmp.id != wisp_entt ) continue;
 
@@ -219,8 +222,8 @@ void NpcSystem::reset_wisp_target( entt::entity wisp_entt )
       new_target_entt = retry_target_entt;
       new_target_pos = retry_target_pos;
     }
-    reg().remove<Cmp::NpcTarget>( old_target_entt ); // remove from old target first
-    reg().emplace_or_replace<Cmp::NpcTarget>( new_target_entt, wisp_entt );
+    reg().remove<Cmp::Npc::Target>( old_target_entt ); // remove from old target first
+    reg().emplace_or_replace<Cmp::Npc::Target>( new_target_entt, wisp_entt );
 
     SPDLOG_INFO( "Reset wisp {} target to {},{}", static_cast<uint32_t>( wisp_entt ), new_target_pos.x(), new_target_pos.y() );
     m_wisp_target_reset_clock.reset();
@@ -230,7 +233,7 @@ void NpcSystem::reset_wisp_target( entt::entity wisp_entt )
 
 void NpcSystem::update_animation()
 {
-  for ( auto [npc_entt, npc_cmp, npc_dir_cmp, anim_cmp] : reg().view<Cmp::NPC, Cmp::Direction, Cmp::AnimData>().each() )
+  for ( auto [npc_entt, npc_cmp, npc_dir_cmp, anim_cmp] : reg().view<Cmp::Npc::NPC, Cmp::Direction, Cmp::AnimData>().each() )
   {
 
     if ( npc_dir_cmp == sf::Vector2f( 0.0f, 0.0f ) )
@@ -269,7 +272,7 @@ void NpcSystem::update_sfx()
   bool any_skeleton_moving = false;
   bool any_spider_moving = false;
 
-  for ( auto [npc_entt, npc_cmp, npc_dir_cmp, anim_cmp] : reg().view<Cmp::NPC, Cmp::Direction, Cmp::AnimData>().each() )
+  for ( auto [npc_entt, npc_cmp, npc_dir_cmp, anim_cmp] : reg().view<Cmp::Npc::NPC, Cmp::Direction, Cmp::AnimData>().each() )
   {
     if ( anim_cmp.m_sprite_type.contains( "sprite.skeleton" ) )
     {
@@ -313,7 +316,7 @@ void NpcSystem::update_pathfinding( sf::Time dt )
     // Wisp NPCs — driven from NpcTarget view, no inner loop needed
     if ( auto navmesh = m_open_navmesh.lock() )
     {
-      for ( auto [target_entt, npc_target_cmp, npc_target_pos_cmp] : reg().view<Cmp::NpcTarget, Cmp::Position>().each() )
+      for ( auto [target_entt, npc_target_cmp, npc_target_pos_cmp] : reg().view<Cmp::Npc::Target, Cmp::Position>().each() )
       {
         if ( not reg().valid( npc_target_cmp.id ) ) continue;
         bool target_in_spawn = Utils::Player::is_in_spawn( reg(), npc_target_pos_cmp );
@@ -324,9 +327,9 @@ void NpcSystem::update_pathfinding( sf::Time dt )
     // Other NPCs — target is always the player; compute spawn check once for all
     const Cmp::Position player_pos = Utils::Player::get_position( reg() );
     const bool player_in_spawn = Utils::Player::is_in_spawn( reg(), player_pos );
-    for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::NPC>().each() )
+    for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::Npc::NPC>().each() )
     {
-      if ( npc_cmp.sprite_type_list.front().contains( "wisp" ) ) continue;
+      if ( reg().any_of<Cmp::Npc::Wisp>( npc_entt ) ) continue;
       // Skip NPCs already stopped at the spawn boundary — A* result won't change
       if ( player_in_spawn )
       {
@@ -334,7 +337,7 @@ void NpcSystem::update_pathfinding( sf::Time dt )
         auto *npc_lerp = reg().try_get<Cmp::LerpPosition>( npc_entt );
         if ( npc_dir && npc_dir->x == 0.0f && npc_dir->y == 0.0f && !npc_lerp ) continue;
       }
-      auto navmesh = navmesh_for( npc_cmp );
+      auto navmesh = navmesh_for( npc_entt );
       if ( not navmesh ) continue;
       update_pathfinding_for( *navmesh, player_pos, npc_entt, player_in_spawn );
     }
@@ -391,7 +394,7 @@ void NpcSystem::update_pathfinding_for( PathFinding::SpatialHashGrid &navmesh, c
     }
 
     // calculate the direction and update the NPC lerp
-    auto *npc_lerp_speed_cmp = reg().try_get<Cmp::NpcLerpSpeed>( npc_entity );
+    auto *npc_lerp_speed_cmp = reg().try_get<Cmp::Npc::LerpSpeed>( npc_entity );
     if ( not npc_lerp_speed_cmp ) return;
     auto candidate_lerp_pos = Cmp::LerpPosition( next_npc_pos.position, npc_lerp_speed_cmp->speed );
     auto distance_to_target = next_npc_pos.position - npc_pos_cmp->position;
@@ -421,19 +424,18 @@ void NpcSystem::update_pathfinding_for( PathFinding::SpatialHashGrid &navmesh, c
 void NpcSystem::update_movement( sf::Time dt )
 {
 
-  for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : reg().view<Cmp::NPC, Cmp::Position>().each() )
+  for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : reg().view<Cmp::Npc::NPC, Cmp::Position>().each() )
   {
-    auto navmesh = navmesh_for( npc_cmp );
+    auto navmesh = navmesh_for( npc_entt );
     if ( not navmesh ) continue;
     update_movement_for( *navmesh, npc_entt, dt );
   }
 }
 
-PathFinding::SpatialHashGridSharedPtr NpcSystem::navmesh_for( const Cmp::NPC &npc_cmp )
+PathFinding::SpatialHashGridSharedPtr NpcSystem::navmesh_for( entt::entity npc_entity )
 {
-  const auto &npc_type = npc_cmp.sprite_type_list.front();
-  if ( npc_type.contains( "wisp" ) ) { return m_open_navmesh.lock(); }
-  if ( npc_type.contains( "ghost" ) )
+  if ( reg().any_of<Cmp::Npc::Wisp>( npc_entity ) ) { return m_open_navmesh.lock(); }
+  if ( reg().any_of<Cmp::Npc::Ghost>( npc_entity ) )
   {
     // ghosts pass through plants; fall back to the regular navmesh in scenes without one
     if ( auto ghost_navmesh = m_ghost_navmesh.lock() ) { return ghost_navmesh; }
@@ -493,7 +495,7 @@ void NpcSystem::update_movement_for( PathFinding::SpatialHashGrid &navmesh, entt
 void NpcSystem::check_once_collision()
 {
   auto player_collision_view = reg().view<Cmp::PlayerCharacter>();
-  auto npc_collision_view = reg().view<Cmp::NPC, Cmp::Position, Cmp::Direction>( entt::exclude<Cmp::NpcFriendly> );
+  auto npc_collision_view = reg().view<Cmp::Npc::NPC, Cmp::Position, Cmp::Direction>( entt::exclude<Cmp::Npc::Friendly> );
 
   auto &player_dmg_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( reg() );
   auto &player_pos = Utils::Player::get_position( reg() );
@@ -533,7 +535,7 @@ void NpcSystem::check_once_collision()
 
 void NpcSystem::check_timed_collision( sf::Time dt )
 {
-  auto npc_collision_view = reg().view<Cmp::NPC, Cmp::Position>( entt::exclude<Cmp::NpcFriendly> );
+  auto npc_collision_view = reg().view<Cmp::Npc::NPC, Cmp::Position>( entt::exclude<Cmp::Npc::Friendly> );
 
   auto &player_pos = Utils::Player::get_position( reg() );
   auto &player_mort = Utils::Player::get_mortality( reg() );

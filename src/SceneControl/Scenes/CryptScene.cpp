@@ -4,7 +4,7 @@
 #include <Components/Inventory/FlashUIHealth.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Inventory/WorldItem.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Persistent/CryptShuffleTimeout.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
@@ -156,7 +156,7 @@ void CryptScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::PassageSystem>().update( dt );
 
   // Block shockwave particles from travelling through any entity that has Cmp::PlayerNoPath component
-  // Don't use Cmp::NpcNoPathFinding because it blocks over lavapits.
+  // Don't use Cmp::Npc::NoPathFinding because it blocks over lavapits.
   for ( auto [ob_entt, ob_cmp, pos_cmp] : m_reg.view<Cmp::PlayerNoPath, Cmp::Position>().each() )
   {
     if ( m_reg.any_of<Cmp::AltarSegment>( ob_entt ) ) continue;

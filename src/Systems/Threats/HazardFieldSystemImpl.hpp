@@ -5,7 +5,7 @@
 #include <Components/AnimData.hpp>
 #include <Components/Exit.hpp>
 #include <Components/Npc/Npc.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
@@ -57,7 +57,7 @@ sf::Vector2f HazardFieldSystem<HazardType>::init_hazard_field()
   unsigned long seed = Sys::PersistSystem::get<typename Traits::SeedType>( reg() ).get_value();
   auto [random_entity, random_pos] = Utils::Rnd::get_random_position(
       reg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{},
-      Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC, Cmp::ReservedPosition>(), seed );
+      Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::Npc::NPC, Cmp::ReservedPosition>(), seed );
   if ( random_entity == entt::null ) { return {}; }
 
   Factory::Obstacle::remove_obstacle( reg(), random_entity, Factory::Obstacle::DeleteExtras::Yes );
@@ -69,7 +69,7 @@ sf::Vector2f HazardFieldSystem<HazardType>::init_hazard_field()
   });
   // clang-format on
   reg().template emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - 1.f );
-  reg().template emplace_or_replace<Cmp::NpcNoPathFinding>( random_entity );
+  reg().template emplace_or_replace<Cmp::Npc::NoPathFinding>( random_entity );
   SPDLOG_INFO( "{} hazard spawned at position [{}, {}].", std::string( Traits::sprite_type ), random_pos.position.x, random_pos.position.y );
 
   return random_pos.position;
@@ -131,7 +131,7 @@ sf::Vector2f HazardFieldSystem<HazardType>::update_hazard_field()
         });
         // clang-format on
         reg().template emplace_or_replace<Cmp::ZOrderValue>( obstacle_entity, obst_pos_cmp.position.y - 1.f );
-        reg().template emplace_or_replace<Cmp::NpcNoPathFinding>( obstacle_entity );
+        reg().template emplace_or_replace<Cmp::Npc::NoPathFinding>( obstacle_entity );
 
         SPDLOG_DEBUG( "New hazard field created at entity {}", static_cast<uint32_t>( obstacle_entity ) );
         return obst_pos_cmp.position; // only add one hazard cell per update period
@@ -209,7 +209,7 @@ template <ValidHazard HazardType>
 void HazardFieldSystem<HazardType>::check_npc_hazard_field_collision()
 {
   auto hazard_view = reg().template view<HazardType, Cmp::Position>();
-  auto npc_view = reg().template view<Cmp::NPC, Cmp::Position>();
+  auto npc_view = reg().template view<Cmp::Npc::NPC, Cmp::Position>();
 
   for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : npc_view.each() )
   {
