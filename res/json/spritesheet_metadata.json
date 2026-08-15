@@ -275,7 +275,7 @@
     "sprite.graveyard.altar.inactive": {
       "spritesheet": {
         "displayname": "sprite.graveyard.altar.inactive",
-        "zorder": [0],
+        "zorder": [1,1,1,1],
         "texture_path": "res/textures/landmarks.png",
         "sprite_indices": [0],
         "solid_mask": [true, true, true, true],
