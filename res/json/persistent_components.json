@@ -250,7 +250,7 @@
   },
     "NpcWatchmanSpawnCooldown": {
     "type": "float",
-    "value": 300.0,
+    "value": 60.0,
     "min_value": 60.0,
     "max_value": 900.0,
     "detail": "NPC Watchman Spawn Cooldown (sec)",

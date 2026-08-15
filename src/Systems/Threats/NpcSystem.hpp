@@ -70,9 +70,6 @@ public:
   //! @brief Create a wisp NPC at a random location. Uses `m_open_navmesh` to pathfind freely around the scene.
   void spawn_wisp();
 
-  //! @brief Create a watchman NPC at a random location.
-  void spawn_watchman();
-
   //! @brief event handlers for pausing system clocks
   void on_pause() override {}
   //! @brief event handlers for resuming system clocks
@@ -154,9 +151,6 @@ private:
 
   //! @brief Used for NPCs to move freely within the level boundaries.
   PathFinding::SpatialHashGridWeakPtr m_open_navmesh;
-
-  //! @brief Rate-limit the spawning of Watchman NPCs
-  sf::Time m_watchman_spawn_timer;
 };
 
 } // namespace Game::Sys

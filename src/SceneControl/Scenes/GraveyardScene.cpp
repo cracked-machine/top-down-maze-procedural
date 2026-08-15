@@ -70,6 +70,7 @@
 #include <Systems/Threats/BombSystem.hpp>
 #include <Systems/Threats/HazardFieldSystemImpl.hpp>
 #include <Systems/Threats/LightningSystem.hpp>
+#include <Systems/Threats/WatchmanSystem.hpp>
 #include <Systems/Threats/WormholeSystem.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Optimizations.hpp>
@@ -272,6 +273,7 @@ void GraveyardScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision();
   m_sys.find<Sys::Store::Type::NpcSystem>().update( dt );
   m_sys.find<Sys::Store::Type::NpcSystem>().spawn_wisp();
+  m_sys.find<Sys::Store::Type::WatchmanSystem>().update( dt );
   m_sys.find<Sys::Store::Type::WormholeSystem>().check_player_wormhole_collision();
   m_sys.find<Sys::Store::Type::ActionSystem>().update( dt );
   m_sys.find<Sys::Store::Type::FootstepSystem>().update();

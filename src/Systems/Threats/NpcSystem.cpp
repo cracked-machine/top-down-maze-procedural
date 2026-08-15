@@ -18,25 +18,20 @@
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Npc/Shockwave.hpp>
 #include <Components/Npc/Target.hpp>
-#include <Components/Npc/Watchman.hpp>
 #include <Components/Npc/Wisp.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/Persistent/NpcActivateScale.hpp>
 #include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
-#include <Components/Persistent/NpcWatchmanSpawnCooldown.hpp>
-#include <Components/Persistent/NpcWatchmanSpawnMax.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Player/Character.hpp>
 #include <Components/Player/Mortality.hpp>
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/BuildingSegment.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
-#include <Components/SceneSettings/CurrentScene.hpp>
 #include <Components/SpawnArea.hpp>
 #include <Components/Stats/BaseAction.hpp>
 #include <Components/Stats/CollisionAction.hpp>
@@ -79,7 +74,6 @@ NpcSystem::NpcSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::Sp
 {
   SPDLOG_DEBUG( "NpcSystem initialized" );
   m_wisp_target_reset_clock.reset();
-  m_watchman_spawn_timer = sf::Time::Zero;
 }
 
 void NpcSystem::update( sf::Time dt )
@@ -115,16 +109,6 @@ void NpcSystem::update( sf::Time dt )
   {
     check_once_collision();
     check_timed_collision( dt );
-  }
-
-  if ( Utils::scene_setting<Cmp::SceneSettings::CurrentScene>( reg() ).id == Cmp::SceneSettings::SceneId::GRAVEYARD )
-  {
-    m_watchman_spawn_timer += dt;
-    if ( m_watchman_spawn_timer.asSeconds() >= Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanSpawnCooldown>( reg() ).get_value() )
-    {
-      spawn_watchman();
-      m_watchman_spawn_timer = sf::Time::Zero;
-    }
   }
 }
 
@@ -183,24 +167,6 @@ void NpcSystem::spawn_wisp()
 
   SPDLOG_INFO( "Spawned wisp {} at {},{}. Target is {},{}", static_cast<uint32_t>( npc_entt ), spawn_pos.x(), spawn_pos.y(), target_pos.x(),
                target_pos.y() );
-}
-
-void NpcSystem::spawn_watchman()
-{
-  size_t watchman_npc_count = 0;
-  for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::Npc::NPC>().each() )
-  {
-    if ( reg().any_of<Cmp::Npc::Watchman>( npc_entt ) ) { watchman_npc_count++; }
-  }
-
-  if ( watchman_npc_count < Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanSpawnMax>( reg() ).get_value() and
-       Utils::Player::get_player_stats( reg() ).infamy() >= 10 )
-  {
-    auto [rnd_entt, rnd_pos_cmp] = Utils::Rnd::get_random_position(
-        reg(), {}, Utils::Rnd::ExcludePack<Cmp::Player::Character, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
-    Factory::Npc::create_npc( reg(), rnd_entt, "npc.nightwatchman" );
-    SPDLOG_INFO( "Spawned Watchman at {},{}", rnd_pos_cmp.x(), rnd_pos_cmp.y() );
-  }
 }
 
 void NpcSystem::reset_wisp_target( entt::entity wisp_entt )

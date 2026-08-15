@@ -51,6 +51,7 @@ class ShockwaveSystem;
 class ShopSystem;
 class LightningSystem;
 class RuinSystem;
+class WatchmanSystem;
 class WormholeSystem;
 
 class Store
@@ -92,6 +93,7 @@ public:
     ShockwaveSystem,
     ShopSystem,
     SinkHoleHazardSystem,
+    WatchmanSystem,
     WormholeSystem,
   };
 
@@ -188,6 +190,7 @@ template<> struct Store::SystemTraits<Store::Type::ShaderSystem>           { usi
 template<> struct Store::SystemTraits<Store::Type::ShockwaveSystem>        { using type = ShockwaveSystem; };
 template<> struct Store::SystemTraits<Store::Type::ShopSystem>             { using type = ShopSystem; };
 template<> struct Store::SystemTraits<Store::Type::SinkHoleHazardSystem>   { using type = SinkHoleHazardSystem; };
+template<> struct Store::SystemTraits<Store::Type::WatchmanSystem>         { using type = WatchmanSystem; };
 template<> struct Store::SystemTraits<Store::Type::WormholeSystem>         { using type = WormholeSystem; };
 // clang-format on
 

@@ -230,8 +230,6 @@ void RenderMenuSystem::render_settings_widgets( sf::Time dt, sf::FloatRect title
     Sys::PersistSystem::get<Cmp::Persist::RuinMaxCobwebs>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::RuinMaxSpiders>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::CryptShuffleTimeout>( reg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanSpawnMax>( reg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanSpawnCooldown>( reg() ).render_widget();
 
     // Loot Settings
     ImGui::SeparatorText( "Loot Settings" );
@@ -247,6 +245,8 @@ void RenderMenuSystem::render_settings_widgets( sf::Time dt, sf::FloatRect title
     Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveSpeed>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveFreq>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveMaxRadius>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanSpawnMax>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanSpawnCooldown>( reg() ).render_widget();
 
     auto &npc_push_back = Sys::PersistSystem::get<Cmp::Persist::NpcPushBack>( reg() );
     if ( ImGui::SliderScalar( "NPC Push Back Distance", ImGuiDataType_Float, npc_push_back.get_value_ptr(), npc_push_back.get_min_value_ptr(),
