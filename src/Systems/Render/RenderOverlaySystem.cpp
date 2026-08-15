@@ -33,8 +33,8 @@
 #include <Components/LastDirection.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/Moveable.hpp>
-#include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
+#include <Components/Npc/Npc.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/CryptShuffleTimeout.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
@@ -749,6 +749,33 @@ void RenderOverlaySystem::render_pathfinding_vector( const Cmp::Position &start_
       rectangle.setOutlineThickness( 1.f );
       draw_world( rectangle );
     }
+  }
+}
+
+void RenderOverlaySystem::render_navmesh( PathFinding::SpatialHashGridSharedPtr npc_navmesh )
+{
+  for ( auto [pos_entt, pos_cmp] : reg().view<Cmp::Position>().each() )
+  {
+    if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), pos_cmp ) ) continue;
+    auto entt_bucket = npc_navmesh->at( pos_cmp );
+    sf::Text text( m_font, std::to_string( entt_bucket.size() ), 10 );
+    text.setFillColor( sf::Color::Blue );
+    text.setOutlineColor( sf::Color::Black );
+    text.setOutlineThickness( 1.f );
+    text.setPosition( { pos_cmp.position.x + 4.f, pos_cmp.position.y + 4.f } );
+    draw_world( text );
+
+    sf::RectangleShape bottom_edge( { 8.f, 1.f } );
+    bottom_edge.setFillColor( sf::Color::Blue );
+    bottom_edge.setOutlineThickness( 0.f );
+    bottom_edge.setPosition( { pos_cmp.position.x + ( pos_cmp.size.x / 2 ), pos_cmp.position.y + pos_cmp.size.y } );
+    draw_world( bottom_edge );
+
+    sf::RectangleShape right_edge( { 1.f, 8.f } );
+    right_edge.setFillColor( sf::Color::Blue );
+    right_edge.setOutlineThickness( 0.f );
+    right_edge.setPosition( { pos_cmp.position.x + pos_cmp.size.x, pos_cmp.position.y + ( pos_cmp.size.y / 2 ) } );
+    draw_world( right_edge );
   }
 }
 

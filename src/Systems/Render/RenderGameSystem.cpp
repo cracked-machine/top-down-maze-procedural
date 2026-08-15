@@ -42,6 +42,7 @@
 #include <Components/Ruin/RuinBuildingMultiBlock.hpp>
 #include <Components/SceneSettings/Shaders.hpp>
 #include <Components/SceneSettings/ShowDebugStats.hpp>
+#include <Components/SceneSettings/ShowNavmesh.hpp>
 #include <Components/SceneSettings/ShowPathFinding.hpp>
 #include <Components/SelectedPosition.hpp>
 #include <Components/Spring/HealingSpringBuildingMultiBlock.hpp>
@@ -97,7 +98,7 @@ RenderGameSystem::RenderGameSystem( entt::registry &reg, sf::RenderWindow &windo
 
 RenderGameSystem::~RenderGameSystem() = default;
 
-void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_overlay_sys )
+void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_overlay_sys, PathFinding::SpatialHashGridSharedPtr npc_navmesh )
 {
   using namespace Sprites;
 
@@ -232,6 +233,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   // lava pit outline
   render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPit>( sf::Color( 16, 16, 16 ), 0.5f );
 
+  if ( Utils::scene_setting<Cmp::SceneSettings::ShowNavmesh>( reg() ).enabled ) { render_overlay_sys.render_navmesh( npc_navmesh ); }
   if ( Utils::scene_setting<Cmp::SceneSettings::ShowPathFinding>( reg() ).enabled )
   {
 

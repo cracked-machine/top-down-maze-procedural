@@ -12,8 +12,10 @@
 #include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
+#include <Components/SceneSettings/Footsteps.hpp>
 #include <Components/SceneSettings/Shaders.hpp>
 #include <Components/SceneSettings/ShowDebugStats.hpp>
+#include <Components/SceneSettings/ShowNavmesh.hpp>
 #include <Components/SceneSettings/ShowPathFinding.hpp>
 #include <Components/Stats/BaseAction.hpp>
 
@@ -120,7 +122,9 @@ void SceneInputRouter::graveyard_scene_state_handler()
     {
       if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_navmesh(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F10 ) { toggle_footsteps(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F5 )
       {
         auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
@@ -220,7 +224,9 @@ void SceneInputRouter::crypt_scene_state_handler()
       if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_navmesh(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_shaders(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F10 ) { toggle_footsteps(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
@@ -285,7 +291,9 @@ void SceneInputRouter::healing_spring_scene_state_handler()
       if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_navmesh(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_shaders(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F10 ) { toggle_footsteps(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
@@ -334,7 +342,9 @@ void SceneInputRouter::shop_scene_state_handler()
       if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_navmesh(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_shaders(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F10 ) { toggle_footsteps(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
@@ -388,7 +398,9 @@ void SceneInputRouter::ruin_scene_state_handler()
       if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_navmesh(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_shaders(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F10 ) { toggle_footsteps(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
@@ -515,6 +527,20 @@ void SceneInputRouter::toggle_show_pathfinding()
   bool &current_setting = Utils::scene_setting<Cmp::SceneSettings::ShowPathFinding>( reg() ).enabled;
   current_setting = not current_setting;
   SPDLOG_INFO( "Show pathfinding is now {}", current_setting ? "ENABLED" : "DISABLED" );
+}
+
+void SceneInputRouter::toggle_show_navmesh()
+{
+  bool &current_setting = Utils::scene_setting<Cmp::SceneSettings::ShowNavmesh>( reg() ).enabled;
+  current_setting = not current_setting;
+  SPDLOG_INFO( "Show navmesh is now {}", current_setting ? "ENABLED" : "DISABLED" );
+}
+
+void SceneInputRouter::toggle_footsteps()
+{
+  bool &current_setting = Utils::scene_setting<Cmp::SceneSettings::Footsteps>( reg() ).enabled;
+  current_setting = not current_setting;
+  SPDLOG_INFO( "Footsteps are now {}", current_setting ? "ENABLED" : "DISABLED" );
 }
 
 void SceneInputRouter::toggle_show_debug()

@@ -1,3 +1,5 @@
+#include <Components/SceneSettings/Footsteps.hpp>
+#include <Utils/Utils.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Systems/FootstepSystem.hpp>
@@ -43,6 +45,7 @@ void FootstepSystem::on_resume()
 
 void FootstepSystem::add_footstep( const Cmp::Position &pos_cmp, const Cmp::Direction &direction )
 {
+  if ( not Utils::scene_setting<Cmp::SceneSettings::Footsteps>( reg() ).enabled ) return;
   if ( update_clock.getElapsedTime() >= sf::seconds( Sys::PersistSystem::get<Cmp::Persist::PlayerFootstepAddDelay>( reg() ).get_value() ) )
   {
 

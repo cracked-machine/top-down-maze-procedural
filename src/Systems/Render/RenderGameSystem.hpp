@@ -62,7 +62,7 @@ public:
   //! info, etc..
   //! @param render_player_sys anything that walks about in the game world, i.e. player, NPCs, etc..
   //! as well as death animations/effects
-  void render_game( sf::Time dt, RenderOverlaySystem &render_overlay_sys );
+void render_game( sf::Time dt, RenderOverlaySystem &render_overlay_sys, PathFinding::SpatialHashGridSharedPtr npc_navmesh );
 
   //! @brief Refreshes the Z-order rendering queue
   void refresh_z_order_queue();

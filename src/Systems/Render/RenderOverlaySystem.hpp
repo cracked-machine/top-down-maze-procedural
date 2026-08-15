@@ -92,6 +92,8 @@ public:
   void render_pathfinding_vector( const Cmp::Position &start_pos_cmp, const Cmp::Position &end_pos_cmp, sf::Color color,
                                   PathFinding::QueryCompass query_compass );
 
+  void render_navmesh( PathFinding::SpatialHashGridSharedPtr npc_navmesh );
+
   void render_ui_entity_inspect();
 
   template <typename Component>

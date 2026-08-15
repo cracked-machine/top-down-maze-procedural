@@ -12,8 +12,10 @@
 #include <Components/Player/PlayerNoPath.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/SceneSettings/CurrentScene.hpp>
+#include <Components/SceneSettings/Footsteps.hpp>
 #include <Components/SceneSettings/Shaders.hpp>
 #include <Components/SceneSettings/ShowDebugStats.hpp>
+#include <Components/SceneSettings/ShowNavmesh.hpp>
 #include <Components/SceneSettings/ShowPathFinding.hpp>
 
 #include <Events/CryptRoomEvent.hpp>
@@ -55,12 +57,14 @@ void CryptScene::on_init()
   SPDLOG_INFO( "get_floor_image: {}", m_scene_data->floor_tileset_image().string() );
   SPDLOG_INFO( "levelgen_tilelayer size: {}", m_scene_data->levelgen_tilelayer().size() );
 
-  auto sys_cmp_entt = m_reg.create();
-  m_reg.emplace_or_replace<Cmp::SceneSettings::CurrentScene>( sys_cmp_entt, Cmp::SceneSettings::SceneId::CRYPT );
-  m_reg.emplace_or_replace<Cmp::SceneSettings::CollisionDetection>( sys_cmp_entt, true );
-  m_reg.emplace_or_replace<Cmp::SceneSettings::ShowPathFinding>( sys_cmp_entt, false );
-  m_reg.emplace_or_replace<Cmp::SceneSettings::ShowDebugStats>( sys_cmp_entt, false );
-  m_reg.emplace_or_replace<Cmp::SceneSettings::Shaders>( sys_cmp_entt, true );
+  auto scene_settings_entt = m_reg.create();
+  m_reg.emplace_or_replace<Cmp::SceneSettings::CurrentScene>( scene_settings_entt, Cmp::SceneSettings::SceneId::CRYPT );
+  m_reg.emplace_or_replace<Cmp::SceneSettings::CollisionDetection>( scene_settings_entt, true );
+  m_reg.emplace_or_replace<Cmp::SceneSettings::ShowPathFinding>( scene_settings_entt, false );
+  m_reg.emplace_or_replace<Cmp::SceneSettings::ShowNavmesh>( scene_settings_entt, false );
+  m_reg.emplace_or_replace<Cmp::SceneSettings::ShowDebugStats>( scene_settings_entt, false );
+  m_reg.emplace_or_replace<Cmp::SceneSettings::Shaders>( scene_settings_entt, true );
+  m_reg.emplace_or_replace<Cmp::SceneSettings::Footsteps>( scene_settings_entt, true );
 
   // initialise the persistent player start position from the scene configuration (json) data
   auto [_, player_start_pos_px] = m_scene_data->get_player_start_position();
@@ -165,7 +169,7 @@ void CryptScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
-  m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys );
+  m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_generic_npc_navmesh );
 }
 
 void CryptScene::reinit_navmesh()
