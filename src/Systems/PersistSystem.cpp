@@ -36,7 +36,9 @@
 #include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
 #include <Components/Persistent/NpcShockwaveResolution.hpp>
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
+#include <Components/Persistent/NpcWatchmanGunFireRate.hpp>
 #include <Components/Persistent/NpcWatchmanSpawnCooldown.hpp>
+#include <Components/Persistent/NpcWatchmanSpawnInfamy.hpp>
 #include <Components/Persistent/NpcWatchmanSpawnMax.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerAnimFramerate.hpp>
@@ -134,6 +136,8 @@ void PersistSystem::initialize_type_registry()
   register_type.operator()<NpcShockwaveSpeed>("NpcShockwaveSpeed");
   register_type.operator()<NpcWatchmanSpawnMax>("NpcWatchmanSpawnMax");
   register_type.operator()<NpcWatchmanSpawnCooldown>("NpcWatchmanSpawnCooldown");
+  register_type.operator()<NpcWatchmanGunFireRate>("NpcWatchmanGunFireRate");
+  register_type.operator()<NpcWatchmanSpawnInfamy>("NpcWatchmanSpawnInfamy");
   register_type.operator()<PcDamageDelay>("PcDamageDelay");
   register_type.operator()<PlayerAnimFramerate>("PlayerAnimFramerate");
   register_type.operator()<PlayerDiagonalLerpSpeedModifier>("PlayerDiagonalLerpSpeedModifier");

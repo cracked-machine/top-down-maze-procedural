@@ -299,7 +299,7 @@ void GraveyardScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::ExitSystem>().check_exit_collision();
   m_sys.find<Sys::Store::Type::ArrowSystem>().update( dt );
 
-  for ( auto [ob_entt, ob_cmp, pos_cmp, uuid_cmp] : m_reg.view<Cmp::Obstacle, Cmp::Position, Cmp::UUID>().each() )
+  for ( auto [ob_entt, ob_cmp, pos_cmp] : m_reg.view<Cmp::Obstacle, Cmp::Position>().each() )
   {
     // If this is the obstacle being currently dug then skip particle collision detection
     if ( m_reg.any_of<Cmp::SelectedPosition>( ob_entt ) ) continue;

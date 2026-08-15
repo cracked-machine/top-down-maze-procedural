@@ -89,9 +89,6 @@ void ObstacleDigParticleSprite::simulate( sf::Time dt )
   }
 }
 
-//! @brief Allows this sprite to be passed into RenderWindow.draw()
-//! @param target
-//! @param states
 void ObstacleDigParticleSprite::draw( sf::RenderTarget &target, sf::RenderStates states ) const
 {
   states.texture = nullptr;

@@ -7,14 +7,14 @@
 #include <Components/Direction.hpp>
 #include <Components/FootStepTimer.hpp>
 #include <Components/Grave/ExitSegment.hpp>
-#include <Components/Grave/Segment.hpp>
 #include <Components/Grave/PlantSegment.hpp>
+#include <Components/Grave/Segment.hpp>
 #include <Components/LerpPosition.hpp>
-#include <Components/Npc/Npc.hpp>
 #include <Components/Npc/Container.hpp>
 #include <Components/Npc/Friendly.hpp>
 #include <Components/Npc/Ghost.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
+#include <Components/Npc/Npc.hpp>
 #include <Components/Npc/Shockwave.hpp>
 #include <Components/Npc/Wisp.hpp>
 #include <Components/Obstacle.hpp>
@@ -147,11 +147,17 @@ void NpcSystem::update_animation()
     }
     else if ( anim_cmp.m_sprite_type.contains( "sprite.ghost" ) )
     {
-      // Ghost NPCs face cardinal directions only
       if ( npc_dir_cmp.x > 0 ) { anim_cmp.m_sprite_type = "sprite.ghost.walk.east"; }
       else if ( npc_dir_cmp.x < 0 ) { anim_cmp.m_sprite_type = "sprite.ghost.walk.west"; }
       else if ( npc_dir_cmp.y < 0 ) { anim_cmp.m_sprite_type = "sprite.ghost.walk.north"; }
       else if ( npc_dir_cmp.y > 0 ) { anim_cmp.m_sprite_type = "sprite.ghost.walk.south"; }
+    }
+    else if ( anim_cmp.m_sprite_type.contains( "sprite.nightwatchman" ) )
+    {
+      if ( npc_dir_cmp.x > 0 ) { anim_cmp.m_sprite_type = "sprite.nightwatchman.walk.east"; }
+      else if ( npc_dir_cmp.x < 0 ) { anim_cmp.m_sprite_type = "sprite.nightwatchman.walk.west"; }
+      else if ( npc_dir_cmp.y < 0 ) { anim_cmp.m_sprite_type = "sprite.nightwatchman.walk.north"; }
+      else if ( npc_dir_cmp.y > 0 ) { anim_cmp.m_sprite_type = "sprite.nightwatchman.walk.south"; }
     }
     else if ( anim_cmp.m_sprite_type.contains( "sprite.wisp" ) )
     {

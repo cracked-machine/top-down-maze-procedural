@@ -115,7 +115,9 @@ public:
   virtual void clear() = 0;
   virtual void restart() = 0;
   virtual void prune_inactive_expired_particles() = 0;
-  virtual void check_particle_collision( const sf::FloatRect &target ) = 0;
+  //! @brief Kill any particle overlapping `target`
+  //! @return true if at least one particle collided
+  virtual bool check_particle_collision( const sf::FloatRect &target ) = 0;
   virtual bool is_active() = 0;
   virtual void deactivate_extinct_particles() = 0;
   virtual void set_tag( const std::string &tag ) = 0;
@@ -244,14 +246,16 @@ public:
 
   //! @brief Check if the Particles from this ParticleSprite colide with the target
   //! @param target Rectangle collision area
-  void check_particle_collision( const sf::FloatRect &target ) override
+  bool check_particle_collision( const sf::FloatRect &target ) override
   {
-    //
+    bool collided = false;
     for ( auto &p : m_particles_list )
     {
       if ( not target.contains( p.m_vertex.position ) ) continue;
       p.m_lifetime = sf::Time::Zero;
+      collided = true;
     }
+    return collided;
   }
 
   //! @brief Is simulation running for this ParticleSprite?

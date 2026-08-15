@@ -2,9 +2,9 @@
 #define SRC_FACTORY_PARTICLEFACTORY_HPP__
 
 #include <Components/Particle/Flame.hpp>
-#include <Components/Particle/SpriteTest.hpp>
 #include <Components/Particle/ShockWave.hpp>
 #include <Components/Particle/Smoke.hpp>
+#include <Components/Particle/SpriteTest.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Systems/Stores/SystemStore.hpp>
 
@@ -17,6 +17,8 @@ namespace Game::Factory::Particle
 void add_test( entt::registry &reg, Sys::ParticleSystem &psys, const std::string &tag );
 void add_crypt_altar_ps( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp, sf::Vector2f pos,
                          float zorder );
+void add_watchman_gunfire_ps( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp, sf::Vector2f pos,
+                              float zorder );
 void add_rune_ps( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp, sf::Vector2f pos,
                   float zorder );
 void add_wormhole_ps( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp, sf::Vector2f pos,

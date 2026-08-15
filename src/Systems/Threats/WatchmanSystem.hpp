@@ -22,9 +22,6 @@ public:
   //! @param dt Delta time since last update call
   void update( sf::Time dt );
 
-  //! @brief Create a watchman NPC at a random location.
-  void spawn_watchman();
-
   //! @brief event handlers for pausing system clocks
   void on_pause() override {}
   //! @brief event handlers for resuming system clocks
@@ -33,6 +30,24 @@ public:
 private:
   //! @brief Rate-limit the spawning of Watchman NPCs
   sf::Time m_watchman_spawn_timer;
+
+  //! @brief Rate-limit the gunfire
+  sf::Time m_watchman_gunfire_timer;
+
+  //! @brief Only cock the gun once before shooting it
+  bool m_gun_needs_reloading{ true };
+
+  //! @brief Create a watchman NPC at a random location.
+  void spawn_watchman();
+
+  void fire_gun();
+  void cock_gun();
+
+  //! @brief Damage the player if any active gunfire particle is touching them
+  void check_gunfire_player_collision();
+
+  //! @brief Kill any Skeleton NPC touched by an active gunfire particle
+  void check_gunfire_npc_collision();
 };
 
 } // namespace Game::Sys

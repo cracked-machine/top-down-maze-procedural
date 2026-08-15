@@ -1,16 +1,19 @@
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Particle/CryptAltarParticleSprite.hpp>
 #include <Components/Particle/ObstacleDigParticleSprite.hpp>
-#include <Components/Particle/SpriteTest.hpp>
 #include <Components/Particle/RuneParticleSprite.hpp>
 #include <Components/Particle/ShockWave.hpp>
+#include <Components/Particle/SpriteTest.hpp>
+#include <Components/Particle/WatchmanGunfireParticleSprite.hpp>
 #include <Components/Particle/WormholeParticleSprite.hpp>
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
 #include <Factory/ParticleFactory.hpp>
+#include <SFML/System/Angle.hpp>
 #include <SFML/System/Time.hpp>
 #include <Systems/PersistSystem.hpp>
+#include <Utils/Maths.hpp>
 #include <Utils/Player.hpp>
 
 #include <entt/entity/fwd.hpp>
@@ -44,7 +47,34 @@ void add_crypt_altar_ps( entt::registry &reg, const std::string &tag, float life
                                                     Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::CryptAltarParticleSprite>( ps ) ) );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
   reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
-  SPDLOG_INFO( "Created flame ParticleSprite {}", static_cast<uint32_t>( entt ) );
+  SPDLOG_DEBUG( "Created flame ParticleSprite {}", static_cast<uint32_t>( entt ) );
+}
+
+void add_watchman_gunfire_ps( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp, sf::Vector2f pos,
+                              float zorder )
+{
+  auto ps = Cmp::Particle::WatchmanGunfireParticleSprite( 3 );
+  ps.set_tag( tag );
+  ps.set_generations( 1 );
+  ps.set_emitter_position( pos );
+  ps.set_lifetime_ms(
+      std::uniform_int_distribution<int>( sf::seconds( lifetime_seconds ).asMilliseconds(), sf::seconds( lifetime_seconds ).asMilliseconds() ) );
+  ps.set_speed( std::uniform_real_distribution<float>( speed, speed ) );
+
+  // aim the gunfire at the player, with a small random spread rather than a full 360-degree burst
+  // guard against a zero-length vector (player and watchman occupying the same point, e.g. after a
+  // knockback), which would otherwise trip SFML's Vector2::angle() assertion
+  const sf::Vector2f direction = Utils::Player::get_position( reg ).getCenter() - pos;
+  const float base_angle_degrees = Utils::Maths::angle( direction ).value_or( sf::Angle::Zero ).asDegrees();
+  constexpr float kSpreadDegrees = 16.f;
+  ps.set_angle( std::uniform_real_distribution<float>( base_angle_degrees - kSpreadDegrees, base_angle_degrees + kSpreadDegrees ) );
+
+  auto entt = reg.create();
+  reg.emplace_or_replace<Sys::ParticleSpriteOwner>(
+      entt, Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::WatchmanGunfireParticleSprite>( ps ) ) );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
+  reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
+  SPDLOG_DEBUG( "Created gunfire ParticleSprite {}", static_cast<uint32_t>( entt ) );
 }
 
 void add_rune_ps( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp, sf::Vector2f pos,
