@@ -257,8 +257,8 @@ void RenderOverlaySystem::render_ui_labels( sf::Time dt )
     else if ( ui_label.name == "inventory_label" )
     {
       auto [entt, type] = Utils::Player::get_inventory_type( reg() );
-      text_str = m_sprite_factory.get_spritesheet_by_type( type ).get_display_name();
-      if ( text_str == "Error Sprite" ) { text_str = ""; }
+      if ( type == "" ) { text_str = ""; }
+      else { text_str = m_sprite_factory.get_spritesheet_by_type( type ).get_display_name(); }
     }
 
     sf::Text text( m_font, "", ui_label.font_size );
