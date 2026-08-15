@@ -71,6 +71,7 @@
 #include <Systems/Threats/HazardFieldSystemImpl.hpp>
 #include <Systems/Threats/LightningSystem.hpp>
 #include <Systems/Threats/WatchmanSystem.hpp>
+#include <Systems/Threats/WispSystem.hpp>
 #include <Systems/Threats/WormholeSystem.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Optimizations.hpp>
@@ -272,7 +273,8 @@ void GraveyardScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::BombSystem>().update();
   m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision();
   m_sys.find<Sys::Store::Type::NpcSystem>().update( dt );
-  m_sys.find<Sys::Store::Type::NpcSystem>().spawn_wisp();
+  m_sys.find<Sys::Store::Type::WispSystem>().update( dt );
+  m_sys.find<Sys::Store::Type::WispSystem>().spawn_wisp();
   m_sys.find<Sys::Store::Type::WatchmanSystem>().update( dt );
   m_sys.find<Sys::Store::Type::WormholeSystem>().check_player_wormhole_collision();
   m_sys.find<Sys::Store::Type::ActionSystem>().update( dt );
@@ -313,6 +315,7 @@ void GraveyardScene::do_update( sf::Time dt )
 void GraveyardScene::reinit_navmesh()
 {
   m_sys.find<Sys::Store::Type::NpcSystem>().init( m_generic_npc_navmesh, m_open_navmesh, m_ghost_navmesh );
+  m_sys.find<Sys::Store::Type::WispSystem>().init( m_open_navmesh );
   m_sys.find<Sys::Store::Type::BombSystem>().init( m_generic_npc_navmesh, m_player_navmesh, m_ghost_navmesh );
   m_sys.find<Sys::Store::Type::ActionSystem>().init( m_generic_npc_navmesh, m_player_navmesh, m_ghost_navmesh );
   m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_generic_npc_navmesh, m_player_navmesh, m_open_navmesh );

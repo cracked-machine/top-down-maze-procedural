@@ -67,9 +67,6 @@ public:
   //! @param dt Delta time since last update call
   void update( sf::Time dt );
 
-  //! @brief Create a wisp NPC at a random location. Uses `m_open_navmesh` to pathfind freely around the scene.
-  void spawn_wisp();
-
   //! @brief event handlers for pausing system clocks
   void on_pause() override {}
   //! @brief event handlers for resuming system clocks
@@ -96,10 +93,6 @@ private:
 
   //! @brief Check for player collision proximity with NPC containers
   void check_npc_container_collision();
-
-  //! @brief Add a new pathfinding target for the wisp NPC.
-  //! @param wisp_entt
-  void reset_wisp_target( entt::entity wisp_entt );
 
   //! @brief Check Player/NPC collision for Cmp::CollisionActions with zero tick.
   //! @note Player cooldown and knockback are ENABLED.
@@ -141,9 +134,6 @@ private:
 
   //! @brief Track time since has container activiation check
   sf::Time m_container_timer;
-
-  //! @brief Delay the target reset once the pathfinding has comepleted.
-  sf::Clock m_wisp_target_reset_clock;
 
   //! @brief Used for NPCs to pathfind around blocking obstacles
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;

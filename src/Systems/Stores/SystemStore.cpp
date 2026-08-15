@@ -35,6 +35,7 @@
 #include <Systems/Threats/NpcSystem.hpp>
 #include <Systems/Threats/ShockwaveSystem.hpp>
 #include <Systems/Threats/WatchmanSystem.hpp>
+#include <Systems/Threats/WispSystem.hpp>
 #include <Systems/Threats/WormholeSystem.hpp>
 
 namespace Game::Sys
@@ -78,6 +79,7 @@ Store::Store( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, 
   emplace<Type::ShopSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher );
   emplace<Type::SinkHoleHazardSystem>( m_initial_reg, window, sprite_factory, sound_bank );
   emplace<Type::WatchmanSystem>( m_initial_reg, window, sprite_factory, sound_bank );
+  emplace<Type::WispSystem>( m_initial_reg, window, sprite_factory, sound_bank );
   emplace<Type::WormholeSystem>( m_initial_reg, window, sprite_factory, sound_bank );
 }
 

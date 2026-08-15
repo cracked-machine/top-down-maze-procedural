@@ -48,6 +48,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/BombSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/NpcSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/WatchmanSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/Threats/WispSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/HazardFieldSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/WormholeSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/LightningSystem.cpp
