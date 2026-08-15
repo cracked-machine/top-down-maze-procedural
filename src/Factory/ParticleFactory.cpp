@@ -61,7 +61,7 @@ void add_rune_ps( entt::registry &reg, const std::string &tag, float lifetime_se
   reg.emplace_or_replace<Sys::ParticleSpriteOwner>( entt, Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::RuneParticleSprite>( ps ) ) );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
   reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
-  SPDLOG_INFO( "Created flame ParticleSprite {}", static_cast<uint32_t>( entt ) );
+  SPDLOG_DEBUG( "Created rune ParticleSprite {}", static_cast<uint32_t>( entt ) );
 }
 
 void add_wormhole_ps( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp, sf::Vector2f pos,
@@ -78,7 +78,7 @@ void add_wormhole_ps( entt::registry &reg, const std::string &tag, float lifetim
   reg.emplace_or_replace<Sys::ParticleSpriteOwner>( entt, Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::WormholeParticleSprite>( ps ) ) );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
   reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
-  SPDLOG_INFO( "Created flame ParticleSprite {}", static_cast<uint32_t>( entt ) );
+  SPDLOG_DEBUG( "Created wormhole ParticleSprite {}", static_cast<uint32_t>( entt ) );
 }
 
 void add_obstacledig_ps( entt::registry &reg, const std::string &tag, int particle_count, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp,
@@ -99,7 +99,7 @@ void add_obstacledig_ps( entt::registry &reg, const std::string &tag, int partic
                                                     Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::ObstacleDigParticleSprite>( ps ) ) );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
   reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
-  SPDLOG_INFO( "Created flame ParticleSprite {}", static_cast<uint32_t>( entt ) );
+  SPDLOG_DEBUG( "Created obstacle ParticleSprite {}", static_cast<uint32_t>( entt ) );
 }
 
 void add_flame_for_player_inventory_slot( entt::registry &reg )
@@ -137,7 +137,7 @@ void add_flame( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp
   reg.emplace_or_replace<Sys::ParticleSpriteOwner>( entt, Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::Flame>( ps ) ) );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
   reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
-  SPDLOG_INFO( "Created flame ParticleSprite {}", static_cast<uint32_t>( entt ) );
+  SPDLOG_DEBUG( "Created flame ParticleSprite {}", static_cast<uint32_t>( entt ) );
 }
 
 void add_smoke( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp, sf::Vector2f pos, float zorder )
@@ -155,7 +155,7 @@ void add_smoke( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp
   reg.emplace_or_replace<Sys::ParticleSpriteOwner>( entt, Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::Smoke>( ps ) ) );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
   reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
-  SPDLOG_INFO( "Created smoke ParticleSprite {}", static_cast<uint32_t>( entt ) );
+  SPDLOG_DEBUG( "Created smoke ParticleSprite {}", static_cast<uint32_t>( entt ) );
 }
 
 void add_shockwave( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp, sf::Vector2f pos, float zorder )
@@ -172,7 +172,7 @@ void add_shockwave( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid
   reg.emplace_or_replace<Sys::ParticleSpriteOwner>( entt, Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::ShockWave>( ps ) ) );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
   reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
-  SPDLOG_INFO( "Created shockwave ParticleSprite {}", static_cast<uint32_t>( entt ) );
+  SPDLOG_DEBUG( "Created shockwave ParticleSprite {}", static_cast<uint32_t>( entt ) );
 }
 
 void delete_expired_particle_sprites( entt::registry &reg, const std::string &search_pattern )

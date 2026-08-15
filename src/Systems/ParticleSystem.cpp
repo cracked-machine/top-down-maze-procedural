@@ -27,7 +27,7 @@ void ParticleSystem::add_to_registry( Cmp::UUID &uuid_cmp, ParticleSpriteOwner o
   reg().emplace_or_replace<ParticleSpriteOwner>( entt, std::move( owner ) );
   reg().emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
   reg().emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
-  SPDLOG_INFO( "Created ParticleSprite {}", static_cast<uint32_t>( entt ) );
+  SPDLOG_DEBUG( "Created ParticleSprite {}", static_cast<uint32_t>( entt ) );
 }
 
 std::vector<entt::entity> ParticleSystem::add_to_registry( ParticleSpriteOwner owner, Cmp::ZOrderValue zorder )
@@ -38,7 +38,7 @@ std::vector<entt::entity> ParticleSystem::add_to_registry( ParticleSpriteOwner o
   reg().emplace_or_replace<ParticleSpriteOwner>( entt, std::move( owner ) );
   reg().emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
   entt_list.push_back( entt );
-  SPDLOG_INFO( "Created ParticleSprite {}", static_cast<uint32_t>( entt ) );
+  SPDLOG_DEBUG( "Created ParticleSprite {}", static_cast<uint32_t>( entt ) );
 
   return entt_list;
 }

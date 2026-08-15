@@ -164,7 +164,7 @@ public:
         m_particles_list( count )
 
   {
-    SPDLOG_INFO( "Created {} particles in sprite", count );
+    SPDLOG_DEBUG( "Created {} particles in sprite", count );
   }
 
   ~SpriteBase() {}
@@ -214,10 +214,10 @@ public:
 
     if ( m_particles_list.empty() )
     {
-      SPDLOG_INFO( "Particles have been deleted" );
+      SPDLOG_DEBUG( "Particles have been deleted" );
       // prevent ParticleSystem from calling this->simulate()
       m_sprite_active = false;
-      SPDLOG_INFO( "ParticleSprite has stopped" );
+      SPDLOG_DEBUG( "ParticleSprite has stopped" );
     }
   }
 
@@ -225,7 +225,7 @@ public:
   void restart() override
   {
     if ( m_sprite_active ) return;
-    SPDLOG_INFO( "Restarting ParticleSprite" );
+    SPDLOG_DEBUG( "Restarting ParticleSprite" );
 
     m_particles_list = std::vector<TParticle>( m_max_particles );
     for ( auto &p : m_particles_list )
@@ -239,7 +239,7 @@ public:
       p.m_particle_active = true;
     }
     m_sprite_active = true;
-    SPDLOG_INFO( "ParticleSprite is running." );
+    SPDLOG_DEBUG( "ParticleSprite is running." );
   }
 
   //! @brief Check if the Particles from this ParticleSprite colide with the target
