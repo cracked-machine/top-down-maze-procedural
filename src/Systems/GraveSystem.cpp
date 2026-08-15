@@ -7,14 +7,14 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AnimData.hpp>
-#include <Components/Grave/GraveMultiBlock.hpp>
-#include <Components/Grave/GraveSegment.hpp>
-#include <Components/Inventory/InventoryWearLevel.hpp>
+#include <Components/Grave/MultiBlock.hpp>
+#include <Components/Grave/Segment.hpp>
+#include <Components/Inventory/WearLevel.hpp>
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerKeysCount.hpp>
+#include <Components/Player/Character.hpp>
+#include <Components/Player/KeysCount.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
@@ -61,14 +61,14 @@ void GraveSystem::check_player_grave_collision()
   // cooldown clock only restarts on an actual grave dig, so it sits expired (and this runs) on every
   // DIG event while digging anything else — clearing the whole registry's SelectedPosition here would
   // also wipe unrelated selections (e.g. the obstacle currently being dug) set by other systems
-  auto selected_position_view = reg().view<Cmp::SelectedPosition, Cmp::GraveMultiBlock>();
+  auto selected_position_view = reg().view<Cmp::SelectedPosition, Cmp::Grave::MultiBlock>();
   for ( auto [existing_sel_entity, sel_cmp, grave_mb_cmp] : selected_position_view.each() )
   {
     reg().remove<Cmp::SelectedPosition>( existing_sel_entity );
   }
 
   // Iterate through all closed grave entities
-  auto position_view = reg().view<Cmp::Position, Cmp::GraveMultiBlock, Cmp::AnimData>( entt::exclude<Cmp::SelectedPosition> );
+  auto position_view = reg().view<Cmp::Position, Cmp::Grave::MultiBlock, Cmp::AnimData>( entt::exclude<Cmp::SelectedPosition> );
   for ( auto [grave_entity, grave_pos_cmp, grave_cmp, grave_anim_cmp] : position_view.each() )
   {
     if ( grave_anim_cmp.m_sprite_type.contains( ".opened" ) ) continue;
@@ -81,7 +81,7 @@ void GraveSystem::check_player_grave_collision()
       // TODO: check player is facing the obstacle
       // Check player proximity to the entity
       bool player_nearby = false;
-      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : reg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
+      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : reg().view<Cmp::Player::Character, Cmp::Position>().each() )
       {
         auto player_hitbox = Cmp::RectBounds::scaled( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
         if ( player_hitbox.findIntersection( grave_cmp ) )

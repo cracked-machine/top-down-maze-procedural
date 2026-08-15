@@ -2,8 +2,8 @@
 #include <Components/Persistent/ShopMaxItems.hpp>
 #include <Components/Persistent/ShopMaxPrice.hpp>
 #include <Components/Persistent/ShopMinPrice.hpp>
-#include <Components/Player/PlayerWealth.hpp>
-#include <Components/Shop/ShopInventory.hpp>
+#include <Components/Player/Wealth.hpp>
+#include <Components/Shop/Inventory.hpp>
 #include <Events/DropInventoryEvent.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
@@ -19,7 +19,7 @@ namespace Game::Sys
 
 void ShopSystem::create_shop_inventory()
 {
-  Cmp::ShopInventory shop_inventory_cmp;
+  Cmp::Shop::Inventory shop_inventory_cmp;
   shop_inventory_cmp.m_config.max_items = Sys::PersistSystem::get<Cmp::Persist::ShopMaxItems>( m_reg ).get_value();
   shop_inventory_cmp.m_config.min_price = Sys::PersistSystem::get<Cmp::Persist::ShopMinPrice>( m_reg ).get_value();
   shop_inventory_cmp.m_config.max_price = Sys::PersistSystem::get<Cmp::Persist::ShopMaxPrice>( m_reg ).get_value();
@@ -30,10 +30,10 @@ void ShopSystem::create_shop_inventory()
   }
 
   auto shop_inventory_entt = reg().create();
-  reg().emplace_or_replace<Cmp::ShopInventory>( shop_inventory_entt, shop_inventory_cmp );
+  reg().emplace_or_replace<Cmp::Shop::Inventory>( shop_inventory_entt, shop_inventory_cmp );
 }
 
-void ShopSystem::add_shop_inventory_item( Cmp::ShopInventory &shop_inventory_cmp )
+void ShopSystem::add_shop_inventory_item( Cmp::Shop::Inventory &shop_inventory_cmp )
 {
   // auto carryitem_types = m_sprite_factory.get_all_sprite_types_by_pattern( "sprite.item." );
   auto item_types = Sys::ItemStore::instance().get_all_item_keys();
@@ -77,7 +77,7 @@ bool ShopSystem::check_shopkeeper_collision( sf::Vector2f shopkeeper_pos )
 
 void ShopSystem::buy_shop_item( uint8_t item_idx )
 {
-  auto inventory_view = reg().view<Cmp::ShopInventory>().each();
+  auto inventory_view = reg().view<Cmp::Shop::Inventory>().each();
   for ( auto [inventory_entt, inventory_cmp] : inventory_view )
   {
     if ( not inventory_cmp.is_enabled ) continue;

@@ -1,7 +1,7 @@
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Particle/CryptAltarParticleSprite.hpp>
 #include <Components/Particle/ObstacleDigParticleSprite.hpp>
-#include <Components/Particle/ParticleSpriteTest.hpp>
+#include <Components/Particle/SpriteTest.hpp>
 #include <Components/Particle/RuneParticleSprite.hpp>
 #include <Components/Particle/ShockWave.hpp>
 #include <Components/Particle/WormholeParticleSprite.hpp>
@@ -20,7 +20,7 @@ namespace Game::Factory::Particle
 
 void add_test( entt::registry &reg, Sys::ParticleSystem &psys, const std::string &tag )
 {
-  auto psprite = Cmp::Particle::ParticleSpriteTest( 1000 );
+  auto psprite = Cmp::Particle::SpriteTest( 1000 );
   psprite.set_tag( tag );
   psprite.set_emitter_position( Utils::Player::get_position( reg ).getCenter() );
   psprite.set_lifetime_ms( std::uniform_int_distribution<int>( 0, sf::seconds( 3 ).asMilliseconds() ) );

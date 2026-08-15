@@ -1,7 +1,7 @@
 #ifndef SRC_SYSTEMS_RUINSYSTEM_HPP__
 #define SRC_SYSTEMS_RUINSYSTEM_HPP__
 
-#include <Components/Ruin/RuinFloorAccess.hpp>
+#include <Components/Ruin/FloorAccess.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #include <Systems/BaseSystem.hpp>
 
@@ -13,12 +13,12 @@ class SpriteSheet;
 class SpriteFactory;
 } // namespace Game::Sprites
 
-namespace Game::Cmp
+namespace Game::Cmp::Ruin
 {
-class RuinStairsLowerMultiBlock;
-class RuinStairsUpperMultiBlock;
-class RuinStairsBalustradeMultiBlock;
-} // namespace Game::Cmp
+class StairsLowerMultiBlock;
+class StairsUpperMultiBlock;
+class StairsBalustradeMultiBlock;
+} // namespace Game::Cmp::Ruin
 
 namespace Pathfinding
 {
@@ -40,11 +40,11 @@ public:
 
   void check_entrance_collision();
   void update_exit_zorder();
-  void spawn_floor_access( sf::Vector2f spawn_position, sf::Vector2f size, Cmp::RuinFloorAccess::Direction dir );
+  void spawn_floor_access( sf::Vector2f spawn_position, sf::Vector2f size, Cmp::Ruin::FloorAccess::Direction dir );
 
   void creaking_rope_update();
 
-  void check_floor_access_collision( Cmp::RuinFloorAccess::Direction direction );
+  void check_floor_access_collision( Cmp::Ruin::FloorAccess::Direction direction );
 
   //! @brief Reset the floor access cooldown (call when entering a ruin scene)
   void reset_floor_access_cooldown()

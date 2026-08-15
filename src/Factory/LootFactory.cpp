@@ -1,6 +1,6 @@
 #include <Components/Armable.hpp>
 #include <Components/LootContainer.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Player/Character.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Factory/LootFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
@@ -49,7 +49,7 @@ std::vector<entt::entity> gen_loot_containers( entt::registry &reg, Sprites::Spr
   for ( std::size_t i = 0; i < num_loot_containers; ++i )
   {
     auto [random_entity, random_origin_position] = Utils::Rnd::get_random_position(
-        reg, {}, Utils::Rnd::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
+        reg, {}, Utils::Rnd::ExcludePack<Cmp::Player::Character, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
 
     if ( reserved_navmesh->at( random_origin_position ).empty() )
     {

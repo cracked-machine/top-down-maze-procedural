@@ -1,13 +1,13 @@
 
 #include <Audio/SoundBank.hpp>
-#include <Components/Altar/AltarSegment.hpp>
+#include <Components/Altar/Segment.hpp>
 #include <Components/AnimData.hpp>
-#include <Components/Crypt/CryptBuildingSegment.hpp>
+#include <Components/Crypt/BuildingSegment.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Exit.hpp>
-#include <Components/Grave/GraveExitSegment.hpp>
-#include <Components/Grave/GraveSegment.hpp>
-#include <Components/Hazard/HazardFieldCell.hpp>
+#include <Components/Grave/ExitSegment.hpp>
+#include <Components/Grave/Segment.hpp>
+#include <Components/Hazard/FieldCell.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/Npc/Npc.hpp>
@@ -15,14 +15,14 @@
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/WormholeSeed.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Player/Character.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/UUID.hpp>
 #include <Components/Wall.hpp>
-#include <Components/Wormhole/WormholeJump.hpp>
-#include <Components/Wormhole/WormholeMultiBlock.hpp>
-#include <Components/Wormhole/WormholeSingularity.hpp>
+#include <Components/Wormhole/Jump.hpp>
+#include <Components/Wormhole/MultiBlock.hpp>
+#include <Components/Wormhole/Singularity.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/ResumeClocksEvent.hpp>
@@ -58,7 +58,7 @@ void WormholeSystem::on_pause()
 {
   if ( m_sound_bank.get_effect( "wormhole_jump" ).getStatus() == sf::Sound::Status::Playing ) m_sound_bank.get_effect( "wormhole_jump" ).pause();
 
-  auto jump_view = reg().view<Cmp::WormholeJump>();
+  auto jump_view = reg().view<Cmp::Wormhole::Jump>();
   for ( auto [entity, jump_cmp] : jump_view.each() )
   {
     jump_cmp.jump_clock.stop();
@@ -69,7 +69,7 @@ void WormholeSystem::on_resume()
 {
   if ( m_sound_bank.get_effect( "wormhole_jump" ).getStatus() == sf::Sound::Status::Paused ) m_sound_bank.get_effect( "wormhole_jump" ).play();
 
-  auto jump_view = reg().view<Cmp::WormholeJump>();
+  auto jump_view = reg().view<Cmp::Wormhole::Jump>();
   for ( auto [entity, jump_cmp] : jump_view.each() )
   {
     jump_cmp.jump_clock.start();
@@ -86,10 +86,10 @@ std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsi
   {
     auto [random_entity, random_pos] = Utils::Rnd::get_random_position(
         reg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{},
-        Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::Npc::NPC, Cmp::ReservedPosition>{}, current_seed );
+        Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::Player::Character, Cmp::Npc::NPC, Cmp::ReservedPosition>{}, current_seed );
 
     const auto &wormhole_ms = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.hazard.wormhole" );
-    Cmp::WormholeMultiBlock wormhole_block( random_pos.position, wormhole_ms.get_px_size() );
+    Cmp::Wormhole::MultiBlock wormhole_block( random_pos.position, wormhole_ms.get_px_size() );
 
     // Check collisions with walls, graves, shrines
     auto is_valid = [&]() -> bool
@@ -101,31 +101,31 @@ std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsi
       }
 
       // Return false for grave collisions
-      for ( auto [entity, grave_cmp, grave_pos_cmp] : reg().view<Cmp::GraveSegment, Cmp::Position>().each() )
+      for ( auto [entity, grave_cmp, grave_pos_cmp] : reg().view<Cmp::Grave::Segment, Cmp::Position>().each() )
       {
         if ( grave_pos_cmp.findIntersection( wormhole_block ) ) return false;
       }
 
       // Return false for altar collisions
-      for ( auto [entity, altar_cmp, altar_pos_cmp] : reg().view<Cmp::AltarSegment, Cmp::Position>().each() )
+      for ( auto [entity, altar_cmp, altar_pos_cmp] : reg().view<Cmp::Altar::Segment, Cmp::Position>().each() )
       {
         if ( altar_pos_cmp.findIntersection( wormhole_block ) ) return false;
       }
 
       // Return false for crypt collisions
-      for ( auto [entity, crypt_cmp, crypt_pos_cmp] : reg().view<Cmp::CryptBuildingSegment, Cmp::Position>().each() )
+      for ( auto [entity, crypt_cmp, crypt_pos_cmp] : reg().view<Cmp::Crypt::BuildingSegment, Cmp::Position>().each() )
       {
         if ( crypt_pos_cmp.findIntersection( wormhole_block ) ) return false;
       }
 
       // Return false for graveyard exit collisions
-      for ( auto [entity, xit_cmp, exit_pos_cmp] : reg().view<Cmp::GraveExitSegment, Cmp::Position>().each() )
+      for ( auto [entity, xit_cmp, exit_pos_cmp] : reg().view<Cmp::Grave::ExitSegment, Cmp::Position>().each() )
       {
         if ( exit_pos_cmp.findIntersection( wormhole_block ) ) return false;
       }
 
       // Return false for hazard collisions
-      for ( auto [entity, hazard_cmp, hazard_pos_cmp] : reg().view<Cmp::HazardFieldCell, Cmp::Position>().each() )
+      for ( auto [entity, hazard_cmp, hazard_pos_cmp] : reg().view<Cmp::Hazard::FieldCell, Cmp::Position>().each() )
       {
         if ( hazard_pos_cmp.findIntersection( wormhole_block ) ) return false;
       }
@@ -168,7 +168,7 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
 
   // 3. Create the sprite
   const auto &wormhole_ss = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.hazard.wormhole" );
-  Cmp::WormholeMultiBlock wormhole_block( random_pos.position, wormhole_ss.get_px_size() );
+  Cmp::Wormhole::MultiBlock wormhole_block( random_pos.position, wormhole_ss.get_px_size() );
 
   auto navmesh = m_npc_navmesh.lock();
   for ( auto [entity, obstacle_pos] : reg().view<Cmp::Position>().each() )
@@ -192,10 +192,10 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
   sf::Vector2f center_pos = random_pos.position + Constants::kGridSizePxF;
   auto center_entity = reg().create();
   reg().emplace<Cmp::Position>( center_entity, center_pos, Constants::kGridSizePxF );
-  reg().emplace<Cmp::WormholeSingularity>( center_entity );
+  reg().emplace<Cmp::Wormhole::Singularity>( center_entity );
 
-  // getReg().emplace_or_replace<Cmp::WormholeSingularity>( random_entity );
-  reg().emplace_or_replace<Cmp::WormholeMultiBlock>( random_entity, random_pos.position, wormhole_ss.get_px_size() );
+  // getReg().emplace_or_replace<Cmp::Wormhole::Singularity>( random_entity );
+  reg().emplace_or_replace<Cmp::Wormhole::MultiBlock>( random_entity, random_pos.position, wormhole_ss.get_px_size() );
   // clang-format off
   reg().emplace_or_replace<Cmp::AnimData>( random_entity, Cmp::AnimData::Config{  
         .sprite_type = "sprite.graveyard.hazard.wormhole",
@@ -214,11 +214,11 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
 
 void WormholeSystem::check_player_wormhole_collision()
 {
-  auto wormhole_view = reg().view<Cmp::WormholeSingularity, Cmp::Position>();
+  auto wormhole_view = reg().view<Cmp::Wormhole::Singularity, Cmp::Position>();
   auto all_actors_view = reg().view<Cmp::Direction, Cmp::Position>();
 
-  // First, check for any entities with WormholeJump that are NOT colliding
-  auto jump_view = reg().view<Cmp::WormholeJump>();
+  // First, check for any entities with Jump that are NOT colliding
+  auto jump_view = reg().view<Cmp::Wormhole::Jump>();
   for ( auto [entity, jump_cmp] : jump_view.each() )
   {
     bool still_colliding = false;
@@ -227,8 +227,8 @@ void WormholeSystem::check_player_wormhole_collision()
     // TODO: pointless check? Never happens (according to log)
     if ( !jump_pos_cmp )
     {
-      SPDLOG_DEBUG( "Entity {} has WormholeJump but NO Position component - removing jump", static_cast<uint32_t>( entity ) );
-      reg().remove<Cmp::WormholeJump>( entity );
+      SPDLOG_DEBUG( "Entity {} has Jump but NO Position component - removing jump", static_cast<uint32_t>( entity ) );
+      reg().remove<Cmp::Wormhole::Jump>( entity );
       continue;
     }
 
@@ -244,8 +244,8 @@ void WormholeSystem::check_player_wormhole_collision()
 
     if ( !still_colliding )
     {
-      SPDLOG_WARN( "Entity {} has WormholeJump but is NO LONGER colliding - removing jump component", static_cast<uint32_t>( entity ) );
-      reg().remove<Cmp::WormholeJump>( entity );
+      SPDLOG_WARN( "Entity {} has Jump but is NO LONGER colliding - removing jump component", static_cast<uint32_t>( entity ) );
+      reg().remove<Cmp::Wormhole::Jump>( entity );
       m_sound_bank.get_effect( "wormhole_jump" ).stop();
     }
   }
@@ -260,11 +260,11 @@ void WormholeSystem::check_player_wormhole_collision()
       if ( !actor_pos_cmp.findIntersection( wh_hitbox_redux.getBounds() ) ) continue;
 
       // Check if jump component already exists
-      auto *wh_jump_cmp = reg().try_get<Cmp::WormholeJump>( actor_entity );
+      auto *wh_jump_cmp = reg().try_get<Cmp::Wormhole::Jump>( actor_entity );
       if ( !wh_jump_cmp )
       {
         // First collision - create component
-        reg().emplace<Cmp::WormholeJump>( actor_entity );
+        reg().emplace<Cmp::Wormhole::Jump>( actor_entity );
         SPDLOG_INFO( "Entity {} is jump candidate.", static_cast<uint32_t>( actor_entity ) );
         // restart the jump sfx for each actor processed so that it is heard by the last actor.
         // There is adequate lead time on the sfx (~2secs) to prevent restart stuttering.
@@ -293,7 +293,7 @@ void WormholeSystem::check_player_wormhole_collision()
 
       // Get unique random position for this actor entity
       auto [new_spawn_entity, new_spawn_pos_cmp] = Utils::Rnd::get_random_position(
-          reg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{}, Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::Npc::NPC>{}, 0 );
+          reg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{}, Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::Player::Character, Cmp::Npc::NPC>{}, 0 );
 
       Factory::Obstacle::remove_obstacle( reg(), new_spawn_entity, Factory::Obstacle::DeleteExtras::Yes );
       if ( auto teleport_navmesh = m_npc_navmesh.lock() ) teleport_navmesh->insert( new_spawn_entity, new_spawn_pos_cmp );
@@ -309,7 +309,7 @@ void WormholeSystem::check_player_wormhole_collision()
       SPDLOG_DEBUG( "Entity {} - TELEPORTING NOW!", static_cast<uint32_t>( entity ) );
       reg().remove<Cmp::LerpPosition>( entity );
       reg().emplace_or_replace<Cmp::Position>( entity, new_spawn_pos_cmp.position, new_spawn_pos_cmp.size );
-      reg().remove<Cmp::WormholeJump>( entity );
+      reg().remove<Cmp::Wormhole::Jump>( entity );
 
       SPDLOG_INFO( "Entity {} - TELEPORT to ({}, {}) COMPLETE", static_cast<uint32_t>( entity ), new_spawn_pos_cmp.position.x,
                    new_spawn_pos_cmp.position.y );
@@ -329,19 +329,19 @@ void WormholeSystem::check_player_wormhole_collision()
 void WormholeSystem::despawn_wormhole()
 {
   // remove the wormhole entity
-  auto wormhole_view = reg().view<Cmp::WormholeSingularity>();
+  auto wormhole_view = reg().view<Cmp::Wormhole::Singularity>();
   for ( auto [entity, _] : wormhole_view.each() )
   {
-    reg().remove<Cmp::WormholeSingularity>( entity );
+    reg().remove<Cmp::Wormhole::Singularity>( entity );
     SPDLOG_DEBUG( "Wormhole despawned (entity {})", static_cast<uint32_t>( entity ) );
   }
 
-  auto wormhole_mb_view = reg().view<Cmp::WormholeMultiBlock>();
+  auto wormhole_mb_view = reg().view<Cmp::Wormhole::MultiBlock>();
   for ( auto [entity, _] : wormhole_mb_view.each() )
   {
-    reg().remove<Cmp::WormholeMultiBlock>( entity );
+    reg().remove<Cmp::Wormhole::MultiBlock>( entity );
     reg().remove<Cmp::AnimData>( entity );
-    SPDLOG_DEBUG( "WormholeMultiBlock despawned (entity {})", static_cast<uint32_t>( entity ) );
+    SPDLOG_DEBUG( "MultiBlock despawned (entity {})", static_cast<uint32_t>( entity ) );
   }
 }
 

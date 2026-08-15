@@ -1,8 +1,8 @@
 #ifndef SRC_SYSTEMS_PROCGEN_PASSAGESYSTEM_HPP__
 #define SRC_SYSTEMS_PROCGEN_PASSAGESYSTEM_HPP__
 
-#include <Components/Crypt/CryptRoomClosed.hpp>
-#include <Components/Crypt/CryptRoomOpen.hpp>
+#include <Components/Crypt/RoomClosed.hpp>
+#include <Components/Crypt/RoomOpen.hpp>
 #include <PathFinding/SmartPointers.hpp>
 #include <SceneControl/Scene.hpp>
 #include <SceneControl/SmartPointers.hpp>
@@ -13,7 +13,7 @@
 #include <entt/fwd.hpp>
 
 // clang-format off
-namespace Game::Crypt { class CryptPassageDoor; class CryptPassageBlock; class CryptRoomClosed; class CryptRoomOpen; }
+namespace Game::Cmp::Crypt { class PassageDoor; class PassageBlock; class RoomClosed; class RoomOpen; }
 namespace Game::Events { class PassageEvent; }
 namespace Game::PathFinding { class SpatialHashGrid; }
 // clang-format on
@@ -60,16 +60,16 @@ public:
   void on_resume() override {}
 
 private:
-  //! @brief Removes all Cmp::CryptPassageBlock entities
+  //! @brief Removes all Cmp::Crypt::PassageBlock entities
   void remove_all_passage_blocks();
 
-  //! @brief Removes Cmp::Obstacles from Cmp::CryptPassageBlock areas
+  //! @brief Removes Cmp::Obstacles from Cmp::Crypt::PassageBlock areas
   void empty_open_passages();
 
-  //! @brief Restores missing Cmp::Obstacles components to Cmp::CryptPassageBlock areas
+  //! @brief Restores missing Cmp::Obstacles components to Cmp::Crypt::PassageBlock areas
   void fill_all_passages();
 
-  //! @brief Removes any Cmp::CryptPassageBlock components added inside rooms
+  //! @brief Removes any Cmp::Crypt::PassageBlock components added inside rooms
   //! @param exclude_closed_rooms
   void tidy_passage_blocks( bool include_closed_rooms = false );
 
@@ -77,12 +77,12 @@ private:
   void create_cached_passages();
 
   template <typename ROOMTYPE>
-  ProcGen::MidPointDistanceQueue find_room_distances( Cmp::CryptPassageDoor &start_passage_door, const sf::FloatRect &search_quadrant,
+  ProcGen::MidPointDistanceQueue find_room_distances( Cmp::Crypt::PassageDoor &start_passage_door, const sf::FloatRect &search_quadrant,
                                                       std::set<entt::entity> exclude_entts );
 
   template <typename ROOMTYPE>
-  std::vector<Cmp::CryptPassageBlock>
-  find_passages( Cmp::CryptPassageDoor &start_passage_door, ProcGen::MidPointDistanceQueue &dist_pqueue, ProcGen::WalkingType walktype,
+  std::vector<Cmp::Crypt::PassageBlock>
+  find_passages( Cmp::Crypt::PassageDoor &start_passage_door, ProcGen::MidPointDistanceQueue &dist_pqueue, ProcGen::WalkingType walktype,
                  sf::Vector2f map_size_pixel, ProcGen::OnePassagePerTargetRoom passage_limit, ProcGen::AllowDuplicatePassages duplicates_policy );
 
   //! @brief Used for NPC pathfinding
@@ -101,7 +101,7 @@ private:
   ProcGen::PassageCachedRegions<40> m_cached_passage_list;
 
   //! @brief The list of passage blocks for all paths during dynamic scene updates
-  std::vector<Cmp::CryptPassageBlock> m_uncached_passage_list;
+  std::vector<Cmp::Crypt::PassageBlock> m_uncached_passage_list;
 
   //! @brief
   ProcGen::PassageAlogirthms m_passage_algos;
@@ -110,9 +110,9 @@ private:
 };
 
 // clang-format off
-extern template std::vector<Cmp::CryptPassageBlock>
-PassageSystem::find_passages<Cmp::CryptRoomOpen>( 
-  Cmp::CryptPassageDoor &, 
+extern template std::vector<Cmp::Crypt::PassageBlock>
+PassageSystem::find_passages<Cmp::Crypt::RoomOpen>( 
+  Cmp::Crypt::PassageDoor &, 
   ProcGen::MidPointDistanceQueue &, 
   ProcGen::WalkingType, 
   sf::Vector2f,
@@ -120,9 +120,9 @@ PassageSystem::find_passages<Cmp::CryptRoomOpen>(
   ProcGen::AllowDuplicatePassages 
 );
 
-extern template std::vector<Cmp::CryptPassageBlock>
-PassageSystem::find_passages<Cmp::CryptRoomClosed>( 
-  Cmp::CryptPassageDoor &, 
+extern template std::vector<Cmp::Crypt::PassageBlock>
+PassageSystem::find_passages<Cmp::Crypt::RoomClosed>( 
+  Cmp::Crypt::PassageDoor &, 
   ProcGen::MidPointDistanceQueue &, 
   ProcGen::WalkingType, 
   sf::Vector2f,
@@ -131,15 +131,15 @@ PassageSystem::find_passages<Cmp::CryptRoomClosed>(
 );
 
 extern template ProcGen::MidPointDistanceQueue 
-PassageSystem::find_room_distances<Cmp::CryptRoomOpen>( 
-  Cmp::CryptPassageDoor &, 
+PassageSystem::find_room_distances<Cmp::Crypt::RoomOpen>( 
+  Cmp::Crypt::PassageDoor &, 
   const sf::FloatRect &,
   std::set<entt::entity> 
 );
 
 extern template ProcGen::MidPointDistanceQueue
-PassageSystem::find_room_distances<Cmp::CryptRoomClosed>( 
-  Cmp::CryptPassageDoor &, 
+PassageSystem::find_room_distances<Cmp::Crypt::RoomClosed>( 
+  Cmp::Crypt::PassageDoor &, 
   const sf::FloatRect &, 
   std::set<entt::entity>
 );

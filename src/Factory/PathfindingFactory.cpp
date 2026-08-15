@@ -1,6 +1,6 @@
 #include <Components/Grave/PlantSegment.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
-#include <Components/Player/PlayerNoPath.hpp>
+#include <Components/Player/NoPath.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Factory/PathfindingFactory.hpp>
@@ -46,9 +46,9 @@ PathFinding::SpatialHashGridSharedPtr create_ghost_navmesh( entt::registry &reg 
 PathFinding::SpatialHashGridSharedPtr create_player_navmesh( entt::registry &reg )
 {
   // Index only the blocking obstacles so is_valid_move can do a spatial lookup
-  // instead of scanning every PlayerNoPath entity in the scene.
+  // instead of scanning every NoPath entity in the scene.
   PathFinding::SpatialHashGridSharedPtr player_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
-  for ( auto [pos_entt, nopath_cmp, pos_cmp] : reg.view<Cmp::PlayerNoPath, Cmp::Position>().each() )
+  for ( auto [pos_entt, nopath_cmp, pos_cmp] : reg.view<Cmp::Player::NoPath, Cmp::Position>().each() )
   {
     player_navmesh->insert( pos_entt, pos_cmp );
   }

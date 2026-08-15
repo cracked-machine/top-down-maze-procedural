@@ -1,5 +1,5 @@
 #include <Audio/SoundBank.hpp>
-#include <Components/Altar/AltarSegment.hpp>
+#include <Components/Altar/Segment.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Inventory/FlashUIHealth.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
@@ -7,9 +7,9 @@
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Persistent/CryptShuffleTimeout.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerKeysCount.hpp>
-#include <Components/Player/PlayerNoPath.hpp>
+#include <Components/Player/Character.hpp>
+#include <Components/Player/KeysCount.hpp>
+#include <Components/Player/NoPath.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/SceneSettings/CurrentScene.hpp>
 #include <Components/SceneSettings/Footsteps.hpp>
@@ -84,7 +84,7 @@ void CryptScene::on_init()
 
   // intialise the game area
   auto start_room_entity = m_reg.create();
-  m_reg.emplace_or_replace<Cmp::CryptRoomStart>( start_room_entity, player_start_area.position, player_start_area.size );
+  m_reg.emplace_or_replace<Cmp::Crypt::RoomStart>( start_room_entity, player_start_area.position, player_start_area.size );
   m_sys.find<Sys::Store::Type::CryptSystem>().create_end_room( map_size_grid );
   m_sys.find<Sys::Store::Type::CryptSystem>().create_initial_closed_rooms( map_size_grid );
   m_sys.find<Sys::Store::Type::CryptSystem>().cache_all_room_connections();
@@ -159,11 +159,11 @@ void CryptScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
   m_sys.find<Sys::Store::Type::PassageSystem>().update( dt );
 
-  // Block shockwave particles from travelling through any entity that has Cmp::PlayerNoPath component
+  // Block shockwave particles from travelling through any entity that has Cmp::Player::NoPath component
   // Don't use Cmp::Npc::NoPathFinding because it blocks over lavapits.
-  for ( auto [ob_entt, ob_cmp, pos_cmp] : m_reg.view<Cmp::PlayerNoPath, Cmp::Position>().each() )
+  for ( auto [ob_entt, ob_cmp, pos_cmp] : m_reg.view<Cmp::Player::NoPath, Cmp::Position>().each() )
   {
-    if ( m_reg.any_of<Cmp::AltarSegment>( ob_entt ) ) continue;
+    if ( m_reg.any_of<Cmp::Altar::Segment>( ob_entt ) ) continue;
     m_sys.find<Sys::Store::Type::ParticleSystem>().check_collsion( pos_cmp );
   }
   m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );

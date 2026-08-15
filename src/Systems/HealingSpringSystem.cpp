@@ -2,9 +2,9 @@
 #include <Components/Exit.hpp>
 #include <Components/Inventory/FlashUIWealth.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerLastGraveyardPosition.hpp>
-#include <Components/Player/PlayerWealth.hpp>
+#include <Components/Player/Character.hpp>
+#include <Components/Player/LastGraveyardPosition.hpp>
+#include <Components/Player/Wealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/Spring/HealingSpringBuildingMultiBlock.hpp>

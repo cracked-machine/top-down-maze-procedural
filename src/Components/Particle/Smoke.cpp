@@ -25,7 +25,7 @@ void SmokeParticle::emit()
 } // namespace detail
 
 Smoke::Smoke( size_t count )
-    : ParticleSpriteBase( count ) {};
+    : SpriteBase( count ) {};
 
 void Smoke::simulate( sf::Time dt )
 {

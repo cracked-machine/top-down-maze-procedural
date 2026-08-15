@@ -25,7 +25,7 @@ void RuneParticle::emit()
 } // namespace detail
 
 RuneParticleSprite::RuneParticleSprite( size_t count )
-    : ParticleSpriteBase( count ) {};
+    : SpriteBase( count ) {};
 
 void RuneParticleSprite::simulate( sf::Time dt )
 {

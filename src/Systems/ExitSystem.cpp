@@ -1,15 +1,15 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Exit.hpp>
-#include <Components/Grave/GraveExitMultiBlock.hpp>
-#include <Components/Grave/GraveExitSegment.hpp>
+#include <Components/Grave/ExitMultiBlock.hpp>
+#include <Components/Grave/ExitSegment.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Persistent/ExitKeyRequirement.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerKeysCount.hpp>
-#include <Components/Player/PlayerNoPath.hpp>
+#include <Components/Player/Character.hpp>
+#include <Components/Player/KeysCount.hpp>
+#include <Components/Player/NoPath.hpp>
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
@@ -56,7 +56,7 @@ void ExitSystem::create_exit()
   int attempt_count = 0;
   while ( true )
   {
-    auto exclude_list = Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::Npc::NPC, Cmp::ReservedPosition>{};
+    auto exclude_list = Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::Player::Character, Cmp::Npc::NPC, Cmp::ReservedPosition>{};
     auto [rand_entity, rand_pos_cmp] = Utils::Rnd::get_random_position( reg(), {}, exclude_list, 0 );
     Cmp::Position multiblock_hitbox( rand_pos_cmp.position, kGraveExitSpritesheet.get_px_size() );
 
@@ -79,7 +79,7 @@ void ExitSystem::create_exit()
   // Remove the existing wall obstacle first
   Factory::Obstacle::remove_obstacle( reg(), selected_entity, Factory::Obstacle::DeleteExtras::Yes );
 
-  Factory::Multiblock::add_multiblock_with_segments<Cmp::GraveExitMultiBlock, Cmp::GraveExitSegment>( reg(), selected_pos_cmp.position,
+  Factory::Multiblock::add_multiblock_with_segments<Cmp::Grave::ExitMultiBlock, Cmp::Grave::ExitSegment>( reg(), selected_pos_cmp.position,
                                                                                                       kGraveExitSpritesheet );
   SPDLOG_INFO( "Exit spawned at position ({}, {})", selected_pos_cmp.position.x, selected_pos_cmp.position.y );
 }
@@ -104,11 +104,11 @@ void ExitSystem::unlock_exit()
 
     exit_cmp.m_locked = false;
 
-    for ( auto [exit_mb_entt, exit_mb_cmp, anim_cmp] : reg().view<Cmp::GraveExitMultiBlock, Cmp::AnimData>().each() )
+    for ( auto [exit_mb_entt, exit_mb_cmp, anim_cmp] : reg().view<Cmp::Grave::ExitMultiBlock, Cmp::AnimData>().each() )
     {
       if ( not exit_pos_cmp.findIntersection( exit_mb_cmp ) ) continue;
       anim_cmp.m_sprite_type = "sprite.graveyard.exit.unlocked";
-      Factory::Multiblock::detail::update_segments<Cmp::GraveExitMultiBlock, Cmp::GraveExitSegment>(
+      Factory::Multiblock::detail::update_segments<Cmp::Grave::ExitMultiBlock, Cmp::Grave::ExitSegment>(
           reg(), m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.exit.unlocked" ), exit_mb_entt, exit_mb_cmp );
     }
 
@@ -121,10 +121,10 @@ void ExitSystem::update_exit_zorder()
 {
   auto player_pos = Utils::Player::get_position( reg() );
 
-  for ( auto [mb_entt, mb_cmp, mb_z_cmp] : reg().view<Cmp::GraveExitMultiBlock, Cmp::ZOrderValue>().each() )
+  for ( auto [mb_entt, mb_cmp, mb_z_cmp] : reg().view<Cmp::Grave::ExitMultiBlock, Cmp::ZOrderValue>().each() )
   {
     if ( not player_pos.findIntersection( mb_cmp ) ) continue;
-    auto segment_view = reg().view<Cmp::GraveExitSegment, Cmp::Position, Cmp::ZOrderValue>();
+    auto segment_view = reg().view<Cmp::Grave::ExitSegment, Cmp::Position, Cmp::ZOrderValue>();
     for ( auto [segment_entt, segment_cmp, segment_pos_cmp, segment_z_cmp] : segment_view.each() )
     {
       if ( not player_pos.findIntersection( segment_pos_cmp ) ) continue;

@@ -1,8 +1,8 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/AbsoluteAlpha.hpp>
-#include <Components/Altar/AltarMultiBlock.hpp>
-#include <Components/Altar/AltarSacrifice.hpp>
-#include <Components/Altar/AltarSegment.hpp>
+#include <Components/Altar/MultiBlock.hpp>
+#include <Components/Altar/Sacrifice.hpp>
+#include <Components/Altar/Segment.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Armable.hpp>
 #include <Components/DestroyedObstacle.hpp>
@@ -14,10 +14,10 @@
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Particle/Flame.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerExtraLife.hpp>
-#include <Components/Player/PlayerKeysCount.hpp>
-#include <Components/Player/PlayerWealth.hpp>
+#include <Components/Player/Character.hpp>
+#include <Components/Player/ExtraLife.hpp>
+#include <Components/Player/KeysCount.hpp>
+#include <Components/Player/Wealth.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
@@ -58,7 +58,7 @@ void AltarSystem::on_player_action( Events::PlayerActionEvent ev )
 {
   if ( ev.action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
 
-  auto altar_view = reg().view<Cmp::AltarMultiBlock>();
+  auto altar_view = reg().view<Cmp::Altar::MultiBlock>();
   auto player_hitbox = Cmp::RectBounds::scaled( Utils::Player::get_position( reg() ).position, Constants::kGridSizePxF, 1.5f );
 
   for ( auto [altar_entity, altar_cmp] : altar_view.each() )
@@ -73,7 +73,7 @@ void AltarSystem::on_player_action( Events::PlayerActionEvent ev )
 void AltarSystem::check_player_collision()
 {
   // tidy up any dead altar sacrifice animations
-  auto altar_sacrifice_view = reg().view<Cmp::AltarSacrifice, Cmp::AnimData>();
+  auto altar_sacrifice_view = reg().view<Cmp::Altar::Sacrifice, Cmp::AnimData>();
   for ( auto [altar_sacrifice_entt, altar_sacrifice_cmp, altar_sacrifice_anim_cmp] : altar_sacrifice_view.each() )
   {
     if ( not altar_sacrifice_anim_cmp.m_enabled )
@@ -83,7 +83,7 @@ void AltarSystem::check_player_collision()
   }
 }
 
-void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp::AltarMultiBlock &altar_cmp )
+void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp::Altar::MultiBlock &altar_cmp )
 {
   if ( m_altar_activation_clock.getElapsedTime() < kActivationCooldownSeconds ) return;
 
@@ -142,7 +142,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
       Factory::Player::destroy_inventory( reg(), sacrifice_type );
       auto flash_entt = reg().create();
       reg().emplace_or_replace<Cmp::FlashUIHealth>( flash_entt );
-      reg().emplace_or_replace<Cmp::PlayerExtraLife>( Utils::Player::get_entity( reg() ) );
+      reg().emplace_or_replace<Cmp::Player::ExtraLife>( Utils::Player::get_entity( reg() ) );
       m_sound_bank.get_effect( "crypt_altar_activate" ).play();
     }
     else if ( anim_cmp->m_sprite_type.contains( "sprite.graveyard.altar" ) )
@@ -170,7 +170,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
       switch ( altar_cmp.get_sacrifice_count() )
       {
         case 0: {
-          reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 1 ); } );
+          reg().patch<Cmp::Altar::MultiBlock>( altar_entity, [&]( Cmp::Altar::MultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 1 ); } );
           Factory::Particle::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[0], 5000 );
           SPDLOG_DEBUG( "Altar activated to state ONE." );
           // Apply the effects from exhuming this item to the player stats
@@ -184,7 +184,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
           break;
         }
         case 1: {
-          reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 2 ); } );
+          reg().patch<Cmp::Altar::MultiBlock>( altar_entity, [&]( Cmp::Altar::MultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 2 ); } );
           Factory::Particle::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[1], 5000 );
           SPDLOG_DEBUG( "Altar activated to state TWO." );
           // Apply the effects from exhuming this item to the player stats
@@ -198,7 +198,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
           break;
         }
         case 2: {
-          reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 3 ); } );
+          reg().patch<Cmp::Altar::MultiBlock>( altar_entity, [&]( Cmp::Altar::MultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 3 ); } );
           Factory::Particle::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[2], 5000 );
           SPDLOG_DEBUG( "Altar activated to state THREE." );
           // Apply the effects from exhuming this item to the player stats
@@ -212,7 +212,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
           break;
         }
         case 3: {
-          reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 4 ); } );
+          reg().patch<Cmp::Altar::MultiBlock>( altar_entity, [&]( Cmp::Altar::MultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 4 ); } );
           Factory::Particle::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[3], 5000 );
 
           SPDLOG_DEBUG( "Altar activated to state FOUR." );
@@ -237,8 +237,8 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
       switch ( altar_cmp.get_sacrifice_count() )
       {
         case 4:
-          reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 5 ); } );
-          for ( auto [altar_entt, altar_cmp, altar_uuid_cmp] : reg().view<Cmp::AltarMultiBlock, Cmp::UUID>().each() )
+          reg().patch<Cmp::Altar::MultiBlock>( altar_entity, [&]( Cmp::Altar::MultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 5 ); } );
+          for ( auto [altar_entt, altar_cmp, altar_uuid_cmp] : reg().view<Cmp::Altar::MultiBlock, Cmp::UUID>().each() )
           {
             for ( auto [particle_entt, particle_cmp, particle_uuid_cmp] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
             {

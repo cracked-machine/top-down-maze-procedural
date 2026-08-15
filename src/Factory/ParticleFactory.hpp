@@ -2,7 +2,7 @@
 #define SRC_FACTORY_PARTICLEFACTORY_HPP__
 
 #include <Components/Particle/Flame.hpp>
-#include <Components/Particle/ParticleSpriteTest.hpp>
+#include <Components/Particle/SpriteTest.hpp>
 #include <Components/Particle/ShockWave.hpp>
 #include <Components/Particle/Smoke.hpp>
 #include <Components/ZOrderValue.hpp>

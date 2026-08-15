@@ -5,27 +5,27 @@
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Npc/ShadowHand.hpp>
 #include <Components/Persistent/RuinMaxSpiders.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerCurse.hpp>
-#include <Components/Player/PlayerMortality.hpp>
-#include <Components/Player/PlayerNoPath.hpp>
-#include <Components/Player/PlayerRuinLocation.hpp>
-#include <Components/Player/PlayerSpeedPenalty.hpp>
+#include <Components/Player/Character.hpp>
+#include <Components/Player/Curse.hpp>
+#include <Components/Player/Mortality.hpp>
+#include <Components/Player/NoPath.hpp>
+#include <Components/Player/RuinLocation.hpp>
+#include <Components/Player/SpeedPenalty.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/Ruin/RuinBookcase.hpp>
-#include <Components/Ruin/RuinBuildingMultiBlock.hpp>
-#include <Components/Ruin/RuinBuildingSegment.hpp>
-#include <Components/Ruin/RuinCobweb.hpp>
-#include <Components/Ruin/RuinEntrance.hpp>
-#include <Components/Ruin/RuinFloorAccess.hpp>
-#include <Components/Ruin/RuinGateSegment.hpp>
-#include <Components/Ruin/RuinStairsBalustradeMultiBlock.hpp>
-#include <Components/Ruin/RuinStairsGateMultiBlock.hpp>
-#include <Components/Ruin/RuinStairsLowerMultiBlock.hpp>
-#include <Components/Ruin/RuinStairsSegment.hpp>
-#include <Components/Ruin/RuinStairsUpperMultiBlock.hpp>
+#include <Components/Ruin/Bookcase.hpp>
+#include <Components/Ruin/BuildingMultiBlock.hpp>
+#include <Components/Ruin/BuildingSegment.hpp>
+#include <Components/Ruin/Cobweb.hpp>
+#include <Components/Ruin/Entrance.hpp>
+#include <Components/Ruin/FloorAccess.hpp>
+#include <Components/Ruin/GateSegment.hpp>
+#include <Components/Ruin/StairsBalustradeMultiBlock.hpp>
+#include <Components/Ruin/StairsGateMultiBlock.hpp>
+#include <Components/Ruin/StairsLowerMultiBlock.hpp>
+#include <Components/Ruin/StairsSegment.hpp>
+#include <Components/Ruin/StairsUpperMultiBlock.hpp>
 #include <Components/Ruin/RuneMarking.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/Stats/BaseAction.hpp>
@@ -73,7 +73,7 @@ RuinSystem::RuinSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::
 void RuinSystem::check_entrance_collision()
 {
   auto player_pos = Utils::Player::get_position( reg() );
-  auto door_view = reg().view<Cmp::RuinEntrance, Cmp::Position>();
+  auto door_view = reg().view<Cmp::Ruin::Entrance, Cmp::Position>();
   for ( auto [door_entity, door_cmp, door_pos_cmp] : door_view.each() )
   {
     // optimize: skip if not visible
@@ -105,10 +105,10 @@ void RuinSystem::update_exit_zorder()
 {
   auto player_pos = Utils::Player::get_position( reg() );
 
-  for ( auto [mb_entt, mb_cmp, mb_z_cmp] : reg().view<Cmp::RuinBuildingMultiBlock, Cmp::ZOrderValue>().each() )
+  for ( auto [mb_entt, mb_cmp, mb_z_cmp] : reg().view<Cmp::Ruin::BuildingMultiBlock, Cmp::ZOrderValue>().each() )
   {
     if ( not player_pos.findIntersection( mb_cmp ) ) continue;
-    auto segment_view = reg().view<Cmp::RuinBuildingSegment, Cmp::Position, Cmp::ZOrderValue>();
+    auto segment_view = reg().view<Cmp::Ruin::BuildingSegment, Cmp::Position, Cmp::ZOrderValue>();
     for ( auto [segment_entt, segment_cmp, segment_pos_cmp, segment_z_cmp] : segment_view.each() )
     {
       if ( not player_pos.findIntersection( segment_pos_cmp ) ) continue;
@@ -157,16 +157,16 @@ void RuinSystem::check_puzzle_status()
   if ( active_run_count == rune_view_size )
   {
     // disable the gate
-    for ( auto [gate_entt, gate_cmp, gate_zorder_cmp] : reg().view<Cmp::RuinStairsGateMultiBlock, Cmp::ZOrderValue>().each() )
+    for ( auto [gate_entt, gate_cmp, gate_zorder_cmp] : reg().view<Cmp::Ruin::StairsGateMultiBlock, Cmp::ZOrderValue>().each() )
     {
       gate_zorder_cmp.setZOrder( -1000.f );
       reg().remove<Cmp::Npc::NoPathFinding>( gate_entt );
-      reg().remove<Cmp::PlayerNoPath>( gate_entt );
+      reg().remove<Cmp::Player::NoPath>( gate_entt );
     }
-    for ( auto [gate_entt, gate_cmp] : reg().view<Cmp::RuinGateSegment>().each() )
+    for ( auto [gate_entt, gate_cmp] : reg().view<Cmp::Ruin::GateSegment>().each() )
     {
       reg().remove<Cmp::Npc::NoPathFinding>( gate_entt );
-      reg().remove<Cmp::PlayerNoPath>( gate_entt );
+      reg().remove<Cmp::Player::NoPath>( gate_entt );
     }
 
     auto &sfx = m_sound_bank.get_effect( "secret" );
@@ -176,37 +176,37 @@ void RuinSystem::check_puzzle_status()
   else
   {
     // enable the gate
-    for ( auto [gate_entt, gate_cmp, gate_zorder_cmp] : reg().view<Cmp::RuinStairsGateMultiBlock, Cmp::ZOrderValue>().each() )
+    for ( auto [gate_entt, gate_cmp, gate_zorder_cmp] : reg().view<Cmp::Ruin::StairsGateMultiBlock, Cmp::ZOrderValue>().each() )
     {
       const auto &gate_sprite_sheet = m_sprite_factory.get_spritesheet_by_type( "sprite.ruin.stairs.gate" );
       gate_zorder_cmp.setZOrder( gate_sprite_sheet.get_zorder( 0 ) );
       reg().emplace_or_replace<Cmp::Npc::NoPathFinding>( gate_entt );
-      reg().emplace_or_replace<Cmp::PlayerNoPath>( gate_entt );
+      reg().emplace_or_replace<Cmp::Player::NoPath>( gate_entt );
     }
-    for ( auto [gate_entt, gate_cmp] : reg().view<Cmp::RuinGateSegment>().each() )
+    for ( auto [gate_entt, gate_cmp] : reg().view<Cmp::Ruin::GateSegment>().each() )
     {
       reg().emplace_or_replace<Cmp::Npc::NoPathFinding>( gate_entt );
-      reg().emplace_or_replace<Cmp::PlayerNoPath>( gate_entt );
+      reg().emplace_or_replace<Cmp::Player::NoPath>( gate_entt );
     }
     m_puzzle_solved = false;
   }
 }
 
-void RuinSystem::spawn_floor_access( sf::Vector2f spawn_position, sf::Vector2f size, Cmp::RuinFloorAccess::Direction dir )
+void RuinSystem::spawn_floor_access( sf::Vector2f spawn_position, sf::Vector2f size, Cmp::Ruin::FloorAccess::Direction dir )
 {
   auto floor_access_entt = reg().create();
-  reg().emplace_or_replace<Cmp::RuinFloorAccess>( floor_access_entt, spawn_position, size, dir );
+  reg().emplace_or_replace<Cmp::Ruin::FloorAccess>( floor_access_entt, spawn_position, size, dir );
   SPDLOG_DEBUG( "Spawning floor access at {},{}", spawn_position.x, spawn_position.y );
 }
 
-void RuinSystem::check_floor_access_collision( Cmp::RuinFloorAccess::Direction direction )
+void RuinSystem::check_floor_access_collision( Cmp::Ruin::FloorAccess::Direction direction )
 {
   if ( m_floor_access_cooldown.getElapsedTime().asSeconds() < kFloorAccessCooldownSeconds ) { return; }
 
   auto player_pos = Utils::Player::get_position( reg() );
   bool currently_on_floor_access = false;
 
-  for ( auto [access_entt, access_cmp] : reg().view<Cmp::RuinFloorAccess>().each() )
+  for ( auto [access_entt, access_cmp] : reg().view<Cmp::Ruin::FloorAccess>().each() )
   {
     if ( player_pos.findIntersection( access_cmp ) )
     {
@@ -220,10 +220,10 @@ void RuinSystem::check_floor_access_collision( Cmp::RuinFloorAccess::Direction d
 
       switch ( access_cmp.m_direction )
       {
-        case Cmp::RuinFloorAccess::Direction::TO_UPPER:
+        case Cmp::Ruin::FloorAccess::Direction::TO_UPPER:
           m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_RUIN_UPPER );
           break;
-        case Cmp::RuinFloorAccess::Direction::TO_LOWER:
+        case Cmp::Ruin::FloorAccess::Direction::TO_LOWER:
           m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::EXIT_RUIN_UPPER );
           break;
       }
@@ -242,18 +242,18 @@ void RuinSystem::check_movement_slowdowns()
   float slowdown_penalty = 0.0f;
 
   // Check staircase collision
-  if ( Utils::Collision::check_pos<Cmp::RuinStairsLowerMultiBlock>( reg(), Cmp::RectBounds::scaled( player_pos, 1.f ) ) )
+  if ( Utils::Collision::check_pos<Cmp::Ruin::StairsLowerMultiBlock>( reg(), Cmp::RectBounds::scaled( player_pos, 1.f ) ) )
   {
     slowdown_penalty = std::max( slowdown_penalty, 0.7f );
   }
-  if ( Utils::Collision::check_pos<Cmp::RuinStairsUpperMultiBlock>( reg(), Cmp::RectBounds::scaled( player_pos, 1.f ) ) )
+  if ( Utils::Collision::check_pos<Cmp::Ruin::StairsUpperMultiBlock>( reg(), Cmp::RectBounds::scaled( player_pos, 1.f ) ) )
   {
     slowdown_penalty = std::max( slowdown_penalty, 0.7f );
   }
 
   // Check cobweb collision
-  if ( Utils::Collision::check_cmp<Cmp::RuinCobweb>( reg(), Cmp::RectBounds::scaled( player_pos, 1 ),
-                                                     []( const Cmp::RuinCobweb &cobweb ) { return cobweb.integrity > 0; } ) )
+  if ( Utils::Collision::check_cmp<Cmp::Ruin::Cobweb>( reg(), Cmp::RectBounds::scaled( player_pos, 1 ),
+                                                     []( const Cmp::Ruin::Cobweb &cobweb ) { return cobweb.integrity > 0; } ) )
   {
     slowdown_penalty = std::max( slowdown_penalty, 0.5f );
   }
@@ -264,7 +264,7 @@ void RuinSystem::check_movement_slowdowns()
 
   if ( slowdown_penalty > 0.0f )
   {
-    reg().emplace_or_replace<Cmp::PlayerSpeedPenalty>( player_entt, slowdown_penalty );
+    reg().emplace_or_replace<Cmp::Player::SpeedPenalty>( player_entt, slowdown_penalty );
     if ( player_moving )
     {
       if ( sfx.getStatus() != sf::Sound::Status::Playing ) sfx.play();
@@ -273,7 +273,7 @@ void RuinSystem::check_movement_slowdowns()
   }
   else
   {
-    if ( reg().any_of<Cmp::PlayerSpeedPenalty>( player_entt ) ) { reg().remove<Cmp::PlayerSpeedPenalty>( player_entt ); }
+    if ( reg().any_of<Cmp::Player::SpeedPenalty>( player_entt ) ) { reg().remove<Cmp::Player::SpeedPenalty>( player_entt ); }
     sfx.stop();
   }
 }
@@ -285,7 +285,7 @@ void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
 
   auto has_collision = [&]( Cmp::RectBounds pos )
   {
-    if ( Utils::Collision::check_cmp<Cmp::RuinBookcase>( reg(), pos ) ) { return true; }
+    if ( Utils::Collision::check_cmp<Cmp::Ruin::Bookcase>( reg(), pos ) ) { return true; }
     if ( Utils::Collision::check_cmp<Cmp::Npc::NoPathFinding>( reg(), pos ) ) { return true; }
     if ( Utils::Collision::check_cmp<Cmp::ReservedPosition>( reg(), pos ) ) { return true; }
 
@@ -409,8 +409,8 @@ void RuinSystem::remove_rune_markings_neighbouring_cobwebs( PathFinding::Spatial
     auto neighbours_list = non_obstacle_spatialgrid.neighbours( rune_pos_cmp );
     for ( auto &neighbour_entt : neighbours_list )
     {
-      if ( not reg().any_of<Cmp::RuinCobweb>( neighbour_entt ) ) continue;
-      if ( not reg().all_of<Cmp::Wall, Cmp::PlayerNoPath>( neighbour_entt ) ) continue;
+      if ( not reg().any_of<Cmp::Ruin::Cobweb>( neighbour_entt ) ) continue;
+      if ( not reg().all_of<Cmp::Wall, Cmp::Player::NoPath>( neighbour_entt ) ) continue;
       neighbour_count++;
 
       // don't surround on four sides
@@ -438,7 +438,7 @@ void RuinSystem::creaking_rope_update()
 
 bool RuinSystem::check_activate_player_curse( sf::Vector2f scene_dimensions )
 {
-  Cmp::PlayerCurse &player_curse = Utils::Player::get_curse( reg() );
+  Cmp::Player::Curse &player_curse = Utils::Player::get_curse( reg() );
 
   auto npc_shadowhand_cmp = Sys::NpcStore::instance().get_item( "npc.shadowhand" );
   const auto &hand_ms = m_sprite_factory.get_spritesheet_by_type( npc_shadowhand_cmp.sprite_type_list.front() );
@@ -501,7 +501,7 @@ void RuinSystem::check_player_shadow_hand_collision( sf::Time dt )
   auto npc_collision_action = npc_shadowhand_cmp.actions.at( std::type_index( typeid( Cmp::CollisionAction ) ) );
 
   // only trigger PlayerMortalityEvents if player is alive
-  if ( Utils::Player::get_mortality( reg() ).state == Cmp::PlayerMortality::State::DEAD ) { return; }
+  if ( Utils::Player::get_mortality( reg() ).state == Cmp::Player::Mortality::State::DEAD ) { return; }
 
   const auto player_pos = Utils::Player::get_position( reg() );
   if ( Utils::Collision::check_cmp<Cmp::Npc::NPC>( reg(), Cmp::RectBounds::scaled( player_pos.position, Constants::kGridSizePxF, 1.f ) ) )
@@ -511,7 +511,7 @@ void RuinSystem::check_player_shadow_hand_collision( sf::Time dt )
   }
   if ( Utils::Player::get_player_stats( reg() ).health() <= 0 )
   {
-    get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SHADOWCURSED, player_pos ) );
+    get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::Player::Mortality::State::SHADOWCURSED, player_pos ) );
   }
 
   m_shadowhand_action_effects_time = sf::Time::Zero;
@@ -528,7 +528,7 @@ void RuinSystem::create_spiders( sf::FloatRect scene_boundary )
   auto has_collision = [&]( const Cmp::RectBounds &pos )
   {
     if ( Utils::Collision::check_cmp<Cmp::Npc::NoPathFinding>( reg(), pos ) ) { return true; }
-    if ( Utils::Collision::check_cmp<Cmp::RuinStairsSegment>( reg(), pos ) ) { return true; }
+    if ( Utils::Collision::check_cmp<Cmp::Ruin::StairsSegment>( reg(), pos ) ) { return true; }
     if ( Utils::Collision::check_cmp<Cmp::ReservedPosition>( reg(), pos ) ) { return true; }
 
     // ensure spider is inside scene
@@ -566,9 +566,9 @@ void RuinSystem::check_create_witch( sf::FloatRect scene_boundary )
 {
   auto has_collision = [&]( const Cmp::RectBounds &pos )
   {
-    if ( Utils::Collision::check_cmp<Cmp::RuinBookcase>( reg(), pos ) ) { return true; }
+    if ( Utils::Collision::check_cmp<Cmp::Ruin::Bookcase>( reg(), pos ) ) { return true; }
     if ( Utils::Collision::check_cmp<Cmp::Npc::NoPathFinding>( reg(), pos ) ) { return true; }
-    if ( Utils::Collision::check_cmp<Cmp::RuinStairsSegment>( reg(), pos ) ) { return true; }
+    if ( Utils::Collision::check_cmp<Cmp::Ruin::StairsSegment>( reg(), pos ) ) { return true; }
 
     // ensure spider is inside scene
     if ( not Cmp::RectBounds::scaled( pos.position(), pos.size(), 1.5f ).findIntersection( scene_boundary ) ) { return true; }

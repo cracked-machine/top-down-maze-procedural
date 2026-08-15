@@ -1,30 +1,30 @@
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AbsoluteOffset.hpp>
 #include <Components/AbsoluteRotation.hpp>
-#include <Components/Altar/AltarMultiBlock.hpp>
+#include <Components/Altar/MultiBlock.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/DeathPosition.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Inventory/Explosive.hpp>
 #include <Components/Inventory/FlashUIHealth.hpp>
-#include <Components/Inventory/InventoryWearLevel.hpp>
+#include <Components/Inventory/WearLevel.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/LastDirection.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
-#include <Components/Particle/ParticleSpriteBase.hpp>
+#include <Components/Particle/SpriteBase.hpp>
 #include <Components/Persistent/BlastRadius.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
-#include <Components/Player/PlayerBlastRadius.hpp>
-#include <Components/Player/PlayerCadaverCount.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerCurse.hpp>
-#include <Components/Player/PlayerExtraLife.hpp>
-#include <Components/Player/PlayerKeysCount.hpp>
-#include <Components/Player/PlayerLastGraveyardPosition.hpp>
-#include <Components/Player/PlayerLevelDepth.hpp>
-#include <Components/Player/PlayerMortality.hpp>
-#include <Components/Player/PlayerWealth.hpp>
+#include <Components/Player/BlastRadius.hpp>
+#include <Components/Player/CadaverCount.hpp>
+#include <Components/Player/Character.hpp>
+#include <Components/Player/Curse.hpp>
+#include <Components/Player/ExtraLife.hpp>
+#include <Components/Player/KeysCount.hpp>
+#include <Components/Player/LastGraveyardPosition.hpp>
+#include <Components/Player/LevelDepth.hpp>
+#include <Components/Player/Mortality.hpp>
+#include <Components/Player/Wealth.hpp>
 #include <Components/Player/TorchRadius.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
@@ -65,9 +65,9 @@ void create_player( entt::registry &reg )
   start_pos = Utils::snap_to_grid( start_pos );
   reg.emplace_or_replace<Cmp::Position>( entity, start_pos, Constants::kGridSizePxF );
   auto &blast_radius = Sys::PersistSystem::get<Cmp::Persist::BlastRadius>( reg );
-  reg.emplace_or_replace<Cmp::PlayerCharacter>( entity );
+  reg.emplace_or_replace<Cmp::Player::Character>( entity );
   reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
-  reg.emplace_or_replace<Cmp::PlayerBlastRadius>( entity, blast_radius.get_value() );
+  reg.emplace_or_replace<Cmp::Player::BlastRadius>( entity, blast_radius.get_value() );
   reg.emplace_or_replace<Cmp::PlayerStats>( entity, Cmp::Stats::Health{ 100 }, Cmp::Stats::Fear{ 0 }, Cmp::Stats::Despair{ 0 },
                                             Cmp::Stats::Infamy{ 0 }, Cmp::Stats::Toxicity{ 0 } );
 
@@ -82,11 +82,11 @@ void create_player( entt::registry &reg )
   });
   // clang-format on
 
-  reg.emplace_or_replace<Cmp::PlayerCadaverCount>( entity, 0 );
-  reg.emplace_or_replace<Cmp::PlayerWealth>( entity, 0 );
-  reg.emplace_or_replace<Cmp::PlayerMortality>( entity, Cmp::PlayerMortality::State::ALIVE );
-  reg.emplace_or_replace<Cmp::PlayerCurse>( entity, false );
-  reg.emplace_or_replace<Cmp::PlayerLevelDepth>( entity, 1 );
+  reg.emplace_or_replace<Cmp::Player::CadaverCount>( entity, 0 );
+  reg.emplace_or_replace<Cmp::Player::Wealth>( entity, 0 );
+  reg.emplace_or_replace<Cmp::Player::Mortality>( entity, Cmp::Player::Mortality::State::ALIVE );
+  reg.emplace_or_replace<Cmp::Player::Curse>( entity, false );
+  reg.emplace_or_replace<Cmp::Player::LevelDepth>( entity, 1 );
   reg.emplace_or_replace<Cmp::TorchRadius>( entity, 32.f );
 
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, start_pos.y ); // z-order based on y-position
@@ -139,7 +139,7 @@ void add_inventory( entt::registry &reg, const std::string &item )
 {
   auto inventory_entity = reg.create();
   reg.emplace_or_replace<Cmp::PlayerInventorySlot>( inventory_entity, Sys::ItemStore::instance().get_item( item ) );
-  if ( item.contains( "axe" ) or item.contains( "shovel" ) ) { reg.emplace_or_replace<Cmp::InventoryWearLevel>( inventory_entity, 100.f ); }
+  if ( item.contains( "axe" ) or item.contains( "shovel" ) ) { reg.emplace_or_replace<Cmp::Inventory::WearLevel>( inventory_entity, 100.f ); }
   if ( item.contains( "scryingball" ) )
   {
     Cmp::SeeingStone sb;
@@ -170,21 +170,21 @@ Cmp::Position add_player_last_graveyard_pos( entt::registry &reg, Cmp::Position 
 {
   SPDLOG_INFO( "Player will re-enter grave yard at {},{}", last_known_pos.position.x, last_known_pos.position.y );
   auto player_entt = Utils::Player::get_entity( reg );
-  reg.emplace_or_replace<Cmp::PlayerLastGraveyardPosition>( player_entt, last_known_pos.position, last_known_pos.size );
+  reg.emplace_or_replace<Cmp::Player::LastGraveyardPosition>( player_entt, last_known_pos.position, last_known_pos.size );
   return last_known_pos;
 }
 
 void remove_player_last_graveyard_pos( entt::registry &reg )
 {
   auto player_entt = Utils::Player::get_entity( reg );
-  reg.remove<Cmp::PlayerLastGraveyardPosition>( player_entt );
+  reg.remove<Cmp::Player::LastGraveyardPosition>( player_entt );
 }
 
 void remove_player_extra_life( entt::registry &reg )
 {
-  for ( auto [extra_life_entt, extra_life_cmp] : reg.view<Cmp::PlayerExtraLife>().each() )
+  for ( auto [extra_life_entt, extra_life_cmp] : reg.view<Cmp::Player::ExtraLife>().each() )
   {
-    reg.remove<Cmp::PlayerExtraLife>( extra_life_entt );
+    reg.remove<Cmp::Player::ExtraLife>( extra_life_entt );
   }
 
   for ( auto [flash_entt, flash_cmp] : reg.view<Cmp::FlashUIHealth>().each() )
@@ -197,7 +197,7 @@ void remove_player_extra_life( entt::registry &reg )
     if ( ps_cmp.sprite->get_tag() == "crypt.altar.particles" ) reg.destroy( ps_entt );
   }
 
-  for ( auto [altar_mb_entt, altar_mb_cmp, altar_anim_cmp] : reg.view<Cmp::AltarMultiBlock, Cmp::AnimData>().each() )
+  for ( auto [altar_mb_entt, altar_mb_cmp, altar_anim_cmp] : reg.view<Cmp::Altar::MultiBlock, Cmp::AnimData>().each() )
   {
     if ( altar_anim_cmp.m_sprite_type == "sprite.crypt.altar.active" ) { altar_anim_cmp.m_sprite_type = "sprite.crypt.altar.inactive"; }
   }

@@ -5,7 +5,7 @@
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Player/Character.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/Stats/ProjectileAction.hpp>
 
@@ -144,7 +144,7 @@ void ShockwaveSystem::check_shockwave_player_collision()
   auto priest_npc_cmp = Sys::NpcStore::instance().get_item( "npc.priest" );
   auto priest_projectile_action = priest_npc_cmp.actions.at( std::type_index( typeid( Cmp::ProjectileAction ) ) );
   auto &pc_damage_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( reg() );
-  auto player_view = reg().view<Cmp::PlayerCharacter, Cmp::Position, Cmp::PlayerStats, Cmp::PlayerMortality>();
+  auto player_view = reg().view<Cmp::Player::Character, Cmp::Position, Cmp::PlayerStats, Cmp::Player::Mortality>();
 
   for ( auto entt : reg().view<Cmp::Npc::Shockwave>() )
   {
@@ -153,7 +153,7 @@ void ShockwaveSystem::check_shockwave_player_collision()
     for ( auto [player_entity, player_cmp, player_pos, player_stats_cmp, player_mort_cmp] : player_view.each() )
     {
       // dont spam death events if the player is already dead
-      if ( player_mort_cmp.state == Cmp::PlayerMortality::State::DEAD ) continue;
+      if ( player_mort_cmp.state == Cmp::Player::Mortality::State::DEAD ) continue;
       if ( not player_cmp.skip_damage_cooldown_once &&
            player_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value() )
         continue;
@@ -176,7 +176,7 @@ void ShockwaveSystem::check_shockwave_player_collision()
             Factory::Player::remove_player_extra_life( reg() );
             m_sound_bank.get_effect( "player_respawn" ).play();
           }
-          else { get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SHOCKED, player_pos ) ); }
+          else { get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::Player::Mortality::State::SHOCKED, player_pos ) ); }
         }
       }
     }

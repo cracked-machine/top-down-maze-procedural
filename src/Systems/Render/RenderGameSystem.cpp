@@ -3,25 +3,25 @@
 #include <Components/AbsoluteOffset.hpp>
 #include <Components/AbsoluteRenderOffset.hpp>
 #include <Components/AbsoluteRotation.hpp>
-#include <Components/Altar/AltarMultiBlock.hpp>
+#include <Components/Altar/MultiBlock.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Armed.hpp>
-#include <Components/Crypt/CryptBuildingMultiBlock.hpp>
-#include <Components/Crypt/CryptChest.hpp>
-#include <Components/Crypt/CryptEntrance.hpp>
-#include <Components/Crypt/CryptInteriorMultiBlock.hpp>
-#include <Components/Crypt/CryptLever.hpp>
-#include <Components/Crypt/CryptPassageBlock.hpp>
-#include <Components/Crypt/CryptRoomClosed.hpp>
-#include <Components/Crypt/CryptRoomEnd.hpp>
-#include <Components/Crypt/CryptRoomLavaPit.hpp>
-#include <Components/Crypt/CryptRoomLavaPitCell.hpp>
-#include <Components/Crypt/CryptRoomOpen.hpp>
-#include <Components/Crypt/CryptRoomStart.hpp>
+#include <Components/Crypt/BuildingMultiBlock.hpp>
+#include <Components/Crypt/Chest.hpp>
+#include <Components/Crypt/Entrance.hpp>
+#include <Components/Crypt/InteriorMultiBlock.hpp>
+#include <Components/Crypt/Lever.hpp>
+#include <Components/Crypt/PassageBlock.hpp>
+#include <Components/Crypt/RoomClosed.hpp>
+#include <Components/Crypt/RoomEnd.hpp>
+#include <Components/Crypt/RoomLavaPit.hpp>
+#include <Components/Crypt/RoomLavaPitCell.hpp>
+#include <Components/Crypt/RoomOpen.hpp>
+#include <Components/Crypt/RoomStart.hpp>
 #include <Components/Exit.hpp>
 #include <Components/FractalCurve.hpp>
-#include <Components/Grave/GraveMultiBlock.hpp>
-#include <Components/Inventory/InventoryWearLevel.hpp>
+#include <Components/Grave/MultiBlock.hpp>
+#include <Components/Inventory/WearLevel.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/LastDirection.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
@@ -30,16 +30,16 @@
 #include <Components/Persistent/CameraSmoothSpeed.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
-#include <Components/Player/PlayerBlastRadius.hpp>
-#include <Components/Player/PlayerCadaverCount.hpp>
-#include <Components/Player/PlayerCurse.hpp>
-#include <Components/Player/PlayerNoPath.hpp>
-#include <Components/Player/PlayerWealth.hpp>
+#include <Components/Player/BlastRadius.hpp>
+#include <Components/Player/CadaverCount.hpp>
+#include <Components/Player/Curse.hpp>
+#include <Components/Player/NoPath.hpp>
+#include <Components/Player/Wealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/Ruin/RuinBuildingMultiBlock.hpp>
+#include <Components/Ruin/BuildingMultiBlock.hpp>
 #include <Components/SceneSettings/Shaders.hpp>
 #include <Components/SceneSettings/ShowDebugStats.hpp>
 #include <Components/SceneSettings/ShowNavmesh.hpp>
@@ -47,7 +47,7 @@
 #include <Components/SelectedPosition.hpp>
 #include <Components/Spring/HealingSpringBuildingMultiBlock.hpp>
 #include <Components/Wall.hpp>
-#include <Components/Wormhole/WormholeMultiBlock.hpp>
+#include <Components/Wormhole/MultiBlock.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
@@ -151,9 +151,9 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
         render_seeingstone_doglegs( stone_cmp, pos_cmp );
       }
 
-      if ( reg().any_of<Cmp::InventoryWearLevel>( entity ) )
+      if ( reg().any_of<Cmp::Inventory::WearLevel>( entity ) )
       {
-        render_overlay_sys.render_wear_level( reg().get<Cmp::InventoryWearLevel>( entity ).m_level, pos_cmp );
+        render_overlay_sys.render_wear_level( reg().get<Cmp::Inventory::WearLevel>( entity ).m_level, pos_cmp );
       }
 
       if ( reg().any_of<Cmp::Armed>( entity ) )
@@ -231,7 +231,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   render_overlay_sys.render_grimoire_inventory_overlay();
 
   // lava pit outline
-  render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPit>( sf::Color( 16, 16, 16 ), 0.5f );
+  render_overlay_sys.render_square_for_floatrect_cmp<Cmp::Crypt::RoomLavaPit>( sf::Color( 16, 16, 16 ), 0.5f );
 
   if ( Utils::scene_setting<Cmp::SceneSettings::ShowNavmesh>( reg() ).enabled ) { render_overlay_sys.render_navmesh( npc_navmesh ); }
   if ( Utils::scene_setting<Cmp::SceneSettings::ShowPathFinding>( reg() ).enabled )
@@ -268,12 +268,12 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   // these debug shapes are only drawn within the current view to prevent FPS drops
   if ( Utils::scene_setting<Cmp::SceneSettings::ShowDebugStats>( reg() ).enabled )
   {
-    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
-    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
-    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomStart>( sf::Color::Blue, 1.f );
-    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomEnd>( sf::Color::Yellow, 1.f );
-    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomClosed>( sf::Color::Red, 1.f );
-    render_overlay_sys.render_square_for_vector2f_cmp<Cmp::CryptPassageBlock>( sf::Color::Black, 1.f );
+    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::Crypt::RoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
+    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::Crypt::RoomOpen>( sf::Color::Green, 1.f );
+    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::Crypt::RoomStart>( sf::Color::Blue, 1.f );
+    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::Crypt::RoomEnd>( sf::Color::Yellow, 1.f );
+    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::Crypt::RoomClosed>( sf::Color::Red, 1.f );
+    render_overlay_sys.render_square_for_vector2f_cmp<Cmp::Crypt::PassageBlock>( sf::Color::Black, 1.f );
   }
 
   // limit the update frequency to prevent FPS drops
@@ -306,12 +306,12 @@ void RenderGameSystem::refresh_z_order_queue()
   sf::FloatRect view_bounds = Utils::calculate_view_bounds( s_world_view );
 
   // prevent pop-in/pop-outs when multiblock entities are near the edge of the view
-  add_visible_entity_to_z_order_queue<Cmp::AltarMultiBlock>( m_zorder_queue_, view_bounds );
-  add_visible_entity_to_z_order_queue<Cmp::CryptBuildingMultiBlock>( m_zorder_queue_, view_bounds );
-  add_visible_entity_to_z_order_queue<Cmp::GraveMultiBlock>( m_zorder_queue_, view_bounds );
+  add_visible_entity_to_z_order_queue<Cmp::Altar::MultiBlock>( m_zorder_queue_, view_bounds );
+  add_visible_entity_to_z_order_queue<Cmp::Crypt::BuildingMultiBlock>( m_zorder_queue_, view_bounds );
+  add_visible_entity_to_z_order_queue<Cmp::Grave::MultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::HealingSpringBuildingMultiBlock>( m_zorder_queue_, view_bounds );
-  add_visible_entity_to_z_order_queue<Cmp::CryptInteriorMultiBlock>( m_zorder_queue_, view_bounds );
-  add_visible_entity_to_z_order_queue<Cmp::RuinBuildingMultiBlock>( m_zorder_queue_, view_bounds );
+  add_visible_entity_to_z_order_queue<Cmp::Crypt::InteriorMultiBlock>( m_zorder_queue_, view_bounds );
+  add_visible_entity_to_z_order_queue<Cmp::Ruin::BuildingMultiBlock>( m_zorder_queue_, view_bounds );
 
   // add any floor tile sets
   add_visible_entity_to_z_order_queue<Sprites::Containers::VertexFloor>( m_zorder_queue_, view_bounds );
@@ -390,7 +390,7 @@ void RenderGameSystem::render_shockwaves()
 
 void RenderGameSystem::render_arrow_compass()
 {
-  auto player_view = reg().view<Cmp::PlayerCharacter, Cmp::Position>();
+  auto player_view = reg().view<Cmp::Player::Character, Cmp::Position>();
 
   auto [found_entt, found_carryitem_type] = Utils::Player::get_inventory_type( reg() );
 
@@ -415,7 +415,7 @@ void RenderGameSystem::render_arrow_compass()
     using CryptDistanceQueue = std::priority_queue<std::pair<float, Cmp::Position>, std::vector<std::pair<float, Cmp::Position>>,
                                                    Utils::Maths::DistancePositionComparator>;
     CryptDistanceQueue distance_queue;
-    auto crypt_view = reg().view<Cmp::CryptEntrance, Cmp::Position>();
+    auto crypt_view = reg().view<Cmp::Crypt::Entrance, Cmp::Position>();
     for ( auto [crypt_entity, crypt_cmp, crypt_pos_cmp] : crypt_view.each() )
     {
       if ( crypt_cmp.is_open() ) continue;
@@ -432,7 +432,7 @@ void RenderGameSystem::render_arrow_compass()
     using AltarDistanceQueue = std::priority_queue<std::pair<float, Cmp::Position>, std::vector<std::pair<float, Cmp::Position>>,
                                                    Utils::Maths::DistancePositionComparator>;
     AltarDistanceQueue distance_queue;
-    auto crypt_view = reg().view<Cmp::AltarMultiBlock>();
+    auto crypt_view = reg().view<Cmp::Altar::MultiBlock>();
     for ( auto [altar_entity, altar_cmp] : crypt_view.each() )
     {
       if ( altar_cmp.is_exitkey_lockout() ) continue;
@@ -525,7 +525,7 @@ void RenderGameSystem::render_seeingstone_doglegs( const Cmp::SeeingStone &stone
     switch ( stone_cmp.target )
     {
       case Cmp::SeeingStone::Target::YELLOW: {
-        auto altar_view = reg().view<Cmp::AltarMultiBlock>();
+        auto altar_view = reg().view<Cmp::Altar::MultiBlock>();
         for ( auto [altar_entt, altar_cmp] : altar_view.each() )
         {
           // yellow for altar paths
@@ -534,7 +534,7 @@ void RenderGameSystem::render_seeingstone_doglegs( const Cmp::SeeingStone &stone
         break;
       }
       case Cmp::SeeingStone::Target::RED: {
-        auto crypt_view = reg().view<Cmp::CryptEntrance, Cmp::Position>();
+        auto crypt_view = reg().view<Cmp::Crypt::Entrance, Cmp::Position>();
         for ( auto [crypt_entt, crypt_cmp, crypt_pos_cmp] : crypt_view.each() )
         {
           // red for crypt paths

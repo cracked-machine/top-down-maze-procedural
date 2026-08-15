@@ -11,8 +11,9 @@
 // clang-format off
 namespace Game::Events { class DropInventoryEvent; class PlayerActionEvent; class PlayerMortalityEvent; }
 namespace Game::Sprites { class SpriteSheet; }
-namespace Game::Cmp { class Direction; class LerpPosition; class Position; class PlayerMortality; class AnimData; }
+namespace Game::Cmp { class Direction; class LerpPosition; class Position; class AnimData; }
 namespace Game::Cmp::Npc { class Shockwave; }
+namespace Game::Cmp::Player { class Mortality; }
 namespace Game::Cmp::Peristent { class EffectsVolume; } 
 namespace Game::PathFinding { class SpatialHashGrid; }
 // clang-format on
@@ -72,7 +73,7 @@ private:
   void update_player_animation();
 
   //! @brief Check if the player is dead
-  //! @note This checks if the Cmp::PlayerMortality == State::DEAD, not check Cmp:PlayerStats (that is other system responsibility).
+  //! @note This checks if the Cmp::Player::Mortality == State::DEAD, not check Cmp:PlayerStats (that is other system responsibility).
   void check_player_mortality();
 
   //! @brief Update InventoryItem/NPC action effects on player for Tick::SLOW.
@@ -128,7 +129,7 @@ private:
   //! @param ev
   void on_player_action_event( Game::Events::PlayerActionEvent ev );
 
-  //! @brief Checking if Cmp::PlayerNoPath should be activated.
+  //! @brief Checking if Cmp::Player::NoPath should be activated.
   //! @param dt
   void update_player_no_path_cmp( sf::Time dt );
 
@@ -148,7 +149,7 @@ private:
   //! @brief Prevent player from spamming the drop inventory action.
   sf::Clock m_inventory_cooldown_timer;
 
-  //! @brief Cooldown for checking if Cmp::PlayerNoPath should be activated.
+  //! @brief Cooldown for checking if Cmp::Player::NoPath should be activated.
   sf::Time m_plantcheck_accumulator;
 
   //! @brief Weak pointer to the pathfinding navmesh.

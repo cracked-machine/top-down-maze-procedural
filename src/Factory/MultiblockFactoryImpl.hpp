@@ -8,7 +8,7 @@
 #include <Components/Grave/PlantSegment.hpp>
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/Npc/Npc.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Player/Character.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Sprites/SpriteSheet.hpp>
@@ -89,13 +89,13 @@ void update_segments( entt::registry &reg, const Sprites::SpriteSheet &ss, [[may
     if ( new_solid_mask )
     {
       reg.emplace_or_replace<Cmp::Npc::NoPathFinding>( entity );
-      reg.emplace_or_replace<Cmp::PlayerNoPath>( entity );
-      if constexpr ( std::is_same_v<MBSEGMENT, Cmp::PlantSegment> ) { reg.emplace_or_replace<Cmp::PlayerNoPath>( entity, false ); }
+      reg.emplace_or_replace<Cmp::Player::NoPath>( entity );
+      if constexpr ( std::is_same_v<MBSEGMENT, Cmp::PlantSegment> ) { reg.emplace_or_replace<Cmp::Player::NoPath>( entity, false ); }
     }
     else
     {
       reg.remove<Cmp::Npc::NoPathFinding>( entity );
-      reg.remove<Cmp::PlayerNoPath>( entity );
+      reg.remove<Cmp::Player::NoPath>( entity );
     }
   }
 }
@@ -130,7 +130,7 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &reg, entt:
   {
     if ( not pos_cmp.findIntersection( new_multiblock_bounds ) ) continue;
     if ( not reg.all_of<Cmp::Armable>( pos_entity ) ) continue;
-    if ( reg.any_of<MULTIBLOCK, MBSEGMENT, Cmp::ReservedPosition, Cmp::PlayerCharacter, Cmp::Npc::NPC, Cmp::WorldItem>( pos_entity ) ) continue;
+    if ( reg.any_of<MULTIBLOCK, MBSEGMENT, Cmp::ReservedPosition, Cmp::Player::Character, Cmp::Npc::NPC, Cmp::WorldItem>( pos_entity ) ) continue;
     world_pos_entt_list.push_back( pos_entity );
   }
 
@@ -163,19 +163,19 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &reg, entt:
     reg.emplace_or_replace<Cmp::Position>( new_segment_entt, pos_cmp.position, pos_cmp.size );
     reg.emplace_or_replace<Cmp::ReservedPosition>( new_segment_entt );
 
-    if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::CryptBuildingMultiBlock> )
+    if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::Crypt::BuildingMultiBlock> )
     {
-      if ( calculated_grid_index == door_grid_index ) { reg.emplace_or_replace<Cmp::CryptEntrance>( new_segment_entt ); }
+      if ( calculated_grid_index == door_grid_index ) { reg.emplace_or_replace<Cmp::Crypt::Entrance>( new_segment_entt ); }
     }
     else if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::HealingSpringBuildingMultiBlock> )
     {
       if ( calculated_grid_index == door_grid_index ) { reg.emplace_or_replace<Cmp::HealingSpringEntrance>( new_segment_entt ); }
     }
-    else if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::RuinBuildingMultiBlock> )
+    else if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::Ruin::BuildingMultiBlock> )
     {
-      if ( calculated_grid_index == door_grid_index ) { reg.emplace_or_replace<Cmp::RuinEntrance>( new_segment_entt ); }
+      if ( calculated_grid_index == door_grid_index ) { reg.emplace_or_replace<Cmp::Ruin::Entrance>( new_segment_entt ); }
     }
-    else if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::GraveExitMultiBlock> )
+    else if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::Grave::ExitMultiBlock> )
     {
       if ( calculated_grid_index == door_grid_index ) { reg.emplace_or_replace<Cmp::Exit>( new_segment_entt ); }
     }

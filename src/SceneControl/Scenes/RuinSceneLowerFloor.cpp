@@ -8,11 +8,11 @@
 #include <Components/Persistent/RuinProcGenInitChance.hpp>
 #include <Components/Persistent/RuinProcGenMaxIterations.hpp>
 #include <Components/Persistent/RuinProcGenSurvivalThreshold.hpp>
-#include <Components/Player/PlayerCurse.hpp>
-#include <Components/Player/PlayerRuinLocation.hpp>
-#include <Components/Ruin/RuinFloorAccess.hpp>
-#include <Components/Ruin/RuinObjectiveType.hpp>
-#include <Components/Ruin/RuinStairsLowerMultiBlock.hpp>
+#include <Components/Player/Curse.hpp>
+#include <Components/Player/RuinLocation.hpp>
+#include <Components/Ruin/FloorAccess.hpp>
+#include <Components/Ruin/ObjectiveType.hpp>
+#include <Components/Ruin/StairsLowerMultiBlock.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/SceneSettings/CurrentScene.hpp>
 #include <Components/SceneSettings/Footsteps.hpp>
@@ -107,7 +107,7 @@ void RuinSceneLowerFloor::on_init()
   // add access hitbox just above horizontal centerpoint
   sf::Vector2f flooraccess_position( map_size_pixel.x - ( 3 * gridsize.x ), 2 * gridsize.y );
   sf::Vector2f flooraccess_size( ( 2 * gridsize.x ), gridsize.y );
-  m_sys.find<SystemStoreType::RuinSystem>().spawn_floor_access( flooraccess_position, flooraccess_size, Cmp::RuinFloorAccess::Direction::TO_UPPER );
+  m_sys.find<SystemStoreType::RuinSystem>().spawn_floor_access( flooraccess_position, flooraccess_size, Cmp::Ruin::FloorAccess::Direction::TO_UPPER );
 
   Sprites::Containers::VertexFloor floortiles;
   floortiles.create( level_gen.get_void_sm(), m_scene_data );
@@ -180,7 +180,7 @@ void RuinSceneLowerFloor::on_enter()
   SPDLOG_INFO( "Player entered RuinSceneLowerFloor at position ({}, {})", player_pos.position.x, player_pos.position.y );
 
   auto player_entt = Utils::Player::get_entity( m_reg );
-  m_reg.emplace_or_replace<Cmp::PlayerRuinLocation>( player_entt, Cmp::PlayerRuinLocation::Floor::LOWER );
+  m_reg.emplace_or_replace<Cmp::Player::RuinLocation>( player_entt, Cmp::Player::RuinLocation::Floor::LOWER );
 
   m_sys.find<Sys::Store::Type::RuinSystem>().reset_floor_access_cooldown();
 
@@ -207,7 +207,7 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Store::Type::NpcSystem>().update( dt );
   m_sys.find<Sys::Store::Type::FootstepSystem>().update();
   m_sys.find<Store::Type::LootSystem>().check_loot_collision();
-  m_sys.find<Store::Type::RuinSystem>().check_floor_access_collision( Cmp::RuinFloorAccess::Direction::TO_UPPER );
+  m_sys.find<Store::Type::RuinSystem>().check_floor_access_collision( Cmp::Ruin::FloorAccess::Direction::TO_UPPER );
   m_sys.find<Store::Type::RuinSystem>().check_movement_slowdowns();
   m_sys.find<Store::Type::RuinSystem>().creaking_rope_update();
   m_sys.find<Store::Type::RuinSystem>().check_puzzle_status();

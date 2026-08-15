@@ -1,7 +1,7 @@
 #include <Components/Moveable.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Player/Character.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
@@ -62,7 +62,7 @@ void CellAutomataSystem::iterate( uint16_t iterations, uint8_t birth_threshold, 
       else
       {
         // make sure we dont delete the player character by accident
-        if ( not reg().any_of<Cmp::PlayerCharacter>( pos_entt ) )
+        if ( not reg().any_of<Cmp::Player::Character>( pos_entt ) )
         {
           Factory::Obstacle::remove_obstacle( reg(), pos_entt );
           reserved_navmesh->remove( pos_entt, pos_cmp );

@@ -1,26 +1,26 @@
-#include <Components/Altar/AltarMultiBlock.hpp>
-#include <Components/Altar/AltarSegment.hpp>
+#include <Components/Altar/MultiBlock.hpp>
+#include <Components/Altar/Segment.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Armable.hpp>
 #include <Components/Armed.hpp>
-#include <Components/Crypt/CryptBuildingMultiBlock.hpp>
-#include <Components/Crypt/CryptBuildingSegment.hpp>
-#include <Components/Crypt/CryptEntrance.hpp>
-#include <Components/Crypt/CryptPassageBlock.hpp>
-#include <Components/Crypt/CryptPassageDoor.hpp>
-#include <Components/Crypt/CryptRoomLavaPit.hpp>
-#include <Components/Crypt/CryptRoomLavaPitCell.hpp>
-#include <Components/Crypt/CryptShuffleTimer.hpp>
+#include <Components/Crypt/BuildingMultiBlock.hpp>
+#include <Components/Crypt/BuildingSegment.hpp>
+#include <Components/Crypt/Entrance.hpp>
+#include <Components/Crypt/PassageBlock.hpp>
+#include <Components/Crypt/PassageDoor.hpp>
+#include <Components/Crypt/RoomLavaPit.hpp>
+#include <Components/Crypt/RoomLavaPitCell.hpp>
+#include <Components/Crypt/ShuffleTimer.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Exit.hpp>
 #include <Components/FootStepTimer.hpp>
-#include <Components/Grave/GraveExitSegment.hpp>
-#include <Components/Grave/GraveMultiBlock.hpp>
-#include <Components/Grave/GraveSegment.hpp>
+#include <Components/Grave/ExitSegment.hpp>
+#include <Components/Grave/MultiBlock.hpp>
+#include <Components/Grave/Segment.hpp>
 #include <Components/Grave/PlantMultiBlock.hpp>
 #include <Components/Grave/PlantSegment.hpp>
 #include <Components/Hazard/CorruptionCell.hpp>
-#include <Components/Hazard/HazardFieldCell.hpp>
+#include <Components/Hazard/FieldCell.hpp>
 #include <Components/Hazard/SinkholeCell.hpp>
 #include <Components/Inventory/FlashUICadaver.hpp>
 #include <Components/Inventory/FlashUIHealth.hpp>
@@ -28,7 +28,7 @@
 #include <Components/Inventory/FlashUIRadius.hpp>
 #include <Components/Inventory/FlashUIWealth.hpp>
 #include <Components/Inventory/Grimoire.hpp>
-#include <Components/Inventory/InventoryWearLevel.hpp>
+#include <Components/Inventory/WearLevel.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/LastDirection.hpp>
 #include <Components/LerpPosition.hpp>
@@ -38,21 +38,21 @@
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/CryptShuffleTimeout.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
-#include <Components/Player/PlayerBlastRadius.hpp>
-#include <Components/Player/PlayerCadaverCount.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerLevelDepth.hpp>
-#include <Components/Player/PlayerNoPath.hpp>
-#include <Components/Player/PlayerWealth.hpp>
+#include <Components/Player/BlastRadius.hpp>
+#include <Components/Player/CadaverCount.hpp>
+#include <Components/Player/Character.hpp>
+#include <Components/Player/LevelDepth.hpp>
+#include <Components/Player/NoPath.hpp>
+#include <Components/Player/Wealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/Ruin/RuinBuildingMultiBlock.hpp>
-#include <Components/Ruin/RuinBuildingSegment.hpp>
-#include <Components/Ruin/RuinCobweb.hpp>
-#include <Components/Ruin/RuinEntrance.hpp>
+#include <Components/Ruin/BuildingMultiBlock.hpp>
+#include <Components/Ruin/BuildingSegment.hpp>
+#include <Components/Ruin/Cobweb.hpp>
+#include <Components/Ruin/Entrance.hpp>
 #include <Components/SelectedPosition.hpp>
-#include <Components/Shop/ShopInventory.hpp>
+#include <Components/Shop/Inventory.hpp>
 #include <Components/Spring/HealingSpringBuildingMultiBlock.hpp>
 #include <Components/Spring/HealingSpringBuildingSegment.hpp>
 #include <Components/Spring/HealingSpringEntrance.hpp>
@@ -372,9 +372,9 @@ void RenderOverlaySystem::render_shop_inventory_overlay()
 {
 
   // only draw the shop if its enabled
-  auto inventory_view = reg().view<Cmp::ShopInventory>();
+  auto inventory_view = reg().view<Cmp::Shop::Inventory>();
   if ( inventory_view.empty() ) { return; }
-  auto &inventory_cmp = inventory_view.get<Cmp::ShopInventory>( inventory_view.front() );
+  auto &inventory_cmp = inventory_view.get<Cmp::Shop::Inventory>( inventory_view.front() );
   if ( not inventory_cmp.is_enabled ) return;
 
   if ( not m_shop_ui_data )
@@ -546,7 +546,7 @@ void RenderOverlaySystem::render_ui_misc_stats()
     draw_line( " NPCs - " + std::to_string( reg().view<Cmp::Npc::NPC>().size() ) );
     draw_line( " Corruption - " + std::to_string( reg().view<Cmp::CorruptionCell>().size() ) );
     draw_line( " Sinkhole - " + std::to_string( reg().view<Cmp::CorruptionCell>().size() ) );
-    draw_line( " CryptPassageBlocks - " + std::to_string( reg().view<Cmp::CryptPassageBlock>().size() ) );
+    draw_line( " CryptPassageBlocks - " + std::to_string( reg().view<Cmp::Crypt::PassageBlock>().size() ) );
   }
 }
 
@@ -716,7 +716,7 @@ void RenderOverlaySystem::render_spatial_grid_neighbours( const Cmp::Position &q
     {
       auto *neighbour_pos = reg().try_get<Cmp::Position>( neighbour_entt );
       if ( not neighbour_pos ) continue;
-      if ( reg().any_of<Cmp::PlayerCharacter, Cmp::Npc::NPC>( neighbour_entt ) ) continue;
+      if ( reg().any_of<Cmp::Player::Character, Cmp::Npc::NPC>( neighbour_entt ) ) continue;
 
       sf::RectangleShape rectangle;
       rectangle.setSize( neighbour_pos->size );
@@ -821,35 +821,35 @@ void RenderOverlaySystem::render_ui_entity_inspect()
       if ( reg().all_of<Cmp::VoidPosition>( entity ) ) draw_line( "  Void", sf::Color::White );
       if ( reg().all_of<Cmp::ReservedPosition>( entity ) ) draw_line( "  ReservedPosition", sf::Color::Red );
       if ( reg().all_of<Cmp::Npc::NoPathFinding>( entity ) ) draw_line( "  NpcNoPathFinding", sf::Color::Red );
-      if ( reg().all_of<Cmp::PlayerNoPath>( entity ) ) draw_line( " PlayerNoPath", sf::Color::Red );
+      if ( reg().all_of<Cmp::Player::NoPath>( entity ) ) draw_line( " NoPath", sf::Color::Red );
       if ( reg().all_of<Cmp::Moveable>( entity ) ) draw_line( " Moveable", sf::Color::Green );
       if ( reg().all_of<Cmp::SelectedPosition>( entity ) ) draw_line( " Selected", sf::Color::Green );
       if ( reg().all_of<Cmp::Exit>( entity ) ) draw_line( " Exit", sf::Color::Green );
       if ( reg().all_of<Cmp::Obstacle>( entity ) ) draw_line( " Obstacle", sf::Color::Green );
-      if ( reg().all_of<Cmp::CryptPassageBlock>( entity ) ) draw_line( " PassageBlock", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::Crypt::PassageBlock>( entity ) ) draw_line( " PassageBlock", sf::Color::Cyan );
       if ( reg().all_of<Cmp::FootStepTimer>( entity ) ) draw_line( " Footsteps", sf::Color::Cyan );
-      if ( reg().all_of<Cmp::RuinCobweb>( entity ) ) draw_line( " Cobweb", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::Ruin::Cobweb>( entity ) ) draw_line( " Cobweb", sf::Color::Cyan );
       if ( reg().all_of<Cmp::Wall>( entity ) ) draw_line( " Wall", sf::Color::Cyan );
-      if ( reg().all_of<Cmp::CryptPassageDoor>( entity ) ) draw_line( " PassageDoor", sf::Color::Green );
-      if ( reg().all_of<Cmp::CryptRoomLavaPitCell>( entity ) ) draw_line( " CryptRoomLavaPitCell", sf::Color{ 255, 165, 0 } );
-      if ( reg().all_of<Cmp::CryptRoomLavaPit>( entity ) ) draw_line( " CryptRoomLavaPit", sf::Color{ 255, 165, 0 } );
+      if ( reg().all_of<Cmp::Crypt::PassageDoor>( entity ) ) draw_line( " PassageDoor", sf::Color::Green );
+      if ( reg().all_of<Cmp::Crypt::RoomLavaPitCell>( entity ) ) draw_line( " RoomLavaPitCell", sf::Color{ 255, 165, 0 } );
+      if ( reg().all_of<Cmp::Crypt::RoomLavaPit>( entity ) ) draw_line( " RoomLavaPit", sf::Color{ 255, 165, 0 } );
       if ( reg().all_of<Cmp::Armable>( entity ) ) draw_line( " Armable", sf::Color::Green );
       if ( reg().all_of<Cmp::Armed>( entity ) ) draw_line( " Armed", sf::Color::Red );
-      if ( reg().all_of<Cmp::GraveExitSegment>( entity ) ) draw_line( " GraveExitSegment", sf::Color::Cyan );
-      if ( reg().all_of<Cmp::GraveSegment>( entity ) ) draw_line( " GraveSegment", sf::Color::Cyan );
-      if ( reg().all_of<Cmp::GraveMultiBlock>( entity ) ) draw_line( " GraveMultiBlock", sf::Color::Cyan );
-      if ( reg().all_of<Cmp::AltarSegment>( entity ) ) draw_line( " AltarSegment", sf::Color::Cyan );
-      if ( reg().all_of<Cmp::AltarMultiBlock>( entity ) ) draw_line( " AltarMultiBlock", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::Grave::ExitSegment>( entity ) ) draw_line( " ExitSegment", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::Grave::Segment>( entity ) ) draw_line( " Segment", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::Grave::MultiBlock>( entity ) ) draw_line( " MultiBlock", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::Altar::Segment>( entity ) ) draw_line( " Segment", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::Altar::MultiBlock>( entity ) ) draw_line( " MultiBlock", sf::Color::Cyan );
       if ( reg().all_of<Cmp::PlantSegment>( entity ) ) draw_line( " PlantSegment", sf::Color::Cyan );
       if ( reg().all_of<Cmp::PlantMultiBlock>( entity ) ) draw_line( " PlantMultiBlock", sf::Color::Cyan );
-      if ( reg().all_of<Cmp::CryptBuildingSegment>( entity ) ) draw_line( " CryptSegment", sf::Color::Cyan );
-      if ( reg().all_of<Cmp::CryptBuildingMultiBlock>( entity ) ) draw_line( " CryptBuildingMultiBlock", sf::Color::Cyan );
-      if ( reg().all_of<Cmp::RuinBuildingSegment>( entity ) ) draw_line( " RuinSegment", sf::Color::Cyan );
-      if ( reg().all_of<Cmp::RuinBuildingMultiBlock>( entity ) ) draw_line( " RuinBuildingMultiBlock", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::Crypt::BuildingSegment>( entity ) ) draw_line( " CryptSegment", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::Crypt::BuildingMultiBlock>( entity ) ) draw_line( " BuildingMultiBlock", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::Ruin::BuildingSegment>( entity ) ) draw_line( " RuinSegment", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::Ruin::BuildingMultiBlock>( entity ) ) draw_line( " BuildingMultiBlock", sf::Color::Cyan );
       if ( reg().all_of<Cmp::HealingSpringBuildingSegment>( entity ) ) draw_line( " HealingSpringSegment", sf::Color::Cyan );
       if ( reg().all_of<Cmp::HealingSpringBuildingMultiBlock>( entity ) ) draw_line( " HealingSpringBuildingMultiBlock", sf::Color::Cyan );
-      if ( reg().all_of<Cmp::CryptEntrance>( entity ) ) draw_line( " CryptEntrance", sf::Color::Cyan );
-      if ( reg().all_of<Cmp::RuinEntrance>( entity ) ) draw_line( " CryptEntrance", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::Crypt::Entrance>( entity ) ) draw_line( " Entrance", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::Ruin::Entrance>( entity ) ) draw_line( " Entrance", sf::Color::Cyan );
       if ( reg().all_of<Cmp::HealingSpringEntrance>( entity ) ) draw_line( " HealingSpringEntrance", sf::Color::Cyan );
 
       if ( auto *cmp = reg().try_get<Cmp::UUID>( entity ) ) draw_line( " " + cmp->str(), sf::Color::White );
@@ -873,7 +873,7 @@ void RenderOverlaySystem::render_crypt_maze_timer( sf::Vector2f pos, unsigned in
 {
   const auto kCryptShuffleTimeout = Sys::PersistSystem::get<Cmp::Persist::CryptShuffleTimeout>( reg() ).get_value();
 
-  for ( auto [timer_entt, timer_cmp] : reg().view<Cmp::CryptShuffleTimer>().each() )
+  for ( auto [timer_entt, timer_cmp] : reg().view<Cmp::Crypt::ShuffleTimer>().each() )
   {
     if ( not Utils::Crypt::is_crypt_shuffle_timer_expired( reg() ) )
     {

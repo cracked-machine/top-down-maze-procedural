@@ -1,7 +1,7 @@
 #ifndef SRC_SYSTEMS_ALTARSYSTEM_HPP__
 #define SRC_SYSTEMS_ALTARSYSTEM_HPP__
 
-#include <Components/Altar/AltarMultiBlock.hpp>
+#include <Components/Altar/MultiBlock.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Systems/BaseSystem.hpp>
 
@@ -23,7 +23,7 @@ public:
   void on_player_action( Events::PlayerActionEvent ev );
 
 private:
-  void check_player_altar_activation( entt::entity altar_entity, Cmp::AltarMultiBlock &altar_cmp );
+  void check_player_altar_activation( entt::entity altar_entity, Cmp::Altar::MultiBlock &altar_cmp );
   bool activate_altar_special_power();
 
   sf::Clock m_altar_activation_clock;

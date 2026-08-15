@@ -14,7 +14,8 @@
 #include <set>
 
 // clang-format off
-namespace Game::Cmp { class CryptRoomEnd; class CryptRoomStart; class Position; }
+namespace Game::Cmp { class Position; }
+namespace Game::Cmp::Crypt { class RoomEnd; class RoomStart; }
 // clang-format on
 
 namespace Game::Sys
@@ -79,7 +80,7 @@ public:
 
   void check_chest_activation( Events::PlayerActionEvent::GameActions action );
 
-  //! @brief Restores border Cmp::Obstacles to Cmp::CryptRoomEnd, Cmp::CryptRoomStart and Cmp::CryptRoomOpen areas
+  //! @brief Restores border Cmp::Obstacles to Cmp::Crypt::RoomEnd, Cmp::Crypt::RoomStart and Cmp::Crypt::RoomOpen areas
   void create_room_borders( const Factory::Obstacle::UUIDEntityMap &uuid_map );
 
   void on_pause() override {}
@@ -119,14 +120,14 @@ private:
   //! @brief Unlock the exit passage
   void unlock_exit_passage();
 
-  //! @brief Change all Cmp::CryptRoomOpen to Cmp::CryptRoomClosed
+  //! @brief Change all Cmp::Crypt::RoomOpen to Cmp::Crypt::RoomClosed
   //! @note Excludes start/end rooms and the open room occupied by the player)
   void close_open_rooms( const Cmp::Position &player_pos_cmp );
 
-  //! @brief Restores missing Cmp::Obstacles components to Cmp::CryptRoomClosed areas
+  //! @brief Restores missing Cmp::Obstacles components to Cmp::Crypt::RoomClosed areas
   void fill_closed_rooms( const Factory::Obstacle::UUIDEntityMap &uuid_map );
 
-  //! @brief Change selected Cmp::CryptRoomClosed to Cmp::CryptRoomOpen.
+  //! @brief Change selected Cmp::Crypt::RoomClosed to Cmp::Crypt::RoomOpen.
   //! @param selected_rooms Set of entity ids to open
   //! @note Removes Cmp::Obstacle
   void open_selected_rooms( const std::set<entt::entity> &selected_rooms );
@@ -134,11 +135,11 @@ private:
   //! @brief Open all rooms
   void open_all_rooms();
 
-  //! @brief Removes Cmp::Obstacles from Cmp::CryptRoomOpen areas
+  //! @brief Removes Cmp::Obstacles from Cmp::Crypt::RoomOpen areas
   void empty_open_rooms( const Factory::Obstacle::UUIDEntityMap &uuid_map );
 
   std::vector<entt::entity> get_available_room_positions();
-  //! @brief Adds Cmp::Lever components to Cmp::CryptRoomOpen areas
+  //! @brief Adds Cmp::Lever components to Cmp::Crypt::RoomOpen areas
   void add_lever_to_open_rooms();
   void add_chest_to_open_rooms( const Cmp::Position &player_pos_cmp );
 
@@ -162,7 +163,7 @@ private:
   //! @note This uses animation component `m_animation_active` member.
   void check_spike_trap_activation_by_proximity();
 
-  //! @brief Removes Cmp::Lever components from Cmp::CryptRoomOpen areas
+  //! @brief Removes Cmp::Lever components from Cmp::Crypt::RoomOpen areas
   void remove_lever_open_rooms( const Cmp::Position &player_pos_cmp );
   void remove_chest_open_rooms( const Cmp::Position &player_pos_cmp );
 
@@ -173,13 +174,13 @@ private:
   //! @brief Spawn NPCs in each open room in the game area
   void spawn_npc_in_open_rooms();
 
-  //! @brief Get the single Cmp::CryptRoomStart component
-  //! @return Pair of entt::entity and Cmp::CryptRoomStart&
-  std::pair<entt::entity, Cmp::CryptRoomStart &> get_crypt_room_start();
+  //! @brief Get the single Cmp::Crypt::RoomStart component
+  //! @return Pair of entt::entity and Cmp::Crypt::RoomStart&
+  std::pair<entt::entity, Cmp::Crypt::RoomStart &> get_crypt_room_start();
 
-  //! @brief Get the single Cmp::CryptRoomEnd component
-  //! @return Pair of entt::entity and Cmp::CryptRoomEnd&
-  std::pair<entt::entity, Cmp::CryptRoomEnd &> get_crypt_room_end();
+  //! @brief Get the single Cmp::Crypt::RoomEnd component
+  //! @return Pair of entt::entity and Cmp::Crypt::RoomEnd&
+  std::pair<entt::entity, Cmp::Crypt::RoomEnd &> get_crypt_room_end();
 
   //! @brief Dispatcher reference for scene management events
   entt::dispatcher &m_scenemanager_event_dispatcher;

@@ -1,7 +1,7 @@
 #ifndef SRC_SCENECONTROL_SCENES_SHOPSCENE_HPP__
 #define SRC_SCENECONTROL_SCENES_SHOPSCENE_HPP__
 
-#include <Components/Shop/ShopInventory.hpp>
+#include <Components/Shop/Inventory.hpp>
 #include <Factory/SpriteFactory.hpp>
 #include <SceneControl/Events/ProcessShopSceneInputEvent.hpp>
 #include <SceneControl/Scene.hpp>

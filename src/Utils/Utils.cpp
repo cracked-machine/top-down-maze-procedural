@@ -5,16 +5,16 @@
 #include <Utils/Utils.hpp>
 
 #include <Components/Exit.hpp>
-#include <Components/Inventory/InventoryWearLevel.hpp>
+#include <Components/Inventory/WearLevel.hpp>
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/LerpPosition.hpp>
-#include <Components/Player/PlayerBlastRadius.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerLastGraveyardPosition.hpp>
-#include <Components/Player/PlayerMortality.hpp>
-#include <Components/Player/PlayerRuinLocation.hpp>
-#include <Components/Player/PlayerSpeedPenalty.hpp>
-#include <Components/Player/PlayerWealth.hpp>
+#include <Components/Player/BlastRadius.hpp>
+#include <Components/Player/Character.hpp>
+#include <Components/Player/LastGraveyardPosition.hpp>
+#include <Components/Player/Mortality.hpp>
+#include <Components/Player/RuinLocation.hpp>
+#include <Components/Player/SpeedPenalty.hpp>
+#include <Components/Player/Wealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/SceneSettings/CurrentScene.hpp>

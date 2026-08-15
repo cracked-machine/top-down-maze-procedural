@@ -4,12 +4,12 @@
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Npc/ShadowHand.hpp>
 #include <Components/Obstacle.hpp>
-#include <Components/Player/PlayerNoPath.hpp>
+#include <Components/Player/NoPath.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/Ruin/RuinBookcase.hpp>
-#include <Components/Ruin/RuinCobweb.hpp>
+#include <Components/Ruin/Bookcase.hpp>
+#include <Components/Ruin/Cobweb.hpp>
 #include <Components/Ruin/RuneMarking.hpp>
 #include <Components/UUID.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -44,9 +44,9 @@ void create_bookcase( entt::registry &reg, sf::Vector2f spawn_position, const Sp
       });
       // clang-format on
       reg.emplace_or_replace<Cmp::ZOrderValue>( existing_entt, -5.f );
-      reg.emplace_or_replace<Cmp::RuinBookcase>( existing_entt );
+      reg.emplace_or_replace<Cmp::Ruin::Bookcase>( existing_entt );
       reg.emplace_or_replace<Cmp::Npc::NoPathFinding>( existing_entt );
-      reg.emplace_or_replace<Cmp::PlayerNoPath>( existing_entt );
+      reg.emplace_or_replace<Cmp::Player::NoPath>( existing_entt );
       break;
     }
   }
@@ -66,7 +66,7 @@ void create_cobweb( entt::registry &reg, entt::entity selected_entt, sf::Vector2
   // clang-format on
   reg.emplace_or_replace<Cmp::ReservedPosition>( selected_entt );
   reg.emplace_or_replace<Cmp::ZOrderValue>( selected_entt, spawn_position.y );
-  reg.emplace_or_replace<Cmp::RuinCobweb>( selected_entt, 100 );
+  reg.emplace_or_replace<Cmp::Ruin::Cobweb>( selected_entt, 100 );
 }
 
 void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, const Sprites::SpriteSheet &hand_ms, int sprite_index )

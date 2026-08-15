@@ -6,7 +6,7 @@
 #include <Components/Exit.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Npc/Npc.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Player/Character.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
@@ -57,7 +57,7 @@ sf::Vector2f HazardFieldSystem<HazardType>::init_hazard_field()
   unsigned long seed = Sys::PersistSystem::get<typename Traits::SeedType>( reg() ).get_value();
   auto [random_entity, random_pos] = Utils::Rnd::get_random_position(
       reg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{},
-      Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::Npc::NPC, Cmp::ReservedPosition>(), seed );
+      Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::Player::Character, Cmp::Npc::NPC, Cmp::ReservedPosition>(), seed );
   if ( random_entity == entt::null ) { return {}; }
 
   Factory::Obstacle::remove_obstacle( reg(), random_entity, Factory::Obstacle::DeleteExtras::Yes );
@@ -157,17 +157,17 @@ template <ValidHazard HazardType>
 void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
 {
   auto hazard_view = reg().template view<HazardType, Cmp::Position>();
-  auto player_view = reg().template view<Cmp::PlayerCharacter, Cmp::PlayerStats, Cmp::PlayerMortality, Cmp::Position>();
+  auto player_view = reg().template view<Cmp::Player::Character, Cmp::PlayerStats, Cmp::Player::Mortality, Cmp::Position>();
   const auto &player_position = Utils::Player::get_position( reg() );
 
   for ( auto [pc_entt, player_cmp, player_stats_cmp, player_mort_cmp, player_pos_cmp] : player_view.each() )
   {
     // optimization
-    // if ( player_mort_cmp.state != Cmp::PlayerMortality::State::ALIVE ) return;
+    // if ( player_mort_cmp.state != Cmp::Player::Mortality::State::ALIVE ) return;
     if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), player_pos_cmp ) ) continue;
 
     // dont spam death events if the player is already dead
-    if ( player_mort_cmp.state == Cmp::PlayerMortality::State::DEAD ) continue;
+    if ( player_mort_cmp.state == Cmp::Player::Mortality::State::DEAD ) continue;
 
     for ( auto [hazard_entt, hazard_cmp, hazard_pos_cmp] : hazard_view.each() )
     {
@@ -180,7 +180,7 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
         if ( player_hitbox_redux.findIntersection( sinkhole_hitbox_redux.getBounds() ) )
         {
           // trigger death animation
-          get_systems_event_queue().trigger( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::FALLING, player_position ) );
+          get_systems_event_queue().trigger( Events::PlayerMortalityEvent( Cmp::Player::Mortality::State::FALLING, player_position ) );
           return;
         }
       }
@@ -196,7 +196,7 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
           // trigger death animation
           if ( player_stats_cmp.health() <= 0 )
           {
-            get_systems_event_queue().trigger( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::DECAYING, player_position ) );
+            get_systems_event_queue().trigger( Events::PlayerMortalityEvent( Cmp::Player::Mortality::State::DECAYING, player_position ) );
           }
           return;
         }

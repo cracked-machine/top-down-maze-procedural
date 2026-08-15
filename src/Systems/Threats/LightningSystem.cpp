@@ -1,6 +1,6 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/Persistent/LightningDamage.hpp>
-#include <Components/Player/PlayerMortality.hpp>
+#include <Components/Player/Mortality.hpp>
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
 #include <Components/Stats/BaseAction.hpp>
@@ -47,7 +47,7 @@ void LightningSystem::update( sf::Time dt )
 
     if ( Utils::Player::get_player_stats( reg() ).health() <= 0 )
     {
-      get_systems_event_queue().trigger( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SHOCKED, Utils::Player::get_position( reg() ) ) );
+      get_systems_event_queue().trigger( Events::PlayerMortalityEvent( Cmp::Player::Mortality::State::SHOCKED, Utils::Player::get_position( reg() ) ) );
     }
   }
 

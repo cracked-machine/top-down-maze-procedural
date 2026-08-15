@@ -111,7 +111,7 @@ public:
   [[nodiscard]] WallTileSet wall_tileset() const { return m_map_data.wall_tileset; }
 
   //! @brief  Get the bounding box (in pixels) of every 'spawn' tile in the levelgen layer.
-  //!         Used to size procgen spawn rooms (e.g. Cmp::CryptRoomStart) to match the authored spawn area.
+  //!         Used to size procgen spawn rooms (e.g. Cmp::Crypt::RoomStart) to match the authored spawn area.
   [[nodiscard]] sf::FloatRect get_spawn_area_bounds() const;
 
   //! @brief  Get the map size as grid position and pixel position (x16)

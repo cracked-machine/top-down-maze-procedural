@@ -2,38 +2,38 @@
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Armable.hpp>
-#include <Components/Crypt/CryptLever.hpp>
-#include <Components/Crypt/CryptObjectiveMultiBlock.hpp>
-#include <Components/Crypt/CryptPassageBlock.hpp>
-#include <Components/Crypt/CryptRoomClosed.hpp>
-#include <Components/Crypt/CryptRoomEnd.hpp>
-#include <Components/Crypt/CryptRoomOpen.hpp>
-#include <Components/Crypt/CryptRoomStart.hpp>
+#include <Components/Crypt/Lever.hpp>
+#include <Components/Crypt/ObjectiveMultiBlock.hpp>
+#include <Components/Crypt/PassageBlock.hpp>
+#include <Components/Crypt/RoomClosed.hpp>
+#include <Components/Crypt/RoomEnd.hpp>
+#include <Components/Crypt/RoomOpen.hpp>
+#include <Components/Crypt/RoomStart.hpp>
 #include <Components/Direction.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
 #include <Components/Inventory/Explosive.hpp>
 #include <Components/Inventory/Grimoire.hpp>
-#include <Components/Inventory/InventoryWearLevel.hpp>
+#include <Components/Inventory/WearLevel.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/LastDirection.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
-#include <Components/Player/PlayerBlastRadius.hpp>
-#include <Components/Player/PlayerCadaverCount.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerCurse.hpp>
-#include <Components/Player/PlayerKeysCount.hpp>
-#include <Components/Player/PlayerLastGraveyardPosition.hpp>
-#include <Components/Player/PlayerLevelDepth.hpp>
-#include <Components/Player/PlayerMortality.hpp>
-#include <Components/Player/PlayerRuinLocation.hpp>
-#include <Components/Player/PlayerWealth.hpp>
+#include <Components/Player/BlastRadius.hpp>
+#include <Components/Player/CadaverCount.hpp>
+#include <Components/Player/Character.hpp>
+#include <Components/Player/Curse.hpp>
+#include <Components/Player/KeysCount.hpp>
+#include <Components/Player/LastGraveyardPosition.hpp>
+#include <Components/Player/LevelDepth.hpp>
+#include <Components/Player/Mortality.hpp>
+#include <Components/Player/RuinLocation.hpp>
+#include <Components/Player/Wealth.hpp>
 #include <Components/Player/TorchRadius.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/Ruin/RuinObjectiveType.hpp>
+#include <Components/Ruin/ObjectiveType.hpp>
 #include <Components/Stats/PlayerStats.hpp>
 
 #include <Components/UUID.hpp>
@@ -53,7 +53,7 @@ namespace Game::Scene
 //! 1. Early exit check — Returns nullptr if copy_mode is NONE
 //! 2. Initialize target registry — Creates a new entt::registry and pre-registers known component storages via init_missing_cmp_storages()
 //! 3. Copy player entity (for PLAYER_ONLY or ALL modes):
-//!   Find the entity with PlayerCharacter component
+//!   Find the entity with Character component
 //!   Create a new entity in the target registry
 //!   Iterate all component storages and copy each component the player has
 //!   Skip components without registered storage (e.g., LerpPosition)
@@ -80,7 +80,7 @@ RegistryTransfer::RegCopy RegistryTransfer::copy_reg( IScene &scene, Scene::RegC
   // Copy player entity (for PLAYER_ONLY and ALL modes)
   if ( copy_mode == RegCopyMode::PLAYER_ONLY || copy_mode == RegCopyMode::ALL )
   {
-    auto player_view = source_registry.view<Cmp::PlayerCharacter>();
+    auto player_view = source_registry.view<Cmp::Player::Character>();
     if ( !player_view.empty() )
     {
       auto player_entity = player_view.front();
@@ -112,12 +112,12 @@ RegistryTransfer::RegCopy RegistryTransfer::copy_reg( IScene &scene, Scene::RegC
     for ( auto entity : source_registry.storage<entt::entity>() )
     {
       // Skip player entity (already copied above)
-      if ( source_registry.any_of<Cmp::PlayerCharacter>( entity ) ) { continue; }
+      if ( source_registry.any_of<Cmp::Player::Character>( entity ) ) { continue; }
 
       // Skip transfer on deny list components
       if ( source_registry.any_of<Cmp::ReservedPosition, Cmp::Obstacle, Cmp::Armable, Cmp::Npc::NoPathFinding, Cmp::FootStepTimer, Cmp::FootStepAlpha,
-                                  Cmp::CryptRoomOpen, Cmp::CryptRoomClosed, Cmp::CryptRoomStart, Cmp::CryptRoomEnd, Cmp::CryptPassageBlock,
-                                  Cmp::CryptLever, Cmp::CryptObjectiveMultiBlock, Cmp::VoidPosition>( entity ) )
+                                  Cmp::Crypt::RoomOpen, Cmp::Crypt::RoomClosed, Cmp::Crypt::RoomStart, Cmp::Crypt::RoomEnd, Cmp::Crypt::PassageBlock,
+                                  Cmp::Crypt::Lever, Cmp::Crypt::ObjectiveMultiBlock, Cmp::VoidPosition>( entity ) )
       {
         skipped_cmp++;
         continue;
@@ -150,7 +150,7 @@ RegistryTransfer::RegCopy RegistryTransfer::copy_reg( IScene &scene, Scene::RegC
 
 void RegistryTransfer::xfer_player_entt( entt::registry &source_registry, entt::registry &target_registry )
 {
-  auto player_view = source_registry.view<Cmp::PlayerCharacter>();
+  auto player_view = source_registry.view<Cmp::Player::Character>();
   if ( player_view.empty() )
   {
     SPDLOG_WARN( "No player entity found to transfer" );
@@ -160,7 +160,7 @@ void RegistryTransfer::xfer_player_entt( entt::registry &source_registry, entt::
   auto source_entity = player_view.front();
 
   // Check if player entity already exists in target registry
-  auto target_player_view = target_registry.view<Cmp::PlayerCharacter>();
+  auto target_player_view = target_registry.view<Cmp::Player::Character>();
   entt::entity target_entity;
 
   if ( target_player_view.empty() )
@@ -221,25 +221,25 @@ void RegistryTransfer::init_missing_cmp_storages( entt::registry &registry )
   registry.storage<Cmp::LastDirection>();
   registry.storage<Cmp::Position>();
   registry.storage<Cmp::ReservedPosition>();
-  registry.storage<Cmp::PlayerCharacter>();
-  registry.storage<Cmp::PlayerLevelDepth>();
+  registry.storage<Cmp::Player::Character>();
+  registry.storage<Cmp::Player::LevelDepth>();
   registry.storage<Cmp::PlayerStats>();
-  registry.storage<Cmp::PlayerWealth>();
-  registry.storage<Cmp::PlayerCurse>();
-  registry.storage<Cmp::PlayerBlastRadius>();
-  registry.storage<Cmp::PlayerMortality>();
-  registry.storage<Cmp::PlayerCadaverCount>();
+  registry.storage<Cmp::Player::Wealth>();
+  registry.storage<Cmp::Player::Curse>();
+  registry.storage<Cmp::Player::BlastRadius>();
+  registry.storage<Cmp::Player::Mortality>();
+  registry.storage<Cmp::Player::CadaverCount>();
   registry.storage<Cmp::AnimData>();
   registry.storage<Cmp::PlayerInventorySlot>();
   registry.storage<Cmp::TorchRadius>();
   registry.storage<Cmp::WorldItem>();
-  registry.storage<Cmp::InventoryWearLevel>();
+  registry.storage<Cmp::Inventory::WearLevel>();
   registry.storage<Cmp::ZOrderValue>();
   registry.storage<Cmp::SeeingStone>();
   registry.storage<Cmp::Explosive>();
-  registry.storage<Cmp::PlayerLastGraveyardPosition>();
-  registry.storage<Cmp::PlayerRuinLocation>();
-  registry.storage<Cmp::RuinObjectiveType>();
+  registry.storage<Cmp::Player::LastGraveyardPosition>();
+  registry.storage<Cmp::Player::RuinLocation>();
+  registry.storage<Cmp::Ruin::ObjectiveType>();
   registry.storage<Cmp::UUID>();
   registry.storage<Cmp::Grimoire>();
   // Add other player-related components as needed

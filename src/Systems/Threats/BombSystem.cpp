@@ -1,13 +1,13 @@
 #include <Audio/SoundBank.hpp>
-#include <Components/Altar/AltarSegment.hpp>
+#include <Components/Altar/Segment.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Armable.hpp>
 #include <Components/Armed.hpp>
-#include <Components/Crypt/CryptBuildingSegment.hpp>
+#include <Components/Crypt/BuildingSegment.hpp>
 #include <Components/DeathPosition.hpp>
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/Exit.hpp>
-#include <Components/Grave/GraveSegment.hpp>
+#include <Components/Grave/Segment.hpp>
 #include <Components/Inventory/Explosive.hpp>
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/LootContainer.hpp>
@@ -17,9 +17,9 @@
 #include <Components/Persistent/ArmedOffDelay.hpp>
 #include <Components/Persistent/BombDamage.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
-#include <Components/Player/PlayerBlastRadius.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerMortality.hpp>
+#include <Components/Player/BlastRadius.hpp>
+#include <Components/Player/Character.hpp>
+#include <Components/Player/Mortality.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
@@ -97,7 +97,7 @@ void BombSystem::arm_grave_bomb()
   auto new_bomb_entt = reg().create();
   auto realigned_epicenter_pos = Utils::snap_to_grid( Utils::Player::get_position( reg() ) );
   reg().emplace_or_replace<Cmp::Position>( new_bomb_entt, realigned_epicenter_pos.position, realigned_epicenter_pos.size );
-  place_concentric_bomb_pattern( new_bomb_entt, reg().get<Cmp::PlayerBlastRadius>( player_entt ).value );
+  place_concentric_bomb_pattern( new_bomb_entt, reg().get<Cmp::Player::BlastRadius>( player_entt ).value );
   Utils::Player::get_global_bomb_flash_clk( reg() ).restart();
 }
 
@@ -110,7 +110,7 @@ void BombSystem::arm_entt( entt::entity target_entt )
   {
     m_sound_bank.get_effect( "bomb_fuse" ).play();
 
-    place_concentric_bomb_pattern( target_entt, reg().get<Cmp::PlayerBlastRadius>( player_entt ).value );
+    place_concentric_bomb_pattern( target_entt, reg().get<Cmp::Player::BlastRadius>( player_entt ).value );
   }
 }
 
@@ -141,7 +141,7 @@ void BombSystem::arm_player_bomb()
       auto armed_epicenter_entity = reg().create();
       auto realigned_epicenter_pos = Utils::snap_to_grid( destructable_pos_cmp );
       reg().emplace<Cmp::Position>( armed_epicenter_entity, realigned_epicenter_pos.position, realigned_epicenter_pos.size );
-      place_concentric_bomb_pattern( armed_epicenter_entity, reg().get<Cmp::PlayerBlastRadius>( player_entt ).value );
+      place_concentric_bomb_pattern( armed_epicenter_entity, reg().get<Cmp::Player::BlastRadius>( player_entt ).value );
       Factory::Player::destroy_inventory( reg(), "sprite.item.bomb" );
       Utils::Player::get_global_bomb_flash_clk( reg() ).restart();
     }
@@ -312,7 +312,7 @@ void BombSystem::update()
     }
 
     // Check player explosion damage
-    auto player_view = reg().view<Cmp::PlayerCharacter, Cmp::PlayerStats, Cmp::PlayerMortality, Cmp::Position>();
+    auto player_view = reg().view<Cmp::Player::Character, Cmp::PlayerStats, Cmp::Player::Mortality, Cmp::Position>();
     for ( auto [pc_entt, pc_cmp, player_stats_cmp, pc_mort_cmp, pc_pos_cmp] : player_view.each() )
     {
       if ( pc_pos_cmp.findIntersection( armed_pos_cmp ) )
@@ -323,7 +323,7 @@ void BombSystem::update()
         if ( player_stats_cmp.health() <= 0 )
         {
           get_systems_event_queue().enqueue(
-              Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::EXPLODING, Utils::Player::get_position( reg() ) ) );
+              Events::PlayerMortalityEvent( Cmp::Player::Mortality::State::EXPLODING, Utils::Player::get_position( reg() ) ) );
         }
       }
     }
@@ -352,7 +352,7 @@ void BombSystem::update()
             Cmp::AnimData( Cmp::AnimData::Config{ .sprite_type = sprite_type, .frame_index_offset = sprite_index} ),                                        
             sf::FloatRect{ npc_pos_cmp.position, npc_pos_cmp.size }, 
             Factory::IncludePack<>{},
-            Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition>{} );
+            Factory::ExcludePack<Cmp::Player::Character, Cmp::ReservedPosition>{} );
           // clang-format on
 
           if ( dropped_loot_entt != entt::null )

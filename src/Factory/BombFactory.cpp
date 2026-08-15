@@ -7,7 +7,7 @@
 #include <Components/Persistent/ArmedOffDelay.hpp>
 #include <Components/Persistent/ArmedOnDelay.hpp>
 #include <Components/Persistent/FuseDelay.hpp>
-#include <Components/Player/PlayerNoPath.hpp>
+#include <Components/Player/NoPath.hpp>
 #include <Components/Position.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/BombFactory.hpp>
@@ -73,7 +73,7 @@ void destroy_armed( entt::registry &reg, entt::entity armed_entity )
 void add_detonated( entt::registry &reg, entt::entity armed_entity, Cmp::Position &armed_pos_cmp )
 {
   reg.remove<Cmp::Npc::NoPathFinding>( armed_entity );
-  reg.remove<Cmp::PlayerNoPath>( armed_entity );
+  reg.remove<Cmp::Player::NoPath>( armed_entity );
   reg.emplace_or_replace<Cmp::AnimData>( armed_entity, Cmp::AnimData::Config{ .sprite_type = "sprite.graveyard.detonated" } );
   reg.emplace_or_replace<Cmp::ZOrderValue>( armed_entity, armed_pos_cmp.position.y - 256.f );
   reg.emplace_or_replace<Cmp::DestroyedObstacle>( armed_entity );

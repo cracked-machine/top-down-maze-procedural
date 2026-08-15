@@ -24,7 +24,7 @@ void FlameParticle::emit()
 } // namespace detail
 
 Flame::Flame( size_t count )
-    : ParticleSpriteBase( count ) {};
+    : SpriteBase( count ) {};
 
 void Flame::simulate( sf::Time dt )
 {

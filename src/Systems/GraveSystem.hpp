@@ -1,13 +1,13 @@
 #ifndef SRC_SYSTEMS_GRAVESYSTEM_HPP__
 #define SRC_SYSTEMS_GRAVESYSTEM_HPP__
 
-#include <Components/Grave/GraveMultiBlock.hpp>
+#include <Components/Grave/MultiBlock.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Systems/BaseSystem.hpp>
 
-namespace Game::Cmp
+namespace Game::Cmp::Player
 {
-class PlayerCharacter;
+class Character;
 }
 
 namespace Game::Sys

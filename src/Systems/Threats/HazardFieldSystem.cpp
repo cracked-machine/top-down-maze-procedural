@@ -1,4 +1,4 @@
-#include <Components/Hazard/HazardFieldCell.hpp>
+#include <Components/Hazard/FieldCell.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Random.hpp>
 #include <Factory/SpriteFactory.hpp>

@@ -4,12 +4,12 @@
 #include <Components/Persistent/ExitKeyRequirement.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
-#include <Components/Player/PlayerBlastRadius.hpp>
-#include <Components/Player/PlayerCadaverCount.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerKeysCount.hpp>
-#include <Components/Player/PlayerMortality.hpp>
-#include <Components/Player/PlayerWealth.hpp>
+#include <Components/Player/BlastRadius.hpp>
+#include <Components/Player/CadaverCount.hpp>
+#include <Components/Player/Character.hpp>
+#include <Components/Player/KeysCount.hpp>
+#include <Components/Player/Mortality.hpp>
+#include <Components/Player/Wealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/SceneSettings/Footsteps.hpp>
@@ -163,7 +163,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
       {
         // Prevent skipping the death animation and leaving the game in a bad state
-        if ( Utils::Player::get_mortality( reg() ).state != Cmp::PlayerMortality::State::ALIVE ) continue;
+        if ( Utils::Player::get_mortality( reg() ).state != Cmp::Player::Mortality::State::ALIVE ) continue;
         enqueue( Events::SceneManagerEvent::Type::QUIT_GAME );
       }
     }
@@ -238,7 +238,7 @@ void SceneInputRouter::crypt_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
       {
         // Prevent skipping the death animation and leaving the game in a bad state
-        if ( Utils::Player::get_mortality( reg() ).state != Cmp::PlayerMortality::State::ALIVE ) continue;
+        if ( Utils::Player::get_mortality( reg() ).state != Cmp::Player::Mortality::State::ALIVE ) continue;
         enqueue( Events::SceneManagerEvent::Type::EXIT_CRYPT );
       }
       else if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::E ) )
@@ -305,7 +305,7 @@ void SceneInputRouter::healing_spring_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
       {
         // Prevent skipping the death animation and leaving the game in a bad state
-        if ( Utils::Player::get_mortality( reg() ).state != Cmp::PlayerMortality::State::ALIVE ) continue;
+        if ( Utils::Player::get_mortality( reg() ).state != Cmp::Player::Mortality::State::ALIVE ) continue;
         enqueue( Events::SceneManagerEvent::Type::QUIT_GAME );
       }
     }
@@ -356,7 +356,7 @@ void SceneInputRouter::shop_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
       {
         // Prevent skipping the death animation and leaving the game in a bad state
-        if ( Utils::Player::get_mortality( reg() ).state != Cmp::PlayerMortality::State::ALIVE ) continue;
+        if ( Utils::Player::get_mortality( reg() ).state != Cmp::Player::Mortality::State::ALIVE ) continue;
         enqueue( Events::SceneManagerEvent::Type::QUIT_GAME );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Num1 ) { queue_buy_item_event( 1 ); }
@@ -412,7 +412,7 @@ void SceneInputRouter::ruin_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
       {
         // Prevent skipping the death animation and leaving the game in a bad state
-        if ( Utils::Player::get_mortality( reg() ).state != Cmp::PlayerMortality::State::ALIVE ) continue;
+        if ( Utils::Player::get_mortality( reg() ).state != Cmp::Player::Mortality::State::ALIVE ) continue;
         enqueue( Events::SceneManagerEvent::Type::QUIT_GAME );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Space )
@@ -497,7 +497,7 @@ void SceneInputRouter::level_complete_scene_state_handler()
 void SceneInputRouter::process_move_keys()
 {
   // allow multiple changes to the direction vector, otherwise we get a delayed slurred movement
-  auto player_direction_view = reg().view<Cmp::PlayerCharacter, Cmp::Direction>();
+  auto player_direction_view = reg().view<Cmp::Player::Character, Cmp::Direction>();
   for ( auto [entity, player, direction] : player_direction_view.each() )
   {
     direction.x = 0;
@@ -559,7 +559,7 @@ void SceneInputRouter::toggle_shaders()
 
 void SceneInputRouter::queue_suicide_event()
 {
-  get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE, Utils::Player::get_position( reg() ) ) );
+  get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::Player::Mortality::State::SUICIDE, Utils::Player::get_position( reg() ) ) );
 }
 
 void SceneInputRouter::queue_buy_item_event( uint8_t item_idx )

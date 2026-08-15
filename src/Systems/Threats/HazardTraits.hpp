@@ -5,7 +5,7 @@
 #include <Components/Hazard/SinkholeCell.hpp>
 #include <Components/Persistent/CorruptionSeed.hpp>
 #include <Components/Persistent/SinkholeSeed.hpp>
-#include <Components/Player/PlayerMortality.hpp>
+#include <Components/Player/Mortality.hpp>
 #include <Sprites/SpriteSheet.hpp>
 
 namespace Game::Sys
@@ -21,7 +21,7 @@ struct HazardTraits<Cmp::SinkholeCell>
   using SeedType = Cmp::Persist::SinkholeSeed;
   using ExcludeHazard = Cmp::CorruptionCell;
   static constexpr bool kills_instantly = true;
-  static constexpr Cmp::PlayerMortality::State mortality_state = Cmp::PlayerMortality::State::FALLING;
+  static constexpr Cmp::Player::Mortality::State mortality_state = Cmp::Player::Mortality::State::FALLING;
   static constexpr std::string_view sprite_type = "sprite.graveyard.hazard.sinkhole";
   static constexpr int odds = 2;
 };
@@ -33,7 +33,7 @@ struct HazardTraits<Cmp::CorruptionCell>
   using SeedType = Cmp::Persist::CorruptionSeed;
   using ExcludeHazard = Cmp::SinkholeCell;
   static constexpr bool kills_instantly = false;
-  static constexpr Cmp::PlayerMortality::State mortality_state = Cmp::PlayerMortality::State::DECAYING;
+  static constexpr Cmp::Player::Mortality::State mortality_state = Cmp::Player::Mortality::State::DECAYING;
   static constexpr std::string_view sprite_type = "sprite.graveyard.hazard.corruption";
   static constexpr int odds = 7;
 };

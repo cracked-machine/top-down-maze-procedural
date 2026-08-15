@@ -2,12 +2,12 @@
 #define SRC_SYSTEMS_THREATS_HAZARDFIELDSYSTEM_HPP__
 
 #include <Components/Hazard/CorruptionCell.hpp>
-#include <Components/Hazard/HazardFieldCell.hpp>
+#include <Components/Hazard/FieldCell.hpp>
 #include <Components/Hazard/SinkholeCell.hpp>
 #include <Components/Persistent/CorruptionDamage.hpp>
 #include <Components/Persistent/CorruptionSeed.hpp>
 #include <Components/Persistent/SinkholeSeed.hpp>
-#include <Components/Player/PlayerMortality.hpp>
+#include <Components/Player/Mortality.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Utils/Random.hpp>
 
@@ -32,7 +32,7 @@ concept ValidHazard = requires {
   typename HazardTraits<T>::SeedType;
   typename HazardTraits<T>::ExcludeHazard;
   { HazardTraits<T>::kills_instantly } -> std::convertible_to<bool>;
-  { HazardTraits<T>::mortality_state } -> std::convertible_to<Cmp::PlayerMortality::State>;
+  { HazardTraits<T>::mortality_state } -> std::convertible_to<Cmp::Player::Mortality::State>;
   { HazardTraits<T>::sprite_type } -> std::convertible_to<std::string_view>;
 };
 

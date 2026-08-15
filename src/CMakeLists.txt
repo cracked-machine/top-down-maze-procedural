@@ -8,13 +8,13 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Audio/SoundBank.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Particle/Flame.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Particle/ShockWave.cpp
-    ${CMAKE_SOURCE_DIR}/src/Components/Particle/ParticleSpriteTest.cpp
+    ${CMAKE_SOURCE_DIR}/src/Components/Particle/SpriteTest.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Particle/Smoke.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Particle/CryptAltarParticleSprite.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Particle/RuneParticleSprite.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Particle/WormholeParticleSprite.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Particle/ObstacleDigParticleSprite.cpp
-    ${CMAKE_SOURCE_DIR}/src/Components/Crypt/CryptRoomBase.cpp
+    ${CMAKE_SOURCE_DIR}/src/Components/Crypt/RoomBase.cpp
     ${CMAKE_SOURCE_DIR}/src/Debug/AssertHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Shaders/BaseShaderSprite.cpp
     ${CMAKE_SOURCE_DIR}/src/Shaders/TitleScreenShader.cpp

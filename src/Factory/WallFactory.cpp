@@ -2,8 +2,8 @@
 #include <Components/NoMoveDest.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerNoPath.hpp>
+#include <Components/Player/Character.hpp>
+#include <Components/Player/NoPath.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Wall.hpp>
@@ -46,13 +46,13 @@ void add_reservedposition( entt::registry &reg, const sf::Vector2f &pos )
 void add_solid_player( entt::registry &reg, sf::FloatRect rect )
 {
   // Mark any existing world position entities overlapping this rect as reserved.
-  // Don't mark player position as Cmp::PlayerNoPath or they won't be able to move!
-  for ( auto [entt, pos_cmp] : reg.view<Cmp::Position>( entt::exclude<Cmp::PlayerCharacter> ).each() )
+  // Don't mark player position as Cmp::Player::NoPath or they won't be able to move!
+  for ( auto [entt, pos_cmp] : reg.view<Cmp::Position>( entt::exclude<Cmp::Player::Character> ).each() )
   {
     if ( pos_cmp.findIntersection( rect ) )
     {
       reg.emplace_or_replace<Cmp::ReservedPosition>( entt );
-      reg.emplace_or_replace<Cmp::PlayerNoPath>( entt );
+      reg.emplace_or_replace<Cmp::Player::NoPath>( entt );
     }
   }
 }

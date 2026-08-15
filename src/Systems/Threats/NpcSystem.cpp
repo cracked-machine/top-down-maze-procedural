@@ -1,13 +1,13 @@
 #include <Audio/SoundBank.hpp>
-#include <Components/Altar/AltarSegment.hpp>
+#include <Components/Altar/Segment.hpp>
 #include <Components/AnimData.hpp>
-#include <Components/Crypt/CryptBuildingSegment.hpp>
-#include <Components/Crypt/CryptObjectiveSegment.hpp>
+#include <Components/Crypt/BuildingSegment.hpp>
+#include <Components/Crypt/ObjectiveSegment.hpp>
 #include <Components/DeathPosition.hpp>
 #include <Components/Direction.hpp>
 #include <Components/FootStepTimer.hpp>
-#include <Components/Grave/GraveExitSegment.hpp>
-#include <Components/Grave/GraveSegment.hpp>
+#include <Components/Grave/ExitSegment.hpp>
+#include <Components/Grave/Segment.hpp>
 #include <Components/Grave/PlantSegment.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/Npc/Npc.hpp>
@@ -28,13 +28,13 @@
 #include <Components/Persistent/NpcWatchmanSpawnCooldown.hpp>
 #include <Components/Persistent/NpcWatchmanSpawnMax.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerMortality.hpp>
+#include <Components/Player/Character.hpp>
+#include <Components/Player/Mortality.hpp>
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/Ruin/RuinBuildingSegment.hpp>
+#include <Components/Ruin/BuildingSegment.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/SceneSettings/CurrentScene.hpp>
 #include <Components/SpawnArea.hpp>
@@ -43,7 +43,7 @@
 
 #include <Components/UUID.hpp>
 #include <Components/Wall.hpp>
-#include <Components/Wormhole/WormholeJump.hpp>
+#include <Components/Wormhole/Jump.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/NpcFactory.hpp>
@@ -197,7 +197,7 @@ void NpcSystem::spawn_watchman()
        Utils::Player::get_player_stats( reg() ).infamy() >= 10 )
   {
     auto [rnd_entt, rnd_pos_cmp] = Utils::Rnd::get_random_position(
-        reg(), {}, Utils::Rnd::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
+        reg(), {}, Utils::Rnd::ExcludePack<Cmp::Player::Character, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
     Factory::Npc::create_npc( reg(), rnd_entt, "npc.nightwatchman" );
     SPDLOG_INFO( "Spawned Watchman at {},{}", rnd_pos_cmp.x(), rnd_pos_cmp.y() );
   }
@@ -457,7 +457,7 @@ void NpcSystem::update_movement_for( PathFinding::SpatialHashGrid &navmesh, entt
   if ( lerp_pos_cmp->m_lerp_factor == 0.0f )
   {
     // Allow NPCs to escape wormholes if they're mid-lerp.
-    if ( reg().try_get<Cmp::WormholeJump>( npc_entity ) ) return;
+    if ( reg().try_get<Cmp::Wormhole::Jump>( npc_entity ) ) return;
 
     lerp_pos_cmp->m_start = pos_cmp->position;
   }
@@ -494,7 +494,7 @@ void NpcSystem::update_movement_for( PathFinding::SpatialHashGrid &navmesh, entt
 
 void NpcSystem::check_once_collision()
 {
-  auto player_collision_view = reg().view<Cmp::PlayerCharacter>();
+  auto player_collision_view = reg().view<Cmp::Player::Character>();
   auto npc_collision_view = reg().view<Cmp::Npc::NPC, Cmp::Position, Cmp::Direction>( entt::exclude<Cmp::Npc::Friendly> );
 
   auto &player_dmg_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( reg() );
@@ -503,7 +503,7 @@ void NpcSystem::check_once_collision()
 
   for ( auto [player_entity, player_cmp] : player_collision_view.each() )
   {
-    if ( player_mort.state != Cmp::PlayerMortality::State::ALIVE ) return;
+    if ( player_mort.state != Cmp::Player::Mortality::State::ALIVE ) return;
     for ( auto [npc_entity, npc_cmp, npc_pos_cmp, npc_dir_cmp] : npc_collision_view.each() )
     {
       if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), npc_pos_cmp ) ) continue;
@@ -540,7 +540,7 @@ void NpcSystem::check_timed_collision( sf::Time dt )
   auto &player_pos = Utils::Player::get_position( reg() );
   auto &player_mort = Utils::Player::get_mortality( reg() );
 
-  if ( player_mort.state != Cmp::PlayerMortality::State::ALIVE ) return;
+  if ( player_mort.state != Cmp::Player::Mortality::State::ALIVE ) return;
   for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_collision_view.each() )
   {
     if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), npc_pos_cmp ) ) continue;
@@ -562,12 +562,12 @@ void NpcSystem::check_timed_collision( sf::Time dt )
   }
 }
 
-bool NpcSystem::check_player_death( Cmp::PlayerMortality &player_mort )
+bool NpcSystem::check_player_death( Cmp::Player::Mortality &player_mort )
 {
   if ( Utils::Player::get_player_stats( reg() ).health() > 0 ) return false;
 
-  player_mort.state = Cmp::PlayerMortality::State::HAUNTED;
-  get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::HAUNTED, Utils::Player::get_position( reg() ) ) );
+  player_mort.state = Cmp::Player::Mortality::State::HAUNTED;
+  get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::Player::Mortality::State::HAUNTED, Utils::Player::get_position( reg() ) ) );
   return true;
 }
 
@@ -581,12 +581,12 @@ void NpcSystem::find_pushback_position( const Cmp::Direction &npc_direction )
     if ( Utils::Collision::check_cmp<Cmp::Obstacle>( reg(), rect ) ) return "Obstacle";
     if ( Utils::Collision::check_cmp<Cmp::PlantSegment>( reg(), rect ) ) return "PlantSegment";
     if ( Utils::Collision::check_cmp<Cmp::Wall>( reg(), rect ) ) return "Wall";
-    if ( Utils::Collision::check_cmp<Cmp::AltarSegment>( reg(), rect ) ) return "AltarSegment";
-    if ( Utils::Collision::check_cmp<Cmp::GraveSegment>( reg(), rect ) ) return "GraveSegment";
-    if ( Utils::Collision::check_cmp<Cmp::GraveExitSegment>( reg(), rect ) ) return "GraveExitSegment";
-    if ( Utils::Collision::check_cmp<Cmp::CryptBuildingSegment>( reg(), rect ) ) return "CryptBuildingSegment";
-    if ( Utils::Collision::check_cmp<Cmp::RuinBuildingSegment>( reg(), rect ) ) return "RuinBuildingSegment";
-    if ( Utils::Collision::check_cmp<Cmp::CryptObjectiveSegment>( reg(), rect ) ) return "CryptObjectiveSegment";
+    if ( Utils::Collision::check_cmp<Cmp::Altar::Segment>( reg(), rect ) ) return "Segment";
+    if ( Utils::Collision::check_cmp<Cmp::Grave::Segment>( reg(), rect ) ) return "Segment";
+    if ( Utils::Collision::check_cmp<Cmp::Grave::ExitSegment>( reg(), rect ) ) return "ExitSegment";
+    if ( Utils::Collision::check_cmp<Cmp::Crypt::BuildingSegment>( reg(), rect ) ) return "BuildingSegment";
+    if ( Utils::Collision::check_cmp<Cmp::Ruin::BuildingSegment>( reg(), rect ) ) return "BuildingSegment";
+    if ( Utils::Collision::check_cmp<Cmp::Crypt::ObjectiveSegment>( reg(), rect ) ) return "ObjectiveSegment";
     return {};
   };
 

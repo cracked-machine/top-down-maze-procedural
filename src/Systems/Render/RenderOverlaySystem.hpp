@@ -16,7 +16,8 @@
 
 // clang-format off
 namespace Game::PathFinding { class SpatialHashGrid; enum class QueryCompass; } 
-namespace Game::Cmp { class InventoryWearLevel; class ZOrderValue; } 
+namespace Game::Cmp { class ZOrderValue; }
+namespace Game::Cmp::Inventory { class WearLevel; }
 namespace Game::Sprites { class SpriteSheet; class SpriteFactory; } 
 namespace Game::PathFinding { class SpatialHashGrid; }
 // clang-format on

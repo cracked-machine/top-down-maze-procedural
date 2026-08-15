@@ -21,16 +21,20 @@ namespace Game::Cmp
 class Position;
 class RectBounds;
 class PlayerHealth;
-class PlayerWealth;
-class PlayerBlastRadius;
-class PlayerMortality;
-class PlayerLastGraveyardPosition;
-class PlayerRuinLocation;
 class ZOrderValue;
 class System;
 class LerpPosition;
 class CurrentScene;
 } // namespace Game::Cmp
+
+namespace Game::Cmp::Player
+{
+class Wealth;
+class BlastRadius;
+class Mortality;
+class LastGraveyardPosition;
+class RuinLocation;
+} // namespace Game::Cmp::Player
 
 namespace Game::Utils
 {

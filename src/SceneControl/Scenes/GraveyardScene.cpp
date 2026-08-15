@@ -1,7 +1,7 @@
 #include <Audio/SoundBank.hpp>
-#include <Components/Altar/AltarMultiBlock.hpp>
+#include <Components/Altar/MultiBlock.hpp>
 #include <Components/Direction.hpp>
-#include <Components/Grave/GraveMultiBlock.hpp>
+#include <Components/Grave/MultiBlock.hpp>
 #include <Components/Inventory/Grimoire.hpp>
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/LerpPosition.hpp>
@@ -14,11 +14,11 @@
 #include <Components/Persistent/GraveyardProcGenSurvivalThreshold.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Persistent/RuinProcGenMaxIterations.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerLastGraveyardPosition.hpp>
-#include <Components/Player/PlayerLevelDepth.hpp>
+#include <Components/Player/Character.hpp>
+#include <Components/Player/LastGraveyardPosition.hpp>
+#include <Components/Player/LevelDepth.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/Ruin/RuinBuildingMultiBlock.hpp>
+#include <Components/Ruin/BuildingMultiBlock.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/SceneSettings/CurrentScene.hpp>
 #include <Components/SceneSettings/Footsteps.hpp>
@@ -112,7 +112,7 @@ void GraveyardScene::on_init()
   auto player_start_area = Cmp::RectBounds::scaled( player_start_position, Constants::kGridSizePxF, 5.f, Cmp::RectBounds::ScaleAxis::XY );
 
   // create the player, optionally increment the level counter
-  auto player_view = m_reg.view<Cmp::PlayerCharacter>();
+  auto player_view = m_reg.view<Cmp::Player::Character>();
   if ( player_view.size() == 0 ) { Factory::Player::create_player( m_reg ); }
   else
   {

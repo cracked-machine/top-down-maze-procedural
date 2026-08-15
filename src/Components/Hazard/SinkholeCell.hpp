@@ -1,12 +1,12 @@
 #ifndef SRC_COMPONENTS_HAZARD_SINKHOLECELL_HPP__
 #define SRC_COMPONENTS_HAZARD_SINKHOLECELL_HPP__
 
-#include <Components/Hazard/HazardFieldCell.hpp>
+#include <Components/Hazard/FieldCell.hpp>
 
 namespace Game::Cmp
 {
 
-struct SinkholeCell : public HazardFieldCell
+struct SinkholeCell : public Hazard::FieldCell
 {
 };
 

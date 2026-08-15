@@ -1,22 +1,22 @@
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Direction.hpp>
-#include <Components/Inventory/InventoryWearLevel.hpp>
+#include <Components/Inventory/WearLevel.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/LastDirection.hpp>
 #include <Components/LerpPosition.hpp>
-#include <Components/Player/PlayerBlastRadius.hpp>
-#include <Components/Player/PlayerCadaverCount.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerCurse.hpp>
-#include <Components/Player/PlayerExtraLife.hpp>
-#include <Components/Player/PlayerLastGraveyardPosition.hpp>
-#include <Components/Player/PlayerLevelDepth.hpp>
-#include <Components/Player/PlayerMortality.hpp>
-#include <Components/Player/PlayerRuinLocation.hpp>
-#include <Components/Player/PlayerSpeedPenalty.hpp>
-#include <Components/Player/PlayerWealth.hpp>
+#include <Components/Player/BlastRadius.hpp>
+#include <Components/Player/CadaverCount.hpp>
+#include <Components/Player/Character.hpp>
+#include <Components/Player/Curse.hpp>
+#include <Components/Player/ExtraLife.hpp>
+#include <Components/Player/LastGraveyardPosition.hpp>
+#include <Components/Player/LevelDepth.hpp>
+#include <Components/Player/Mortality.hpp>
+#include <Components/Player/RuinLocation.hpp>
+#include <Components/Player/SpeedPenalty.hpp>
+#include <Components/Player/Wealth.hpp>
 #include <Components/Player/TorchRadius.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
@@ -32,7 +32,7 @@ namespace Game::Utils::Player
 
 entt::entity get_entity( entt::registry &reg )
 {
-  auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::Position>();
+  auto player_view = reg.view<Cmp::Player::Character, Cmp::Position>();
   if ( player_view.front() == entt::null ) throw std::runtime_error( "Player entity could not be found" );
   return player_view.front();
 }
@@ -43,7 +43,7 @@ entt::entity get_entity( entt::registry &reg )
 //! @return Cmp::Position&
 Cmp::Position &get_position( entt::registry &reg )
 {
-  auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::Position>();
+  auto player_view = reg.view<Cmp::Player::Character, Cmp::Position>();
   for ( auto [entt, player_cmp, pos_cmp] : player_view.each() )
   {
     return pos_cmp;
@@ -57,7 +57,7 @@ Cmp::Position &get_position( entt::registry &reg )
 //! @return Cmp::Direction&
 Cmp::Direction &get_direction( entt::registry &reg )
 {
-  auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::Direction>();
+  auto player_view = reg.view<Cmp::Player::Character, Cmp::Direction>();
   for ( auto [entt, player_cmp, dir_cmp] : player_view.each() )
   {
     return dir_cmp;
@@ -71,7 +71,7 @@ Cmp::Direction &get_direction( entt::registry &reg )
 //! @return Cmp::LastDirection&
 Cmp::LastDirection &get_last_direction( entt::registry &reg )
 {
-  auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::LastDirection>();
+  auto player_view = reg.view<Cmp::Player::Character, Cmp::LastDirection>();
   for ( auto [entt, player_cmp, dir_cmp] : player_view.each() )
   {
     return dir_cmp;
@@ -85,7 +85,7 @@ Cmp::LastDirection &get_last_direction( entt::registry &reg )
 //! @return Cmp::SpriteAnimation&
 Cmp::AnimData &get_sprite_anim( entt::registry &reg )
 {
-  auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::AnimData>();
+  auto player_view = reg.view<Cmp::Player::Character, Cmp::AnimData>();
   for ( auto [entt, player_cmp, anim_cmp] : player_view.each() )
   {
     return anim_cmp;
@@ -95,46 +95,46 @@ Cmp::AnimData &get_sprite_anim( entt::registry &reg )
 
 int get_ruin_location( entt::registry &reg )
 {
-  auto *player_location = reg.try_get<Cmp::PlayerRuinLocation>( get_entity( reg ) );
+  auto *player_location = reg.try_get<Cmp::Player::RuinLocation>( get_entity( reg ) );
   if ( player_location ) { return static_cast<int>( player_location->m_floor ); }
-  return static_cast<int>( Cmp::PlayerRuinLocation::Floor::NONE );
+  return static_cast<int>( Cmp::Player::RuinLocation::Floor::NONE );
 }
 
 //! @brief Get the player last graveyard position object. Return may be nullptr if non-existent.
 //! @param reg
-//! @return Cmp::PlayerLastGraveyardPosition*
-Cmp::PlayerLastGraveyardPosition *get_last_graveyard_pos( entt::registry &reg )
+//! @return Cmp::Player::LastGraveyardPosition*
+Cmp::Player::LastGraveyardPosition *get_last_graveyard_pos( entt::registry &reg )
 {
   auto player_entt = get_entity( reg );
-  return reg.try_get<Cmp::PlayerLastGraveyardPosition>( player_entt );
+  return reg.try_get<Cmp::Player::LastGraveyardPosition>( player_entt );
 }
 
-Cmp::PlayerLevelDepth &get_level_depth( entt::registry &reg )
+Cmp::Player::LevelDepth &get_level_depth( entt::registry &reg )
 {
-  auto player_view = reg.view<Cmp::PlayerLevelDepth>();
-  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PlayerLevelDepth" );
-  return player_view.get<Cmp::PlayerLevelDepth>( get_entity( reg ) );
+  auto player_view = reg.view<Cmp::Player::LevelDepth>();
+  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::Player::LevelDepth" );
+  return player_view.get<Cmp::Player::LevelDepth>( get_entity( reg ) );
 }
 
-Cmp::PlayerWealth &get_wealth( entt::registry &reg )
+Cmp::Player::Wealth &get_wealth( entt::registry &reg )
 {
-  auto player_view = reg.view<Cmp::PlayerWealth>();
-  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PlayerWealth" );
-  return player_view.get<Cmp::PlayerWealth>( get_entity( reg ) );
+  auto player_view = reg.view<Cmp::Player::Wealth>();
+  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::Player::Wealth" );
+  return player_view.get<Cmp::Player::Wealth>( get_entity( reg ) );
 }
 
-Cmp::PlayerBlastRadius &get_blast_radius( entt::registry &reg )
+Cmp::Player::BlastRadius &get_blast_radius( entt::registry &reg )
 {
-  auto player_view = reg.view<Cmp::PlayerBlastRadius>();
-  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PlayerBlastRadius" );
-  return player_view.get<Cmp::PlayerBlastRadius>( get_entity( reg ) );
+  auto player_view = reg.view<Cmp::Player::BlastRadius>();
+  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::Player::BlastRadius" );
+  return player_view.get<Cmp::Player::BlastRadius>( get_entity( reg ) );
 }
 
-Cmp::PlayerMortality &get_mortality( entt::registry &reg )
+Cmp::Player::Mortality &get_mortality( entt::registry &reg )
 {
-  auto player_view = reg.view<Cmp::PlayerMortality>();
-  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PlayerMortality" );
-  return player_view.get<Cmp::PlayerMortality>( get_entity( reg ) );
+  auto player_view = reg.view<Cmp::Player::Mortality>();
+  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::Player::Mortality" );
+  return player_view.get<Cmp::Player::Mortality>( get_entity( reg ) );
 }
 
 Cmp::ZOrderValue &get_zorder( entt::registry &reg )
@@ -142,7 +142,7 @@ Cmp::ZOrderValue &get_zorder( entt::registry &reg )
   auto *zorder_cmp = reg.try_get<Cmp::ZOrderValue>( get_entity( reg ) );
   if ( not zorder_cmp ) throw std::runtime_error( "Player entt has no component: Cmp::ZOrderValue" );
 
-  auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::ZOrderValue>();
+  auto player_view = reg.view<Cmp::Player::Character, Cmp::ZOrderValue>();
   return player_view.get<Cmp::ZOrderValue>( get_entity( reg ) );
 }
 
@@ -151,32 +151,32 @@ Cmp::AbsoluteAlpha &get_alpha( entt::registry &reg )
   auto *alpha_cmp = reg.try_get<Cmp::AbsoluteAlpha>( get_entity( reg ) );
   if ( not alpha_cmp ) throw std::runtime_error( "Player entt has no component: Cmp::AbsoluteAlpha" );
 
-  auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::AbsoluteAlpha>();
+  auto player_view = reg.view<Cmp::Player::Character, Cmp::AbsoluteAlpha>();
   return player_view.get<Cmp::AbsoluteAlpha>( get_entity( reg ) );
 }
 
-Cmp::PlayerCurse &get_curse( entt::registry &reg )
+Cmp::Player::Curse &get_curse( entt::registry &reg )
 {
-  auto player_view = reg.view<Cmp::PlayerCurse>();
-  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PlayerCurse" );
-  auto &curse = player_view.get<Cmp::PlayerCurse>( get_entity( reg ) );
-  SPDLOG_DEBUG( "Cmp::PlayerCurse == {}", curse.active );
+  auto player_view = reg.view<Cmp::Player::Curse>();
+  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::Player::Curse" );
+  auto &curse = player_view.get<Cmp::Player::Curse>( get_entity( reg ) );
+  SPDLOG_DEBUG( "Cmp::Player::Curse == {}", curse.active );
   return curse;
 }
 
 void reset_curse( entt::registry &reg )
 {
-  auto player_view = reg.view<Cmp::PlayerCurse>();
-  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PlayerCurse" );
-  auto &curse = player_view.get<Cmp::PlayerCurse>( get_entity( reg ) );
+  auto player_view = reg.view<Cmp::Player::Curse>();
+  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::Player::Curse" );
+  auto &curse = player_view.get<Cmp::Player::Curse>( get_entity( reg ) );
   curse.active = false;
   curse.shader_alpha.reset();
-  SPDLOG_DEBUG( "Cmp::PlayerCurse == {}", curse.active );
+  SPDLOG_DEBUG( "Cmp::Player::Curse == {}", curse.active );
 }
 
 float get_speed_penalty( entt::registry &reg )
 {
-  auto *penalty_cmp = reg.try_get<Cmp::PlayerSpeedPenalty>( get_entity( reg ) );
+  auto *penalty_cmp = reg.try_get<Cmp::Player::SpeedPenalty>( get_entity( reg ) );
   if ( penalty_cmp ) { return penalty_cmp->m_penalty; }
   return 1.f;
 }
@@ -209,24 +209,24 @@ std::pair<entt::entity, Sprites::SpriteMetaType> get_inventory_type( entt::regis
 
 float get_inventory_wear_level( entt::registry &reg )
 {
-  auto inventory_wear_view = reg.view<Cmp::PlayerInventorySlot, Cmp::InventoryWearLevel>();
+  auto inventory_wear_view = reg.view<Cmp::PlayerInventorySlot, Cmp::Inventory::WearLevel>();
   for ( auto [inventory_entity, inventory_slot, wear_level] : inventory_wear_view.each() )
   {
     return wear_level.m_level;
   }
-  SPDLOG_DEBUG( "Player Inventory slot has no appropriate InventoryWearLevel component" );
+  SPDLOG_DEBUG( "Player Inventory slot has no appropriate WearLevel component" );
   return -1;
 }
 
 void reduce_inventory_wear_level( entt::registry &reg, float amount )
 {
-  auto inventory_wear_view = reg.view<Cmp::PlayerInventorySlot, Cmp::InventoryWearLevel>();
+  auto inventory_wear_view = reg.view<Cmp::PlayerInventorySlot, Cmp::Inventory::WearLevel>();
   for ( auto [inventory_entity, inventory_slot, wear_level] : inventory_wear_view.each() )
   {
     wear_level.m_level -= amount;
     return;
   }
-  SPDLOG_DEBUG( "Player Inventory slot has no appropriate InventoryWearLevel component" );
+  SPDLOG_DEBUG( "Player Inventory slot has no appropriate WearLevel component" );
 }
 
 bool is_in_spawn( entt::registry &reg, const Cmp::Position &player_pos_cmp )
@@ -239,13 +239,13 @@ bool is_in_spawn( entt::registry &reg, const Cmp::Position &player_pos_cmp )
   return result;
 }
 
-Cmp::PlayerCadaverCount &get_cadaver_count( entt::registry &reg )
+Cmp::Player::CadaverCount &get_cadaver_count( entt::registry &reg )
 {
 
-  auto player_view = reg.view<Cmp::PlayerCadaverCount>();
-  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PlayerCadaverCount" );
-  auto &curse = player_view.get<Cmp::PlayerCadaverCount>( get_entity( reg ) );
-  SPDLOG_DEBUG( "Cmp::PlayerCadaverCount == {}", curse.active );
+  auto player_view = reg.view<Cmp::Player::CadaverCount>();
+  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::Player::CadaverCount" );
+  auto &curse = player_view.get<Cmp::Player::CadaverCount>( get_entity( reg ) );
+  SPDLOG_DEBUG( "Cmp::Player::CadaverCount == {}", curse.active );
   return curse;
 }
 
@@ -264,24 +264,24 @@ Cmp::PlayerStats &get_player_stats( entt::registry &reg )
   auto player_stats_view = reg.view<Cmp::PlayerStats>();
   for ( auto [entity, cmp] : player_stats_view.each() )
   {
-    if ( reg.all_of<Cmp::PlayerCharacter>( entity ) ) { return cmp; }
+    if ( reg.all_of<Cmp::Player::Character>( entity ) ) { return cmp; }
   }
   throw std::runtime_error( "Player entt has no component: Cmp::PlayerStats" );
 }
 
 sf::Clock &get_global_bomb_flash_clk( entt::registry &reg )
 {
-  auto player_view = reg.view<Cmp::PlayerCharacter>();
+  auto player_view = reg.view<Cmp::Player::Character>();
   for ( auto [entt, player_cmp] : player_view.each() )
   {
     return player_cmp.m_global_bomb_flash_clk;
   }
-  throw std::runtime_error( "Player entt has no component: Cmp::PlayerCharacter" );
+  throw std::runtime_error( "Player entt has no component: Cmp::Player::Character" );
 }
 
 bool player_has_extra_life( entt::registry &reg )
 {
-  auto player_view = reg.view<Cmp::PlayerExtraLife>();
+  auto player_view = reg.view<Cmp::Player::ExtraLife>();
   return not player_view.empty();
 }
 

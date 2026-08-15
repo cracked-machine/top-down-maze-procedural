@@ -1,7 +1,7 @@
 #ifndef SRC_COMPONENTS_PARTICLE_OBSTACLEDIGPARTICLESPRITE_HPP__
 #define SRC_COMPONENTS_PARTICLE_OBSTACLEDIGPARTICLESPRITE_HPP__
 
-#include <Components/Particle/ParticleSpriteBase.hpp>
+#include <Components/Particle/SpriteBase.hpp>
 #include <SFML/Graphics/BlendMode.hpp>
 #include <Systems/ParticleSystem.hpp>
 
@@ -39,7 +39,7 @@ private:
 } // namespace detail
 
 //! @brief
-class ObstacleDigParticleSprite : public ParticleSpriteBase<detail::ObstacleDigParticle>
+class ObstacleDigParticleSprite : public SpriteBase<detail::ObstacleDigParticle>
 {
 public:
   //! @brief Construct a new Particle Sprite Test object

@@ -1,8 +1,8 @@
-#include <Components/Altar/AltarSacrifice.hpp>
-#include <Components/Altar/AltarSegment.hpp>
+#include <Components/Altar/Sacrifice.hpp>
+#include <Components/Altar/Segment.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Npc/Npc.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Player/Character.hpp>
 #include <Components/Position.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/SpriteFactory.hpp>

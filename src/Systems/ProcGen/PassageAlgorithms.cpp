@@ -1,7 +1,7 @@
 
-#include <Components/Crypt/CryptRoomClosed.hpp>
-#include <Components/Crypt/CryptRoomEnd.hpp>
-#include <Components/Crypt/CryptRoomOpen.hpp>
+#include <Components/Crypt/RoomClosed.hpp>
+#include <Components/Crypt/RoomEnd.hpp>
+#include <Components/Crypt/RoomOpen.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/Wall.hpp>
@@ -16,20 +16,20 @@
 namespace Game::Sys::ProcGen
 {
 
-std::optional<Cmp::CryptPassageBlock> PassageAlogirthms::place_passage_block( entt::registry &reg, float x, float y,
+std::optional<Cmp::Crypt::PassageBlock> PassageAlogirthms::place_passage_block( entt::registry &reg, float x, float y,
                                                                               AllowDuplicatePassages duplicates_policy, bool skip_wall_check )
 {
   Cmp::Position candidate_passage_block_pos_cmp( Utils::snap_to_grid( { x, y }, Utils::Rounding::TOWARDS_ZERO ), Constants::kGridSizePxF );
 
   // Check if a block already exists at this position
-  auto block_view = reg.view<Cmp::CryptPassageBlock>();
+  auto block_view = reg.view<Cmp::Crypt::PassageBlock>();
   for ( auto [passage_block_entt, passage_block_cmp] : block_view.each() )
   {
     Cmp::Position existing_passageblock_pos_cmp( passage_block_cmp, Constants::kGridSizePxF );
     if ( ( existing_passageblock_pos_cmp.findIntersection( candidate_passage_block_pos_cmp ) ) and
          ( duplicates_policy == AllowDuplicatePassages::NO ) )
     {
-      // SPDLOG_INFO( "CryptPassageBlock already exists at {},{}", x, y );
+      // SPDLOG_INFO( "PassageBlock already exists at {},{}", x, y );
       return std::nullopt;
     }
   }
@@ -43,18 +43,18 @@ std::optional<Cmp::CryptPassageBlock> PassageAlogirthms::place_passage_block( en
     {
       if ( wall_rects.findIntersection( candidate_passage_block_pos_cmp ) )
       {
-        SPDLOG_DEBUG( "Wall collision: Cannot place CryptPassageBlock at {},{}", x, y );
+        SPDLOG_DEBUG( "Wall collision: Cannot place PassageBlock at {},{}", x, y );
         return std::nullopt;
       }
     }
   }
 
-  SPDLOG_DEBUG( "Placed CryptPassageBlock at {},{} (id:{})", x, y, m_current_passage_id );
+  SPDLOG_DEBUG( "Placed PassageBlock at {},{} (id:{})", x, y, m_current_passage_id );
 
-  return Cmp::CryptPassageBlock( candidate_passage_block_pos_cmp.position, m_current_passage_id );
+  return Cmp::Crypt::PassageBlock( candidate_passage_block_pos_cmp.position, m_current_passage_id );
 };
 
-std::vector<Cmp::CryptPassageBlock> PassageAlogirthms::create_drunken_walk( entt::registry &reg, Cmp::CryptPassageDoor start,
+std::vector<Cmp::Crypt::PassageBlock> PassageAlogirthms::create_drunken_walk( entt::registry &reg, Cmp::Crypt::PassageDoor start,
                                                                             sf::FloatRect end_bounds, sf::Vector2f map_size_pixel,
 
                                                                             const std::set<entt::entity> &exclude_entts,
@@ -84,11 +84,11 @@ std::vector<Cmp::CryptPassageBlock> PassageAlogirthms::create_drunken_walk( entt
                                                                  Cmp::Direction( { 0.f, 1.f } ), Cmp::Direction( { -1.f, 0.f } ) };
 
   //! @brief direction vector quick lookup for passage creation
-  static std::unordered_map<Cmp::CryptPassageDirection, Cmp::Direction> kDirectionDictionary = {
-      { Cmp::CryptPassageDirection::NORTH, Cmp::Direction( { 0.f, -1.f } ) },
-      { Cmp::CryptPassageDirection::EAST, Cmp::Direction( { 1.f, 0.f } ) },
-      { Cmp::CryptPassageDirection::SOUTH, Cmp::Direction( { 0.f, 1.f } ) },
-      { Cmp::CryptPassageDirection::WEST, Cmp::Direction( { -1.f, 0.f } ) } };
+  static std::unordered_map<Cmp::Crypt::CryptPassageDirection, Cmp::Direction> kDirectionDictionary = {
+      { Cmp::Crypt::CryptPassageDirection::NORTH, Cmp::Direction( { 0.f, -1.f } ) },
+      { Cmp::Crypt::CryptPassageDirection::EAST, Cmp::Direction( { 1.f, 0.f } ) },
+      { Cmp::Crypt::CryptPassageDirection::SOUTH, Cmp::Direction( { 0.f, 1.f } ) },
+      { Cmp::Crypt::CryptPassageDirection::WEST, Cmp::Direction( { -1.f, 0.f } ) } };
 
   //! @brief Drunken walk roulette picker for direction
   //! @note undefined odds are used to select a random direction
@@ -118,7 +118,7 @@ std::vector<Cmp::CryptPassageBlock> PassageAlogirthms::create_drunken_walk( entt
   // cache open room rects once before the walk
   std::vector<sf::FloatRect> open_room_rects;
   open_room_rects.reserve( 32 );
-  for ( auto [open_room_entt, open_room_cmp] : reg.view<Cmp::CryptRoomOpen>().each() )
+  for ( auto [open_room_entt, open_room_cmp] : reg.view<Cmp::Crypt::RoomOpen>().each() )
   {
     if ( exclude_entts.contains( open_room_entt ) ) continue;
     open_room_rects.emplace_back( open_room_cmp.position, open_room_cmp.size );
@@ -128,12 +128,12 @@ std::vector<Cmp::CryptPassageBlock> PassageAlogirthms::create_drunken_walk( entt
   // NOTE: new blocks added during the walk use m_current_passage_id so we only need OTHER passages cached
   std::vector<sf::Vector2f> other_passage_block_positions;
   other_passage_block_positions.reserve( 256 );
-  for ( auto [block_entt, block_cmp] : reg.view<Cmp::CryptPassageBlock>().each() )
+  for ( auto [block_entt, block_cmp] : reg.view<Cmp::Crypt::PassageBlock>().each() )
   {
     if ( block_cmp.m_passage_id != m_current_passage_id ) other_passage_block_positions.emplace_back( block_cmp.x, block_cmp.y );
   }
 
-  std::vector<Cmp::CryptPassageBlock> passage_block_list;
+  std::vector<Cmp::Crypt::PassageBlock> passage_block_list;
   passage_block_list.reserve( kMaxStepsPerWalk );
 
   auto maybe_passage_block = place_passage_block( reg, start.x, start.y, duplicates_policy, true );
@@ -287,11 +287,11 @@ std::vector<Cmp::CryptPassageBlock> PassageAlogirthms::create_drunken_walk( entt
   return passage_block_list;
 }
 
-std::vector<Cmp::CryptPassageBlock> PassageAlogirthms::create_dog_leg( entt::registry &reg, Cmp::CryptPassageDoor start, sf::FloatRect end_bounds,
+std::vector<Cmp::Crypt::PassageBlock> PassageAlogirthms::create_dog_leg( entt::registry &reg, Cmp::Crypt::PassageDoor start, sf::FloatRect end_bounds,
                                                                        AllowDuplicatePassages duplicates_policy )
 {
 
-  std::vector<Cmp::CryptPassageBlock> passage_block_list;
+  std::vector<Cmp::Crypt::PassageBlock> passage_block_list;
 
   SPDLOG_DEBUG( "createDogLegPassage (id:{}) from ({},{}) to ({},{})", m_current_passage_id, start.x, start.y, end_bounds.getCenter().x,
                 end_bounds.getCenter().y );
@@ -299,12 +299,12 @@ std::vector<Cmp::CryptPassageBlock> PassageAlogirthms::create_dog_leg( entt::reg
   const auto kSquareSizePx = Constants::kGridSizePxF;
 
   // always prioritize nearer direction
-  if ( start.m_direction == Cmp::CryptPassageDirection::EAST or start.m_direction == Cmp::CryptPassageDirection::WEST )
+  if ( start.m_direction == Cmp::Crypt::CryptPassageDirection::EAST or start.m_direction == Cmp::Crypt::CryptPassageDirection::WEST )
   {
     SPDLOG_DEBUG( "First leg: horizontal" );
     // try to prevent hitting another open room before reaching the target room
     float furthest_pos_x;
-    if ( start.m_direction == Cmp::CryptPassageDirection::EAST )
+    if ( start.m_direction == Cmp::Crypt::CryptPassageDirection::EAST )
     {
       furthest_pos_x = end_bounds.position.x + end_bounds.size.x;
       for ( float x = start.x; x <= furthest_pos_x; x += kSquareSizePx.x )
@@ -313,7 +313,7 @@ std::vector<Cmp::CryptPassageBlock> PassageAlogirthms::create_dog_leg( entt::reg
         if ( maybe_passage_block.has_value() ) { passage_block_list.push_back( maybe_passage_block.value() ); }
       }
     }
-    else if ( start.m_direction == Cmp::CryptPassageDirection::WEST )
+    else if ( start.m_direction == Cmp::Crypt::CryptPassageDirection::WEST )
     {
       furthest_pos_x = end_bounds.position.x;
       for ( float x = start.x; x >= furthest_pos_x; x -= kSquareSizePx.x )
@@ -346,7 +346,7 @@ std::vector<Cmp::CryptPassageBlock> PassageAlogirthms::create_dog_leg( entt::reg
     SPDLOG_DEBUG( "First leg: vertical" );
     // try to prevent hitting another open room before reaching the target room
     float furthest_pos_y = 0;
-    if ( start.m_direction == Cmp::CryptPassageDirection::SOUTH )
+    if ( start.m_direction == Cmp::Crypt::CryptPassageDirection::SOUTH )
     {
       furthest_pos_y = end_bounds.position.y + end_bounds.size.y;
       for ( float y = start.y; y <= furthest_pos_y; y += kSquareSizePx.y )
@@ -355,7 +355,7 @@ std::vector<Cmp::CryptPassageBlock> PassageAlogirthms::create_dog_leg( entt::reg
         if ( maybe_passage_block.has_value() ) { passage_block_list.push_back( maybe_passage_block.value() ); }
       }
     }
-    else if ( start.m_direction == Cmp::CryptPassageDirection::NORTH )
+    else if ( start.m_direction == Cmp::Crypt::CryptPassageDirection::NORTH )
     {
       furthest_pos_y = end_bounds.position.y;
       for ( float y = start.y; y >= furthest_pos_y; y -= kSquareSizePx.y )

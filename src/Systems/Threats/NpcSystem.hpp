@@ -19,9 +19,13 @@ namespace Game::Cmp
 {
 class Direction;
 class LerpPosition;
-class PlayerMortality;
 
 } // namespace Game::Cmp
+
+namespace Game::Cmp::Player
+{
+class Mortality;
+} // namespace Game::Cmp::Player
 
 namespace Game::Cmp::Npc
 {
@@ -115,7 +119,7 @@ private:
   //! @brief Transition the player to HAUNTED and enqueue the mortality event if health has depleted.
   //! @param player_mort
   //! @return true if the player died
-  bool check_player_death( Cmp::PlayerMortality &player_mort );
+  bool check_player_death( Cmp::Player::Mortality &player_mort );
 
   //! @brief Update pathfinding for all NPCs.
   //! @param dt

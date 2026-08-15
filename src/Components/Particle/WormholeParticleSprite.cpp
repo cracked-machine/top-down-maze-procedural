@@ -33,7 +33,7 @@ void WormholeParticle::emit()
 } // namespace detail
 
 WormholeParticleSprite::WormholeParticleSprite( size_t count )
-    : ParticleSpriteBase( count ) {};
+    : SpriteBase( count ) {};
 
 void WormholeParticleSprite::simulate( sf::Time dt )
 {

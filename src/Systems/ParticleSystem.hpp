@@ -1,7 +1,7 @@
 #ifndef SRC_SYSTEMS_PARTICLESYSTEM_HPP__
 #define SRC_SYSTEMS_PARTICLESYSTEM_HPP__
 
-#include <Components/Particle/ParticleSpriteBase.hpp>
+#include <Components/Particle/SpriteBase.hpp>
 #include <Components/UUID.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/ParticleEvents.hpp>
@@ -19,15 +19,15 @@ namespace Game::Sys
 
 // IParticle                            contract: emit(), vertex, velocity, lifetime
 // IParticleSprite                      contract: simulate(), set_emitter(), draw()
-//   └── ParticleSpriteBase<IParticle>  template: owns vector<T>, implements draw()
+//   └── SpriteBase<IParticle>  template: owns vector<T>, implements draw()
 
 // ParticleSpriteOwner                  entt component: tag + unique_ptr<IParticleSprite>
 
 // ParticleSystem                       add(), update(), find() — knows nothing about concrete types
 // RenderGameSystem                     iterates ParticleSpriteOwner, calls draw() — knows nothing about concrete types
 
-//! @brief  This wraps ParticleSpriteBase<IParticle> so it can be emplaced/retrieved with the Entt registry as a single type.
-//!         ParticleSystem::find can retrieve ParticleSpriteBase<IParticle> via the specified `tag`
+//! @brief  This wraps SpriteBase<IParticle> so it can be emplaced/retrieved with the Entt registry as a single type.
+//!         ParticleSystem::find can retrieve SpriteBase<IParticle> via the specified `tag`
 struct ParticleSpriteOwner
 {
   std::unique_ptr<Cmp::Particle::IParticleSprite> sprite;
@@ -61,7 +61,7 @@ public:
     add_to_registry( uuid_cmp, ParticleSpriteOwner( std::make_unique<PARTICLESPRITE>( ps ) ), zorder );
   }
 
-  //! @brief Calls IParticle::update() function within all added ParticleSpriteBase<T>
+  //! @brief Calls IParticle::update() function within all added SpriteBase<T>
   //! @param dt
   void update( sf::Time dt );
 
@@ -70,7 +70,7 @@ public:
   //! @param excl_ps_tag_list List of particle sprite tags to exclude from the collision checks
   void check_collsion( const sf::FloatRect &target, const std::vector<std::string> &excl_ps_tag_list = {} );
 
-  //! @brief Find a ParticleSpriteOwner by tag and return a pointer to ParticleSpriteBase<IParticle>, or nullptr if not found
+  //! @brief Find a ParticleSpriteOwner by tag and return a pointer to SpriteBase<IParticle>, or nullptr if not found
   [[nodiscard]] static std::vector<std::reference_wrapper<Cmp::Particle::IParticleSprite>> find( entt::registry &reg, const std::string &tag );
 
   //! @brief event handlers for pausing system clocks

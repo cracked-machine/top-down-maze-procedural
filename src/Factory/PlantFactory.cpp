@@ -6,8 +6,8 @@
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
 // #include <Components/PlantObstacle.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerNoPath.hpp>
+#include <Components/Player/Character.hpp>
+#include <Components/Player/NoPath.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/UUID.hpp>

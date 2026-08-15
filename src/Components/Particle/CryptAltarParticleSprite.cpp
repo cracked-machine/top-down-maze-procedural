@@ -21,7 +21,7 @@ void CryptAltarParticle::emit()
 } // namespace detail
 
 CryptAltarParticleSprite::CryptAltarParticleSprite( size_t count )
-    : ParticleSpriteBase( count ) {};
+    : SpriteBase( count ) {};
 
 void CryptAltarParticleSprite::simulate( sf::Time dt )
 {

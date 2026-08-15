@@ -1,6 +1,6 @@
 
 #include <Components/Persistent/DisplayResolution.hpp>
-#include <Components/Player/PlayerCurse.hpp>
+#include <Components/Player/Curse.hpp>
 #include <Components/Position.hpp>
 #include <Shaders/UniformBuilder.hpp>
 #include <Systems/PersistSystem.hpp>

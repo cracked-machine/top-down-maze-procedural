@@ -3,7 +3,7 @@
 #include <Components/AbsoluteOffset.hpp>
 #include <Components/AbsoluteRenderOffset.hpp>
 #include <Components/AbsoluteRotation.hpp>
-#include <Components/Altar/AltarMultiBlock.hpp>
+#include <Components/Altar/MultiBlock.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Exit.hpp>
@@ -11,7 +11,7 @@
 #include <Components/Grave/PlantMultiBlock.hpp>
 #include <Components/Grave/PlantSegment.hpp>
 #include <Components/Inventory/Explosive.hpp>
-#include <Components/Inventory/InventoryWearLevel.hpp>
+#include <Components/Inventory/WearLevel.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/Inventory/WorldItem.hpp>
@@ -30,16 +30,16 @@
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Persistent/PostPullMovementDelay.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerMortality.hpp>
-#include <Components/Player/PlayerNoPath.hpp>
+#include <Components/Player/Character.hpp>
+#include <Components/Player/Mortality.hpp>
+#include <Components/Player/NoPath.hpp>
 #include <Components/Player/PostDeathTimeout.hpp>
 #include <Components/Player/TorchRadius.hpp>
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/Ruin/RuinCobweb.hpp>
+#include <Components/Ruin/Cobweb.hpp>
 #include <Components/Ruin/RuneMarking.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/SelectedPosition.hpp>
@@ -55,7 +55,7 @@
 
 #include <Components/UUID.hpp>
 #include <Components/Wall.hpp>
-#include <Components/Wormhole/WormholeJump.hpp>
+#include <Components/Wormhole/Jump.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/DropInventoryEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
@@ -167,7 +167,7 @@ void PlayerSystem::stop_footsteps_sound()
 
 void PlayerSystem::disable_damage_cooldown()
 {
-  for ( auto [player_entt, player_cmp] : reg().view<Cmp::PlayerCharacter>().each() )
+  for ( auto [player_entt, player_cmp] : reg().view<Cmp::Player::Character>().each() )
   {
     player_cmp.m_damage_cooldown_timer.stop();
   }
@@ -175,7 +175,7 @@ void PlayerSystem::disable_damage_cooldown()
 
 void PlayerSystem::enable_damage_cooldown()
 {
-  for ( auto [player_entt, player_cmp] : reg().view<Cmp::PlayerCharacter>().each() )
+  for ( auto [player_entt, player_cmp] : reg().view<Cmp::Player::Character>().each() )
   {
     player_cmp.m_damage_cooldown_timer.restart();
   }
@@ -183,7 +183,7 @@ void PlayerSystem::enable_damage_cooldown()
 
 void PlayerSystem::force_expire_damage_cooldown()
 {
-  for ( auto [player_entt, player_cmp] : reg().view<Cmp::PlayerCharacter>().each() )
+  for ( auto [player_entt, player_cmp] : reg().view<Cmp::Player::Character>().each() )
   {
     player_cmp.skip_damage_cooldown_once = true;
   }
@@ -212,7 +212,7 @@ void PlayerSystem::move_obstacle( const sf::FloatRect &target_position )
                             not Utils::Collision::check_cmp<Cmp::NoMoveDest>( reg(), obstacle_dest_position );
 
     // can we move player in the opposite direction if they are pulling?
-    bool player_in_the_way = Utils::Collision::check_cmp<Cmp::PlayerCharacter>( reg(), obstacle_dest_position );
+    bool player_in_the_way = Utils::Collision::check_cmp<Cmp::Player::Character>( reg(), obstacle_dest_position );
     if ( player_in_the_way )
     {
       if ( ( Utils::Collision::check_cmp<Cmp::Obstacle>( reg(), player_dest_position ) ) or
@@ -243,7 +243,7 @@ void PlayerSystem::move_obstacle( const sf::FloatRect &target_position )
       }
 
       // if we moved obstacle into cobweb it is now stuck :'(
-      for ( auto [cobweb_entt, cobweb_cmp, cobweb_pos_cmp] : reg().view<Cmp::RuinCobweb, Cmp::Position>().each() )
+      for ( auto [cobweb_entt, cobweb_cmp, cobweb_pos_cmp] : reg().view<Cmp::Ruin::Cobweb, Cmp::Position>().each() )
       {
         if ( selected_pos_cmp.findIntersection( cobweb_pos_cmp ) ) { reg().remove<Cmp::Moveable>( selected_entt ); }
       }
@@ -447,12 +447,12 @@ void PlayerSystem::update_player_animation()
 void PlayerSystem::check_player_mortality()
 {
 
-  auto player_view = reg().view<Cmp::PlayerCharacter, Cmp::PlayerMortality, Cmp::Position>();
+  auto player_view = reg().view<Cmp::Player::Character, Cmp::Player::Mortality, Cmp::Position>();
   for ( auto [entity, pc_cmp, mortality_cmp, player_pos_cmp] : player_view.each() )
   {
     auto *player_post_death_timeout = reg().try_get<Cmp::Player::PostDeathTimeout>( Utils::Player::get_entity( reg() ) );
     if ( player_post_death_timeout and player_post_death_timeout->getElapsedTime() < sf::seconds( 5.f ) ) continue;
-    if ( mortality_cmp.state == Cmp::PlayerMortality::State::DEAD )
+    if ( mortality_cmp.state == Cmp::Player::Mortality::State::DEAD )
     {
       if ( Utils::Player::player_has_extra_life( reg() ) )
       {
@@ -460,7 +460,7 @@ void PlayerSystem::check_player_mortality()
         Factory::Player::remove_player_extra_life( reg() );
         m_sound_bank.get_effect( "player_respawn" ).play();
         Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ 100 }, {}, {}, {}, {}, {} } );
-        Utils::Player::get_mortality( reg() ).state = Cmp::PlayerMortality::State::ALIVE;
+        Utils::Player::get_mortality( reg() ).state = Cmp::Player::Mortality::State::ALIVE;
         Utils::Player::get_zorder( reg() ).setZOrder( Utils::Player::get_position( reg() ).y() );
         reg().remove<Cmp::Player::PostDeathTimeout>( Utils::Player::get_entity( reg() ) );
       }
@@ -566,7 +566,7 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
 
       // apply candle item modifiers to the player when standing inside flame radius of altar
       const static auto candle_action_modifiers = candle_item.actions.at( std::type_index( typeid( Cmp::CarryAction ) ) ).action;
-      for ( auto [altar_entt, altar_cmp, altar_uuid_cmp] : reg().view<Cmp::AltarMultiBlock, Cmp::UUID>().each() )
+      for ( auto [altar_entt, altar_cmp, altar_uuid_cmp] : reg().view<Cmp::Altar::MultiBlock, Cmp::UUID>().each() )
       {
         if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), altar_cmp ) ) continue;
         for ( auto [particle_entt, particle_cmp, particle_uuid_cmp] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
@@ -649,15 +649,15 @@ void PlayerSystem::check_player_max_fear_despair()
   if ( Utils::Player::get_player_stats( reg() ).fear() == 100 )
   {
     Utils::Player::get_player_stats( reg() ).apply_modifiers( Cmp::BaseAction( { -1 }, {}, {}, {}, {}, {} ) );
-    if ( Utils::Player::get_player_stats( reg() ).health() == 0 and Utils::Player::get_mortality( reg() ).state != Cmp::PlayerMortality::State::DEAD )
+    if ( Utils::Player::get_player_stats( reg() ).health() == 0 and Utils::Player::get_mortality( reg() ).state != Cmp::Player::Mortality::State::DEAD )
     {
-      on_player_mortality_event( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::TERRIFIED, Utils::Player::get_position( reg() ) ) );
+      on_player_mortality_event( Events::PlayerMortalityEvent( Cmp::Player::Mortality::State::TERRIFIED, Utils::Player::get_position( reg() ) ) );
     }
   }
   else if ( Utils::Player::get_player_stats( reg() ).despair() == 100 and
-            Utils::Player::get_mortality( reg() ).state != Cmp::PlayerMortality::State::DEAD )
+            Utils::Player::get_mortality( reg() ).state != Cmp::Player::Mortality::State::DEAD )
   {
-    on_player_mortality_event( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE, Utils::Player::get_position( reg() ) ) );
+    on_player_mortality_event( Events::PlayerMortalityEvent( Cmp::Player::Mortality::State::SUICIDE, Utils::Player::get_position( reg() ) ) );
   }
 }
 
@@ -694,7 +694,7 @@ void PlayerSystem::check_player_axe_npc_kill()
       // TODO: check player is facing the obstacle
       // Check player proximity to the entity
       bool player_nearby = false;
-      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : reg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
+      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : reg().view<Cmp::Player::Character, Cmp::Position>().each() )
       {
         auto player_hitbox = Cmp::RectBounds::scaled( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
         if ( player_hitbox.findIntersection( npc_pos_cmp ) )
@@ -731,8 +731,8 @@ void PlayerSystem::check_player_axe_npc_kill()
           auto dropped_loot_entt = Factory::Loot::create_loot_drop(
               reg(), Cmp::AnimData( Cmp::AnimData::Config{ .sprite_type = sprite_type, .enabled = false } ),
               Cmp::RectBounds::scaled( npc_pos_cmp.position, npc_pos_cmp.size, 2.f ).getBounds(), Factory::IncludePack<>{},
-              Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{},
-              Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{} );
+              Factory::ExcludePack<Cmp::Player::Character, Cmp::ReservedPosition, Cmp::Obstacle>{},
+              Factory::ExcludePack<Cmp::Player::Character, Cmp::ReservedPosition, Cmp::Obstacle>{} );
 
           if ( dropped_loot_entt != entt::null )
           {
@@ -758,7 +758,7 @@ void PlayerSystem::check_player_axe_npc_kill()
 void PlayerSystem::fade_player_on_wormhole_jump()
 {
   auto player_entt = Utils::Player::get_entity( reg() );
-  auto *wormhole_jump = reg().try_get<Cmp::WormholeJump>( player_entt );
+  auto *wormhole_jump = reg().try_get<Cmp::Wormhole::Jump>( player_entt );
   if ( wormhole_jump )
   {
     // Calculate fade based on elapsed time vs total cooldown
@@ -772,7 +772,7 @@ void PlayerSystem::fade_player_on_wormhole_jump()
 void PlayerSystem::blink_player()
 {
   // damage cooldown blink effect
-  for ( auto [player_entt, player_cmp] : reg().view<Cmp::PlayerCharacter>().each() )
+  for ( auto [player_entt, player_cmp] : reg().view<Cmp::Player::Character>().each() )
   {
 
     auto &pc_damage_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( reg() );
@@ -807,7 +807,7 @@ void PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entit
     if ( auto player_navmesh = m_player_navmesh.lock() )
     {
       player_navmesh->clear();
-      for ( auto [entt, nopath_cmp, pos_cmp] : reg().view<Cmp::PlayerNoPath, Cmp::Position>().each() )
+      for ( auto [entt, nopath_cmp, pos_cmp] : reg().view<Cmp::Player::NoPath, Cmp::Position>().each() )
       {
         player_navmesh->insert( entt, pos_cmp );
       }
@@ -824,7 +824,7 @@ void PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entit
         auto seg_pos_cmp = reg().get<Cmp::Position>( seg_entt );
         for ( auto blocked_entt : npc_navmesh->at( seg_pos_cmp ) )
         {
-          if ( reg().any_of<Cmp::PlayerCharacter>( blocked_entt ) ) continue;
+          if ( reg().any_of<Cmp::Player::Character>( blocked_entt ) ) continue;
           npc_navmesh->remove( blocked_entt, seg_pos_cmp );
         }
       }
@@ -850,8 +850,8 @@ void PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entit
   reg().emplace_or_replace<Cmp::Npc::NoPathFinding>( world_item_entt );
 
   // try to copy any relevant components over to the new world carryitem entt
-  auto *inventory_slot_level_cmp = reg().try_get<Cmp::InventoryWearLevel>( inventory_slot_entt );
-  if ( inventory_slot_level_cmp ) { reg().emplace_or_replace<Cmp::InventoryWearLevel>( world_item_entt, inventory_slot_level_cmp->m_level ); }
+  auto *inventory_slot_level_cmp = reg().try_get<Cmp::Inventory::WearLevel>( inventory_slot_entt );
+  if ( inventory_slot_level_cmp ) { reg().emplace_or_replace<Cmp::Inventory::WearLevel>( world_item_entt, inventory_slot_level_cmp->m_level ); }
 
   auto *inventory_scryingball_cmp = reg().try_get<Cmp::SeeingStone>( inventory_slot_entt );
   if ( inventory_scryingball_cmp ) { reg().emplace_or_replace<Cmp::SeeingStone>( world_item_entt, true, inventory_scryingball_cmp->target ); }
@@ -921,8 +921,8 @@ void PlayerSystem::pickup_world_item( entt::registry &reg, entt::entity world_it
     reg.emplace_or_replace<Cmp::UUID>( inventory_entity, uuid_cmp->data );
   }
 
-  auto *wear_level_cmp = reg.try_get<Cmp::InventoryWearLevel>( world_item_entt );
-  if ( wear_level_cmp ) { reg.emplace_or_replace<Cmp::InventoryWearLevel>( inventory_entity, wear_level_cmp->m_level ); }
+  auto *wear_level_cmp = reg.try_get<Cmp::Inventory::WearLevel>( world_item_entt );
+  if ( wear_level_cmp ) { reg.emplace_or_replace<Cmp::Inventory::WearLevel>( inventory_entity, wear_level_cmp->m_level ); }
 
   auto *scryingball_cmp = reg.try_get<Cmp::SeeingStone>( world_item_entt );
   if ( scryingball_cmp ) { reg.emplace_or_replace<Cmp::SeeingStone>( inventory_entity, false, scryingball_cmp->target ); }
@@ -943,14 +943,14 @@ bool PlayerSystem::is_valid_move( const sf::FloatRect &target_position )
   auto search_bounds = Cmp::RectBounds::scaled( target_position.position, target_position.size, 1 );
 
   // Use the spatial hash to check only the ~5 adjacent cells instead of scanning all
-  // PlayerNoPath entities (walls + obstacles). Without this, the open spawn area causes
+  // NoPath entities (walls + obstacles). Without this, the open spawn area causes
   // a full O(N) scan every frame because no entity triggers an early exit.
   if ( auto navmesh = m_player_navmesh.lock() )
   {
     Cmp::Position target_pos( target_position.position, target_position.size );
     for ( auto candidate_entt : navmesh->neighbours( target_pos, PathFinding::QueryCompass::BOTH ) )
     {
-      auto *nopath_cmp = reg().try_get<Cmp::PlayerNoPath>( candidate_entt );
+      auto *nopath_cmp = reg().try_get<Cmp::Player::NoPath>( candidate_entt );
       if ( not nopath_cmp || not nopath_cmp->active ) continue;
       auto *pos_cmp = reg().try_get<Cmp::Position>( candidate_entt );
       if ( not pos_cmp ) continue;
@@ -959,8 +959,8 @@ bool PlayerSystem::is_valid_move( const sf::FloatRect &target_position )
     return true;
   }
 
-  auto is_active = []( const Cmp::PlayerNoPath &playernopath ) { return playernopath.active; };
-  return not Utils::Collision::check_cmp<Cmp::PlayerNoPath>( reg(), search_bounds, is_active );
+  auto is_active = []( const Cmp::Player::NoPath &playernopath ) { return playernopath.active; };
+  return not Utils::Collision::check_cmp<Cmp::Player::NoPath>( reg(), search_bounds, is_active );
 }
 
 void PlayerSystem::on_drop_inventory_event( Game::Events::DropInventoryEvent ev )
@@ -1013,7 +1013,7 @@ void PlayerSystem::on_player_action_event( Game::Events::PlayerActionEvent ev )
 
 void PlayerSystem::update_player_no_path_cmp( sf::Time dt )
 {
-  // PlayerNoPath lives on the plant segment entities (see update_segments), not the
+  // NoPath lives on the plant segment entities (see update_segments), not the
   // PlantMultiBlock entity. Run this before the dig-cooldown early-return, otherwise
   // reactivation stalls in the cooldown window right after digging/replanting.
   static constexpr float kPlantCheckIntervalHz = 2.0f;
@@ -1022,7 +1022,7 @@ void PlayerSystem::update_player_no_path_cmp( sf::Time dt )
   {
     // check if plant player path blocking should be activated
     auto player_pos = Utils::Player::get_position( reg() );
-    for ( auto [seg_entt, seg_cmp, playernopath_cmp, seg_pos_cmp] : reg().view<Cmp::PlantSegment, Cmp::PlayerNoPath, Cmp::Position>().each() )
+    for ( auto [seg_entt, seg_cmp, playernopath_cmp, seg_pos_cmp] : reg().view<Cmp::PlantSegment, Cmp::Player::NoPath, Cmp::Position>().each() )
     {
       if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), seg_pos_cmp ) ) continue;
 
@@ -1044,16 +1044,16 @@ void PlayerSystem::on_player_mortality_event( Game::Events::PlayerMortalityEvent
     stop_footsteps_sound();
     Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ -100 }, {}, {}, {}, {}, {} } );
     SPDLOG_INFO( "Player death code: {}", static_cast<uint8_t>( ev.m_new_state ) );
-    Utils::Player::get_mortality( reg() ).state = Cmp::PlayerMortality::State::DEAD;
+    Utils::Player::get_mortality( reg() ).state = Cmp::Player::Mortality::State::DEAD;
     SPDLOG_INFO( "Player died" );
   };
 
   switch ( ev.m_new_state )
   {
-    case Cmp::PlayerMortality::State::ALIVE:
+    case Cmp::Player::Mortality::State::ALIVE:
       break;
 
-    case Cmp::PlayerMortality::State::FALLING: {
+    case Cmp::Player::Mortality::State::FALLING: {
       SPDLOG_INFO( "Player is falling" );
       const auto &sprite = m_sprite_factory.get_spritesheet_by_type( "sprite.death.anim.bloodsplat" );
       Factory::Player::create_player_death_anim( reg(), ev.m_death_pos, sprite );
@@ -1061,76 +1061,76 @@ void PlayerSystem::on_player_mortality_event( Game::Events::PlayerMortalityEvent
       common_death_throes();
       break;
     }
-    case Cmp::PlayerMortality::State::DECAYING: {
+    case Cmp::Player::Mortality::State::DECAYING: {
       const auto &sprite = m_sprite_factory.get_spritesheet_by_type( "sprite.death.anim.bloodsplat" );
       Factory::Player::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
-    case Cmp::PlayerMortality::State::HAUNTED: {
+    case Cmp::Player::Mortality::State::HAUNTED: {
       const auto &sprite = m_sprite_factory.get_spritesheet_by_type( "sprite.death.anim.bloodsplat" );
       Factory::Player::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
-    case Cmp::PlayerMortality::State::EXPLODING: {
+    case Cmp::Player::Mortality::State::EXPLODING: {
       const auto &sprite = m_sprite_factory.get_spritesheet_by_type( "sprite.death.anim.bloodsplat" );
       Factory::Player::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
-    case Cmp::PlayerMortality::State::DROWNING: {
+    case Cmp::Player::Mortality::State::DROWNING: {
       break;
     }
-    case Cmp::PlayerMortality::State::SQUISHED: {
+    case Cmp::Player::Mortality::State::SQUISHED: {
       const auto &sprite = m_sprite_factory.get_spritesheet_by_type( "sprite.death.anim.bloodsplat" );
       Factory::Player::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
-    case Cmp::PlayerMortality::State::SUICIDE: {
+    case Cmp::Player::Mortality::State::SUICIDE: {
       const auto &sprite = m_sprite_factory.get_spritesheet_by_type( "sprite.death.anim.bloodsplat" );
       Factory::Player::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
-    case Cmp::PlayerMortality::State::IGNITED: {
+    case Cmp::Player::Mortality::State::IGNITED: {
       const auto &sprite = m_sprite_factory.get_spritesheet_by_type( "sprite.death.anim.flames" );
       Factory::Player::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "shrine_lighting" ).play();
       common_death_throes();
       break;
     }
-    case Cmp::PlayerMortality::State::SKEWERED: {
+    case Cmp::Player::Mortality::State::SKEWERED: {
       const auto &sprite = m_sprite_factory.get_spritesheet_by_type( "sprite.death.anim.bloodsplat" );
       Factory::Player::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
-    case Cmp::PlayerMortality::State::SHOCKED: {
+    case Cmp::Player::Mortality::State::SHOCKED: {
       const auto &sprite = m_sprite_factory.get_spritesheet_by_type( "sprite.death.anim.bloodsplat" );
       Factory::Player::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
-    case Cmp::PlayerMortality::State::TERRIFIED: {
+    case Cmp::Player::Mortality::State::TERRIFIED: {
       const auto &sprite = m_sprite_factory.get_spritesheet_by_type( "sprite.death.anim.bloodsplat" );
       Factory::Player::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
-    case Cmp::PlayerMortality::State::DEAD: {
+    case Cmp::Player::Mortality::State::DEAD: {
       break;
     }
-    case Cmp::PlayerMortality::State::SHADOWCURSED:
+    case Cmp::Player::Mortality::State::SHADOWCURSED:
       const auto &sprite = m_sprite_factory.get_spritesheet_by_type( "sprite.death.anim.bloodsplat" );
       Factory::Player::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();

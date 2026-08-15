@@ -1,7 +1,7 @@
 #ifndef SRC_COMPONENTS_PARTICLE_WORMHOLEPARTICLESPRITE_HPP__
 #define SRC_COMPONENTS_PARTICLE_WORMHOLEPARTICLESPRITE_HPP__
 
-#include <Components/Particle/ParticleSpriteBase.hpp>
+#include <Components/Particle/SpriteBase.hpp>
 #include <SFML/Graphics/BlendMode.hpp>
 #include <Systems/ParticleSystem.hpp>
 
@@ -24,7 +24,7 @@ private:
 } // namespace detail
 
 //! @brief
-class WormholeParticleSprite : public ParticleSpriteBase<detail::WormholeParticle>
+class WormholeParticleSprite : public SpriteBase<detail::WormholeParticle>
 {
 public:
   //! @brief Construct a new Particle Sprite Test object

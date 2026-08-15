@@ -2,7 +2,7 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Inventory/Explosive.hpp>
-#include <Components/Inventory/InventoryWearLevel.hpp>
+#include <Components/Inventory/WearLevel.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Position.hpp>
@@ -53,7 +53,7 @@ void ItemSystem::create_world_item( Cmp::Position pos, const std::string &item, 
   reg().emplace_or_replace<Cmp::UUID>( world_item_entt, Cmp::UUID::generate() );
   if ( item == "item.axe" || item == "item.pickaxe" || item == "item.shovel" )
   {
-    reg().emplace_or_replace<Cmp::InventoryWearLevel>( world_item_entt, 100.f );
+    reg().emplace_or_replace<Cmp::Inventory::WearLevel>( world_item_entt, 100.f );
   }
   reg().emplace_or_replace<Cmp::WorldItem>( world_item_entt, Sys::ItemStore::instance().get_item( item ) );
 

@@ -1,7 +1,7 @@
 #ifndef SRC_COMPONENTS_PARTICLE_SMOKE_HPP__
 #define SRC_COMPONENTS_PARTICLE_SMOKE_HPP__
 
-#include <Components/Particle/ParticleSpriteBase.hpp>
+#include <Components/Particle/SpriteBase.hpp>
 
 namespace Game::Cmp::Particle
 {
@@ -22,7 +22,7 @@ private:
 } // namespace detail
 
 //! @brief
-class Smoke : public ParticleSpriteBase<detail::SmokeParticle>
+class Smoke : public SpriteBase<detail::SmokeParticle>
 {
 public:
   //! @brief Construct a new Particle Sprite Test object

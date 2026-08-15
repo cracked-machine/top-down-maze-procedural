@@ -7,7 +7,7 @@
 #include <Components/FractalCurve.hpp>
 #include <Components/Grave/PlantMultiBlock.hpp>
 #include <Components/Grave/PlantSegment.hpp>
-#include <Components/Inventory/InventoryWearLevel.hpp>
+#include <Components/Inventory/WearLevel.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/LastDirection.hpp>
 #include <Components/LootContainer.hpp>
@@ -18,8 +18,8 @@
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerNoPath.hpp>
+#include <Components/Player/Character.hpp>
+#include <Components/Player/NoPath.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
@@ -107,7 +107,7 @@ void ActionSystem::check_player_smash_pot()
       // TODO: check player is facing the obstacle
       // Check player proximity to the entity
       bool player_nearby = false;
-      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : reg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
+      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : reg().view<Cmp::Player::Character, Cmp::Position>().each() )
       {
         auto player_hitbox = Cmp::RectBounds::scaled( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
         if ( player_hitbox.findIntersection( loot_pos_cmp ) )
@@ -141,7 +141,7 @@ void ActionSystem::check_player_smash_pot()
         get_systems_event_queue().trigger( Events::CreateItemEvent( Utils::Player::get_position( reg() ), selected_type, "drop_loot" ) );
 
         m_sound_bank.get_effect( "break_pot" ).play();
-        auto inventory_wear_view = reg().view<Cmp::PlayerInventorySlot, Cmp::InventoryWearLevel>();
+        auto inventory_wear_view = reg().view<Cmp::PlayerInventorySlot, Cmp::Inventory::WearLevel>();
         for ( auto [weapons_entity, inventory_slot, wear_level] : inventory_wear_view.each() )
         {
           // Decrease weapons level based on damage dealt
@@ -408,7 +408,7 @@ void ActionSystem::check_player_dig_plant_collision()
       // TODO: check player is facing the obstacle
       // Check player proximity to the entity
       bool player_nearby = false;
-      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : reg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
+      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : reg().view<Cmp::Player::Character, Cmp::Position>().each() )
       {
         auto player_hitbox = Cmp::RectBounds::scaled( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
         if ( player_hitbox.findIntersection( plant_mb_cmp ) )

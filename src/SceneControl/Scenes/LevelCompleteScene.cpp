@@ -1,6 +1,6 @@
 #include <Audio/SoundBank.hpp>
-#include <Components/Player/PlayerCadaverCount.hpp>
-#include <Components/Player/PlayerWealth.hpp>
+#include <Components/Player/CadaverCount.hpp>
+#include <Components/Player/Wealth.hpp>
 #include <SceneControl/Events/ProcessLevelCompleteSceneInputEvent.hpp>
 #include <SceneControl/Scenes/LevelCompleteScene.hpp>
 #include <Systems/PersistSystemImpl.hpp>

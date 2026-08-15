@@ -1,7 +1,7 @@
 #ifndef SRC_SYSTEMS_SHOPSYSTEM_HPP__
 #define SRC_SYSTEMS_SHOPSYSTEM_HPP__
 
-#include <Components/Shop/ShopInventory.hpp>
+#include <Components/Shop/Inventory.hpp>
 #include <Events/BuyShopItemEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -26,7 +26,7 @@ public:
 
   //! @brief Pick a random "sprite.item." sprite and price and insert in the inventory component
   //! @param shop_inventory_cmp The inventory component
-  void add_shop_inventory_item( Cmp::ShopInventory &shop_inventory_cmp );
+  void add_shop_inventory_item( Cmp::Shop::Inventory &shop_inventory_cmp );
 
   //! @brief Check for collisions with the exit
   void check_exit_collision();
@@ -47,7 +47,7 @@ public:
   //! @brief event handlers for resuming system clocks
   void on_resume() override {}
 
-  // const Cmp::ShopInventory::Config &get_inventory_config() { return m_shop_inventory_config; }
+  // const Cmp::Shop::Inventory::Config &get_inventory_config() { return m_shop_inventory_config; }
 
 private:
   //! @brief Dispatcher reference for scene management events

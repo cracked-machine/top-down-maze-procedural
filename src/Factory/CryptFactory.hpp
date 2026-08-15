@@ -1,10 +1,10 @@
 #ifndef SRC_FACTORY_CRYPTFACTORY_HPP__
 #define SRC_FACTORY_CRYPTFACTORY_HPP__
 
-#include <Components/Crypt/CryptRoomClosed.hpp>
-#include <Components/Crypt/CryptRoomEnd.hpp>
-#include <Components/Crypt/CryptRoomOpen.hpp>
-#include <Components/Crypt/CryptRoomStart.hpp>
+#include <Components/Crypt/RoomClosed.hpp>
+#include <Components/Crypt/RoomEnd.hpp>
+#include <Components/Crypt/RoomOpen.hpp>
+#include <Components/Crypt/RoomStart.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Wall.hpp>
@@ -27,7 +27,7 @@ entt::entity create_crypt_exit( entt::registry &reg, sf::Vector2f spawn_pos_px )
 entt::entity create_crypt_lever( entt::registry &reg, sf::Vector2f pos, Sprites::SpriteMetaType sprite_type, unsigned int sprite_idx, float zorder );
 void destroy_crypt_lever( entt::registry &reg, entt::entity entt );
 
-void create_crypt_lava_pit( entt::registry &reg, const Cmp::CryptRoomOpen &room,
+void create_crypt_lava_pit( entt::registry &reg, const Cmp::Crypt::RoomOpen &room,
                             std::shared_ptr<Game::PathFinding::SpatialHashGrid> pathfinding_navmesh );
 void destroy_crypt_lava_pit( entt::registry &reg, entt::entity entt, std::shared_ptr<Game::PathFinding::SpatialHashGrid> pathfinding_navmesh );
 

@@ -1,5 +1,5 @@
-#include <Components/Crypt/CryptRoomLavaPit.hpp>
-#include <Components/Crypt/CryptRoomLavaPitCell.hpp>
+#include <Components/Crypt/RoomLavaPit.hpp>
+#include <Components/Crypt/RoomLavaPitCell.hpp>
 #include <Components/Npc/Wisp.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/Player/TorchRadius.hpp>
@@ -47,7 +47,7 @@ void NightStaticShader::update( entt::registry &reg )
   }
 
   // add light for lavapit cells
-  for ( auto [lava_entt, lava_cmp, zorder_cmp] : reg.view<Cmp::CryptRoomLavaPitCell, Cmp::ZOrderValue>().each() )
+  for ( auto [lava_entt, lava_cmp, zorder_cmp] : reg.view<Cmp::Crypt::RoomLavaPitCell, Cmp::ZOrderValue>().each() )
   {
     torch_positions.push_back( lava_cmp.getCenter() );
   }

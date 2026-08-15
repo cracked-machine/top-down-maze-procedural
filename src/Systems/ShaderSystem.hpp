@@ -7,8 +7,8 @@
 namespace Game::Sys
 {
 
-//! @brief  This wraps ParticleSpriteBase<IParticle> so it can be emplaced/retrieved with the Entt registry as a single type.
-//!         ParticleSystem::find can retrieve ParticleSpriteBase<IParticle> via the specified `tag`
+//! @brief  This wraps SpriteBase<IParticle> so it can be emplaced/retrieved with the Entt registry as a single type.
+//!         ParticleSystem::find can retrieve SpriteBase<IParticle> via the specified `tag`
 struct ShaderSpriteOwner
 {
   std::unique_ptr<Sprites::IShaderSprite> sprite;

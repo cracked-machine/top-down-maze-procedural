@@ -1,7 +1,7 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Player/Character.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/SceneSettings/CurrentScene.hpp>
 #include <Components/SceneSettings/Footsteps.hpp>
@@ -9,7 +9,7 @@
 #include <Components/SceneSettings/ShowDebugStats.hpp>
 #include <Components/SceneSettings/ShowNavmesh.hpp>
 #include <Components/SceneSettings/ShowPathFinding.hpp>
-#include <Components/Shop/ShopInventory.hpp>
+#include <Components/Shop/Inventory.hpp>
 
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/NpcFactory.hpp>
@@ -142,7 +142,7 @@ void ShopScene::do_update( [[maybe_unused]] sf::Time dt )
 
 void ShopScene::open_overlay()
 {
-  auto inventory_view = m_reg.view<Cmp::ShopInventory>().each();
+  auto inventory_view = m_reg.view<Cmp::Shop::Inventory>().each();
   for ( auto [inventory_entt, inventory_cmp] : inventory_view )
   {
     inventory_cmp.is_enabled = true;
@@ -152,7 +152,7 @@ void ShopScene::open_overlay()
 
 void ShopScene::close_overlay()
 {
-  auto inventory_view = m_reg.view<Cmp::ShopInventory>().each();
+  auto inventory_view = m_reg.view<Cmp::Shop::Inventory>().each();
   for ( auto [inventory_entt, inventory_cmp] : inventory_view )
   {
     inventory_cmp.is_enabled = false;

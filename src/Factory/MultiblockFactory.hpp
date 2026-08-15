@@ -1,39 +1,39 @@
 #ifndef SRC_FACTORY_MULTIBLOCKFACTORY_HPP__
 #define SRC_FACTORY_MULTIBLOCKFACTORY_HPP__
 
-#include <Components/Altar/AltarMultiBlock.hpp>
-#include <Components/Altar/AltarSegment.hpp>
+#include <Components/Altar/MultiBlock.hpp>
+#include <Components/Altar/Segment.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Armable.hpp>
-#include <Components/Crypt/CryptBuildingMultiBlock.hpp>
-#include <Components/Crypt/CryptBuildingSegment.hpp>
-#include <Components/Crypt/CryptEntrance.hpp>
-#include <Components/Crypt/CryptInteriorMultiBlock.hpp>
-#include <Components/Crypt/CryptInteriorSegment.hpp>
-#include <Components/Crypt/CryptObjectiveMultiBlock.hpp>
-#include <Components/Crypt/CryptObjectiveSegment.hpp>
+#include <Components/Crypt/BuildingMultiBlock.hpp>
+#include <Components/Crypt/BuildingSegment.hpp>
+#include <Components/Crypt/Entrance.hpp>
+#include <Components/Crypt/InteriorMultiBlock.hpp>
+#include <Components/Crypt/InteriorSegment.hpp>
+#include <Components/Crypt/ObjectiveMultiBlock.hpp>
+#include <Components/Crypt/ObjectiveSegment.hpp>
 #include <Components/Exit.hpp>
-#include <Components/Grave/GraveExitMultiBlock.hpp>
-#include <Components/Grave/GraveExitSegment.hpp>
-#include <Components/Grave/GraveMultiBlock.hpp>
-#include <Components/Grave/GraveSegment.hpp>
+#include <Components/Grave/ExitMultiBlock.hpp>
+#include <Components/Grave/ExitSegment.hpp>
+#include <Components/Grave/MultiBlock.hpp>
+#include <Components/Grave/Segment.hpp>
 #include <Components/Grave/PlantMultiBlock.hpp>
 #include <Components/Grave/PlantSegment.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
-#include <Components/Player/PlayerNoPath.hpp>
+#include <Components/Player/NoPath.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/Ruin/RuinBuildingMultiBlock.hpp>
-#include <Components/Ruin/RuinBuildingSegment.hpp>
-#include <Components/Ruin/RuinEntrance.hpp>
-#include <Components/Ruin/RuinGateSegment.hpp>
-#include <Components/Ruin/RuinHexagramMultiBlock.hpp>
-#include <Components/Ruin/RuinHexagramSegment.hpp>
-#include <Components/Ruin/RuinStairsBalustradeMultiBlock.hpp>
-#include <Components/Ruin/RuinStairsGateMultiBlock.hpp>
-#include <Components/Ruin/RuinStairsLowerMultiBlock.hpp>
-#include <Components/Ruin/RuinStairsSegment.hpp>
-#include <Components/Ruin/RuinStairsUpperMultiBlock.hpp>
+#include <Components/Ruin/BuildingMultiBlock.hpp>
+#include <Components/Ruin/BuildingSegment.hpp>
+#include <Components/Ruin/Entrance.hpp>
+#include <Components/Ruin/GateSegment.hpp>
+#include <Components/Ruin/HexagramMultiBlock.hpp>
+#include <Components/Ruin/HexagramSegment.hpp>
+#include <Components/Ruin/StairsBalustradeMultiBlock.hpp>
+#include <Components/Ruin/StairsGateMultiBlock.hpp>
+#include <Components/Ruin/StairsLowerMultiBlock.hpp>
+#include <Components/Ruin/StairsSegment.hpp>
+#include <Components/Ruin/StairsUpperMultiBlock.hpp>
 #include <Components/Spring/HealingSpringBuildingMultiBlock.hpp>
 #include <Components/Spring/HealingSpringBuildingSegment.hpp>
 #include <Components/Spring/HealingSpringEntrance.hpp>
@@ -89,49 +89,49 @@ namespace Game::Factory::Multiblock::detail
 {
 
 extern template void create_multiblock<Cmp::PlantMultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
-extern template void create_multiblock<Cmp::GraveExitMultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
+extern template void create_multiblock<Cmp::Grave::ExitMultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
 extern template void create_multiblock<Cmp::HealingSpringMultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
-extern template void create_multiblock<Cmp::CryptObjectiveMultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
-extern template void create_multiblock<Cmp::RuinStairsLowerMultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
-extern template void create_multiblock<Cmp::RuinStairsUpperMultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
-extern template void create_multiblock<Cmp::RuinStairsBalustradeMultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
-extern template void create_multiblock<Cmp::RuinStairsGateMultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
-extern template void create_multiblock<Cmp::RuinHexagramMultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
-extern template void create_multiblock<Cmp::AltarMultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
-extern template void create_multiblock<Cmp::GraveMultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
-extern template void create_multiblock<Cmp::CryptBuildingMultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
+extern template void create_multiblock<Cmp::Crypt::ObjectiveMultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
+extern template void create_multiblock<Cmp::Ruin::StairsLowerMultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
+extern template void create_multiblock<Cmp::Ruin::StairsUpperMultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
+extern template void create_multiblock<Cmp::Ruin::StairsBalustradeMultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
+extern template void create_multiblock<Cmp::Ruin::StairsGateMultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
+extern template void create_multiblock<Cmp::Ruin::HexagramMultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
+extern template void create_multiblock<Cmp::Altar::MultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
+extern template void create_multiblock<Cmp::Grave::MultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
+extern template void create_multiblock<Cmp::Crypt::BuildingMultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
 extern template void create_multiblock<Cmp::HealingSpringBuildingMultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
-extern template void create_multiblock<Cmp::RuinBuildingMultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
+extern template void create_multiblock<Cmp::Ruin::BuildingMultiBlock>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet &, size_t );
 
 extern template void update_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::PlantMultiBlock );
-extern template void update_segments<Cmp::GraveExitMultiBlock, Cmp::GraveExitSegment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::GraveExitMultiBlock );
+extern template void update_segments<Cmp::Grave::ExitMultiBlock, Cmp::Grave::ExitSegment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::Grave::ExitMultiBlock );
 extern template void update_segments<Cmp::HealingSpringMultiBlock, Cmp::HealingSpringSegment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::HealingSpringMultiBlock );
-extern template void update_segments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::CryptObjectiveMultiBlock );
-extern template void update_segments<Cmp::RuinStairsLowerMultiBlock, Cmp::RuinStairsSegment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::RuinStairsLowerMultiBlock );
-extern template void update_segments<Cmp::RuinStairsUpperMultiBlock, Cmp::RuinStairsSegment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::RuinStairsUpperMultiBlock );
-extern template void update_segments<Cmp::RuinStairsBalustradeMultiBlock, Cmp::RuinStairsSegment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::RuinStairsBalustradeMultiBlock );
-extern template void update_segments<Cmp::RuinStairsGateMultiBlock, Cmp::RuinGateSegment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::RuinStairsGateMultiBlock );
-extern template void update_segments<Cmp::RuinHexagramMultiBlock, Cmp::RuinHexagramSegment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::RuinHexagramMultiBlock );
-extern template void update_segments<Cmp::AltarMultiBlock, Cmp::AltarSegment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::AltarMultiBlock );
-extern template void update_segments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::GraveMultiBlock );
-extern template void update_segments<Cmp::CryptBuildingMultiBlock, Cmp::CryptBuildingSegment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::CryptBuildingMultiBlock );
+extern template void update_segments<Cmp::Crypt::ObjectiveMultiBlock, Cmp::Crypt::ObjectiveSegment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::Crypt::ObjectiveMultiBlock );
+extern template void update_segments<Cmp::Ruin::StairsLowerMultiBlock, Cmp::Ruin::StairsSegment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::Ruin::StairsLowerMultiBlock );
+extern template void update_segments<Cmp::Ruin::StairsUpperMultiBlock, Cmp::Ruin::StairsSegment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::Ruin::StairsUpperMultiBlock );
+extern template void update_segments<Cmp::Ruin::StairsBalustradeMultiBlock, Cmp::Ruin::StairsSegment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::Ruin::StairsBalustradeMultiBlock );
+extern template void update_segments<Cmp::Ruin::StairsGateMultiBlock, Cmp::Ruin::GateSegment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::Ruin::StairsGateMultiBlock );
+extern template void update_segments<Cmp::Ruin::HexagramMultiBlock, Cmp::Ruin::HexagramSegment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::Ruin::HexagramMultiBlock );
+extern template void update_segments<Cmp::Altar::MultiBlock, Cmp::Altar::Segment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::Altar::MultiBlock );
+extern template void update_segments<Cmp::Grave::MultiBlock, Cmp::Grave::Segment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::Grave::MultiBlock );
+extern template void update_segments<Cmp::Crypt::BuildingMultiBlock, Cmp::Crypt::BuildingSegment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::Crypt::BuildingMultiBlock );
 extern template void update_segments<Cmp::HealingSpringBuildingMultiBlock, Cmp::HealingSpringBuildingSegment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::HealingSpringBuildingMultiBlock );
-extern template void update_segments<Cmp::RuinBuildingMultiBlock, Cmp::RuinBuildingSegment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::RuinBuildingMultiBlock );
+extern template void update_segments<Cmp::Ruin::BuildingMultiBlock, Cmp::Ruin::BuildingSegment>( entt::registry &, const Sprites::SpriteSheet &, entt::entity, Cmp::Ruin::BuildingMultiBlock );
 
 extern template std::vector<entt::entity> create_multiblock_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
-extern template std::vector<entt::entity> create_multiblock_segments<Cmp::GraveExitMultiBlock, Cmp::GraveExitSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
+extern template std::vector<entt::entity> create_multiblock_segments<Cmp::Grave::ExitMultiBlock, Cmp::Grave::ExitSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
 extern template std::vector<entt::entity> create_multiblock_segments<Cmp::HealingSpringMultiBlock, Cmp::HealingSpringSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
-extern template std::vector<entt::entity> create_multiblock_segments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
-extern template std::vector<entt::entity> create_multiblock_segments<Cmp::RuinStairsLowerMultiBlock, Cmp::RuinStairsSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
-extern template std::vector<entt::entity> create_multiblock_segments<Cmp::RuinStairsUpperMultiBlock, Cmp::RuinStairsSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
-extern template std::vector<entt::entity> create_multiblock_segments<Cmp::RuinStairsBalustradeMultiBlock, Cmp::RuinStairsSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
-extern template std::vector<entt::entity> create_multiblock_segments<Cmp::RuinStairsGateMultiBlock, Cmp::RuinGateSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
-extern template std::vector<entt::entity> create_multiblock_segments<Cmp::RuinHexagramMultiBlock, Cmp::RuinHexagramSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
-extern template std::vector<entt::entity> create_multiblock_segments<Cmp::AltarMultiBlock, Cmp::AltarSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
-extern template std::vector<entt::entity> create_multiblock_segments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
-extern template std::vector<entt::entity> create_multiblock_segments<Cmp::CryptBuildingMultiBlock, Cmp::CryptBuildingSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
+extern template std::vector<entt::entity> create_multiblock_segments<Cmp::Crypt::ObjectiveMultiBlock, Cmp::Crypt::ObjectiveSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
+extern template std::vector<entt::entity> create_multiblock_segments<Cmp::Ruin::StairsLowerMultiBlock, Cmp::Ruin::StairsSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
+extern template std::vector<entt::entity> create_multiblock_segments<Cmp::Ruin::StairsUpperMultiBlock, Cmp::Ruin::StairsSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
+extern template std::vector<entt::entity> create_multiblock_segments<Cmp::Ruin::StairsBalustradeMultiBlock, Cmp::Ruin::StairsSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
+extern template std::vector<entt::entity> create_multiblock_segments<Cmp::Ruin::StairsGateMultiBlock, Cmp::Ruin::GateSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
+extern template std::vector<entt::entity> create_multiblock_segments<Cmp::Ruin::HexagramMultiBlock, Cmp::Ruin::HexagramSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
+extern template std::vector<entt::entity> create_multiblock_segments<Cmp::Altar::MultiBlock, Cmp::Altar::Segment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
+extern template std::vector<entt::entity> create_multiblock_segments<Cmp::Grave::MultiBlock, Cmp::Grave::Segment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
+extern template std::vector<entt::entity> create_multiblock_segments<Cmp::Crypt::BuildingMultiBlock, Cmp::Crypt::BuildingSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
 extern template std::vector<entt::entity> create_multiblock_segments<Cmp::HealingSpringBuildingMultiBlock, Cmp::HealingSpringBuildingSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
-extern template std::vector<entt::entity> create_multiblock_segments<Cmp::RuinBuildingMultiBlock, Cmp::RuinBuildingSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
+extern template std::vector<entt::entity> create_multiblock_segments<Cmp::Ruin::BuildingMultiBlock, Cmp::Ruin::BuildingSegment>( entt::registry &, entt::entity, const Cmp::UUID &, Cmp::Position, const Sprites::SpriteSheet & );
 
 } // namespace Game::Factory::Multiblock::detail
 
@@ -139,19 +139,19 @@ namespace Game::Factory::Multiblock
 {
 
 extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
-extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::GraveExitMultiBlock, Cmp::GraveExitSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
+extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::Grave::ExitMultiBlock, Cmp::Grave::ExitSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
 extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::HealingSpringMultiBlock, Cmp::HealingSpringSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
-extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
-extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::RuinStairsLowerMultiBlock, Cmp::RuinStairsSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
-extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::RuinStairsUpperMultiBlock, Cmp::RuinStairsSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
-extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::RuinStairsBalustradeMultiBlock, Cmp::RuinStairsSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
-extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::RuinStairsGateMultiBlock, Cmp::RuinGateSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
-extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::RuinHexagramMultiBlock, Cmp::RuinHexagramSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
-extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::AltarMultiBlock, Cmp::AltarSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
-extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
-extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::CryptBuildingMultiBlock, Cmp::CryptBuildingSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
+extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::Crypt::ObjectiveMultiBlock, Cmp::Crypt::ObjectiveSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
+extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::Ruin::StairsLowerMultiBlock, Cmp::Ruin::StairsSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
+extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::Ruin::StairsUpperMultiBlock, Cmp::Ruin::StairsSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
+extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::Ruin::StairsBalustradeMultiBlock, Cmp::Ruin::StairsSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
+extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::Ruin::StairsGateMultiBlock, Cmp::Ruin::GateSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
+extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::Ruin::HexagramMultiBlock, Cmp::Ruin::HexagramSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
+extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::Altar::MultiBlock, Cmp::Altar::Segment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
+extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::Grave::MultiBlock, Cmp::Grave::Segment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
+extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::Crypt::BuildingMultiBlock, Cmp::Crypt::BuildingSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
 extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::HealingSpringBuildingMultiBlock, Cmp::HealingSpringBuildingSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
-extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::RuinBuildingMultiBlock, Cmp::RuinBuildingSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
+extern template std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments<Cmp::Ruin::BuildingMultiBlock, Cmp::Ruin::BuildingSegment>( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet &, size_t, float );
 
 } // namespace Game::Factory::Multiblock
 // clang-format on

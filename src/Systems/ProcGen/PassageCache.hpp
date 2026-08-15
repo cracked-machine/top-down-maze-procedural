@@ -1,7 +1,7 @@
 #ifndef SRC_SYSTEMS_PROCGEN_PASSAGECACHE_HPP__
 #define SRC_SYSTEMS_PROCGEN_PASSAGECACHE_HPP__
 
-#include <Components/Crypt/CryptPassageBlock.hpp>
+#include <Components/Crypt/PassageBlock.hpp>
 #include <cstddef>
 
 namespace Game::Sys::ProcGen
@@ -23,7 +23,7 @@ public:
     //! @brief
     sf::FloatRect region;
     //! @brief
-    std::vector<Cmp::CryptPassageBlock> blocklist;
+    std::vector<Cmp::Crypt::PassageBlock> blocklist;
   };
 
   void add( BlockRegion br ) { m_list.push_back( br ); }

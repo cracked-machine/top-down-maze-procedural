@@ -1,5 +1,5 @@
 #include <Components/Npc/Npc.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Player/Character.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <PathFinding/AStar.hpp>

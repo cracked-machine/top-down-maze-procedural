@@ -57,9 +57,9 @@
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
 #include <Components/Persistent/WormholeSeed.hpp>
-#include <Components/Player/PlayerCadaverCount.hpp>
-#include <Components/Player/PlayerKeysCount.hpp>
-#include <Components/Player/PlayerWealth.hpp>
+#include <Components/Player/CadaverCount.hpp>
+#include <Components/Player/KeysCount.hpp>
+#include <Components/Player/Wealth.hpp>
 #include <Shaders/BaseShaderSprite.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>

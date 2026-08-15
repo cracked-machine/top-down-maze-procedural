@@ -1,8 +1,8 @@
 #ifndef SRC_SYSTEMS_PROCGEN_PASSAGEALGORITHMS_HPP__
 #define SRC_SYSTEMS_PROCGEN_PASSAGEALGORITHMS_HPP__
 
-#include <Components/Crypt/CryptPassageBlock.hpp>
-#include <Components/Crypt/CryptPassageDoor.hpp>
+#include <Components/Crypt/PassageBlock.hpp>
+#include <Components/Crypt/PassageDoor.hpp>
 #include <Components/Direction.hpp>
 
 #include <Systems/ProcGen/PassageCache.hpp>
@@ -30,8 +30,8 @@ public:
   //! @param x The x-coordinate of the position
   //! @param y The y-coordinate of the position
   //! @param duplicates_policy Whether to allow duplicate passages blocks
-  //! @return Cmp::CryptPassageBlock
-  std::optional<Cmp::CryptPassageBlock> place_passage_block( entt::registry &reg, float x, float y,
+  //! @return Cmp::Crypt::PassageBlock
+  std::optional<Cmp::Crypt::PassageBlock> place_passage_block( entt::registry &reg, float x, float y,
                                                              AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO,
                                                              bool skip_wall_check = false );
 
@@ -41,7 +41,7 @@ public:
   //! @param duplicates_policy Whether to allow duplicate passages blocks
   //! @return true if the passage was created successfully
   //! @return false if the passage could not be created
-  std::vector<Cmp::CryptPassageBlock> create_drunken_walk( entt::registry &reg, Cmp::CryptPassageDoor start, sf::FloatRect end_bounds,
+  std::vector<Cmp::Crypt::PassageBlock> create_drunken_walk( entt::registry &reg, Cmp::Crypt::PassageDoor start, sf::FloatRect end_bounds,
                                                            sf::Vector2f map_size_pixel, const std::set<entt::entity> &exclude_entts,
                                                            AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
 
@@ -51,7 +51,7 @@ public:
   //! @param duplicates_policy Whether to allow duplicate passages blocks
   //! @return true if the passage was created successfully
   //! @return false if the passage could not be created
-  std::vector<Cmp::CryptPassageBlock> create_dog_leg( entt::registry &reg, Cmp::CryptPassageDoor start, sf::FloatRect end_bounds,
+  std::vector<Cmp::Crypt::PassageBlock> create_dog_leg( entt::registry &reg, Cmp::Crypt::PassageDoor start, sf::FloatRect end_bounds,
                                                       AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
 
   void reset() { m_current_passage_id = 0; }

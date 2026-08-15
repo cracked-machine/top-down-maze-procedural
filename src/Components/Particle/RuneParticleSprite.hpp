@@ -1,7 +1,7 @@
 #ifndef SRC_COMPONENTS_PARTICLE_RUNEPARTICLESPRITE_HPP__
 #define SRC_COMPONENTS_PARTICLE_RUNEPARTICLESPRITE_HPP__
 
-#include <Components/Particle/ParticleSpriteBase.hpp>
+#include <Components/Particle/SpriteBase.hpp>
 #include <SFML/Graphics/BlendMode.hpp>
 #include <Systems/ParticleSystem.hpp>
 
@@ -20,7 +20,7 @@ private:
 } // namespace detail
 
 //! @brief
-class RuneParticleSprite : public ParticleSpriteBase<detail::RuneParticle>
+class RuneParticleSprite : public SpriteBase<detail::RuneParticle>
 {
 public:
   //! @brief Construct a new Particle Sprite Test object

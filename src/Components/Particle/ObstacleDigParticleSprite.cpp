@@ -43,7 +43,7 @@ void ObstacleDigParticle::emit()
 } // namespace detail
 
 ObstacleDigParticleSprite::ObstacleDigParticleSprite( size_t count )
-    : ParticleSpriteBase( count ) {};
+    : SpriteBase( count ) {};
 
 void ObstacleDigParticleSprite::simulate( sf::Time dt )
 {

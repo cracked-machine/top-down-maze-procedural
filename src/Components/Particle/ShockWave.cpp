@@ -21,7 +21,7 @@ void ShockWaveParticle::emit()
 } // namespace detail
 
 ShockWave::ShockWave( size_t count )
-    : ParticleSpriteBase( count )
+    : SpriteBase( count )
 {
   for ( size_t i = 0; i < count; ++i )
   {
