@@ -4,8 +4,8 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Exit.hpp>
-#include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
+#include <Components/Npc/Npc.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
@@ -43,7 +43,7 @@ sf::Vector2f HazardFieldSystem<HazardType>::update()
   add_hazard_cell = update_hazard_field();
   check_npc_hazard_field_collision();
 
-  if ( not Utils::scene_setting<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled ) { check_player_hazard_field_collision(); }
+  if ( Utils::scene_setting<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled ) { check_player_hazard_field_collision(); }
 
   return add_hazard_cell;
 }
