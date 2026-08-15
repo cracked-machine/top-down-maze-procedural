@@ -438,7 +438,7 @@
     "sprite.graveyard.graves.small.closed": {
       "spritesheet": {
         "displayname": "sprite.graveyard.graves.small.closed",
-        "zorder": [1],
+        "zorder": [1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1],
         "texture_path": "res/textures/landmarks.png",
         "sprite_indices": [260, 280, 300, 320, 340, 360, 380, 400],
         "solid_mask": [
@@ -458,7 +458,7 @@
     "sprite.graveyard.graves.small.opened": {
       "spritesheet": {
         "displayname": "sprite.graveyard.graves.small.opened",
-        "zorder": [1],
+        "zorder": [1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1],
         "texture_path": "res/textures/landmarks.png",
         "sprite_indices": [261, 281, 301, 321, 341, 361, 381, 401],
         "solid_mask": [
@@ -478,7 +478,7 @@
     "sprite.graveyard.graves.large.closed": {
       "spritesheet": {
         "displayname": "sprite.graveyard.graves.large.closed",
-        "zorder": [1],
+        "zorder": [1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1],
         "texture_path": "res/textures/landmarks.png",
         "sprite_indices": [420, 440, 460, 480],
         "solid_mask": [
@@ -498,7 +498,7 @@
     "sprite.graveyard.graves.large.opened": {
       "spritesheet": {
         "displayname": "sprite.graveyard.graves.large.opened",
-        "zorder": [1],
+        "zorder": [1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1],
         "texture_path": "res/textures/landmarks.png",
         "sprite_indices": [422, 442, 462, 482],
         "solid_mask": [

@@ -91,7 +91,8 @@ public:
   //! @return std::string
   [[nodiscard]] std::string get_display_name() const { return m_display_name; }
 
-  //! @brief Get the zorder object
+  //! @brief Get the zorder object.
+  //! @note This will return zero if the sprite sheet is missing an entry at `idx`
   //! @param idx
   //! @return float
   [[nodiscard]] float get_zorder( size_t idx ) const

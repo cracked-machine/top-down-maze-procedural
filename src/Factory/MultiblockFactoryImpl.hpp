@@ -83,6 +83,8 @@ void update_segments( entt::registry &reg, const Sprites::SpriteSheet &ss, [[may
 
     segment_cmp.set_solid_mask( new_solid_mask );
     reg.emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y + ss.get_zorder( calculated_grid_index ) );
+    SPDLOG_DEBUG( "{} {} Zorder is set {} for y {}", static_cast<uint32_t>( entity ), ss.get_sprite_type(),
+                  pos_cmp.position.y + ss.get_zorder( calculated_grid_index ), pos_cmp.position.y );
 
     if ( new_solid_mask )
     {

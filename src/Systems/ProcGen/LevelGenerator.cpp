@@ -348,12 +348,12 @@ void LevelGenerator::gen_graveyard_exterior_multiblocks()
     auto max_num_graves = static_cast<size_t>( max_num_altars.get_value() * grave_num_multiplier.get_value() );
     for ( std::size_t i = 0; i < max_num_graves; ++i )
     {
-      auto [sprite_metatype, unused_index] = m_sprite_factory.get_random_type_and_texture_index( grave_meta_types );
+      auto [sprite_metatype, index] = m_sprite_factory.get_random_type_and_texture_index( grave_meta_types );
       SPDLOG_DEBUG( "Selected {}, {}", sprite_metatype, unused_index );
       const auto &spritesheet = m_sprite_factory.get_spritesheet_by_type( sprite_metatype );
       if ( auto pos = find_spawn_pos( spritesheet ) )
       {
-        Factory::Multiblock::add_multiblock_with_segments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( reg(), pos->position, spritesheet, unused_index );
+        Factory::Multiblock::add_multiblock_with_segments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( reg(), pos->position, spritesheet, index );
       }
     }
   }
