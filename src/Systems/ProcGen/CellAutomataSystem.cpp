@@ -1,4 +1,5 @@
 #include <Components/Moveable.hpp>
+#include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/ReservedPosition.hpp>
@@ -40,7 +41,9 @@ void CellAutomataSystem::iterate( uint16_t iterations, uint8_t birth_threshold, 
           {
             // Bypass add_obstacle to avoid its O(n) reserved-position scan in this hot loop;
             // reserved_grid.at() above is already the correct O(1) guard.
-            reg().emplace_or_replace<Cmp::Obstacle>( pos_entt );
+            // reg().emplace_or_replace<Cmp::Obstacle>( pos_entt );
+            // reg().emplace_or_replace<Cmp::Npc::NoPathFinding>( pos_entt );
+            Factory::Obstacle::add_obstacle( reg(), pos_entt );
             reserved_navmesh->insert( pos_entt, pos_cmp );
           }
         }
@@ -48,7 +51,9 @@ void CellAutomataSystem::iterate( uint16_t iterations, uint8_t birth_threshold, 
         {
           if ( reserved_navmesh->at( pos_cmp ).empty() )
           {
-            reg().emplace_or_replace<Cmp::Obstacle>( pos_entt );
+            // reg().emplace_or_replace<Cmp::Obstacle>( pos_entt );
+            // reg().emplace_or_replace<Cmp::Npc::NoPathFinding>( pos_entt );
+            Factory::Obstacle::add_obstacle( reg(), pos_entt );
             reserved_navmesh->insert( pos_entt, pos_cmp );
           }
           reg().emplace_or_replace<Cmp::Moveable>( pos_entt );

@@ -39,6 +39,10 @@ public:
   //! @param pos
   void remove( entt::entity e, const Cmp::Position &pos );
 
+  //! @brief Remove entire bucket using `pos` as a lookup
+  //! @param pos
+  void remove_all( const Cmp::Position &pos );
+
   //! @brief Remove `e` from its old position and re-insert at new position
   //! @param e
   //! @param old_pos

@@ -46,6 +46,7 @@ bool add_obstacle( entt::registry &reg, entt::entity entity, const PathFinding::
 
   if ( reg.all_of<Cmp::DestroyedObstacle>( entity ) ) { reg.remove<Cmp::DestroyedObstacle>( entity ); }
   reg.emplace_or_replace<Cmp::Obstacle>( entity );
+  reg.emplace_or_replace<Cmp::Npc::NoPathFinding>( entity );
   return true;
 }
 
@@ -67,7 +68,7 @@ void decorate_obstacle( entt::registry &reg, entt::entity entity, Cmp::Position 
   if ( reg.any_of<Cmp::PlayerCharacter, Cmp::ReservedPosition>( entity ) ) { return; }
   if ( reg.all_of<Cmp::DestroyedObstacle>( entity ) ) { reg.remove<Cmp::DestroyedObstacle>( entity ); }
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
-  reg.emplace_or_replace<Cmp::Npc::NoPathFinding>( entity );
+
   if ( blocking ) { reg.emplace_or_replace<Cmp::PlayerNoPath>( entity ); }
   reg.emplace_or_replace<Cmp::AbsoluteAlpha>( entity, 255 );
   reg.emplace_or_replace<Cmp::Armable>( entity );

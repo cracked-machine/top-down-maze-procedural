@@ -13,7 +13,7 @@ namespace Game::Factory::Pathfinding
 //! through plant segments, or future NPC types blocked only by specific plant types).
 using NpcBlockerFilter = std::function<bool( entt::entity )>;
 
-PathFinding::SpatialHashGridSharedPtr create_npc_navmesh( entt::registry &reg, const NpcBlockerFilter &blocks = {} );
+PathFinding::SpatialHashGridSharedPtr create_npc_navmesh( entt::registry &reg );
 PathFinding::SpatialHashGridSharedPtr create_ghost_navmesh( entt::registry &reg );
 PathFinding::SpatialHashGridSharedPtr create_player_navmesh( entt::registry &reg );
 PathFinding::SpatialHashGridSharedPtr create_open_navmesh( entt::registry &reg );

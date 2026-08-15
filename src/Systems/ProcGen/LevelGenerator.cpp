@@ -138,8 +138,8 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
   {
     // Item markers share this layer but are named by item id (e.g. "item.axe"), which isn't
     // itself a valid sprite key - resolve the item's actual sprite type before lookup.
-    const Sprites::SpriteMetaType sprite_lookup_type =
-        ms_type.contains( "item." ) ? Sys::ItemStore::instance().get_item( ms_type ).sprite_type : ms_type;
+    const Sprites::SpriteMetaType sprite_lookup_type = ms_type.contains( "item." ) ? Sys::ItemStore::instance().get_item( ms_type ).sprite_type
+                                                                                   : ms_type;
     const auto &ms = m_sprite_factory.get_spritesheet_by_type( sprite_lookup_type );
     if ( ms_type == "sprite.graveyard.healingspring" )
     {
@@ -280,8 +280,7 @@ void LevelGenerator::add_ruin_rune_markers()
 {
   for ( auto _ : std::views::iota( 0, 5 ) )
   {
-    auto [rnd_entt, rnd_pos] =
-        Utils::Rnd::get_random_position( reg(), {}, Utils::Rnd::ExcludePack<Cmp::ReservedPosition, Cmp::PlayerCharacter>{} );
+    auto [rnd_entt, rnd_pos] = Utils::Rnd::get_random_position( reg(), {}, Utils::Rnd::ExcludePack<Cmp::ReservedPosition, Cmp::PlayerCharacter>{} );
     reg().emplace_or_replace<Cmp::ReservedPosition>( rnd_entt );
     auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.ruin.runemarking.inactive" } );
     float zorder = m_sprite_factory.get_spritesheet_by_type( "sprite.ruin.runemarking.inactive" ).get_zorder( 0 );
@@ -310,8 +309,7 @@ void LevelGenerator::add_lowerfloor_cobwebs( int num_cobwebs, sf::FloatRect scen
   int max_cobwebs = num_cobwebs;
   for ( auto _ : std::views::iota( 0, max_cobwebs ) )
   {
-    auto [rnd_entt, rnd_pos] =
-        Utils::Rnd::get_random_position( reg(), {}, Utils::Rnd::ExcludePack<Cmp::ReservedPosition, Cmp::PlayerCharacter>{} );
+    auto [rnd_entt, rnd_pos] = Utils::Rnd::get_random_position( reg(), {}, Utils::Rnd::ExcludePack<Cmp::ReservedPosition, Cmp::PlayerCharacter>{} );
     if ( rnd_entt == entt::null ) continue;
 
     if ( has_collision( Cmp::RectBounds::scaled( { rnd_pos.position }, gridsize, 1 ) ) ) continue;
@@ -376,7 +374,8 @@ void LevelGenerator::gen_graveyard_exterior_multiblocks()
   {
     if ( auto pos = find_spawn_pos( crypt_spritesheet ) )
     {
-      Factory::Multiblock::add_multiblock_with_segments<Cmp::CryptBuildingMultiBlock, Cmp::CryptBuildingSegment>( reg(), pos->position, crypt_spritesheet );
+      Factory::Multiblock::add_multiblock_with_segments<Cmp::CryptBuildingMultiBlock, Cmp::CryptBuildingSegment>( reg(), pos->position,
+                                                                                                                  crypt_spritesheet );
       SPDLOG_INFO( "Added {} to {},{}", crypt_spritesheet.get_sprite_type(), pos->position.x, pos->position.y );
     }
   }
@@ -386,8 +385,8 @@ void LevelGenerator::gen_graveyard_exterior_multiblocks()
   {
     if ( auto pos = find_spawn_pos( healingspring_spritesheet ) )
     {
-      Factory::Multiblock::add_multiblock_with_segments<Cmp::HealingSpringBuildingMultiBlock, Cmp::HealingSpringBuildingSegment>( reg(), pos->position,
-                                                                                                                      healingspring_spritesheet );
+      Factory::Multiblock::add_multiblock_with_segments<Cmp::HealingSpringBuildingMultiBlock, Cmp::HealingSpringBuildingSegment>(
+          reg(), pos->position, healingspring_spritesheet );
       SPDLOG_INFO( "Added {} to {},{}", healingspring_spritesheet.get_sprite_type(), pos->position.x, pos->position.y );
     }
   }
@@ -397,7 +396,8 @@ void LevelGenerator::gen_graveyard_exterior_multiblocks()
   {
     if ( auto pos = find_spawn_pos( ruin_spritesheet ) )
     {
-      Factory::Multiblock::add_multiblock_with_segments<Cmp::RuinBuildingMultiBlock, Cmp::RuinBuildingSegment>( reg(), pos->position, ruin_spritesheet );
+      Factory::Multiblock::add_multiblock_with_segments<Cmp::RuinBuildingMultiBlock, Cmp::RuinBuildingSegment>( reg(), pos->position,
+                                                                                                                ruin_spritesheet );
       SPDLOG_INFO( "Added {} to {},{}", ruin_spritesheet.get_sprite_type(), pos->position.x, pos->position.y );
     }
   }

@@ -20,6 +20,14 @@ void SpatialHashGrid::remove( entt::entity e, const Cmp::Position &pos )
   std::erase( bucket, e );
 }
 
+void SpatialHashGrid::remove_all( const Cmp::Position &pos )
+{
+  auto [cx, cy] = cell( pos );
+  auto it = m_grid.find( encode( cx, cy ) );
+  if ( it == m_grid.end() ) return;
+  m_grid.erase( it );
+}
+
 void SpatialHashGrid::update( entt::entity e, const Cmp::Position &old_pos, const Cmp::Position &new_pos )
 {
   remove( e, old_pos );

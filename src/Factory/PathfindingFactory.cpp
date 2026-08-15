@@ -10,37 +10,37 @@
 namespace Game::Factory::Pathfinding
 {
 
-PathFinding::SpatialHashGridSharedPtr create_npc_navmesh( entt::registry &reg, const NpcBlockerFilter &blocks )
+PathFinding::SpatialHashGridSharedPtr create_npc_navmesh( entt::registry &reg )
 {
-  // Blocking components can live on a separate entity (e.g. a multiblock segment) that
-  // shares a grid position with a plain world tile, so excluding by entity alone would
-  // still insert the tile. Collect the blocked positions first, then skip any entity
-  // whose position is blocked. Only structural entities (ReservedPosition) block their
-  // position: decorations like obstacle caps also carry NpcNoPathFinding, but they only
-  // exclude themselves - the tile underneath them must stay walkable.
-  PathFinding::SpatialHashGrid blocked_positions;
-  for ( auto [nopath_entt, nopath_cmp, reserved_cmp, pos_cmp] : reg.view<Cmp::Npc::NoPathFinding, Cmp::ReservedPosition, Cmp::Position>().each() )
-  {
-    if ( blocks && not blocks( nopath_entt ) ) continue;
-    blocked_positions.insert( nopath_entt, pos_cmp );
-  }
 
-  // create a restricted navmesh for pathfinding
+  // first pass: find all navigable positions
   PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
-  for ( auto [pos_entt, pos_cmp] : reg.view<Cmp::Position>( entt::exclude<Cmp::Npc::NoPathFinding> ).each() )
+  for ( auto [pos_entt, pos_cmp] : reg.view<Cmp::Position>().each() )
   {
-    if ( not blocked_positions.at( pos_cmp ).empty() ) continue;
     pathfinding_navmesh->insert( pos_entt, pos_cmp );
+  }
+  // second pass: If we find any position with a Cmp::Npc::NoPathFinding then that invalidates the entire bucket at that position.
+  for ( auto [pos_entt, pos_cmp] : reg.view<Cmp::Position>().each() )
+  {
+    if ( reg.all_of<Cmp::Npc::NoPathFinding>( pos_entt ) ) { pathfinding_navmesh->remove_all( pos_cmp ); }
   }
   return pathfinding_navmesh;
 }
 
 PathFinding::SpatialHashGridSharedPtr create_ghost_navmesh( entt::registry &reg )
 {
-  // Ghosts drift through plants but respect every other solid blocker. Further NPC-type
-  // specific navmeshes (e.g. blocked only by certain plant types) follow this pattern:
-  // pass a filter that inspects the blocker entity's components.
-  return create_npc_navmesh( reg, [&reg]( entt::entity blocker_entt ) { return not reg.any_of<Cmp::PlantSegment>( blocker_entt ); } );
+  // first pass: find all navigable positions
+  PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
+  for ( auto [pos_entt, pos_cmp] : reg.view<Cmp::Position>().each() )
+  {
+    pathfinding_navmesh->insert( pos_entt, pos_cmp );
+  }
+  // second pass: If we find any position with a Cmp::Npc::NoPathFinding then that invalidates the entire bucket at that position.
+  for ( auto [pos_entt, pos_cmp] : reg.view<Cmp::Position>().each() )
+  {
+    if ( reg.all_of<Cmp::Npc::NoPathFinding>( pos_entt ) ) { pathfinding_navmesh->remove_all( pos_cmp ); }
+  }
+  return pathfinding_navmesh;
 }
 
 PathFinding::SpatialHashGridSharedPtr create_player_navmesh( entt::registry &reg )
