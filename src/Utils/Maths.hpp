@@ -123,6 +123,26 @@ std::array<sf::Vertex, 4> thick_line_quad( sf::Vector2f start, sf::Vector2f end,
 //! @return uint8_t
 uint8_t to_percent( float max_value, uint8_t convert );
 
+//! @brief Test whether the line segment [a,b] intersects the axis-aligned rect.
+//! @note Uses the standard slab-clipping (Liang-Barsky) test.
+//! @param a segment start
+//! @param b segment end
+//! @param rect axis-aligned rect to test against
+//! @return bool true if the segment crosses (or lies within) rect
+bool segment_intersects_rect( sf::Vector2f a, sf::Vector2f b, sf::FloatRect rect );
+
+//! @brief Test whether a point lies inside a cone: apex at `apex`, pointing along `direction`
+//! (need not be pre-normalized), spreading +/- `half_angle_radians`, reaching out to `length`.
+//! @note Mirrors the cone test in res/shaders/NightStatic.frag so gameplay hit-testing and the
+//! rendered cone never disagree.
+//! @param apex world-space cone apex
+//! @param direction cone facing direction (any nonzero length)
+//! @param half_angle_radians half-angle of the cone, radians
+//! @param length maximum reach of the cone
+//! @param point world-space point under test
+//! @return bool true if point is within [0, length) of apex and within half_angle_radians of direction
+bool is_point_in_cone( sf::Vector2f apex, sf::Vector2f direction, float half_angle_radians, float length, sf::Vector2f point );
+
 } // namespace Game::Utils::Maths
 
 #endif // SRC_UTILS_MATHS_HPP__

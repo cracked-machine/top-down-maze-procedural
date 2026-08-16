@@ -243,10 +243,18 @@
   
   "NpcWatchmanGunFireRate": {
     "type": "float",
-    "value": 5.0,
+    "value": 2.0,
     "min_value": 1.0,
     "max_value": 200.0,
     "detail": "NPC Watchman Gun Fire Rate",
+    "format": "%.1f"
+  },
+  "NpcWatchmanGunReloadRate": {
+    "type": "float",
+    "value": 1.0,
+    "min_value": 0.1,
+    "max_value": 200.0,
+    "detail": "NPC Watchman Gun Reload Rate (fire to next cock, sec)",
     "format": "%.1f"
   },
   "NpcWatchmanSpawnMax": {
@@ -274,7 +282,48 @@
     "detail": "NPC Watchman Spawn Infamy",
     "format": "%d"
   },
-  
+
+  "NpcWatchmanConeHalfAngle": {
+    "type": "float",
+    "value": 0.4,
+    "min_value": 0.05,
+    "max_value": 1.5,
+    "detail": "NPC Watchman Cone Half Angle (radians)",
+    "format": "%.2f"
+  },
+  "NpcWatchmanConeLength": {
+    "type": "float",
+    "value": 100.0,
+    "min_value": 32.0,
+    "max_value": 2000.0,
+    "detail": "NPC Watchman Cone Length (px)",
+    "format": "%.1f"
+  },
+  "NpcWatchmanSweepSpeed": {
+    "type": "float",
+    "value": 1.2,
+    "min_value": 0.0,
+    "max_value": 10.0,
+    "detail": "NPC Watchman Cone Sweep Speed (rad/s)",
+    "format": "%.2f"
+  },
+  "NpcWatchmanSweepAmplitude": {
+    "type": "float",
+    "value": 0.6,
+    "min_value": 0.0,
+    "max_value": 3.14,
+    "detail": "NPC Watchman Cone Sweep Amplitude (rad)",
+    "format": "%.2f"
+  },
+  "NpcWatchmanIdleDirectionChangeInterval": {
+    "type": "float",
+    "value": 10.0,
+    "min_value": 1.0,
+    "max_value": 120.0,
+    "detail": "NPC Watchman Idle Direction Change Interval (sec)",
+    "format": "%.1f"
+  },
+
   "NpcPushBack": {
     "type": "float",
     "value": 16.0,

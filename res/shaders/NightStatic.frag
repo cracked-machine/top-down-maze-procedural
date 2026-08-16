@@ -44,12 +44,12 @@ const float TORCH_EDGE_FLICKER_PERCENT = 0.1;
 // night static graininess
 const float NIGHT_STATIC_CONTRAST = 17.0;
 
-// // NPC lighting
-// uniform int npc_count;
-// uniform vec2 npc_positions[8];
-// uniform vec2 npc_directions[8];
-// uniform float npc_torch_lengths[8];
-// uniform float npc_torch_angle; // half-angle in radians e.g. 0.4
+// NPC (Watchman) searchlight cones
+uniform int npc_count;
+uniform vec2 npc_positions[MAX_TORCH_COUNT];
+uniform vec2 npc_directions[MAX_TORCH_COUNT];
+uniform float npc_torch_length; // shared reach for all Watchman cones, world units
+uniform float npc_torch_angle;  // shared half-angle for all Watchman cones, radians
 
 // final output pixel sampled_color
 out vec4 out_color;
@@ -85,25 +85,26 @@ float player_torch_pixel( vec2 frag_coord, int torch_idx )
   return clamp( 1.0 - ( dist_to_player / flickered_radius ), 0.0, 1.0 );
 }
 
-float npc_light_pixel()
+float npc_light_pixel( vec2 frag_coord )
 {
   // NPC cones: apex at NPC, spreads outward in facing direction
   float in_npc_light = 0.0;
-  // for ( int i = 0; i < npc_count; i++ )
-  // {
-  //   vec2 to_pixel = frag_coord - npc_positions[i];
-  //   float dist = length( to_pixel );
-  //   float cos_angle = dot( normalize( to_pixel ), npc_directions[i] );
+  for ( int i = 0; i < npc_count; i++ )
+  {
+    vec2 to_pixel = frag_coord - npc_positions[i];
+    float dist = length( to_pixel );
+    // guard normalize() against a zero-length vector (pixel exactly at the NPC's own position)
+    if ( dist < 0.0001 || dist >= npc_torch_length ) continue;
 
-  //   if ( dist < npc_torch_lengths[i] && cos_angle > cos( npc_torch_angle ) )
-  //   {
-  //     // Fade toward edges of cone and toward tip
-  //     float angular_fade = smoothstep( cos( npc_torch_angle ), cos(
-  //     npc_torch_angle * 0.5 ), cos_angle ); float dist_fade = smoothstep(
-  //     npc_torch_lengths[i], npc_torch_lengths[i] * 0.2, dist ); in_npc_light
-  //     = max( in_npc_light, angular_fade * dist_fade );
-  //   }
-  // }
+    float cos_angle = dot( to_pixel / dist, npc_directions[i] );
+    if ( cos_angle > cos( npc_torch_angle ) )
+    {
+      // Fade toward edges of cone and toward tip
+      float angular_fade = smoothstep( cos( npc_torch_angle ), cos( npc_torch_angle * 0.5 ), cos_angle );
+      float dist_fade = smoothstep( npc_torch_length, npc_torch_length * 0.2, dist );
+      in_npc_light = max( in_npc_light, angular_fade * dist_fade );
+    }
+  }
   return in_npc_light;
 }
 
@@ -130,6 +131,7 @@ void main()
   {
     frag_coord_light_amount = max( frag_coord_light_amount, player_torch_pixel( frag_coord, i ) );
   }
+  frag_coord_light_amount = max( frag_coord_light_amount, npc_light_pixel( frag_coord ) );
   // ── Static effect ────────────────────────────────────────────────────────────
 
   sampled_color.rgb = mix( sampled_color.rgb * NIGHT_COLOR, sampled_color.rgb, frag_coord_light_amount );

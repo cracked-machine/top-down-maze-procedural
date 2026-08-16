@@ -16,6 +16,7 @@
 #include <Components/Npc/Skeleton.hpp>
 #include <Components/Npc/Spider.hpp>
 #include <Components/Npc/Watchman.hpp>
+#include <Components/Npc/WatchmanSearchlight.hpp>
 #include <Components/Npc/Wisp.hpp>
 #include <Components/Npc/Witch.hpp>
 #include <Components/Persistent/NpcShockwaveFreq.hpp>
@@ -38,6 +39,7 @@
 #include <Utils/Random.hpp>
 
 #include <entt/entity/entity.hpp>
+#include <numbers>
 #include <spdlog/spdlog.h>
 #include <utility>
 
@@ -141,6 +143,13 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
   {
     reg.emplace_or_replace<Cmp::Npc::Watchman>( new_pos_entity );
     reg.emplace_or_replace<Cmp::Npc::LerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
+    // randomize the initial sweep phase and idle-facing direction so multiple Watchmen don't
+    // sweep/patrol in lockstep
+    Cmp::RandomFloat sweep_phase_rng( 0.f, 2.f * std::numbers::pi_v<float> );
+    Cmp::RandomInt idle_direction_rng( 0, 3 );
+    reg.emplace_or_replace<Cmp::Npc::WatchmanSearchlight>(
+        new_pos_entity,
+        Cmp::Npc::WatchmanSearchlight{ .sweep_phase = sweep_phase_rng.gen(), .idle_direction_index = idle_direction_rng.gen() } );
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
     Factory::Npc::destroy_npc_container( reg, position_entity );

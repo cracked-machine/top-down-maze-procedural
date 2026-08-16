@@ -36,10 +36,16 @@
 #include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
 #include <Components/Persistent/NpcShockwaveResolution.hpp>
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
+#include <Components/Persistent/NpcWatchmanConeHalfAngle.hpp>
+#include <Components/Persistent/NpcWatchmanConeLength.hpp>
 #include <Components/Persistent/NpcWatchmanGunFireRate.hpp>
+#include <Components/Persistent/NpcWatchmanGunReloadRate.hpp>
+#include <Components/Persistent/NpcWatchmanIdleDirectionChangeInterval.hpp>
 #include <Components/Persistent/NpcWatchmanSpawnCooldown.hpp>
 #include <Components/Persistent/NpcWatchmanSpawnInfamy.hpp>
 #include <Components/Persistent/NpcWatchmanSpawnMax.hpp>
+#include <Components/Persistent/NpcWatchmanSweepAmplitude.hpp>
+#include <Components/Persistent/NpcWatchmanSweepSpeed.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerAnimFramerate.hpp>
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
@@ -250,7 +256,13 @@ void RenderMenuSystem::render_settings_widgets( sf::Time dt, sf::FloatRect title
     Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanSpawnMax>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanSpawnCooldown>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanGunFireRate>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanGunReloadRate>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanSpawnInfamy>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanConeHalfAngle>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanConeLength>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanSweepSpeed>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanSweepAmplitude>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanIdleDirectionChangeInterval>( reg() ).render_widget();
 
     auto &npc_push_back = Sys::PersistSystem::get<Cmp::Persist::NpcPushBack>( reg() );
     if ( ImGui::SliderScalar( "NPC Push Back Distance", ImGuiDataType_Float, npc_push_back.get_value_ptr(), npc_push_back.get_min_value_ptr(),

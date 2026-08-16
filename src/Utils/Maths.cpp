@@ -144,4 +144,58 @@ uint8_t to_percent( float max_value, uint8_t convert )
   return static_cast<uint8_t>( converted );
 }
 
+bool segment_intersects_rect( sf::Vector2f a, sf::Vector2f b, sf::FloatRect rect )
+{
+  const float rect_min_x = rect.position.x;
+  const float rect_min_y = rect.position.y;
+  const float rect_max_x = rect.position.x + rect.size.x;
+  const float rect_max_y = rect.position.y + rect.size.y;
+
+  const sf::Vector2f d = b - a;
+  float t_min = 0.f;
+  float t_max = 1.f;
+
+  if ( std::abs( d.x ) < 1e-6f )
+  {
+    if ( a.x < rect_min_x or a.x > rect_max_x ) return false;
+  }
+  else
+  {
+    float t1 = ( rect_min_x - a.x ) / d.x;
+    float t2 = ( rect_max_x - a.x ) / d.x;
+    if ( t1 > t2 ) std::swap( t1, t2 );
+    t_min = std::max( t_min, t1 );
+    t_max = std::min( t_max, t2 );
+    if ( t_min > t_max ) return false;
+  }
+
+  if ( std::abs( d.y ) < 1e-6f )
+  {
+    if ( a.y < rect_min_y or a.y > rect_max_y ) return false;
+  }
+  else
+  {
+    float t1 = ( rect_min_y - a.y ) / d.y;
+    float t2 = ( rect_max_y - a.y ) / d.y;
+    if ( t1 > t2 ) std::swap( t1, t2 );
+    t_min = std::max( t_min, t1 );
+    t_max = std::min( t_max, t2 );
+    if ( t_min > t_max ) return false;
+  }
+
+  return true;
+}
+
+bool is_point_in_cone( sf::Vector2f apex, sf::Vector2f direction, float half_angle_radians, float length, sf::Vector2f point )
+{
+  const sf::Vector2f to_point = point - apex;
+  if ( to_point.length() >= length ) return false;
+
+  const auto n_to_point = normalized( to_point );
+  const auto n_direction = normalized( direction );
+  if ( not n_to_point.has_value() or not n_direction.has_value() ) return false;
+
+  return n_to_point->dot( *n_direction ) > std::cos( half_angle_radians );
+}
+
 } // namespace Game::Utils::Maths

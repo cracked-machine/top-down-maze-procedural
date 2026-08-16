@@ -16,6 +16,7 @@
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/Shockwave.hpp>
+#include <Components/Npc/WatchmanSearchlight.hpp>
 #include <Components/Npc/Wisp.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
@@ -59,6 +60,7 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Time.hpp>
 #include <array>
+#include <cmath>
 #include <spdlog/spdlog.h>
 
 namespace Game::Sys
@@ -129,6 +131,20 @@ void NpcSystem::update_animation()
 {
   for ( auto [npc_entt, npc_cmp, npc_dir_cmp, anim_cmp] : reg().view<Cmp::Npc::NPC, Cmp::Direction, Cmp::AnimData>().each() )
   {
+    // Watchmen face wherever their searchlight is currently pointing — sweeping, patrolling a
+    // cardinal direction, or locked onto the player — even while standing still, rather than
+    // freezing on whatever direction they last walked.
+    if ( auto *searchlight_cmp = reg().try_get<Cmp::Npc::WatchmanSearchlight>( npc_entt ) )
+    {
+      anim_cmp.m_enabled = npc_dir_cmp != sf::Vector2f( 0.0f, 0.0f );
+      const sf::Vector2f facing = searchlight_cmp->cone_direction;
+      if ( std::abs( facing.x ) > std::abs( facing.y ) )
+      {
+        anim_cmp.m_sprite_type = facing.x > 0 ? "sprite.nightwatchman.walk.east" : "sprite.nightwatchman.walk.west";
+      }
+      else { anim_cmp.m_sprite_type = facing.y < 0 ? "sprite.nightwatchman.walk.north" : "sprite.nightwatchman.walk.south"; }
+      continue;
+    }
 
     if ( npc_dir_cmp == sf::Vector2f( 0.0f, 0.0f ) )
     {
@@ -151,13 +167,6 @@ void NpcSystem::update_animation()
       else if ( npc_dir_cmp.x < 0 ) { anim_cmp.m_sprite_type = "sprite.ghost.walk.west"; }
       else if ( npc_dir_cmp.y < 0 ) { anim_cmp.m_sprite_type = "sprite.ghost.walk.north"; }
       else if ( npc_dir_cmp.y > 0 ) { anim_cmp.m_sprite_type = "sprite.ghost.walk.south"; }
-    }
-    else if ( anim_cmp.m_sprite_type.contains( "sprite.nightwatchman" ) )
-    {
-      if ( npc_dir_cmp.x > 0 ) { anim_cmp.m_sprite_type = "sprite.nightwatchman.walk.east"; }
-      else if ( npc_dir_cmp.x < 0 ) { anim_cmp.m_sprite_type = "sprite.nightwatchman.walk.west"; }
-      else if ( npc_dir_cmp.y < 0 ) { anim_cmp.m_sprite_type = "sprite.nightwatchman.walk.north"; }
-      else if ( npc_dir_cmp.y > 0 ) { anim_cmp.m_sprite_type = "sprite.nightwatchman.walk.south"; }
     }
     else if ( anim_cmp.m_sprite_type.contains( "sprite.wisp" ) )
     {
@@ -219,8 +228,21 @@ void NpcSystem::update_pathfinding( sf::Time dt )
     for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::Npc::NPC>().each() )
     {
       if ( reg().any_of<Cmp::Npc::Wisp>( npc_entt ) ) continue;
-      // Skip NPCs already stopped at the spawn boundary — A* result won't change
-      if ( player_in_spawn )
+
+      // Watchmen stand sentry, sweeping their searchlight, until they actually catch the player
+      // in the beam — only then do they give chase.
+      auto *searchlight_cmp = reg().try_get<Cmp::Npc::WatchmanSearchlight>( npc_entt );
+      if ( searchlight_cmp and not searchlight_cmp->locked_on_player )
+      {
+        reg().emplace_or_replace<Cmp::Direction>( npc_entt, Cmp::Direction( { 0.0f, 0.0f } ) );
+        continue;
+      }
+
+      // Skip NPCs already stopped at the spawn boundary — A* result won't change. Watchmen are
+      // exempt: they may still be sitting at Direction {0,0} from sentry mode the instant they
+      // lock onto the player, and must always re-path rather than being mistaken for an NPC that
+      // already settled on "no path needed".
+      if ( player_in_spawn and not searchlight_cmp )
       {
         auto *npc_dir = reg().try_get<Cmp::Direction>( npc_entt );
         auto *npc_lerp = reg().try_get<Cmp::LerpPosition>( npc_entt );

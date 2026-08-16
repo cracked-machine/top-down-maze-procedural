@@ -1,6 +1,8 @@
 #ifndef SRC_SYSTEMS_THREATS_WATCHMANSYSTEM_HPP__
 #define SRC_SYSTEMS_THREATS_WATCHMANSYSTEM_HPP__
 
+#include <Components/Position.hpp>
+#include <Components/UUID.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <SFML/System/Time.hpp>
@@ -31,17 +33,25 @@ private:
   //! @brief Rate-limit the spawning of Watchman NPCs
   sf::Time m_watchman_spawn_timer;
 
-  //! @brief Rate-limit the gunfire
-  sf::Time m_watchman_gunfire_timer;
-
-  //! @brief Only cock the gun once before shooting it
-  bool m_gun_needs_reloading{ true };
-
   //! @brief Create a watchman NPC at a random location.
   void spawn_watchman();
 
-  void fire_gun();
-  void cock_gun();
+  //! @brief Advance each Watchman's searchlight sweep phase and recompute its cone direction,
+  //! centered on the NPC's current walking direction (falling back to the last known facing
+  //! direction while stationary).
+  void update_searchlights( sf::Time dt );
+
+  //! @brief Per-Watchman fire-rate state machine, gated by whether the player is currently
+  //! inside that Watchman's searchlight cone.
+  void update_gunfire( sf::Time dt );
+
+  //! @brief Test whether any active Cmp::Player::NoPath blocker (obstacles, walls, and every
+  //! solid multiblock segment — altars, graves, crypts, ruins, plants) crosses the line between
+  //! `from` and `to`, so the searchlight can't see/catch the player through cover.
+  bool has_line_of_sight( sf::Vector2f from, sf::Vector2f to );
+
+  void fire_gun( Cmp::Position &npc_pos_cmp, Cmp::UUID &npc_uuid_cmp );
+  void cock_gun( Cmp::Position &npc_pos_cmp );
 
   //! @brief Damage the player if any active gunfire particle is touching them
   void check_gunfire_player_collision();
