@@ -12,9 +12,9 @@
 #include <Components/Crypt/RoomStart.hpp>
 #include <Components/Exit.hpp>
 #include <Components/Grave/MultiBlock.hpp>
-#include <Components/Grave/Segment.hpp>
 #include <Components/Grave/PlantMultiBlock.hpp>
 #include <Components/Grave/PlantSegment.hpp>
+#include <Components/Grave/Segment.hpp>
 #include <Components/Moveable.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
@@ -28,11 +28,11 @@
 #include <Components/Ruin/GateSegment.hpp>
 #include <Components/Ruin/HexagramMultiBlock.hpp>
 #include <Components/Ruin/HexagramSegment.hpp>
+#include <Components/Ruin/RuneMarking.hpp>
 #include <Components/Ruin/StairsBalustradeMultiBlock.hpp>
 #include <Components/Ruin/StairsGateMultiBlock.hpp>
 #include <Components/Ruin/StairsLowerMultiBlock.hpp>
 #include <Components/Ruin/StairsUpperMultiBlock.hpp>
-#include <Components/Ruin/RuneMarking.hpp>
 #include <Components/SpawnArea.hpp>
 #include <Components/Spring/HealingSpringBuildingMultiBlock.hpp>
 #include <Components/Spring/HealingSpringBuildingSegment.hpp>
@@ -136,6 +136,15 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
   // Multiblock layer
   for ( const auto &[ms_type, pos] : scene_data.multiblock_objectlayer() )
   {
+    // allow "npc." markers in the multiblock layer
+    if ( ms_type.contains( "npc." ) )
+    {
+      auto npc_entt = reg().create();
+      reg().emplace_or_replace<Cmp::Position>( npc_entt, pos, Constants::kGridSizePxF );
+      Factory::Npc::create_npc( m_reg, npc_entt, ms_type );
+      continue;
+    }
+
     // Item markers share this layer but are named by item id (e.g. "item.axe"), which isn't
     // itself a valid sprite key - resolve the item's actual sprite type before lookup.
     const Sprites::SpriteMetaType sprite_lookup_type = ms_type.contains( "item." ) ? Sys::ItemStore::instance().get_item( ms_type ).sprite_type
@@ -152,12 +161,6 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
     else if ( ms_type == "sprite.crypt.altar.inactive" )
     {
       Factory::Multiblock::add_multiblock_with_segments<Cmp::Altar::MultiBlock, Cmp::Altar::Segment>( reg(), pos, ms );
-    }
-    else if ( ms_type == "npc.drknox" )
-    {
-      auto npc_entt = reg().create();
-      reg().emplace_or_replace<Cmp::Position>( npc_entt, pos, Constants::kGridSizePxF );
-      Factory::Npc::create_npc( m_reg, npc_entt, ms_type );
     }
     else if ( ms_type == "sprite.ruin.stairs.up" )
     {
@@ -375,7 +378,7 @@ void LevelGenerator::gen_graveyard_exterior_multiblocks()
     if ( auto pos = find_spawn_pos( crypt_spritesheet ) )
     {
       Factory::Multiblock::add_multiblock_with_segments<Cmp::Crypt::BuildingMultiBlock, Cmp::Crypt::BuildingSegment>( reg(), pos->position,
-                                                                                                                  crypt_spritesheet );
+                                                                                                                      crypt_spritesheet );
       SPDLOG_INFO( "Added {} to {},{}", crypt_spritesheet.get_sprite_type(), pos->position.x, pos->position.y );
     }
   }
@@ -397,7 +400,7 @@ void LevelGenerator::gen_graveyard_exterior_multiblocks()
     if ( auto pos = find_spawn_pos( ruin_spritesheet ) )
     {
       Factory::Multiblock::add_multiblock_with_segments<Cmp::Ruin::BuildingMultiBlock, Cmp::Ruin::BuildingSegment>( reg(), pos->position,
-                                                                                                                ruin_spritesheet );
+                                                                                                                    ruin_spritesheet );
       SPDLOG_INFO( "Added {} to {},{}", ruin_spritesheet.get_sprite_type(), pos->position.x, pos->position.y );
     }
   }
