@@ -9,6 +9,7 @@
 #include <Components/Weapons/Arrow.hpp>
 #include <Components/Weapons/InFlight.hpp>
 #include <Factory/NpcFactory.hpp>
+#include <SFML/System/Angle.hpp>
 #include <Systems/ArrowSystem.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
@@ -75,7 +76,7 @@ void ArrowSystem::update_arrow_trajectory( sf::Time dt )
         else if ( auto direction = Utils::Maths::normalized( remaining ) )
         {
           arrow_pos_cmp.position += *direction * arrow_cmp.speed();
-          reg().emplace_or_replace<Cmp::AbsoluteRotation>( arrow_entt, ( *direction ).angle().asDegrees() );
+          reg().emplace_or_replace<Cmp::AbsoluteRotation>( arrow_entt, Utils::Maths::angle( *direction ).value_or( sf::Angle::Zero ).asDegrees() );
         }
 
         // Displace the sprite along a parabolic arc that peaks halfway between origin and destination.

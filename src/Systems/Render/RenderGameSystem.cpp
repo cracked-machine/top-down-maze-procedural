@@ -484,8 +484,7 @@ void RenderGameSystem::render_arrow_compass()
     // Calculate final arrow position at screen edge
     if ( t < std::numeric_limits<float>::max() ) { arrow_position = player_pos_center + direction * t; }
 
-    // Use SFML's angle() function to get the angle directly
-    auto angle_radians = direction.angle();
+    auto angle_radians = Utils::Maths::angle( direction ).value_or( sf::Angle::Zero );
 
     // Center the arrow sprite at the calculated position
     sf::FloatRect arrow_rect{ arrow_position - sf::Vector2f{ Constants::kGridSizePxF.x / 2.0f, Constants::kGridSizePxF.y / 2.0f },
