@@ -111,12 +111,13 @@ void add_wormhole_ps( entt::registry &reg, const std::string &tag, float lifetim
   SPDLOG_DEBUG( "Created wormhole ParticleSprite {}", static_cast<uint32_t>( entt ) );
 }
 
-void add_obstacledig_ps( entt::registry &reg, const std::string &tag, int particle_count, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp,
-                         sf::Vector2f pos, float zorder )
+void add_obstacledig_ps( entt::registry &reg, const std::string &tag, int particle_count, float lifetime_seconds, float speed, float size,
+                         Cmp::UUID &uuid_cmp, sf::Vector2f pos, float zorder )
 {
   auto ps = Cmp::Particle::ObstacleDigParticleSprite( particle_count );
   ps.set_tag( tag );
   ps.set_generations( 1 );
+  ps.set_particle_size_range( std::uniform_real_distribution<float>( size, size ) );
 
   ps.set_emitter_position( { pos.x + Cmp::RandomFloat( 4.f, 12.f ).gen(), pos.y + Cmp::RandomFloat( 4.f, 12.f ).gen() } );
 

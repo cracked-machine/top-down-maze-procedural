@@ -7,13 +7,13 @@
 #include <Components/FractalCurve.hpp>
 #include <Components/Grave/PlantMultiBlock.hpp>
 #include <Components/Grave/PlantSegment.hpp>
-#include <Components/Inventory/WearLevel.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
+#include <Components/Inventory/WearLevel.hpp>
 #include <Components/LastDirection.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/Moveable.hpp>
-#include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
+#include <Components/Npc/Npc.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
@@ -292,8 +292,8 @@ void ActionSystem::check_player_dig_obstacle_collision()
         SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
 
         auto dig_particle_uuid = Cmp::UUID::generate();
-        Factory::Particle::add_obstacledig_ps( reg(), "graveyard.obstacle.dig.particle", 50, 2.f, 50.f, dig_particle_uuid, obstacle_pos_cmp.position,
-                                               obstacle_pos_cmp.y() );
+        Factory::Particle::add_obstacledig_ps( reg(), "graveyard.obstacle.dig.particle", 50, 2.f, 50.f, 14.f, dig_particle_uuid,
+                                               obstacle_pos_cmp.position, obstacle_pos_cmp.y() );
       }
       else
       {
@@ -306,8 +306,8 @@ void ActionSystem::check_player_dig_obstacle_collision()
         {
 
           auto dig_particle_uuid = Cmp::UUID::generate();
-          Factory::Particle::add_obstacledig_ps( reg(), "graveyard.obstacle.dig.particle", 5, 2.f, 50.f, dig_particle_uuid, obstacle_pos_cmp.position,
-                                                 obstacle_pos_cmp.y() );
+          Factory::Particle::add_obstacledig_ps( reg(), "graveyard.obstacle.dig.particle", 5, 2.f, 50.f, 7.f, dig_particle_uuid,
+                                                 obstacle_pos_cmp.position, obstacle_pos_cmp.y() );
 
           sf::Vector2f crack_start_pos( obstacle_pos_cmp.getCenter().x, obstacle_pos_cmp.getCenter().y - 12.f ); // offset for obstacle cap
           constexpr float kCrackLengthRatio = 0.4f;
@@ -323,7 +323,7 @@ void ActionSystem::check_player_dig_obstacle_collision()
           constexpr float kCrackAngleStepDeg = 70.f;
           constexpr int kCrackSlotCount = static_cast<int>( 360.f / kCrackAngleStepDeg );
           float base_angle_deg = static_cast<float>( std::hash<Cmp::UUID>{}( obstacle_uuid_cmp ) % 360 ) +
-                                  ( static_cast<float>( crack_iter ) * ( 360.f / static_cast<float>( kCracksPerHit ) ) );
+                                 ( static_cast<float>( crack_iter ) * ( 360.f / static_cast<float>( kCracksPerHit ) ) );
 
           auto circular_angle_diff_deg = []( float a, float b )
           {
@@ -348,7 +348,7 @@ void ActionSystem::check_player_dig_obstacle_collision()
           {
             float candidate_deg = std::fmod( base_angle_deg + ( static_cast<float>( slot ) * kCrackAngleStepDeg ), 360.f );
             bool too_close = std::ranges::any_of( used_angles_deg, [&]( float used_deg )
-                                                   { return circular_angle_diff_deg( candidate_deg, used_deg ) < kCrackAngleStepDeg; } );
+                                                  { return circular_angle_diff_deg( candidate_deg, used_deg ) < kCrackAngleStepDeg; } );
             if ( not too_close ) free_slots.push_back( slot );
           }
           // every slot on this obstacle is already taken - fall back to a plain random pick

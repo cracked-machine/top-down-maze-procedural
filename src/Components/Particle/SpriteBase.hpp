@@ -34,6 +34,7 @@ public:
   virtual void set_freq( std::uniform_real_distribution<float> freq ) = 0;
   virtual void set_lifetime( std::uniform_int_distribution<int> lifetime ) = 0;
   virtual void set_emitter_position( sf::Vector2f emitter_position ) = 0;
+  virtual void set_size( float size ) = 0;
 
 private:
   // See ParticleBase for docstrings
@@ -65,11 +66,13 @@ struct ParticleBase : public Cmp::Particle::IParticle
   void set_freq( std::uniform_real_distribution<float> freq ) override { m_freq_range = freq; }
   void set_emitter_position( sf::Vector2f emitter_position ) override { m_emitter_position = emitter_position; }
   void set_lifetime( std::uniform_int_distribution<int> lifetime ) override { m_lifetime_range = lifetime; }
+  void set_size( float size ) override { m_size = size; }
 
   sf::Vertex m_vertex;
   sf::Vector2f m_velocity;
   sf::Time m_lifetime;
   sf::Vector2f m_emitter_position;
+  float m_size{ 1.f };
 
   size_t generations() override { return m_generation; }
   size_t m_generation{ 0 };
@@ -145,6 +148,8 @@ public:
 
   virtual void set_view_type( ViewType v ) = 0;
   virtual ViewType get_view_type() = 0;
+
+  virtual void set_particle_size_range( std::uniform_real_distribution<float> size_dist ) = 0;
 };
 
 //! @brief Defines the particle sprite base class template. This renders a list of TParticle vertices.
@@ -230,6 +235,8 @@ public:
     SPDLOG_DEBUG( "Restarting ParticleSprite" );
 
     m_particles_list = std::vector<TParticle>( m_max_particles );
+    static std::random_device rd;
+    static std::mt19937 rng( rd() );
     for ( auto &p : m_particles_list )
     {
       p.set_speed( m_cached_speed_range );
@@ -238,6 +245,7 @@ public:
       p.set_freq( m_cached_freq_range );
       p.set_emitter_position( m_emitter_position );
       p.set_lifetime( m_cached_lifetime_range );
+      p.set_size( m_particle_size_range( rng ) );
       p.m_particle_active = true;
     }
     m_sprite_active = true;
@@ -446,6 +454,17 @@ public:
   void set_view_type( ViewType v ) override { m_view_type = v; };
   ViewType get_view_type() override { return m_view_type; };
 
+  void set_particle_size_range( std::uniform_real_distribution<float> size_dist ) override
+  {
+    m_particle_size_range = size_dist;
+    static std::random_device rd;
+    static std::mt19937 rng( rd() );
+    for ( auto &p : m_particles_list )
+    {
+      p.set_size( m_particle_size_range( rng ) );
+    }
+  }
+
 protected:
   //! @brief Default translation function is a noop. See set_view_transform()
   std::function<sf::Vector2f( sf::Vector2f )> m_world_to_screen = []( sf::Vector2f p ) { return p; };
@@ -476,6 +495,8 @@ private:
   //! @brief Particle lifetime range
   //! @note  Cache the init value so we can reset it later
   std::uniform_int_distribution<int> m_cached_lifetime_range{ 0, 1 };
+
+  std::uniform_real_distribution<float> m_particle_size_range{ 0, 1 };
 
   //! @brief convenience identifier for searching the registry
   std::string m_tag;

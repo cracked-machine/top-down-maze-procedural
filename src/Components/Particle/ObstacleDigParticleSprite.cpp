@@ -1,6 +1,7 @@
 #include <Components/Particle/ObstacleDigParticleSprite.hpp>
 
 #include <Components/Random.hpp>
+#include <Utils/Maths.hpp>
 #include <cmath>
 #include <random>
 
@@ -100,10 +101,11 @@ void ObstacleDigParticleSprite::draw( sf::RenderTarget &target, sf::RenderStates
   verts.reserve( m_particles_list.size() );
   SPDLOG_DEBUG( "Drawing {} particles", m_particles.size() );
 
-  constexpr float kSize = 7.f;
   constexpr sf::Color kOutlineColour = sf::Color( 0, 0, 0, 128 );
+  constexpr float kOutlineThickness = 3.f;
   for ( const auto &p : m_particles_list )
   {
+    float kSize = p.m_size;
 
     // map world -> screen
     const auto pos = m_world_to_screen( p.m_vertex.position );
@@ -128,14 +130,30 @@ void ObstacleDigParticleSprite::draw( sf::RenderTarget &target, sf::RenderStates
       verts.push_back( { v0, colour } );
       verts.push_back( { v1, colour } );
 
-      // this wedge's outer edge is one segment of the polygon's boundary
-      outline_verts.push_back( { v0, kOutlineColour } );
-      outline_verts.push_back( { v1, kOutlineColour } );
+      // this wedge's outer edge is one segment of the polygon's boundary.
+      // build it as a quad (rather than a hairline sf::PrimitiveType::Lines segment)
+      // so the outline can have adjustable thickness.
+      const sf::Vector2f edge = v1 - v0;
+      const sf::Vector2f normal = Utils::Maths::normalized( { -edge.y, edge.x } ).value_or( sf::Vector2f( 0.f, 0.f ) );
+      const sf::Vector2f offset = normal * ( kOutlineThickness * 0.5f );
+
+      const auto o0 = v0 + offset;
+      const auto o1 = v0 - offset;
+      const auto o2 = v1 - offset;
+      const auto o3 = v1 + offset;
+
+      outline_verts.push_back( { o0, kOutlineColour } );
+      outline_verts.push_back( { o1, kOutlineColour } );
+      outline_verts.push_back( { o2, kOutlineColour } );
+
+      outline_verts.push_back( { o0, kOutlineColour } );
+      outline_verts.push_back( { o2, kOutlineColour } );
+      outline_verts.push_back( { o3, kOutlineColour } );
     }
   }
 
   target.draw( verts.data(), verts.size(), sf::PrimitiveType::Triangles, states );
-  target.draw( outline_verts.data(), outline_verts.size(), sf::PrimitiveType::Lines, states );
+  target.draw( outline_verts.data(), outline_verts.size(), sf::PrimitiveType::Triangles, states );
 }
 
 } // namespace Game::Cmp::Particle
