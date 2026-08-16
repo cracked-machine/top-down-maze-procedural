@@ -4,6 +4,7 @@
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
+#include <Components/ObstacleCap.hpp>
 #include <Components/Player/Character.hpp>
 #include <Components/Player/NoPath.hpp>
 #include <Components/ReservedPosition.hpp>
@@ -49,6 +50,8 @@ bool add_obstacle( entt::registry &reg, entt::entity entity, const PathFinding::
   reg.emplace_or_replace<Cmp::Npc::NoPathFinding>( entity );
   return true;
 }
+
+void add_obstacle_cap( entt::registry &reg, entt::entity entity ) { reg.emplace_or_replace<Cmp::ObstacleCap>( entity ); }
 
 void decorate_obstacle( entt::registry &reg, entt::entity entity, Cmp::Position pos_cmp, const Sprites::SpriteSheet &ms, std::size_t sprite_tile_idx,
                         float zorder, bool blocking )

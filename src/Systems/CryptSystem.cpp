@@ -742,6 +742,7 @@ void CryptSystem::decorate_interior_wall( entt::entity main_entt, Cmp::Position 
   Factory::Obstacle::decorate_obstacle( reg(), cap_entt, cap_position, ss_cap, tile_idx, main_pos_cmp.y() + ss_cap.get_zorder( tile_idx ), false );
   reg().emplace_or_replace<Cmp::ReservedPosition>( cap_entt );
   reg().emplace_or_replace<Cmp::UUID>( cap_entt, uuid );
+  Factory::Obstacle::add_obstacle_cap( reg(), cap_entt );
 }
 
 void CryptSystem::close_open_rooms( const Cmp::Position &player_pos_cmp )

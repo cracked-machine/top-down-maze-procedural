@@ -235,6 +235,7 @@ void LevelGenerator::decorate_graveyard_exterior_obstacles()
     Factory::Obstacle::decorate_obstacle( reg(), cap_entt, cap_position, ss_cap, rand_obst_tex_idx, obstacle_pos_cmp.y() + 1, false );
     reg().emplace_or_replace<Cmp::ReservedPosition>( cap_entt );
     reg().emplace_or_replace<Cmp::UUID>( cap_entt, uuid );
+    Factory::Obstacle::add_obstacle_cap( reg(), cap_entt );
   }
 }
 
@@ -276,6 +277,7 @@ void LevelGenerator::decorate_ruin_interior_obstacles()
     Factory::Obstacle::decorate_obstacle( reg(), cap_entt, cap_position, ss_cap, ss_cap_idx, obstacle_pos_cmp.y(), false );
     reg().emplace_or_replace<Cmp::ReservedPosition>( cap_entt );
     reg().emplace_or_replace<Cmp::UUID>( cap_entt, uuid );
+    Factory::Obstacle::add_obstacle_cap( reg(), cap_entt );
   }
 }
 

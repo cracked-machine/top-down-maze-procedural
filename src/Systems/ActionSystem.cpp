@@ -15,6 +15,7 @@
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Obstacle.hpp>
+#include <Components/ObstacleCap.hpp>
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
@@ -50,6 +51,7 @@
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
 #include <numbers>
+#include <unordered_map>
 
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/System/Time.hpp>
@@ -201,6 +203,14 @@ void ActionSystem::check_player_dig_obstacle_collision()
     reg().remove<Cmp::SelectedPosition>( existing_sel_entity );
   }
 
+  // Cap position lookup by UUID, built once so each obstacle below can find its paired cap in O(1)
+  // rather than rescanning every cap entity in the level.
+  std::unordered_map<Cmp::UUID, Cmp::Position> cap_position_by_uuid;
+  for ( auto [cap_entt, cap_cmp, cap_pos_cmp, cap_uuid_cmp] : reg().view<Cmp::ObstacleCap, Cmp::Position, Cmp::UUID>().each() )
+  {
+    cap_position_by_uuid.emplace( cap_uuid_cmp, cap_pos_cmp );
+  }
+
   // Iterate through all entities with Position and Obstacle components
   auto position_view = reg().view<Cmp::Position, Cmp::Obstacle, Cmp::AbsoluteAlpha, Cmp::AnimData, Cmp::UUID>( entt::exclude<Cmp::SelectedPosition> );
   for ( auto [obstacle_entt, obstacle_pos_cmp, obstacle_cmp, obstacle_alpha_cmp, obstacle_anim_cmp, obstacle_uuid_cmp] : position_view.each() )
@@ -208,7 +218,23 @@ void ActionSystem::check_player_dig_obstacle_collision()
     if ( not obstacle_anim_cmp.m_sprite_type.contains( ".main" ) ) continue;
 
     auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
-    if ( mouse_position_bounds.findIntersection( obstacle_pos_cmp ) )
+
+    // The obstacle's cap is rendered as a separate entity directly above it, and from the
+    // front-facing view the player sees obstacle and cap as one continuous shape - so a click on
+    // either must select the same obstacle. The cap is matched strictly by its paired UUID (never
+    // by position), so a different obstacle stacked above - whose own cap may visually overlap this
+    // one - can never be picked up here.
+    bool mouse_over_obstacle_or_cap = static_cast<bool>( mouse_position_bounds.findIntersection( obstacle_pos_cmp ) );
+    if ( not mouse_over_obstacle_or_cap )
+    {
+      auto cap_it = cap_position_by_uuid.find( obstacle_uuid_cmp );
+      if ( cap_it != cap_position_by_uuid.end() )
+      {
+        mouse_over_obstacle_or_cap = static_cast<bool>( mouse_position_bounds.findIntersection( cap_it->second ) );
+      }
+    }
+
+    if ( mouse_over_obstacle_or_cap )
     {
       // Reserved obstacles sit under structures and cannot be dug, with one exception:
       // a replanted plant reserves the tiles it lands on, but must not shield the
@@ -255,11 +281,8 @@ void ActionSystem::check_player_dig_obstacle_collision()
       else if ( inventory_slot_type.contains( "shovel" ) or inventory_slot_type.contains( "axe" ) ) { damage_per_hit = damage_per_hit / 5; }
       obstacle_cmp.damage += damage_per_hit;
 
-      // cap sprite obstacles are created via decorate_obstacle() only, so unlike the main obstacle
-      // they never get a Cmp::Obstacle component — exclude it here to actually reach them, rather
-      // than requiring it and only ever matching (and redundantly re-setting) the main obstacle itself
-      auto cap_obstacle_view = reg().view<Cmp::UUID, Cmp::AbsoluteAlpha, Cmp::Position>( entt::exclude<Cmp::Obstacle> );
-      for ( auto [cap_obstacle_entt, cap_obstacle_uuid_cmp, cap_obstacle_alpha, cap_pos_cmp] : cap_obstacle_view.each() )
+      auto cap_obstacle_view = reg().view<Cmp::ObstacleCap, Cmp::UUID, Cmp::AbsoluteAlpha, Cmp::Position>();
+      for ( auto [cap_obstacle_entt, cap_obstacle_cap_cmp, cap_obstacle_uuid_cmp, cap_obstacle_alpha, cap_pos_cmp] : cap_obstacle_view.each() )
       {
         if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), cap_pos_cmp ) ) continue;
         if ( obstacle_uuid_cmp != cap_obstacle_uuid_cmp ) continue;

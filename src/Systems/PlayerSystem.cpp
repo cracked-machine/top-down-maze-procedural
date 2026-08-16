@@ -23,6 +23,7 @@
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Npc/Wisp.hpp>
 #include <Components/Obstacle.hpp>
+#include <Components/ObstacleCap.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerMovementSpeed.hpp>
@@ -235,8 +236,8 @@ void PlayerSystem::move_obstacle( const sf::FloatRect &target_position )
       reg().remove<Cmp::SelectedPosition>( selected_entt );
 
       // find the matching cap to this obstacle and move it too
-      for ( auto [cap_search_entt, cap_search_uuid_cmp, cap_search_pos_cmp] :
-            reg().view<Cmp::UUID, Cmp::Position>( entt::exclude<Cmp::Obstacle> ).each() )
+      for ( auto [cap_search_entt, cap_search_cap_cmp, cap_search_uuid_cmp, cap_search_pos_cmp] :
+            reg().view<Cmp::ObstacleCap, Cmp::UUID, Cmp::Position>().each() )
       {
         if ( cap_search_uuid_cmp != selected_uuid_cmp ) continue;
         cap_search_pos_cmp.position += player_velocity.position();

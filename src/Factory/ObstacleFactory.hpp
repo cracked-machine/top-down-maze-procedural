@@ -25,6 +25,11 @@ entt::entity create_void_pos( entt::registry &registry, const Cmp::Position &pos
 //! @return true if the obstacle was placed, false if blocked by the reserved navmesh.
 bool add_obstacle( entt::registry &registry, entt::entity entity, const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh = nullptr );
 
+//! @brief Mark the entity as the "cap" sprite paired with an Obstacle entity (tied together via Cmp::UUID)
+//! @param registry
+//! @param entity
+void add_obstacle_cap( entt::registry &registry, entt::entity entity );
+
 //! @brief Create an obstacle WITH sprite for final level gen pass
 //! @param registry
 //! @param entity

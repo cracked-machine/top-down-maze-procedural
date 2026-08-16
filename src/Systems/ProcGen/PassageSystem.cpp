@@ -651,6 +651,7 @@ void PassageSystem::fill_all_passages()
     Factory::Obstacle::decorate_obstacle( reg(), cap_entt, cap_position, ss_cap, 0, pos_cmp.y() + ss_cap.get_zorder( 0 ), false );
     reg().emplace_or_replace<Cmp::ReservedPosition>( cap_entt );
     reg().emplace_or_replace<Cmp::UUID>( cap_entt, uuid );
+    Factory::Obstacle::add_obstacle_cap( reg(), cap_entt );
 
     if ( pathfinding_navmesh ) pathfinding_navmesh->remove( pos_entt, pos_cmp );
   }
