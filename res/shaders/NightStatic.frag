@@ -42,7 +42,7 @@ const float TORCH_EDGE_FLICKER_PERCENT = 0.1;
 // Transition band width inside/outside of radius
 
 // night static graininess
-const float NIGHT_STATIC_CONTRAST = 17.0;
+const float NIGHT_STATIC_CONTRAST = 13.0;
 
 // NPC (Watchman) searchlight cones
 uniform int npc_count;
