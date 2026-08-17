@@ -293,7 +293,7 @@
   },
   "NpcWatchmanConeLength": {
     "type": "float",
-    "value": 100.0,
+    "value": 75.0,
     "min_value": 32.0,
     "max_value": 2000.0,
     "detail": "NPC Watchman Cone Length (px)",

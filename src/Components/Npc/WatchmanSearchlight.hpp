@@ -3,6 +3,7 @@
 
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <Utils/Cardinal.hpp>
 
 namespace Game::Cmp::Npc
 {
@@ -30,8 +31,8 @@ struct WatchmanSearchlight
   //! Watchman is standing sentry (not locked onto and not physically moving toward the player).
   sf::Time idle_direction_timer{ sf::Time::Zero };
 
-  //! @brief Index into the 4 cardinal directions the Watchman cycles through while idle.
-  int idle_direction_index{ 0 };
+  //! @brief The cardinal direction the Watchman is currently facing/patrolling while idle.
+  Utils::Cardinal idle_direction;
 
   //! @brief False until the idle cardinal direction has been picked at least once.
   bool idle_direction_initialized{ false };

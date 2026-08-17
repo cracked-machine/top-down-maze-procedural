@@ -36,13 +36,12 @@
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Stores/NpcStore.hpp>
 #include <Systems/Threats/WatchmanSystem.hpp>
+#include <Utils/Cardinal.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
-
-#include <array>
 #include <cmath>
 
 #include <spdlog/spdlog.h>
@@ -82,9 +81,6 @@ void WatchmanSystem::update( sf::Time dt )
 
 void WatchmanSystem::update_searchlights( sf::Time dt )
 {
-  static constexpr std::array<sf::Vector2f, 4> kCardinalDirections{ sf::Vector2f{ 1.f, 0.f }, sf::Vector2f{ 0.f, 1.f }, sf::Vector2f{ -1.f, 0.f },
-                                                                    sf::Vector2f{ 0.f, -1.f } };
-
   const auto sweep_speed = Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanSweepSpeed>( reg() ).get_value();
   const auto sweep_amplitude = Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanSweepAmplitude>( reg() ).get_value();
   const auto cone_half_angle = Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanConeHalfAngle>( reg() ).get_value();
@@ -92,8 +88,8 @@ void WatchmanSystem::update_searchlights( sf::Time dt )
   const auto idle_direction_change_interval = Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanIdleDirectionChangeInterval>( reg() ).get_value();
   const sf::Vector2f player_center = Utils::Player::get_position( reg() ).getCenter();
 
-  for ( auto [npc_entt, npc_cmp, npc_pos_cmp, dir_cmp, searchlight_cmp] :
-        reg().view<Cmp::Npc::Watchman, Cmp::Position, Cmp::Direction, Cmp::Npc::WatchmanSearchlight>().each() )
+  auto watchman_view = reg().view<Cmp::Npc::Watchman, Cmp::Position, Cmp::Direction, Cmp::Npc::WatchmanSearchlight>();
+  for ( auto [npc_entt, npc_cmp, npc_pos_cmp, dir_cmp, searchlight_cmp] : watchman_view.each() )
   {
     const sf::Vector2f npc_center = npc_pos_cmp.getCenter();
 
@@ -110,21 +106,17 @@ void WatchmanSystem::update_searchlights( sf::Time dt )
       searchlight_cmp.idle_direction_timer += dt;
       if ( not searchlight_cmp.idle_direction_initialized or searchlight_cmp.idle_direction_timer.asSeconds() >= idle_direction_change_interval )
       {
-        if ( searchlight_cmp.idle_direction_initialized )
-        {
-          searchlight_cmp.idle_direction_index = ( searchlight_cmp.idle_direction_index + 1 ) % static_cast<int>( kCardinalDirections.size() );
-        }
+        if ( searchlight_cmp.idle_direction_initialized ) { ++searchlight_cmp.idle_direction; }
         searchlight_cmp.idle_direction_initialized = true;
 
-        const sf::Vector2f cardinal = kCardinalDirections[searchlight_cmp.idle_direction_index];
-        searchlight_cmp.last_facing_angle = Utils::Maths::angle( cardinal ).value_or( sf::Angle::Zero ).asRadians();
+        searchlight_cmp.last_facing_angle = Utils::Maths::angle( searchlight_cmp.idle_direction.vector() ).value_or( sf::Angle::Zero ).asRadians();
         searchlight_cmp.idle_direction_timer = sf::Time::Zero;
       }
     }
     // else: locked onto the player but not moving this tick (e.g. between pathfinding ticks) — hold last_facing_angle
 
-    searchlight_cmp.sweep_phase = Utils::Maths::normalizeAngle( searchlight_cmp.sweep_phase + dt.asSeconds() * sweep_speed );
-    const float swept_angle = searchlight_cmp.last_facing_angle + std::sin( searchlight_cmp.sweep_phase ) * sweep_amplitude;
+    searchlight_cmp.sweep_phase = Utils::Maths::normalizeAngle( searchlight_cmp.sweep_phase + ( dt.asSeconds() * sweep_speed ) );
+    const float swept_angle = searchlight_cmp.last_facing_angle + ( std::sin( searchlight_cmp.sweep_phase ) * sweep_amplitude );
     const sf::Vector2f swept_direction{ std::cos( swept_angle ), std::sin( swept_angle ) };
 
     const auto to_player = Utils::Maths::normalized( player_center - npc_center );

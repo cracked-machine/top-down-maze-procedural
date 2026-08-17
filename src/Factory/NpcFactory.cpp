@@ -4,12 +4,12 @@
 #include <Components/DeathPosition.hpp>
 #include <Components/Direction.hpp>
 #include <Components/LerpPosition.hpp>
-#include <Components/Npc/Npc.hpp>
 #include <Components/Npc/Container.hpp>
 #include <Components/Npc/Drknox.hpp>
 #include <Components/Npc/Friendly.hpp>
 #include <Components/Npc/Ghost.hpp>
 #include <Components/Npc/LerpSpeed.hpp>
+#include <Components/Npc/Npc.hpp>
 #include <Components/Npc/Priest.hpp>
 #include <Components/Npc/Shockwave.hpp>
 #include <Components/Npc/ShockwaveTimer.hpp>
@@ -35,6 +35,7 @@
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Stores/NpcStore.hpp>
+#include <Utils/Cardinal.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Random.hpp>
 
@@ -149,7 +150,8 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
     Cmp::RandomInt idle_direction_rng( 0, 3 );
     reg.emplace_or_replace<Cmp::Npc::WatchmanSearchlight>(
         new_pos_entity,
-        Cmp::Npc::WatchmanSearchlight{ .sweep_phase = sweep_phase_rng.gen(), .idle_direction_index = idle_direction_rng.gen() } );
+        Cmp::Npc::WatchmanSearchlight{ .sweep_phase = sweep_phase_rng.gen(),
+                                       .idle_direction = Utils::Cardinal( static_cast<Utils::Cardinal::Value>( idle_direction_rng.gen() ) ) } );
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
     Factory::Npc::destroy_npc_container( reg, position_entity );
