@@ -51,6 +51,7 @@
 #include <Systems/Threats/ShockwaveSystem.hpp>
 #include <Utils/Collision.hpp>
 #include <Utils/Constants.hpp>
+#include <Utils/Maths.hpp>
 #include <Utils/Npc.hpp>
 #include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>
@@ -360,6 +361,18 @@ void NpcSystem::check_once_collision()
       // relaxed bounds to allow player to sneak past during lerp transition
       auto npc_pos_cmp_bounds_current = Cmp::RectBounds::scaled( npc_pos_cmp.position, npc_pos_cmp.size, 0.1f );
       if ( not player_pos.findIntersection( npc_pos_cmp_bounds_current.getBounds() ) ) continue;
+
+      // a Watchman that's touched the player obviously knows exactly where they are — snap its
+      // searchlight (and, since sprite facing already follows cone_direction, its sprite too)
+      // to face them directly
+      if ( auto *searchlight_cmp = reg().try_get<Cmp::Npc::WatchmanSearchlight>( npc_entity ) )
+      {
+        if ( auto to_player = Utils::Maths::normalized( player_pos.getCenter() - npc_pos_cmp.getCenter() ); to_player.has_value() )
+        {
+          searchlight_cmp->locked_on_player = true;
+          searchlight_cmp->cone_direction = *to_player;
+        }
+      }
 
       Utils::Player::get_player_stats( reg() ).apply_modifiers( action );
       player_cmp.skip_damage_cooldown_once = false;

@@ -63,7 +63,7 @@ void NightStaticShader::update( entt::registry &reg )
   for ( auto [npc_entt, watchman_cmp, npc_pos_cmp, searchlight_cmp] :
         reg.view<Cmp::Npc::Watchman, Cmp::Position, Cmp::Npc::WatchmanSearchlight>().each() )
   {
-    npc_cone_positions.emplace_back( npc_pos_cmp.getCenter().x, npc_pos_cmp.getCenter().y + 2.f );
+    npc_cone_positions.emplace_back( npc_pos_cmp.getCenter().x, npc_pos_cmp.getCenter().y + 3.f );
     npc_cone_directions.push_back( searchlight_cmp.cone_direction );
   }
 
