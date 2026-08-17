@@ -49,6 +49,7 @@
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 #include <Systems/Threats/ShockwaveSystem.hpp>
+#include <Utils/Cardinal.hpp>
 #include <Utils/Collision.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Maths.hpp>
@@ -60,7 +61,6 @@
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Time.hpp>
-#include <array>
 #include <cmath>
 #include <spdlog/spdlog.h>
 
@@ -457,12 +457,11 @@ void NpcSystem::find_pushback_position( const Cmp::Direction &npc_direction )
   // Try the NPC's own approach direction first; if that cell is blocked, fall back through
   // the remaining cardinal directions instead of giving up on knockback entirely.
   const sf::Vector2f primary_direction = npc_direction;
-  const std::array<sf::Vector2f, 4> cardinal_directions{ { { 0.f, -1.f }, { 0.f, 1.f }, { -1.f, 0.f }, { 1.f, 0.f } } };
 
   std::vector<sf::Vector2f> candidate_directions{ primary_direction };
-  for ( const auto &dir : cardinal_directions )
+  for ( auto c : Utils::Cardinal() )
   {
-    if ( dir != primary_direction ) candidate_directions.push_back( dir );
+    if ( c.vector() != primary_direction ) candidate_directions.push_back( c.vector() );
   }
 
   for ( const auto &direction : candidate_directions )

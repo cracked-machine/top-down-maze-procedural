@@ -1,10 +1,11 @@
-#include <Utils/Constants.hpp>
-#include <Factory/ObstacleFactory.hpp>
 #include <Components/Random.hpp>
+#include <Factory/ObstacleFactory.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <PathFinding/SpatialHashGrid.hpp>
 #include <Systems/ProcGen/DLASystem.hpp>
+#include <Utils/Cardinal.hpp>
+#include <Utils/Constants.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Utils.hpp>
 
@@ -14,14 +15,6 @@ namespace Game::Sys::ProcGen
 void DLASystem::iterate( sf::FloatRect scene_size, const sf::Vector2f seed_pos, uint16_t particle_limit,
                          PathFinding::SpatialHashGrid &levelgen_spatialgrid )
 {
-  // clang-format off
-  static const std::array<sf::Vector2f, 4> cardinal_offsets = {
-      sf::Vector2f{ Constants::kGridSizePxF.x, 0.f }, 
-      sf::Vector2f{ -Constants::kGridSizePxF.x, 0.f }, 
-      sf::Vector2f{ 0.f, Constants::kGridSizePxF.y },
-      sf::Vector2f{ 0.f, -Constants::kGridSizePxF.y } };
-  // clang-format on
-
   // Carve the seed at center
   auto center_entities = levelgen_spatialgrid.at( Cmp::Position( seed_pos, Constants::kGridSizePxF ) );
   for ( auto &entt : center_entities )
@@ -59,9 +52,9 @@ void DLASystem::iterate( sf::FloatRect scene_size, const sf::Vector2f seed_pos, 
 
       // Check if adjacent to a carved (empty) cell
       bool adjacent_to_aggregate = false;
-      for ( const auto &offset : cardinal_offsets )
+      for ( auto c : Utils::Cardinal() )
       {
-        sf::Vector2f neighbour_world = Utils::snap_to_grid( particle.position + offset );
+        sf::Vector2f neighbour_world = Utils::snap_to_grid( particle.position + c.vector().componentWiseMul( Constants::kGridSizePxF ) );
         if ( not scene_size.contains( neighbour_world ) ) continue;
         Cmp::Position neighbour( neighbour_world, Constants::kGridSizePxF );
         if ( levelgen_spatialgrid.at( neighbour ).empty() )
@@ -85,7 +78,8 @@ void DLASystem::iterate( sf::FloatRect scene_size, const sf::Vector2f seed_pos, 
       }
       else
       {
-        sf::Vector2f new_pos = particle.position + cardinal_offsets[dir_picker.gen()];
+        Utils::Cardinal random_cardinal( static_cast<Utils::Cardinal::Value>( dir_picker.gen() ) );
+        sf::Vector2f new_pos = particle.position + random_cardinal.vector().componentWiseMul( Constants::kGridSizePxF );
         particle = Cmp::Position( Utils::snap_to_grid( new_pos ), Constants::kGridSizePxF );
       }
     }

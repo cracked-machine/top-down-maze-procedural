@@ -7,6 +7,7 @@
 #include <Components/Wall.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <Systems/ProcGen/PassageAlgorithms.hpp>
+#include <Utils/Cardinal.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Player.hpp>
@@ -17,7 +18,7 @@ namespace Game::Sys::ProcGen
 {
 
 std::optional<Cmp::Crypt::PassageBlock> PassageAlogirthms::place_passage_block( entt::registry &reg, float x, float y,
-                                                                              AllowDuplicatePassages duplicates_policy, bool skip_wall_check )
+                                                                                AllowDuplicatePassages duplicates_policy, bool skip_wall_check )
 {
   Cmp::Position candidate_passage_block_pos_cmp( Utils::snap_to_grid( { x, y }, Utils::Rounding::TOWARDS_ZERO ), Constants::kGridSizePxF );
 
@@ -55,10 +56,10 @@ std::optional<Cmp::Crypt::PassageBlock> PassageAlogirthms::place_passage_block( 
 };
 
 std::vector<Cmp::Crypt::PassageBlock> PassageAlogirthms::create_drunken_walk( entt::registry &reg, Cmp::Crypt::PassageDoor start,
-                                                                            sf::FloatRect end_bounds, sf::Vector2f map_size_pixel,
+                                                                              sf::FloatRect end_bounds, sf::Vector2f map_size_pixel,
 
-                                                                            const std::set<entt::entity> &exclude_entts,
-                                                                            AllowDuplicatePassages duplicates_policy )
+                                                                              const std::set<entt::entity> &exclude_entts,
+                                                                              AllowDuplicatePassages duplicates_policy )
 {
 
   //! @brief Prevent infinite walks
@@ -79,10 +80,6 @@ std::vector<Cmp::Crypt::PassageBlock> PassageAlogirthms::create_drunken_walk( en
   //! @brief Number of steps to delay 'kMinPassageRoomsDistanceScaleFactor' use
   static const int kMinPassageRoomsDistanceDelay{ 3 };
 
-  //! @brief Direction random pool for drunken walk passage creation
-  static const std::vector<Cmp::Direction> kDirectionChoices = { Cmp::Direction( { 0.f, -1.f } ), Cmp::Direction( { 1.f, 0.f } ),
-                                                                 Cmp::Direction( { 0.f, 1.f } ), Cmp::Direction( { -1.f, 0.f } ) };
-
   //! @brief direction vector quick lookup for passage creation
   static std::unordered_map<Cmp::Crypt::CryptPassageDirection, Cmp::Direction> kDirectionDictionary = {
       { Cmp::Crypt::CryptPassageDirection::NORTH, Cmp::Direction( { 0.f, -1.f } ) },
@@ -93,7 +90,7 @@ std::vector<Cmp::Crypt::PassageBlock> PassageAlogirthms::create_drunken_walk( en
   //! @brief Drunken walk roulette picker for direction
   //! @note undefined odds are used to select a random direction
   Cmp::RandomInt direction_picker{ 0, 99 };
-  Cmp::RandomInt random_dir_idx{ 0, static_cast<int>( kDirectionChoices.size() ) - 1 };
+  Cmp::RandomInt random_cardinal_picker{ 0, 3 };
   //! @brief Drunken walk roulette odds for moving towards target: 60%
   static const float kRouletteTargetBiasOdds = 0.6f;
   //! @brief Drunken walk roulette odds for continuing in the same direction
@@ -174,7 +171,7 @@ std::vector<Cmp::Crypt::PassageBlock> PassageAlogirthms::create_drunken_walk( en
         {
           chosen_direction = last_move_direction;
         }
-        else { chosen_direction = kDirectionChoices[random_dir_idx.gen()]; }
+        else { chosen_direction = Utils::Cardinal( static_cast<Utils::Cardinal::Value>( random_cardinal_picker.gen() ) ).vector(); }
       }
 
       auto chosen_magnitude = chosen_direction.componentWiseMul( Constants::kGridSizePxF );
@@ -288,7 +285,7 @@ std::vector<Cmp::Crypt::PassageBlock> PassageAlogirthms::create_drunken_walk( en
 }
 
 std::vector<Cmp::Crypt::PassageBlock> PassageAlogirthms::create_dog_leg( entt::registry &reg, Cmp::Crypt::PassageDoor start, sf::FloatRect end_bounds,
-                                                                       AllowDuplicatePassages duplicates_policy )
+                                                                         AllowDuplicatePassages duplicates_policy )
 {
 
   std::vector<Cmp::Crypt::PassageBlock> passage_block_list;

@@ -6,13 +6,16 @@
 namespace Game::Utils
 {
 
-//! @brief A cyclable cardinal direction (East/South/West/North) that doubles as its own
-//! range-based-for iterator, so it can be stepped manually via operator++ or iterated with
-//! `for ( auto c : Cardinal() )`.
+//! @brief A cyclable cardinal direction (East/South/West/North). Range-based-for iterable via
+//! `for ( auto c : Cardinal() )` (visits each direction exactly once) and independently steppable
+//! via operator++ (wraps forever: North -> East -> South -> ...). These two are deliberately
+//! decoupled — the range iterator has its own non-wrapping counter — because a wrapping operator++
+//! driving range termination would never reach an end sentinel and loop forever.
 class Cardinal
 {
 public:
-  enum Value : int { East = 0, South = 1, West = 2, North = 3, End = 4 };
+  enum Value : int { East = 0, South = 1, West = 2, North = 3 };
+  static constexpr int Count = 4;
 
   constexpr Cardinal( Value value = East )
       : m_value( value )
@@ -22,18 +25,11 @@ public:
   //! @brief Step to the next cardinal direction (wraps East -> South -> West -> North -> East)
   constexpr Cardinal &operator++()
   {
-    m_value = static_cast<Value>( ( m_value + 1 ) % End );
+    m_value = static_cast<Value>( ( static_cast<int>( m_value ) + 1 ) % Count );
     return *this;
   }
 
   constexpr bool operator==( const Cardinal &rhs ) const = default;
-
-  //! @brief Dereference: an iterator over Cardinal yields Cardinal itself
-  constexpr Cardinal operator*() const { return *this; }
-
-  //! @brief Range support — enables `for ( auto c : Cardinal() )`
-  static constexpr Cardinal begin() { return { East }; }
-  static constexpr Cardinal end() { return { End }; }
 
   [[nodiscard]] constexpr Value value() const { return m_value; }
 
@@ -54,6 +50,31 @@ public:
         return { 0.f, 0.f };
     }
   }
+
+  //! @brief Minimal iterator over the 4 Cardinal values, using a plain non-wrapping counter —
+  //! independent of Cardinal::operator++'s cyclic semantics.
+  class Iterator
+  {
+  public:
+    constexpr explicit Iterator( int index )
+        : m_index( index )
+    {
+    }
+    constexpr Cardinal operator*() const { return { static_cast<Value>( m_index ) }; }
+    constexpr Iterator &operator++()
+    {
+      ++m_index;
+      return *this;
+    }
+    constexpr bool operator!=( const Iterator &rhs ) const { return m_index != rhs.m_index; }
+
+  private:
+    int m_index;
+  };
+
+  //! @brief Range support — enables `for ( auto c : Cardinal() )`
+  static constexpr Iterator begin() { return Iterator( 0 ); }
+  static constexpr Iterator end() { return Iterator( Count ); }
 
 private:
   Value m_value;
