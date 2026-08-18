@@ -11,7 +11,7 @@
 // clang-format off
 namespace Game::Events { class DropInventoryEvent; class PlayerActionEvent; class PlayerMortalityEvent; }
 namespace Game::Sprites { class SpriteSheet; }
-namespace Game::Cmp { class Direction; class LerpPosition; class Position; class AnimData; }
+namespace Game::Cmp { class Direction; class LerpPosition; class Position; class AnimData; class RectBounds; }
 namespace Game::Cmp::Npc { class Shockwave; }
 namespace Game::Cmp::Player { class Mortality; }
 namespace Game::Cmp::Peristent { class EffectsVolume; } 
@@ -121,6 +121,14 @@ private:
   //! @return true if the movement is valid and allowed, false otherwise
   bool is_valid_move( const sf::FloatRect &target_position );
 
+  //! @brief Resolves the initial pushback/subsequent yield against `Cmp::Hazard::CollisionResist`
+  //! entities (lethal hazard cells). The first contact with a given hazard cell blocks movement like
+  //! a wall; once the player has kept pushing into that same cell for its configured resist duration,
+  //! this yields and allows the move through so it counts as normal (fatal) hazard collision.
+  //! @param search_bounds The (already scaled) target move bounds to test against hazard cells
+  //! @return true if movement should be allowed, false if still being resisted
+  bool resolve_hazard_pushback( const Cmp::RectBounds &search_bounds );
+
   //! @brief Single drop, no pickup
   //! @param ev
   void on_drop_inventory_event( Game::Events::DropInventoryEvent ev );
@@ -159,6 +167,11 @@ private:
 
   //! @brief Prevent the player from moving when running
   sf::Clock m_movement_suppress_clock{};
+
+  //! @brief Hazard cell currently being pushed against by `resolve_hazard_pushback`, or entt::null.
+  entt::entity m_hazard_pushback_target;
+  //! @brief How long the player has continuously pushed into m_hazard_pushback_target.
+  sf::Clock m_hazard_pushback_clock;
 
   //! @brief Tracks how long the bow has been held drawn, between DRAW_BOW and RELEASE_BOW.
   sf::Clock m_bow_draw_clock;

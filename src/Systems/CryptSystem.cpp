@@ -925,7 +925,8 @@ void CryptSystem::check_lava_pit_collision()
 {
   if ( Utils::Player::get_mortality( reg() ).state == Cmp::Player::Mortality::State::DEAD ) return;
 
-  auto player_hitbox = Cmp::RectBounds::scaled( Utils::Player::get_position( reg() ).position, Utils::Player::get_position( reg() ).size, 0.5f );
+  // full size hitbox - Cmp::Hazard::CollisionResist now guards against accidental entry
+  auto player_hitbox = Cmp::RectBounds::scaled( Utils::Player::get_position( reg() ).position, Utils::Player::get_position( reg() ).size, 1.f );
   for ( auto [lava_cell_entt, lava_cell_cmp] : reg().view<Cmp::Crypt::RoomLavaPitCell>().each() )
   {
     if ( not player_hitbox.findIntersection( lava_cell_cmp ) ) continue;

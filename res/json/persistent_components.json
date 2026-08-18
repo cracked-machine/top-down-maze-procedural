@@ -192,6 +192,14 @@
     "detail": "GraveyardProcGenSurvivalThreshold",
     "format": "%d"
   },
+  "HazardPushbackResist": {
+    "type": "float",
+    "value": 0.60,
+    "min_value": 0.0,
+    "max_value": 2.0,
+    "detail": "How long the player must keep pushing into a lethal hazard cell before falling in",
+    "format": "%.2f seconds"
+  },
   "HealthBonus": {
     "type": "int",
     "value": 25,

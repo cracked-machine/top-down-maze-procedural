@@ -24,6 +24,7 @@
 #include <Components/Persistent/GraveyardProcGenInitChance.hpp>
 #include <Components/Persistent/GraveyardProcGenMaxIterations.hpp>
 #include <Components/Persistent/GraveyardProcGenSurvivalThreshold.hpp>
+#include <Components/Persistent/HazardPushbackResist.hpp>
 #include <Components/Persistent/HealthBonus.hpp>
 #include <Components/Persistent/LightningDamage.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
@@ -230,6 +231,7 @@ void RenderMenuSystem::render_settings_widgets( sf::Time dt, sf::FloatRect title
     ImGui::SeparatorText( "Hazard Settings" );
 
     Sys::PersistSystem::get<Cmp::Persist::CorruptionDamage>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::HazardPushbackResist>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::LightningDamage>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::WormholeAnimFramerate>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::WormholeSeed>( reg() ).render_widget();

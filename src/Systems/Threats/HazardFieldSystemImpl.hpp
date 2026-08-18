@@ -4,8 +4,11 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Exit.hpp>
+#include <Components/Hazard/CollisionResist.hpp>
+#include <Components/Hazard/CorruptionCell.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Npc/Npc.hpp>
+#include <Components/Persistent/HazardPushbackResist.hpp>
 #include <Components/Player/Character.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
@@ -70,6 +73,12 @@ sf::Vector2f HazardFieldSystem<HazardType>::init_hazard_field()
   // clang-format on
   reg().template emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - 1.f );
   reg().template emplace_or_replace<Cmp::Npc::NoPathFinding>( random_entity );
+  // corruption is a gradual damage field, not an instant kill, so it never gets an initial pushback
+  if constexpr ( not std::is_same_v<HazardType, Cmp::CorruptionCell> )
+  {
+    auto resist_seconds = Sys::PersistSystem::get<Cmp::Persist::HazardPushbackResist>( reg() ).get_value();
+    reg().template emplace_or_replace<Cmp::Hazard::CollisionResist>( random_entity, resist_seconds );
+  }
   SPDLOG_INFO( "{} hazard spawned at position [{}, {}].", std::string( Traits::sprite_type ), random_pos.position.x, random_pos.position.y );
 
   return random_pos.position;
@@ -132,6 +141,12 @@ sf::Vector2f HazardFieldSystem<HazardType>::update_hazard_field()
         // clang-format on
         reg().template emplace_or_replace<Cmp::ZOrderValue>( obstacle_entity, obst_pos_cmp.position.y - 1.f );
         reg().template emplace_or_replace<Cmp::Npc::NoPathFinding>( obstacle_entity );
+        // corruption is a gradual damage field, not an instant kill, so it never gets an initial pushback
+        if constexpr ( not std::is_same_v<HazardType, Cmp::CorruptionCell> )
+        {
+          auto resist_seconds = Sys::PersistSystem::get<Cmp::Persist::HazardPushbackResist>( reg() ).get_value();
+          reg().template emplace_or_replace<Cmp::Hazard::CollisionResist>( obstacle_entity, resist_seconds );
+        }
 
         SPDLOG_DEBUG( "New hazard field created at entity {}", static_cast<uint32_t>( obstacle_entity ) );
         return obst_pos_cmp.position; // only add one hazard cell per update period
@@ -174,10 +189,8 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
 
       if constexpr ( Traits::sprite_type == "sprite.graveyard.hazard.sinkhole" )
       {
-        // reduce the hitboxes so that you have to be almost centered over it to fall in
-        auto sinkhole_hitbox_redux = Cmp::RectBounds::scaled( hazard_pos_cmp.position, hazard_pos_cmp.size, 0.1f );
-        auto player_hitbox_redux = Cmp::RectBounds::scaled( player_pos_cmp.position, player_pos_cmp.size, 0.1f );
-        if ( player_hitbox_redux.findIntersection( sinkhole_hitbox_redux.getBounds() ) )
+        // full size hitbox - Cmp::Hazard::CollisionResist now guards against accidental entry
+        if ( hazard_pos_cmp.findIntersection( player_pos_cmp ) )
         {
           // make player disappear
 

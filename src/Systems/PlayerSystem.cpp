@@ -10,6 +10,7 @@
 #include <Components/FootStepTimer.hpp>
 #include <Components/Grave/PlantMultiBlock.hpp>
 #include <Components/Grave/PlantSegment.hpp>
+#include <Components/Hazard/CollisionResist.hpp>
 #include <Components/Inventory/Explosive.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
@@ -99,7 +100,8 @@ namespace Game::Sys
 PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
                             entt::dispatcher &scenemanager_event_dispatcher )
     : BaseSystem( reg, window, sprite_factory, sound_bank ),
-      m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
+      m_scenemanager_event_dispatcher( scenemanager_event_dispatcher ),
+      m_hazard_pushback_target( entt::null )
 {
   SPDLOG_DEBUG( "PlayerSystem initialized" );
   std::ignore = get_systems_event_queue().sink<Events::PlayerMortalityEvent>().connect<&PlayerSystem::on_player_mortality_event>( this );
@@ -959,11 +961,49 @@ bool PlayerSystem::is_valid_move( const sf::FloatRect &target_position )
       if ( not pos_cmp ) continue;
       if ( search_bounds.findIntersection( *pos_cmp ) ) return false;
     }
+  }
+  else
+  {
+    auto is_active = []( const Cmp::Player::NoPath &playernopath ) { return playernopath.active; };
+    if ( Utils::Collision::check_cmp<Cmp::Player::NoPath>( reg(), search_bounds, is_active ) ) return false;
+  }
+
+  // update_player_position() calls is_valid_move() for both axes every frame, even the axis with
+  // zero direction (its target is just the player's current tile). Skip the hazard pushback state
+  // machine for that no-op axis, otherwise it resets the timer being accumulated by the other axis's
+  // real approach on every single frame, so the player can never push through.
+  if ( target_position.position == Utils::Player::get_position( reg() ).position ) return true;
+
+  return resolve_hazard_pushback( search_bounds );
+}
+
+bool PlayerSystem::resolve_hazard_pushback( const Cmp::RectBounds &search_bounds )
+{
+  entt::entity hazard_entt = entt::null;
+  for ( auto [candidate_entt, resist_cmp, pos_cmp] : reg().view<Cmp::Hazard::CollisionResist, Cmp::Position>().each() )
+  {
+    if ( search_bounds.findIntersection( pos_cmp ) )
+    {
+      hazard_entt = candidate_entt;
+      break;
+    }
+  }
+
+  if ( hazard_entt == entt::null )
+  {
+    m_hazard_pushback_target = entt::null;
     return true;
   }
 
-  auto is_active = []( const Cmp::Player::NoPath &playernopath ) { return playernopath.active; };
-  return not Utils::Collision::check_cmp<Cmp::Player::NoPath>( reg(), search_bounds, is_active );
+  if ( hazard_entt != m_hazard_pushback_target )
+  {
+    m_hazard_pushback_target = hazard_entt;
+    m_hazard_pushback_clock.restart();
+    return false;
+  }
+
+  const auto &resist_cmp = reg().get<Cmp::Hazard::CollisionResist>( hazard_entt );
+  return m_hazard_pushback_clock.getElapsedTime().asSeconds() >= resist_cmp.resist_seconds;
 }
 
 void PlayerSystem::on_drop_inventory_event( Game::Events::DropInventoryEvent ev )

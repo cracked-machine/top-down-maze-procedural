@@ -24,6 +24,7 @@
 #include <Components/Persistent/GraveyardProcGenInitChance.hpp>
 #include <Components/Persistent/GraveyardProcGenMaxIterations.hpp>
 #include <Components/Persistent/GraveyardProcGenSurvivalThreshold.hpp>
+#include <Components/Persistent/HazardPushbackResist.hpp>
 #include <Components/Persistent/HealthBonus.hpp>
 #include <Components/Persistent/LightningDamage.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
@@ -128,6 +129,7 @@ void PersistSystem::initialize_type_registry()
   register_type.operator()<GraveyardProcGenMaxIterations>("GraveyardProcGenMaxIterations");
   register_type.operator()<GraveyardProcGenBirthThreshold>("GraveyardProcGenBirthThreshold");
   register_type.operator()<GraveyardProcGenSurvivalThreshold>("GraveyardProcGenSurvivalThreshold");
+  register_type.operator()<HazardPushbackResist>("HazardPushbackResist");
   register_type.operator()<HealthBonus>("HealthBonus");
   register_type.operator()<LightningDamage>("LightningDamage");
   register_type.operator()<MaxNumAltars>("MaxNumAltars");
