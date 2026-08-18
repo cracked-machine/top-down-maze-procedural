@@ -23,6 +23,7 @@
 #include <Components/SpawnArea.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Sprites/SpriteMetaType.hpp>
+#include <Utils/Constants.hpp>
 #include <Utils/Player.hpp>
 
 #include <stdexcept>
@@ -237,6 +238,27 @@ bool is_in_spawn( entt::registry &reg, const Cmp::Position &player_pos_cmp )
     if ( spawn_pos_cmp.findIntersection( Cmp::RectBounds::scaled( player_pos_cmp, 0.9f ).getBounds() ) ) result = true;
   }
   return result;
+}
+
+//! @brief True if the player's hitbox (scaled 1.5x the grid size) intersects the given bounds
+bool is_player_near( entt::registry &reg, const sf::FloatRect &bounds )
+{
+  for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : reg.view<Cmp::Player::Character, Cmp::Position>().each() )
+  {
+    auto player_hitbox = Cmp::RectBounds::scaled( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
+    if ( player_hitbox.findIntersection( bounds ) ) return true;
+  }
+  return false;
+}
+
+//! @brief The grid cell one tile in front of the player, based on their last facing direction
+Cmp::Position get_projected_position( entt::registry &reg )
+{
+  auto player_pos = get_position( reg );
+  auto player_last_direction = get_last_direction( reg );
+  return Cmp::Position( { player_pos.getCenter().x + ( player_last_direction.x * Constants::kGridSizePxF.x ),
+                           player_pos.getCenter().y + ( player_last_direction.y * Constants::kGridSizePxF.y ) },
+                         { 1.f, 1.f } );
 }
 
 Cmp::Player::CadaverCount &get_cadaver_count( entt::registry &reg )

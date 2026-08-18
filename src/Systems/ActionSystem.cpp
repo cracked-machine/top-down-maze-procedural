@@ -19,11 +19,9 @@
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
-#include <Components/Player/Character.hpp>
 #include <Components/Player/DiggingCooldown.hpp>
 #include <Components/Player/NoPath.hpp>
 #include <Components/Random.hpp>
-#include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SelectedPosition.hpp>
 #include <Components/UUID.hpp>
@@ -76,14 +74,14 @@ void ActionSystem::update( [[maybe_unused]] sf::Time dt )
   Factory::Particle::delete_expired_particle_sprites( reg(), "graveyard.obstacle.dig.particle" );
 
   // abort if still in cooldown
-  auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( reg() ).get_value();
+  if ( is_digging_on_cooldown() ) { return; }
+}
 
+bool ActionSystem::is_digging_on_cooldown()
+{
+  auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( reg() ).get_value();
   auto *player_dig_cooldown = reg().try_get<Cmp::Player::DiggingCooldown>( Utils::Player::get_entity( reg() ) );
-  if ( player_dig_cooldown and player_dig_cooldown->getElapsedTime() < sf::seconds( digging_cooldown_amount ) )
-  {
-    SPDLOG_DEBUG( "Digging is on cooldown for {} more seconds!", ( digging_cooldown_amount - m_dig_cooldown_clock.getElapsedTime().asSeconds() ) );
-    return;
-  }
+  return player_dig_cooldown and player_dig_cooldown->getElapsedTime() < sf::seconds( digging_cooldown_amount );
 }
 
 void ActionSystem::check_player_smash_pot()
@@ -98,33 +96,19 @@ void ActionSystem::check_player_smash_pot()
   if ( Utils::Player::get_inventory_wear_level( reg() ) <= 0 ) { return; }
 
   // abort if still in cooldown
-  auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( reg() ).get_value();
-  auto *player_dig_cooldown = reg().try_get<Cmp::Player::DiggingCooldown>( Utils::Player::get_entity( reg() ) );
-  if ( player_dig_cooldown and player_dig_cooldown->getElapsedTime() < sf::seconds( digging_cooldown_amount ) ) { return; }
+  if ( is_digging_on_cooldown() ) { return; }
 
+  auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
   auto loot_container_view = reg().view<Cmp::LootContainer, Cmp::Position, Cmp::AnimData>();
   for ( auto [loot_entity, loot_cmp, loot_pos_cmp, loot_anim_cmp] : loot_container_view.each() )
   {
-    auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
     if ( mouse_position_bounds.findIntersection( loot_pos_cmp ) )
     {
       SPDLOG_INFO( "Found lootable entity at position: [{}, {}]!", loot_pos_cmp.position.x, loot_pos_cmp.position.y );
 
       // TODO: check player is facing the obstacle
-      // Check player proximity to the entity
-      bool player_nearby = false;
-      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : reg().view<Cmp::Player::Character, Cmp::Position>().each() )
-      {
-        auto player_hitbox = Cmp::RectBounds::scaled( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
-        if ( player_hitbox.findIntersection( loot_pos_cmp ) )
-        {
-          player_nearby = true;
-          break;
-        }
-      }
-
       // skip this iteration of the loop if player too far away
-      if ( not player_nearby ) { continue; }
+      if ( not Utils::Player::is_player_near( reg(), loot_pos_cmp ) ) { continue; }
 
       reg().emplace_or_replace<Cmp::Player::DiggingCooldown>( Utils::Player::get_entity( reg() ) );
       loot_cmp.hp -= Utils::Maths::to_percent( 100.f, Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( reg() ).get_value() );
@@ -152,7 +136,6 @@ void ActionSystem::check_player_smash_pot()
         {
           // Decrease weapons level based on damage dealt
           wear_level.m_level -= Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
-          SPDLOG_DEBUG( "Player wear level decreased to {} after digging!", weapons_level.m_level );
         }
         Factory::Loot::destroy_loot_container( reg(), loot_entity );
       }
@@ -162,16 +145,12 @@ void ActionSystem::check_player_smash_pot()
 
 void ActionSystem::select_moveable_obstacle()
 {
+  // project one grid position in the direction that the player is currently facing to find the obstacle selection
+  auto selected_position = Utils::Player::get_projected_position( reg() );
+
   auto position_view = reg().view<Cmp::Position, Cmp::Obstacle, Cmp::Moveable>( entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
   for ( auto [obst_entity, obst_pos_cmp, obst_cmp, move_cmp] : position_view.each() )
   {
-    // project one grid position in the direction that the player is currently facing to find the obstacle selection
-    auto player_pos = Utils::Player::get_position( reg() );
-    auto player_last_direction = Utils::Player::get_last_direction( reg() );
-    Cmp::Position selected_position( { player_pos.getCenter().x + ( player_last_direction.x * Constants::kGridSizePxF.x ),
-                                       player_pos.getCenter().y + ( player_last_direction.y * Constants::kGridSizePxF.y ) },
-                                     { 1.f, 1.f } );
-
     if ( selected_position.findIntersection( obst_pos_cmp ) )
     {
       SPDLOG_INFO( "Found moveable entity at position: [{}, {}]!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
@@ -197,16 +176,10 @@ void ActionSystem::check_player_dig_obstacle_collision()
   if ( Utils::Player::get_inventory_wear_level( reg() ) <= 0 ) { return; }
 
   // abort if still in cooldown
-  auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( reg() ).get_value();
-  auto *player_dig_cooldown = reg().try_get<Cmp::Player::DiggingCooldown>( Utils::Player::get_entity( reg() ) );
-  if ( player_dig_cooldown and player_dig_cooldown->getElapsedTime() < sf::seconds( digging_cooldown_amount ) ) { return; }
+  if ( is_digging_on_cooldown() ) { return; }
 
   // Cooldown has expired: Remove any existing SelectedPosition components from the registry
-  auto selected_position_view = reg().view<Cmp::SelectedPosition>();
-  for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
-  {
-    reg().remove<Cmp::SelectedPosition>( existing_sel_entity );
-  }
+  reset_all_selected_positions();
 
   // Cap position lookup by UUID, built once so each obstacle below can find its paired cap in O(1)
   // rather than rescanning every cap entity in the level.
@@ -216,13 +189,13 @@ void ActionSystem::check_player_dig_obstacle_collision()
     cap_position_by_uuid.emplace( cap_uuid_cmp, cap_pos_cmp );
   }
 
+  auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
+
   // Iterate through all entities with Position and Obstacle components
   auto position_view = reg().view<Cmp::Position, Cmp::Obstacle, Cmp::AbsoluteAlpha, Cmp::AnimData, Cmp::UUID>( entt::exclude<Cmp::SelectedPosition> );
   for ( auto [obstacle_entt, obstacle_pos_cmp, obstacle_cmp, obstacle_alpha_cmp, obstacle_anim_cmp, obstacle_uuid_cmp] : position_view.each() )
   {
     if ( not obstacle_anim_cmp.m_sprite_type.contains( ".main" ) ) continue;
-
-    auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
 
     // The obstacle's cap is rendered as a separate entity directly above it, and from the
     // front-facing view the player sees obstacle and cap as one continuous shape - so a click on
@@ -258,21 +231,11 @@ void ActionSystem::check_player_dig_obstacle_collision()
         if ( not reserved_by_plant ) continue;
       }
 
-      SPDLOG_DEBUG( "Found diggable entity at position: [{}, {}]!", pos_cmp.position.x, pos_cmp.position.y );
-
-      auto player_pos_cmp = Utils::Player::get_position( reg() );
-
       // check player is near obstacle that was mouse-selected
-      auto player_hitbox = Cmp::RectBounds::scaled( player_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
-      if ( not player_hitbox.findIntersection( obstacle_pos_cmp ) ) continue;
+      if ( not Utils::Player::is_player_near( reg(), obstacle_pos_cmp ) ) continue;
 
       // check player is facing the obstacle
-      auto player_last_direction = Utils::Player::get_last_direction( reg() );
-      Cmp::Position player_projected_position(
-          { Utils::Player::get_position( reg() ).getCenter().x + ( player_last_direction.x * Constants::kGridSizePxF.x ),
-            Utils::Player::get_position( reg() ).getCenter().y + ( player_last_direction.y * Constants::kGridSizePxF.y ) },
-          { 1.f, 1.f } );
-      if ( not player_projected_position.findIntersection( obstacle_pos_cmp ) ) continue;
+      if ( not Utils::Player::get_projected_position( reg() ).findIntersection( obstacle_pos_cmp ) ) continue;
 
       // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
       // Add a new SelectedPosition component to the entity
@@ -285,13 +248,6 @@ void ActionSystem::check_player_dig_obstacle_collision()
       if ( inventory_slot_type.contains( "pickaxe" ) ) { damage_per_hit = damage_per_hit / 2; }
       else if ( inventory_slot_type.contains( "shovel" ) or inventory_slot_type.contains( "axe" ) ) { damage_per_hit = damage_per_hit / 5; }
       obstacle_cmp.damage += damage_per_hit;
-
-      auto cap_obstacle_view = reg().view<Cmp::ObstacleCap, Cmp::UUID, Cmp::AbsoluteAlpha, Cmp::Position>();
-      for ( auto [cap_obstacle_entt, cap_obstacle_cap_cmp, cap_obstacle_uuid_cmp, cap_obstacle_alpha, cap_pos_cmp] : cap_obstacle_view.each() )
-      {
-        if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), cap_pos_cmp ) ) continue;
-        if ( obstacle_uuid_cmp != cap_obstacle_uuid_cmp ) continue;
-      }
 
       float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
       Utils::Player::reduce_inventory_wear_level( reg(), reduction_amount );
@@ -316,8 +272,6 @@ void ActionSystem::check_player_dig_obstacle_collision()
         if ( PathFinding::SpatialHashGridSharedPtr ghost_navmesh = m_ghost_navmesh.lock() ) ghost_navmesh->insert( obstacle_entt, obstacle_pos_cmp );
         if ( PathFinding::SpatialHashGridSharedPtr player_navmesh = m_player_navmesh.lock() )
           player_navmesh->insert( obstacle_entt, obstacle_pos_cmp );
-
-        SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
 
         auto dig_particle_uuid = Cmp::UUID::generate();
         Factory::Particle::add_obstacledig_ps( reg(), "graveyard.obstacle.dig.particle", 50, 2.f, 50.f, 14.f, dig_particle_uuid,
@@ -409,46 +363,22 @@ void ActionSystem::check_player_dig_plant_collision()
   if ( Utils::Player::get_inventory_wear_level( reg() ) <= 0 ) { return; }
 
   // abort if still in cooldown
-  auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( reg() ).get_value();
-  auto *player_dig_cooldown = reg().try_get<Cmp::Player::DiggingCooldown>( Utils::Player::get_entity( reg() ) );
-  if ( player_dig_cooldown and player_dig_cooldown->getElapsedTime() < sf::seconds( digging_cooldown_amount ) )
-  {
-    SPDLOG_DEBUG( "Still in cooldown" );
-    return;
-  }
+  if ( is_digging_on_cooldown() ) { return; }
 
   // Cooldown has expired: Remove any existing SelectedPosition components from the registry
-  auto selected_position_view = reg().view<Cmp::SelectedPosition>();
-  for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
-  {
-    reg().remove<Cmp::SelectedPosition>( existing_sel_entity );
-  }
+  reset_all_selected_positions();
+
+  auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
 
   // Iterate through all entities with Position and Obstacle components
   auto position_view = reg().view<Cmp::PlantMultiBlock, Cmp::UUID>( entt::exclude<Cmp::SelectedPosition> );
-  SPDLOG_DEBUG( "position_view size: {}", position_view.size_hint() );
   for ( auto [plant_entt, plant_mb_cmp, plant_uuid_cmp] : position_view.each() )
   {
-    auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
     if ( mouse_position_bounds.findIntersection( plant_mb_cmp ) )
     {
-      SPDLOG_DEBUG( "Found diggable entity at position: [{}, {}]!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
-
       // TODO: check player is facing the obstacle
-      // Check player proximity to the entity
-      bool player_nearby = false;
-      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : reg().view<Cmp::Player::Character, Cmp::Position>().each() )
-      {
-        auto player_hitbox = Cmp::RectBounds::scaled( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
-        if ( player_hitbox.findIntersection( plant_mb_cmp ) )
-        {
-          player_nearby = true;
-          break;
-        }
-      }
-
       // skip this iteration of the loop if player too far away
-      if ( not player_nearby ) { continue; }
+      if ( not Utils::Player::is_player_near( reg(), plant_mb_cmp ) ) { continue; }
 
       // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
       // Add a new SelectedPosition component to the entity
@@ -476,8 +406,6 @@ void ActionSystem::check_player_dig_plant_collision()
         }
       }
       get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG, plant_entt ) );
-
-      SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
     }
   }
 }

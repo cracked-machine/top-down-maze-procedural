@@ -5,6 +5,7 @@
 #include <Components/AnimData.hpp>
 #include <Components/Player/ExtraLife.hpp>
 #include <Components/Stats/PlayerStats.hpp>
+#include <SFML/Graphics/Rect.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 
 namespace Game::Cmp
@@ -54,6 +55,8 @@ std::pair<entt::entity, Sprites::SpriteMetaType> get_inventory_type( entt::regis
 float get_inventory_wear_level( entt::registry &reg );
 void reduce_inventory_wear_level( entt::registry &reg, float amount );
 bool is_in_spawn( entt::registry &reg, const Cmp::Position &player_pos_cmp );
+bool is_player_near( entt::registry &reg, const sf::FloatRect &bounds );
+Cmp::Position get_projected_position( entt::registry &reg );
 Cmp::Player::CadaverCount &get_cadaver_count( entt::registry &reg );
 Cmp::TorchRadius &get_torch_radius( entt::registry &reg );
 Cmp::PlayerStats &get_player_stats( entt::registry &reg );

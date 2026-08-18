@@ -64,6 +64,9 @@ private:
   //! @brief Removes all Cmp::SelectedPosition components
   void reset_all_selected_positions();
 
+  //! @brief True if the player's last dig action is still within its cooldown window
+  bool is_digging_on_cooldown();
+
   //! @brief all grid positions that block NPC pathfinding
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
   //! @brief All grid positions that block ghost NPC pathfinding
