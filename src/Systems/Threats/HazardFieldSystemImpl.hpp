@@ -179,6 +179,8 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
         auto player_hitbox_redux = Cmp::RectBounds::scaled( player_pos_cmp.position, player_pos_cmp.size, 0.1f );
         if ( player_hitbox_redux.findIntersection( sinkhole_hitbox_redux.getBounds() ) )
         {
+          // make player disappear
+
           // trigger death animation
           get_systems_event_queue().trigger( Events::PlayerMortalityEvent( Cmp::Player::Mortality::State::FALLING, player_position ) );
           return;

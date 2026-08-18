@@ -3,6 +3,7 @@
 
 #include <Components/AnimData.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
+#include <Components/NoRender.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -11,6 +12,7 @@
 
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <entt/entity/fwd.hpp>
 
 namespace Game::Sprites
 {
@@ -62,7 +64,7 @@ public:
   //! info, etc..
   //! @param render_player_sys anything that walks about in the game world, i.e. player, NPCs, etc..
   //! as well as death animations/effects
-void render_game( sf::Time dt, RenderOverlaySystem &render_overlay_sys, PathFinding::SpatialHashGridSharedPtr npc_navmesh );
+  void render_game( sf::Time dt, RenderOverlaySystem &render_overlay_sys, PathFinding::SpatialHashGridSharedPtr npc_navmesh );
 
   //! @brief Refreshes the Z-order rendering queue
   void refresh_z_order_queue();
@@ -110,7 +112,7 @@ private:
   template <typename Component>
   void add_visible_entity_to_z_order_queue( std::vector<ZOrder> &zorder_queue, sf::FloatRect view_bounds )
   {
-    for ( auto [entity, component] : reg().view<Component>().each() )
+    for ( auto [entity, component] : reg().view<Component>( entt::exclude<Cmp::NoRender> ).each() )
     {
       if constexpr ( std::is_base_of_v<sf::FloatRect, Component> )
       {

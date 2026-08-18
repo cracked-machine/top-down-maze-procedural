@@ -11,16 +11,17 @@
 #include <Components/Grave/PlantMultiBlock.hpp>
 #include <Components/Grave/PlantSegment.hpp>
 #include <Components/Inventory/Explosive.hpp>
-#include <Components/Inventory/WearLevel.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
+#include <Components/Inventory/WearLevel.hpp>
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/LastDirection.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/Moveable.hpp>
 #include <Components/NoMoveDest.hpp>
-#include <Components/Npc/Npc.hpp>
+#include <Components/NoRender.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
+#include <Components/Npc/Npc.hpp>
 #include <Components/Npc/Wisp.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/ObstacleCap.hpp>
@@ -462,7 +463,7 @@ void PlayerSystem::check_player_mortality()
         m_sound_bank.get_effect( "player_respawn" ).play();
         Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ 100 }, {}, {}, {}, {}, {} } );
         Utils::Player::get_mortality( reg() ).state = Cmp::Player::Mortality::State::ALIVE;
-        Utils::Player::get_zorder( reg() ).setZOrder( Utils::Player::get_position( reg() ).y() );
+        reg().remove<Cmp::NoRender>( entity );
         reg().remove<Cmp::Player::PostDeathTimeout>( Utils::Player::get_entity( reg() ) );
       }
       else
@@ -650,7 +651,8 @@ void PlayerSystem::check_player_max_fear_despair()
   if ( Utils::Player::get_player_stats( reg() ).fear() == 100 )
   {
     Utils::Player::get_player_stats( reg() ).apply_modifiers( Cmp::BaseAction( { -1 }, {}, {}, {}, {}, {} ) );
-    if ( Utils::Player::get_player_stats( reg() ).health() == 0 and Utils::Player::get_mortality( reg() ).state != Cmp::Player::Mortality::State::DEAD )
+    if ( Utils::Player::get_player_stats( reg() ).health() == 0 and
+         Utils::Player::get_mortality( reg() ).state != Cmp::Player::Mortality::State::DEAD )
     {
       on_player_mortality_event( Events::PlayerMortalityEvent( Cmp::Player::Mortality::State::TERRIFIED, Utils::Player::get_position( reg() ) ) );
     }
@@ -1041,7 +1043,7 @@ void PlayerSystem::on_player_mortality_event( Game::Events::PlayerMortalityEvent
   auto common_death_throes = [&]()
   {
     reg().emplace_or_replace<Cmp::Player::PostDeathTimeout>( Utils::Player::get_entity( reg() ) );
-    Utils::Player::get_zorder( reg() ).setZOrder( -100 ); // hide the player under the game during animation
+    reg().emplace_or_replace<Cmp::NoRender>( Utils::Player::get_entity( reg() ) );
     stop_footsteps_sound();
     Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ -100 }, {}, {}, {}, {}, {} } );
     SPDLOG_INFO( "Player death code: {}", static_cast<uint8_t>( ev.m_new_state ) );
