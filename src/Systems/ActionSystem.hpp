@@ -40,44 +40,35 @@ public:
   // additional updates via the main game loop
   void update( sf::Time dt );
 
-  // Event handler for player actions
-  void on_player_action( const Events::PlayerActionEvent &event );
-
   //! @brief event handlers for pausing system clocks
   void on_pause() override {}
   //! @brief event handlers for resuming system clocks
   void on_resume() override {}
 
 private:
-  /**
-   * @brief Checks for collisions between the player's digging action and obstacles in the maze.
-   *
-   * This function detects when the player attempts to dig into or through obstacles,
-   * such as walls or other impassable terrain elements. It handles the collision
-   * detection logic to determine if a dig action should be allowed or blocked.
-   *
-   * @note This function is not called via the main game loop, but rather in response to
-   * Events::PlayerActionEvent::DIG (see on_player_action).
-   */
+  // Event handler for player actions
+  void on_player_action( const Events::PlayerActionEvent &event );
+
+  //! @brief Uses Cmp::SelectedPosition to mark the targetted Cmp::Obstacle then applies digging damage until the obstacle is destroyed.
   void check_player_dig_obstacle_collision();
+
+  //! @brief Uses Cmp::SelectedPosition to mark the targetted Cmp::PlantMultiBlock then applies digging damage until the obstacle is destroyed.
   void check_player_dig_plant_collision();
+
+  //! @brief Replace the targetted Cmp::LootContainer with loot item via Events::CreateItemEvent (see ItemSystem::on_create_item_event)
   void check_player_smash_pot();
+
+  //! @brief Uses Cmp::SelectedPosition to mark the targetted Cmp::Obstacle/Cmp::Moveable entity.
   void select_moveable_obstacle();
-  void deselect_all_moveable_obstacles();
 
-  // Cooldown clock to manage digging intervals
-  sf::Clock m_dig_cooldown_clock;
+  //! @brief Removes all Cmp::SelectedPosition components
+  void reset_all_selected_positions();
 
-  //! @brief Structure to hold pickaxe sound information
-  //! Used to manage multiple pickaxe sound effects
-  struct PickAxeSound
-  {
-    std::filesystem::path path;
-    sf::SoundBuffer buffer;
-  };
-
+  //! @brief all grid positions that block NPC pathfinding
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
+  //! @brief All grid positions that block ghost NPC pathfinding
   PathFinding::SpatialHashGridWeakPtr m_ghost_navmesh;
+  //! @brief All grid positions that block player movement
   PathFinding::SpatialHashGridWeakPtr m_player_navmesh;
 };
 } // namespace Game::Sys

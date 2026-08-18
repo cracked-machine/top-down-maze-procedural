@@ -20,6 +20,7 @@
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <Components/Player/Character.hpp>
+#include <Components/Player/DiggingCooldown.hpp>
 #include <Components/Player/NoPath.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
@@ -76,7 +77,9 @@ void ActionSystem::update( [[maybe_unused]] sf::Time dt )
 
   // abort if still in cooldown
   auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( reg() ).get_value();
-  if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) )
+
+  auto *player_dig_cooldown = reg().try_get<Cmp::Player::DiggingCooldown>( Utils::Player::get_entity( reg() ) );
+  if ( player_dig_cooldown and player_dig_cooldown->getElapsedTime() < sf::seconds( digging_cooldown_amount ) )
   {
     SPDLOG_DEBUG( "Digging is on cooldown for {} more seconds!", ( digging_cooldown_amount - m_dig_cooldown_clock.getElapsedTime().asSeconds() ) );
     return;
@@ -96,7 +99,8 @@ void ActionSystem::check_player_smash_pot()
 
   // abort if still in cooldown
   auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( reg() ).get_value();
-  if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) ) { return; }
+  auto *player_dig_cooldown = reg().try_get<Cmp::Player::DiggingCooldown>( Utils::Player::get_entity( reg() ) );
+  if ( player_dig_cooldown and player_dig_cooldown->getElapsedTime() < sf::seconds( digging_cooldown_amount ) ) { return; }
 
   auto loot_container_view = reg().view<Cmp::LootContainer, Cmp::Position, Cmp::AnimData>();
   for ( auto [loot_entity, loot_cmp, loot_pos_cmp, loot_anim_cmp] : loot_container_view.each() )
@@ -122,7 +126,7 @@ void ActionSystem::check_player_smash_pot()
       // skip this iteration of the loop if player too far away
       if ( not player_nearby ) { continue; }
 
-      m_dig_cooldown_clock.restart();
+      reg().emplace_or_replace<Cmp::Player::DiggingCooldown>( Utils::Player::get_entity( reg() ) );
       loot_cmp.hp -= Utils::Maths::to_percent( 100.f, Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( reg() ).get_value() );
 
       float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
@@ -161,7 +165,7 @@ void ActionSystem::select_moveable_obstacle()
   auto position_view = reg().view<Cmp::Position, Cmp::Obstacle, Cmp::Moveable>( entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
   for ( auto [obst_entity, obst_pos_cmp, obst_cmp, move_cmp] : position_view.each() )
   {
-    // project one grdi position in the direction that the player is currently facing to find the obstacle selection
+    // project one grid position in the direction that the player is currently facing to find the obstacle selection
     auto player_pos = Utils::Player::get_position( reg() );
     auto player_last_direction = Utils::Player::get_last_direction( reg() );
     Cmp::Position selected_position( { player_pos.getCenter().x + ( player_last_direction.x * Constants::kGridSizePxF.x ),
@@ -176,7 +180,7 @@ void ActionSystem::select_moveable_obstacle()
   }
 }
 
-void ActionSystem::deselect_all_moveable_obstacles()
+void ActionSystem::reset_all_selected_positions()
 {
   auto selected_position_view = reg().view<Cmp::SelectedPosition>();
   for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
@@ -194,7 +198,8 @@ void ActionSystem::check_player_dig_obstacle_collision()
 
   // abort if still in cooldown
   auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( reg() ).get_value();
-  if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) ) { return; }
+  auto *player_dig_cooldown = reg().try_get<Cmp::Player::DiggingCooldown>( Utils::Player::get_entity( reg() ) );
+  if ( player_dig_cooldown and player_dig_cooldown->getElapsedTime() < sf::seconds( digging_cooldown_amount ) ) { return; }
 
   // Cooldown has expired: Remove any existing SelectedPosition components from the registry
   auto selected_position_view = reg().view<Cmp::SelectedPosition>();
@@ -273,7 +278,7 @@ void ActionSystem::check_player_dig_obstacle_collision()
       // Add a new SelectedPosition component to the entity
       reg().emplace_or_replace<Cmp::SelectedPosition>( obstacle_entt, obstacle_pos_cmp.position );
 
-      m_dig_cooldown_clock.restart();
+      reg().emplace_or_replace<Cmp::Player::DiggingCooldown>( Utils::Player::get_entity( reg() ) );
 
       // calculate new alpha value and apply to the current obstacle and any obstacle with matching UUID (cap sprite obstacles)
       auto damage_per_hit = Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( reg() ).get_value();
@@ -405,7 +410,8 @@ void ActionSystem::check_player_dig_plant_collision()
 
   // abort if still in cooldown
   auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( reg() ).get_value();
-  if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) )
+  auto *player_dig_cooldown = reg().try_get<Cmp::Player::DiggingCooldown>( Utils::Player::get_entity( reg() ) );
+  if ( player_dig_cooldown and player_dig_cooldown->getElapsedTime() < sf::seconds( digging_cooldown_amount ) )
   {
     SPDLOG_DEBUG( "Still in cooldown" );
     return;
@@ -448,8 +454,7 @@ void ActionSystem::check_player_dig_plant_collision()
       // Add a new SelectedPosition component to the entity
       reg().emplace_or_replace<Cmp::SelectedPosition>( plant_entt, plant_mb_cmp.position );
 
-      // Apply digging damage, play a sound depending on whether the obstacle was destroyed
-      m_dig_cooldown_clock.restart();
+      reg().emplace_or_replace<Cmp::Player::DiggingCooldown>( Utils::Player::get_entity( reg() ) );
 
       float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
       Utils::Player::reduce_inventory_wear_level( reg(), reduction_amount );
@@ -487,7 +492,7 @@ void ActionSystem::on_player_action( const Events::PlayerActionEvent &event )
     check_player_smash_pot();
   }
   else if ( event.action == Events::PlayerActionEvent::GameActions::SELECT ) { select_moveable_obstacle(); }
-  else if ( event.action == Events::PlayerActionEvent::GameActions::DESELECT ) { deselect_all_moveable_obstacles(); }
+  else if ( event.action == Events::PlayerActionEvent::GameActions::DESELECT ) { reset_all_selected_positions(); }
 }
 
 } // namespace Game::Sys
