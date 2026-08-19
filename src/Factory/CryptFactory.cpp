@@ -31,14 +31,17 @@
 #include <Utils/Player.hpp>
 #include <Utils/Random.hpp>
 
+#include <stdexcept>
+
 namespace Game::Factory::Crypt
 {
 
 entt::entity create_crypt_exit( entt::registry &reg, sf::Vector2f spawn_pos_px )
 {
+  if ( not reg.view<Cmp::Exit>().empty() ) { throw std::runtime_error( "Crypt level data defines more than one exit tile" ); }
+
   auto entity = reg.create();
   reg.emplace_or_replace<Cmp::Position>( entity, spawn_pos_px, Constants::kGridSizePxF );
-  reg.emplace_or_replace<Cmp::Exit>( entity, false ); // unlocked at start
   reg.emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ .sprite_type = "sprite.crypt.exit" } );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, spawn_pos_px.y );
   reg.emplace_or_replace<Cmp::Npc::NoPathFinding>( entity );
