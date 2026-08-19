@@ -287,7 +287,7 @@ void GraveyardScene::do_update( sf::Time dt )
   }
 
   m_sys.find<Sys::Store::Type::CryptSystem>().unlock_crypt_door();
-  m_sys.find<Sys::Store::Type::AltarSystem>().check_player_collision();
+  m_sys.find<Sys::Store::Type::AltarSystem>().update();
   m_sys.find<Sys::Store::Type::HealingSpringSystem>().update_building_zorder();
   m_sys.find<Sys::Store::Type::HealingSpringSystem>().check_entrance_collision();
   m_sys.find<Sys::Store::Type::RuinSystem>().update_exit_zorder();

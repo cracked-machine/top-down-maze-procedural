@@ -11,9 +11,10 @@
 #include <Components/Inventory/FlashUIWealth.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/LootContainer.hpp>
-#include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
+#include <Components/Npc/Npc.hpp>
 #include <Components/Particle/Flame.hpp>
+#include <Components/Player/AltarActivationCooldown.hpp>
 #include <Components/Player/Character.hpp>
 #include <Components/Player/ExtraLife.hpp>
 #include <Components/Player/KeysCount.hpp>
@@ -70,7 +71,7 @@ void AltarSystem::on_player_action( Events::PlayerActionEvent ev )
   }
 }
 
-void AltarSystem::check_player_collision()
+void AltarSystem::update()
 {
   // tidy up any dead altar sacrifice animations
   auto altar_sacrifice_view = reg().view<Cmp::Altar::Sacrifice, Cmp::AnimData>();
@@ -85,7 +86,9 @@ void AltarSystem::check_player_collision()
 
 void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp::Altar::MultiBlock &altar_cmp )
 {
-  if ( m_altar_activation_clock.getElapsedTime() < kActivationCooldownSeconds ) return;
+  static const sf::Time kActivationCooldownSeconds{ sf::seconds( 3.f ) };
+  auto *altar_cooldown = reg().try_get<Cmp::Player::AltarActivationCooldown>( Utils::Player::get_entity( reg() ) );
+  if ( altar_cooldown and altar_cooldown->getElapsedTime() < kActivationCooldownSeconds ) return;
 
   auto *altar_uuid_cmp = reg().try_get<Cmp::UUID>( altar_entity );
   if ( not altar_uuid_cmp ) throw std::runtime_error( "Altar does not have UUID" );
@@ -96,11 +99,8 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
   //! @brief Common actions following an altar sacrifice
   auto common_activation = [&]( SacrificeAnimType sacrifice_anim_type )
   {
-    Sprites::SpriteMetaType sprite_type;
-    if ( sacrifice_anim_type == SacrificeAnimType::RELIC ) { sprite_type = "sprite.graveyard.altar.relic.anim"; }
-    else if ( sacrifice_anim_type == SacrificeAnimType::KEY ) { sprite_type = "sprite.graveyard.altar.key.anim"; }
-    else if ( sacrifice_anim_type == SacrificeAnimType::JEWELS ) { sprite_type = "sprite.graveyard.altar.relic.anim"; }
-    else if ( sacrifice_anim_type == SacrificeAnimType::WITCHESJAR ) { sprite_type = "sprite.graveyard.altar.relic.anim"; }
+    Sprites::SpriteMetaType sprite_type = ( sacrifice_anim_type == SacrificeAnimType::KEY ) ? "sprite.graveyard.altar.key.anim"
+                                                                                             : "sprite.graveyard.altar.relic.anim";
 
     Factory::Player::destroy_inventory( reg(), sacrifice_type );
 
@@ -111,7 +111,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
     m_sound_bank.get_effect( "shrine_lighting" ).play();
     Factory::Altar::create_altar_sacrifice_anim( reg(), new_pos, sprite_type );
 
-    m_altar_activation_clock.restart();
+    reg().emplace_or_replace<Cmp::Player::AltarActivationCooldown>( Utils::Player::get_entity( reg() ) );
   };
 
   // sacrifice jewels at any time
@@ -161,72 +161,25 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
     m_sound_bank.get_effect( "witches_jar_sacrifice" ).play();
   }
 
-  SPDLOG_DEBUG( "Checking altar activation: {}/{}", altar_cmp.get_activation_count(), altar_cmp.get_activation_threshold() );
   // We still need to satisfy the relic sacrifice threshold to get an exitkey drop
   if ( altar_cmp.get_sacrifice_count() < altar_cmp.get_exitkey_drop_threshold() )
   {
     if ( sacrifice_type.contains( "sprite.item.relic" ) )
     {
-      switch ( altar_cmp.get_sacrifice_count() )
-      {
-        case 0: {
-          reg().patch<Cmp::Altar::MultiBlock>( altar_entity, [&]( Cmp::Altar::MultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 1 ); } );
-          Factory::Particle::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[0], 5000 );
-          SPDLOG_DEBUG( "Altar activated to state ONE." );
-          // Apply the effects from exhuming this item to the player stats
-          auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
-          for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
-          {
-            auto &player_stats = Utils::Player::get_player_stats( reg() );
-            player_stats.apply_modifiers( inventory_cmp.m_item.actions.at( std::type_index( typeid( Cmp::SacrificeAction ) ) ).action );
-          }
-          common_activation( SacrificeAnimType::RELIC );
-          break;
-        }
-        case 1: {
-          reg().patch<Cmp::Altar::MultiBlock>( altar_entity, [&]( Cmp::Altar::MultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 2 ); } );
-          Factory::Particle::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[1], 5000 );
-          SPDLOG_DEBUG( "Altar activated to state TWO." );
-          // Apply the effects from exhuming this item to the player stats
-          auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
-          for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
-          {
-            auto &player_stats = Utils::Player::get_player_stats( reg() );
-            player_stats.apply_modifiers( inventory_cmp.m_item.actions.at( std::type_index( typeid( Cmp::SacrificeAction ) ) ).action );
-          }
-          common_activation( SacrificeAnimType::RELIC );
-          break;
-        }
-        case 2: {
-          reg().patch<Cmp::Altar::MultiBlock>( altar_entity, [&]( Cmp::Altar::MultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 3 ); } );
-          Factory::Particle::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[2], 5000 );
-          SPDLOG_DEBUG( "Altar activated to state THREE." );
-          // Apply the effects from exhuming this item to the player stats
-          auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
-          for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
-          {
-            auto &player_stats = Utils::Player::get_player_stats( reg() );
-            player_stats.apply_modifiers( inventory_cmp.m_item.actions.at( std::type_index( typeid( Cmp::SacrificeAction ) ) ).action );
-          }
-          common_activation( SacrificeAnimType::RELIC );
-          break;
-        }
-        case 3: {
-          reg().patch<Cmp::Altar::MultiBlock>( altar_entity, [&]( Cmp::Altar::MultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 4 ); } );
-          Factory::Particle::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[3], 5000 );
+      uint8_t sacrifice_count = altar_cmp.get_sacrifice_count();
+      reg().patch<Cmp::Altar::MultiBlock>(
+          altar_entity, [&]( Cmp::Altar::MultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( sacrifice_count + 1 ); } );
+      Factory::Particle::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[sacrifice_count], 5000 );
+      SPDLOG_DEBUG( "Altar activated to state {}.", sacrifice_count + 1 );
 
-          SPDLOG_DEBUG( "Altar activated to state FOUR." );
-          // Apply the effects from exhuming this item to the player stats
-          auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
-          for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
-          {
-            auto &player_stats = Utils::Player::get_player_stats( reg() );
-            player_stats.apply_modifiers( inventory_cmp.m_item.actions.at( std::type_index( typeid( Cmp::SacrificeAction ) ) ).action );
-          }
-          common_activation( SacrificeAnimType::RELIC );
-          break;
-        }
+      // Apply the effects from exhuming this item to the player stats
+      auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
+      for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
+      {
+        auto &player_stats = Utils::Player::get_player_stats( reg() );
+        player_stats.apply_modifiers( inventory_cmp.m_item.actions.at( std::type_index( typeid( Cmp::SacrificeAction ) ) ).action );
       }
+      common_activation( SacrificeAnimType::RELIC );
     }
   }
   // We still need to satisfy the exitkey sacrifice threshold to get an cryptkey drop
@@ -278,12 +231,9 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
   {
     if ( not altar_cmp.is_cryptkey_lockout() )
     {
-      entt::entity key_entt = entt::null;
-
       if ( sacrifice_type.contains( "sprite.item.exitkey" ) )
       {
-        get_systems_event_queue().trigger( Events::CreateItemEvent( Utils::Player::get_position( reg() ), "item.cryptkey" ) );
-        if ( key_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
+        get_systems_event_queue().trigger( Events::CreateItemEvent( Utils::Player::get_position( reg() ), "item.cryptkey", "drop_loot" ) );
         // signal UI to flash
         auto flash_entt = reg().create();
         reg().emplace_or_replace<Cmp::FlashUIInventory>( flash_entt );

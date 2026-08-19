@@ -22,10 +22,10 @@ public:
 
   void increment_sacrifice_count() { ++m_sacrifice_count; }
   void set_sacrifice_count( uint8_t count ) { m_sacrifice_count = count; }
-  uint8_t get_sacrifice_count() const { return m_sacrifice_count; }
+  [[nodiscard]] uint8_t get_sacrifice_count() const { return m_sacrifice_count; }
 
-  uint8_t get_exitkey_drop_threshold() const { return m_exitkey_drop_threshold; }
-  uint8_t get_cryptkey_drop_threshold() const { return m_cryptkey_drop_threshold; }
+  [[nodiscard]] uint8_t get_exitkey_drop_threshold() const { return m_exitkey_drop_threshold; }
+  [[nodiscard]] uint8_t get_cryptkey_drop_threshold() const { return m_cryptkey_drop_threshold; }
 
   void set_exitkey_lockout() { m_exitkey_drop_lockout = true; }
   bool is_exitkey_lockout() const { return m_exitkey_drop_lockout; }
