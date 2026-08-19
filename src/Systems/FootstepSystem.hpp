@@ -18,25 +18,22 @@ public:
   FootstepSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
       : BaseSystem( reg, window, sprite_factory, sound_bank )
   {
-    SPDLOG_DEBUG( "FootstepSystem initialized" );
   }
+
+  // Update all FootstepAlpha based on their FootstepTimer, remove any entities with FootstepAlpha
+  void update();
 
   //! @brief event handlers for pausing footstep clocks
   void on_pause() override;
   //! @brief event handlers for resuming footstep clocks
   void on_resume() override;
 
-  // create an entity with components: Position, Direction, FootstepTimer, FootstepAlpha
-  void add_footstep( const Cmp::Position &position, const Cmp::Direction &direction );
-  // Update all FootstepAlpha based on their FootstepTimer, remove any entities with FootstepAlpha
-  // <= 0
-  void update();
-
-  constexpr static const sf::Vector2f kFootstepSize{ 10.f, 6.f };
-
 private:
-  const unsigned int kFootstepFadeFactor{ 1 };
-  sf::Clock update_clock{};
+  //! @brief Rate-limit adding the footstep sprites
+  sf::Clock update_clock;
+
+  // create an entity with components: Position, Direction, FootstepTimer, FootstepAlpha
+  void add_footstep( const Cmp::Position &pos, const Cmp::Direction &dir );
 };
 
 } // namespace Game::Sys
