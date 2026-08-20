@@ -194,7 +194,7 @@
   },
   "HazardPushbackResist": {
     "type": "float",
-    "value": 0.60,
+    "value": 0.25,
     "min_value": 0.0,
     "max_value": 2.0,
     "detail": "How long the player must keep pushing into a lethal hazard cell before falling in",

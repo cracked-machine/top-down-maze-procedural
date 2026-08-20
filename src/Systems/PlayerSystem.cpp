@@ -417,6 +417,16 @@ void PlayerSystem::update_player_position( sf::Time dt )
     }
   }
 
+  if ( can_move and collision_detect_enabled and resolved_dir_vector.x != 0.0f and resolved_dir_vector.y != 0.0f )
+  {
+    // Each axis above is validated independently against its own target tile, so a hazard cell
+    // (or wall) that only shares a corner with the player's path is invisible to both checks even
+    // though the combined diagonal step lands fully inside it. Re-validate the actual resulting
+    // position before committing so a corner-cut can't skip the hazard pushback state machine.
+    const sf::FloatRect resolved_target( player_pos.position + resolved_dir_vector, player_pos.size );
+    if ( not is_valid_move( resolved_target ) ) can_move = false;
+  }
+
   if ( can_move ) { player_pos.position += resolved_dir_vector; }
 }
 

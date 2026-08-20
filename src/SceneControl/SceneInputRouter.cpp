@@ -241,10 +241,6 @@ void SceneInputRouter::crypt_scene_state_handler()
         if ( Utils::Player::get_mortality( reg() ).state != Cmp::Player::Mortality::State::ALIVE ) continue;
         enqueue( Events::SceneManagerEvent::Type::EXIT_CRYPT );
       }
-      else if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::E ) )
-      {
-        get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::ACTIVATE ) );
-      }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::R )
       {
         get_systems_event_queue().trigger( Events::CryptRoomEvent( Events::CryptRoomEvent::Type::SHUFFLE_PASSAGES ) );
