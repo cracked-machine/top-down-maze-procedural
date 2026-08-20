@@ -267,7 +267,7 @@
   },
   "NpcWatchmanSpawnMax": {
     "type": "int",
-    "value": 1,
+    "value": 3,
     "min_value": 1,
     "max_value": 200,
     "detail": "NPC Watchman Spawn Max",
@@ -275,7 +275,7 @@
   },
     "NpcWatchmanSpawnCooldown": {
     "type": "float",
-    "value": 1.0,
+    "value": 60.0,
     "min_value": 1.0,
     "max_value": 900.0,
     "detail": "NPC Watchman Spawn Cooldown (sec)",
@@ -284,7 +284,7 @@
 
     "NpcWatchmanSpawnInfamy": {
     "type": "int",
-    "value": 1,
+    "value": 50,
     "min_value": 1,
     "max_value": 100,
     "detail": "NPC Watchman Spawn Infamy",
