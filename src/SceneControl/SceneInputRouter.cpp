@@ -81,10 +81,8 @@ void SceneInputRouter::title_scene_input_handler()
   using namespace sf::Keyboard;
   while ( const std::optional event = m_window.pollEvent() )
   {
-    ImGui::SFML::ProcessEvent( m_window, *event );
-    if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
-    else if ( const auto *resized = event->getIf<sf::Event::Resized>() ) { resize_window( resized->size ); }
-    else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
+    if ( dispatch_common_window_event( *event ) ) continue;
+    if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::Enter ) { enqueue( Events::SceneManagerEvent::Type::START_GAME ); }
       else if ( keyPressed->scancode == sf::Keyboard::Scancode::Q ) { enqueue( Events::SceneManagerEvent::Type::EXIT_GAME ); }
@@ -98,10 +96,8 @@ void SceneInputRouter::settings_scene_state_handler()
   using namespace sf::Keyboard;
   while ( const std::optional event = m_window.pollEvent() )
   {
-    ImGui::SFML::ProcessEvent( m_window, *event );
-    if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
-    else if ( const auto *resized = event->getIf<sf::Event::Resized>() ) { resize_window( resized->size ); }
-    else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
+    if ( dispatch_common_window_event( *event ) ) continue;
+    if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::Escape ) { enqueue( Events::SceneManagerEvent::Type::EXIT_SETTINGS_MENU ); }
       else if ( keyPressed->scancode == sf::Keyboard::Scancode::R ) { get_systems_event_queue().trigger( Events::LoadSettingsEvent() ); }
@@ -115,16 +111,10 @@ void SceneInputRouter::graveyard_scene_state_handler()
   using namespace sf::Keyboard;
   while ( const std::optional event = m_window.pollEvent() )
   {
-    ImGui::SFML::ProcessEvent( m_window, *event );
-    if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
-    else if ( const auto *resized = event->getIf<sf::Event::Resized>() ) { resize_window( resized->size ); }
-    else if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
+    if ( dispatch_common_window_event( *event ) ) continue;
+    if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
     {
-      if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_navmesh(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F10 ) { toggle_footsteps(); }
+      if ( try_handle_debug_key( keyReleased->scancode ) ) { }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F5 )
       {
         auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
@@ -148,24 +138,10 @@ void SceneInputRouter::graveyard_scene_state_handler()
         enqueue( Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F8 ) { enqueue( Events::SceneManagerEvent::Type::ENTER_SHOP ); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_shaders(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F12 ) { get_systems_event_queue().trigger( Events::LightningEvent() ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Home ) { toggle_particle_test( true ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::End ) { toggle_particle_test( false ); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
-      {
-        Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ 10 }, {}, {}, {}, {}, {} } );
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
-      {
-        // Prevent skipping the death animation and leaving the game in a bad state
-        if ( Utils::Player::get_mortality( reg() ).state != Cmp::Player::Mortality::State::ALIVE ) continue;
-        enqueue( Events::SceneManagerEvent::Type::QUIT_GAME );
-      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { queue_quit_game_event(); }
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
@@ -216,25 +192,10 @@ void SceneInputRouter::crypt_scene_state_handler()
   using namespace sf::Keyboard;
   while ( const std::optional event = m_window.pollEvent() )
   {
-    ImGui::SFML::ProcessEvent( m_window, *event );
-    if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
-    else if ( const auto *resized = event->getIf<sf::Event::Resized>() ) { resize_window( resized->size ); }
-    else if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
+    if ( dispatch_common_window_event( *event ) ) continue;
+    if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
     {
-      if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_navmesh(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_shaders(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F10 ) { toggle_footsteps(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
-      {
-        Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ 10 }, {}, {}, {}, {}, {} } );
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
+      if ( try_handle_debug_key( keyReleased->scancode ) ) { }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
       {
         // Prevent skipping the death animation and leaving the game in a bad state
@@ -279,31 +240,11 @@ void SceneInputRouter::healing_spring_scene_state_handler()
   using namespace sf::Keyboard;
   while ( const std::optional event = m_window.pollEvent() )
   {
-    ImGui::SFML::ProcessEvent( m_window, *event );
-    if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
-    else if ( const auto *resized = event->getIf<sf::Event::Resized>() ) { resize_window( resized->size ); }
-    else if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
+    if ( dispatch_common_window_event( *event ) ) continue;
+    if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
     {
-      if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_navmesh(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_shaders(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F10 ) { toggle_footsteps(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
-      {
-        Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ 10 }, {}, {}, {}, {}, {} } );
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
-      {
-        // Prevent skipping the death animation and leaving the game in a bad state
-        if ( Utils::Player::get_mortality( reg() ).state != Cmp::Player::Mortality::State::ALIVE ) continue;
-        enqueue( Events::SceneManagerEvent::Type::QUIT_GAME );
-      }
+      if ( try_handle_debug_key( keyReleased->scancode ) ) { }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { queue_quit_game_event(); }
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
@@ -330,31 +271,11 @@ void SceneInputRouter::shop_scene_state_handler()
   using namespace sf::Keyboard;
   while ( const std::optional event = m_window.pollEvent() )
   {
-    ImGui::SFML::ProcessEvent( m_window, *event );
-    if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
-    else if ( const auto *resized = event->getIf<sf::Event::Resized>() ) { resize_window( resized->size ); }
-    else if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
+    if ( dispatch_common_window_event( *event ) ) continue;
+    if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
     {
-      if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_navmesh(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_shaders(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F10 ) { toggle_footsteps(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
-      {
-        Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ 10 }, {}, {}, {}, {}, {} } );
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
-      {
-        // Prevent skipping the death animation and leaving the game in a bad state
-        if ( Utils::Player::get_mortality( reg() ).state != Cmp::Player::Mortality::State::ALIVE ) continue;
-        enqueue( Events::SceneManagerEvent::Type::QUIT_GAME );
-      }
+      if ( try_handle_debug_key( keyReleased->scancode ) ) { }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { queue_quit_game_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Num1 ) { queue_buy_item_event( 1 ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Num2 ) { queue_buy_item_event( 2 ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Num3 ) { queue_buy_item_event( 3 ); }
@@ -386,31 +307,11 @@ void SceneInputRouter::ruin_scene_state_handler()
   using namespace sf::Keyboard;
   while ( const std::optional event = m_window.pollEvent() )
   {
-    ImGui::SFML::ProcessEvent( m_window, *event );
-    if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
-    else if ( const auto *resized = event->getIf<sf::Event::Resized>() ) { resize_window( resized->size ); }
-    else if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
+    if ( dispatch_common_window_event( *event ) ) continue;
+    if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
     {
-      if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_navmesh(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_shaders(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F10 ) { toggle_footsteps(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
-      {
-        Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ 10 }, {}, {}, {}, {}, {} } );
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
-      {
-        // Prevent skipping the death animation and leaving the game in a bad state
-        if ( Utils::Player::get_mortality( reg() ).state != Cmp::Player::Mortality::State::ALIVE ) continue;
-        enqueue( Events::SceneManagerEvent::Type::QUIT_GAME );
-      }
+      if ( try_handle_debug_key( keyReleased->scancode ) ) { }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { queue_quit_game_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Space )
       {
         get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DESELECT ) );
@@ -445,10 +346,8 @@ void SceneInputRouter::paused_scene_state_handler()
   using namespace sf::Keyboard;
   while ( const std::optional event = m_window.pollEvent() )
   {
-    ImGui::SFML::ProcessEvent( m_window, *event );
-    if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
-    else if ( const auto *resized = event->getIf<sf::Event::Resized>() ) { resize_window( resized->size ); }
-    else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
+    if ( dispatch_common_window_event( *event ) ) continue;
+    if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::P ) { enqueue( Events::SceneManagerEvent::Type::RESUME_GAME ); }
     }
@@ -460,10 +359,8 @@ void SceneInputRouter::game_over_scene_state_handler()
   using namespace sf::Keyboard;
   while ( const std::optional event = m_window.pollEvent() )
   {
-    ImGui::SFML::ProcessEvent( m_window, *event );
-    if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
-    else if ( const auto *resized = event->getIf<sf::Event::Resized>() ) { resize_window( resized->size ); }
-    else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
+    if ( dispatch_common_window_event( *event ) ) continue;
+    if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::R ) { enqueue( Events::SceneManagerEvent::Type::RETURN_TO_TITLE ); }
     }
@@ -475,10 +372,8 @@ void SceneInputRouter::level_complete_scene_state_handler()
   using namespace sf::Keyboard;
   while ( const std::optional event = m_window.pollEvent() )
   {
-    ImGui::SFML::ProcessEvent( m_window, *event );
-    if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
-    else if ( const auto *resized = event->getIf<sf::Event::Resized>() ) { resize_window( resized->size ); }
-    else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
+    if ( dispatch_common_window_event( *event ) ) continue;
+    if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::R ) { enqueue( Events::SceneManagerEvent::Type::ENTER_SHOP ); }
     }
@@ -505,52 +400,55 @@ void SceneInputRouter::process_move_keys()
   }
 }
 
+bool SceneInputRouter::dispatch_common_window_event( const sf::Event &event )
+{
+  ImGui::SFML::ProcessEvent( m_window, event );
+  if ( event.is<sf::Event::Closed>() )
+  {
+    m_window.close();
+    return true;
+  }
+  if ( const auto *resized = event.getIf<sf::Event::Resized>() )
+  {
+    resize_window( resized->size );
+    return true;
+  }
+  return false;
+}
+
+template <typename SettingComponent>
+void SceneInputRouter::toggle_setting( std::string_view log_prefix )
+{
+  bool &current_setting = Utils::scene_setting<SettingComponent>( reg() ).enabled;
+  current_setting = not current_setting;
+  SPDLOG_INFO( "{} now {}", log_prefix, current_setting ? "ENABLED" : "DISABLED" );
+}
+
+bool SceneInputRouter::try_handle_debug_key( sf::Keyboard::Scancode scancode )
+{
+  using namespace sf::Keyboard;
+  if ( scancode == Scancode::F1 ) { toggle_setting<Cmp::SceneSettings::CollisionDetection>( "Collisions are" ); }
+  else if ( scancode == Scancode::F2 ) { toggle_setting<Cmp::SceneSettings::ShowPathFinding>( "Show pathfinding is" ); }
+  else if ( scancode == Scancode::F3 ) { toggle_setting<Cmp::SceneSettings::ShowDebugStats>( "Show debug stats is" ); }
+  else if ( scancode == Scancode::F4 ) { toggle_setting<Cmp::SceneSettings::ShowNavmesh>( "Show navmesh is" ); }
+  else if ( scancode == Scancode::F9 ) { toggle_setting<Cmp::SceneSettings::Shaders>( "Shaders are" ); }
+  else if ( scancode == Scancode::F10 ) { toggle_setting<Cmp::SceneSettings::Footsteps>( "Footsteps are" ); }
+  else if ( scancode == Scancode::F11 ) { queue_suicide_event(); }
+  else if ( scancode == Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
+  else if ( scancode == Scancode::Numpad2 )
+  {
+    Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ 10 }, {}, {}, {}, {}, {} } );
+  }
+  else if ( scancode == Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
+  else if ( scancode == Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
+  else { return false; }
+  return true;
+}
+
 void SceneInputRouter::resize_window( sf::Vector2u size )
 {
   sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( size ) );
   m_window.setView( sf::View( visibleArea ) );
-}
-
-void SceneInputRouter::toggle_collision_detection()
-{
-  bool &current_setting = Utils::scene_setting<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled;
-  current_setting = not current_setting;
-  SPDLOG_INFO( "Collisions are now {}", current_setting ? "ENABLED" : "DISABLED" );
-}
-
-void SceneInputRouter::toggle_show_pathfinding()
-{
-  bool &current_setting = Utils::scene_setting<Cmp::SceneSettings::ShowPathFinding>( reg() ).enabled;
-  current_setting = not current_setting;
-  SPDLOG_INFO( "Show pathfinding is now {}", current_setting ? "ENABLED" : "DISABLED" );
-}
-
-void SceneInputRouter::toggle_show_navmesh()
-{
-  bool &current_setting = Utils::scene_setting<Cmp::SceneSettings::ShowNavmesh>( reg() ).enabled;
-  current_setting = not current_setting;
-  SPDLOG_INFO( "Show navmesh is now {}", current_setting ? "ENABLED" : "DISABLED" );
-}
-
-void SceneInputRouter::toggle_footsteps()
-{
-  bool &current_setting = Utils::scene_setting<Cmp::SceneSettings::Footsteps>( reg() ).enabled;
-  current_setting = not current_setting;
-  SPDLOG_INFO( "Footsteps are now {}", current_setting ? "ENABLED" : "DISABLED" );
-}
-
-void SceneInputRouter::toggle_show_debug()
-{
-  bool &current_setting = Utils::scene_setting<Cmp::SceneSettings::ShowDebugStats>( reg() ).enabled;
-  current_setting = not current_setting;
-  SPDLOG_INFO( "Show debug stats is now {}", current_setting ? "ENABLED" : "DISABLED" );
-}
-
-void SceneInputRouter::toggle_shaders()
-{
-  bool &current_setting = Utils::scene_setting<Cmp::SceneSettings::Shaders>( reg() ).enabled;
-  current_setting = not current_setting;
-  SPDLOG_INFO( "Shaders are now {}", current_setting ? "ENABLED" : "DISABLED" );
 }
 
 void SceneInputRouter::queue_suicide_event()
@@ -560,8 +458,14 @@ void SceneInputRouter::queue_suicide_event()
 
 void SceneInputRouter::queue_buy_item_event( uint8_t item_idx )
 {
-  //
   get_systems_event_queue().enqueue( Events::BuyShopItemEvent( item_idx ) );
+}
+
+void SceneInputRouter::queue_quit_game_event()
+{
+  // Prevent skipping the death animation and leaving the game in a bad state
+  if ( Utils::Player::get_mortality( reg() ).state != Cmp::Player::Mortality::State::ALIVE ) return;
+  enqueue( Events::SceneManagerEvent::Type::QUIT_GAME );
 }
 
 void SceneInputRouter::enqueue( Events::SceneManagerEvent::Type type )

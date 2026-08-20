@@ -3,8 +3,11 @@
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Window.hpp>
+
+#include <string_view>
 
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -49,13 +52,14 @@ private:
   //! @brief reset and process new user direction input
   void process_move_keys();
 
+  //! @brief forwards to ImGui and handles the window Closed/Resized events common to every scene; returns true if the event was consumed
+  bool dispatch_common_window_event( const sf::Event &event );
+  //! @brief handles the debug/cheat keys shared by every gameplay scene; returns true if the scancode was handled
+  bool try_handle_debug_key( sf::Keyboard::Scancode scancode );
+
   void resize_window( sf::Vector2u size );
-  void toggle_collision_detection();
-  void toggle_show_pathfinding();
-  void toggle_show_debug();
-  void toggle_shaders();
-  void toggle_show_navmesh();
-  void toggle_footsteps();
+  template <typename SettingComponent>
+  void toggle_setting( std::string_view log_prefix );
   void queue_suicide_event();
   void queue_buy_item_event( uint8_t item_idx );
   void queue_quit_game_event();
