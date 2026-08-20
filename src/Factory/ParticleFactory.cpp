@@ -6,6 +6,7 @@
 #include <Components/Particle/PlayerHealingParticleSprite.hpp>
 #include <Components/Particle/RuneParticleSprite.hpp>
 #include <Components/Particle/ShockWave.hpp>
+#include <Components/Particle/SkeleBonesParticleSprite.hpp>
 #include <Components/Particle/SpriteTest.hpp>
 #include <Components/Particle/WatchmanGunfireParticleSprite.hpp>
 #include <Components/Particle/WormholeParticleSprite.hpp>
@@ -187,6 +188,26 @@ void add_planttwigs_ps( entt::registry &reg, const std::string &tag, int particl
   auto entt = reg.create();
   reg.emplace_or_replace<Sys::ParticleSpriteOwner>( entt,
                                                     Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::PlantTwigsParticleSprite>( ps ) ) );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
+  reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
+  SPDLOG_DEBUG( "Created obstacle ParticleSprite {}", static_cast<uint32_t>( entt ) );
+}
+
+void add_skelebones_ps( entt::registry &reg, const std::string &tag, int particle_count, float lifetime_seconds, float speed, float size,
+                        Cmp::UUID &uuid_cmp, sf::Vector2f pos, float zorder )
+{
+  auto ps = Cmp::Particle::SkeleBonesParticleSprite( particle_count );
+  ps.set_tag( tag );
+  ps.set_generations( 1 );
+  ps.set_particle_size_range( std::uniform_real_distribution<float>( size, size ) );
+  ps.set_emitter_position( { pos.x, pos.y } );
+  ps.set_lifetime_ms( std::uniform_int_distribution<int>( 0, sf::seconds( lifetime_seconds ).asMilliseconds() ) );
+  ps.set_speed( std::uniform_real_distribution<float>( speed, speed ) );
+  ps.set_angle( std::uniform_real_distribution<float>( 1.f, 360.f ) );
+
+  auto entt = reg.create();
+  reg.emplace_or_replace<Sys::ParticleSpriteOwner>( entt,
+                                                    Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::SkeleBonesParticleSprite>( ps ) ) );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
   reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
   SPDLOG_DEBUG( "Created obstacle ParticleSprite {}", static_cast<uint32_t>( entt ) );

@@ -31,6 +31,8 @@ void add_plantleaves_ps( entt::registry &reg, const std::string &tag, int partic
                          Cmp::UUID &uuid_cmp, sf::Vector2f pos, float zorder );
 void add_planttwigs_ps( entt::registry &reg, const std::string &tag, int particle_count, float lifetime_seconds, float speed, float size,
                         Cmp::UUID &uuid_cmp, sf::Vector2f pos, float zorder );
+void add_skelebones_ps( entt::registry &reg, const std::string &tag, int particle_count, float lifetime_seconds, float speed, float size,
+                        Cmp::UUID &uuid_cmp, sf::Vector2f pos, float zorder );
 void add_flame( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp, sf::Vector2f pos, float zorder );
 void add_flame_for_player_inventory_slot( entt::registry &reg );
 void add_smoke( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp, sf::Vector2f pos, float zorder );

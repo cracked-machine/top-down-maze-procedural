@@ -70,7 +70,7 @@ ActionSystem::ActionSystem( entt::registry &reg, sf::RenderWindow &window, Sprit
 
 void ActionSystem::update( [[maybe_unused]] sf::Time dt )
 {
-  // destroy obstacle-dig particle sprite entities once all their particles have expired
+  // destroy particle sprite entities once all their particles have expired
   Factory::Particle::delete_expired_particle_sprites( reg(), "graveyard.obstacle.dig.particle" );
   Factory::Particle::delete_expired_particle_sprites( reg(), "graveyard.plant.leaves.particle" );
   Factory::Particle::delete_expired_particle_sprites( reg(), "graveyard.plant.twigs.particle" );

@@ -118,6 +118,8 @@ void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
   // cache position so we can update player in spatial grid after changes.
   auto old_player_pos = Utils::Player::get_position( reg() );
 
+  Factory::Particle::delete_expired_particle_sprites( reg(), "graveyard.skele.bones.particle" );
+
   fade_player_on_wormhole_jump();
   blink_player();
 
@@ -776,11 +778,15 @@ void PlayerSystem::check_player_axe_npc_kill()
 
       // select the final smash sound
       m_sound_bank.get_effect( "axe_whip" ).play();
-      m_sound_bank.get_effect( "skele_death" ).play();
+      m_sound_bank.get_effect( "rattling_bones" ).play();
 
       auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
       if ( inventory_slot_type == "sprite.item.axe" )
       {
+
+        auto skelebones_particle_uuid = Cmp::UUID::generate();
+        Factory::Particle::add_skelebones_ps( reg(), "graveyard.skele.bones.particle", 50, 2.f, 50.f, 14.f, skelebones_particle_uuid,
+                                              npc_pos_cmp.getCenter(), npc_pos_cmp.position.y );
         // drop loot - 1 in 3 chance
         auto [sprite_type, sprite_index] = m_sprite_factory.get_random_type_and_texture_index(
             std::vector<std::string>{ "sprite.graveyard.loot.health", "sprite.graveyard.loot.blast", "sprite.graveyard.loot.repair" } );
