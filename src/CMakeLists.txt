@@ -14,6 +14,8 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Components/Particle/RuneParticleSprite.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Particle/WormholeParticleSprite.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Particle/ObstacleDigParticleSprite.cpp
+    ${CMAKE_SOURCE_DIR}/src/Components/Particle/PlantLeavesParticleSprite.cpp
+    ${CMAKE_SOURCE_DIR}/src/Components/Particle/PlantTwigsParticleSprite.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Particle/WatchmanGunfireParticleSprite.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Particle/PlayerHealingParticleSprite.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Crypt/RoomBase.cpp

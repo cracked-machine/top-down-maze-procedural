@@ -1,6 +1,8 @@
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Particle/CryptAltarParticleSprite.hpp>
 #include <Components/Particle/ObstacleDigParticleSprite.hpp>
+#include <Components/Particle/PlantLeavesParticleSprite.hpp>
+#include <Components/Particle/PlantTwigsParticleSprite.hpp>
 #include <Components/Particle/PlayerHealingParticleSprite.hpp>
 #include <Components/Particle/RuneParticleSprite.hpp>
 #include <Components/Particle/ShockWave.hpp>
@@ -137,9 +139,7 @@ void add_obstacledig_ps( entt::registry &reg, const std::string &tag, int partic
   ps.set_tag( tag );
   ps.set_generations( 1 );
   ps.set_particle_size_range( std::uniform_real_distribution<float>( size, size ) );
-
   ps.set_emitter_position( { pos.x + Cmp::RandomFloat( 4.f, 12.f ).gen(), pos.y + Cmp::RandomFloat( 4.f, 12.f ).gen() } );
-
   ps.set_lifetime_ms( std::uniform_int_distribution<int>( 0, sf::seconds( lifetime_seconds ).asMilliseconds() ) );
   ps.set_speed( std::uniform_real_distribution<float>( speed, speed ) );
   ps.set_angle( std::uniform_real_distribution<float>( 1.f, 360.f ) );
@@ -147,6 +147,46 @@ void add_obstacledig_ps( entt::registry &reg, const std::string &tag, int partic
   auto entt = reg.create();
   reg.emplace_or_replace<Sys::ParticleSpriteOwner>( entt,
                                                     Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::ObstacleDigParticleSprite>( ps ) ) );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
+  reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
+  SPDLOG_DEBUG( "Created obstacle ParticleSprite {}", static_cast<uint32_t>( entt ) );
+}
+
+void add_plantleaves_ps( entt::registry &reg, const std::string &tag, int particle_count, float lifetime_seconds, float speed, float size,
+                         Cmp::UUID &uuid_cmp, sf::Vector2f pos, float zorder )
+{
+  auto ps = Cmp::Particle::PlantLeavesParticleSprite( particle_count );
+  ps.set_tag( tag );
+  ps.set_generations( 1 );
+  ps.set_particle_size_range( std::uniform_real_distribution<float>( size, size ) );
+  ps.set_emitter_position( { pos.x, pos.y } );
+  ps.set_lifetime_ms( std::uniform_int_distribution<int>( 0, sf::seconds( lifetime_seconds ).asMilliseconds() ) );
+  ps.set_speed( std::uniform_real_distribution<float>( speed, speed ) );
+  ps.set_angle( std::uniform_real_distribution<float>( 1.f, 360.f ) );
+
+  auto entt = reg.create();
+  reg.emplace_or_replace<Sys::ParticleSpriteOwner>( entt,
+                                                    Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::PlantLeavesParticleSprite>( ps ) ) );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
+  reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
+  SPDLOG_DEBUG( "Created obstacle ParticleSprite {}", static_cast<uint32_t>( entt ) );
+}
+
+void add_planttwigs_ps( entt::registry &reg, const std::string &tag, int particle_count, float lifetime_seconds, float speed, float size,
+                        Cmp::UUID &uuid_cmp, sf::Vector2f pos, float zorder )
+{
+  auto ps = Cmp::Particle::PlantTwigsParticleSprite( particle_count );
+  ps.set_tag( tag );
+  ps.set_generations( 1 );
+  ps.set_particle_size_range( std::uniform_real_distribution<float>( size, size ) );
+  ps.set_emitter_position( { pos.x, pos.y } );
+  ps.set_lifetime_ms( std::uniform_int_distribution<int>( 0, sf::seconds( lifetime_seconds ).asMilliseconds() ) );
+  ps.set_speed( std::uniform_real_distribution<float>( speed, speed ) );
+  ps.set_angle( std::uniform_real_distribution<float>( 1.f, 360.f ) );
+
+  auto entt = reg.create();
+  reg.emplace_or_replace<Sys::ParticleSpriteOwner>( entt,
+                                                    Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::PlantTwigsParticleSprite>( ps ) ) );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
   reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
   SPDLOG_DEBUG( "Created obstacle ParticleSprite {}", static_cast<uint32_t>( entt ) );

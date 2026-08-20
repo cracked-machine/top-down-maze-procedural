@@ -72,6 +72,8 @@ void ActionSystem::update( [[maybe_unused]] sf::Time dt )
 {
   // destroy obstacle-dig particle sprite entities once all their particles have expired
   Factory::Particle::delete_expired_particle_sprites( reg(), "graveyard.obstacle.dig.particle" );
+  Factory::Particle::delete_expired_particle_sprites( reg(), "graveyard.plant.leaves.particle" );
+  Factory::Particle::delete_expired_particle_sprites( reg(), "graveyard.plant.twigs.particle" );
 
   // abort if still in cooldown
   if ( is_digging_on_cooldown() ) { return; }
@@ -406,9 +408,16 @@ void ActionSystem::check_player_dig_plant_collision()
         }
         else if ( inventory_slot.m_item.sprite_type == "sprite.item.axe" )
         {
+          auto plantleaves_particle_uuid = Cmp::UUID::generate();
+          Factory::Particle::add_plantleaves_ps( reg(), "graveyard.plant.leaves.particle", 50, 2.f, 50.f, 14.f, plantleaves_particle_uuid,
+                                                 plant_mb_cmp.getCenter(), plant_mb_cmp.position.y );
+          auto planttwigs_particle_uuid = Cmp::UUID::generate();
+          Factory::Particle::add_planttwigs_ps( reg(), "graveyard.plant.twigs.particle", 10, 2.f, 50.f, 14.f, planttwigs_particle_uuid,
+                                                plant_mb_cmp.getCenter(), plant_mb_cmp.position.y );
           Factory::Plant::remove_plant_mb( reg(), plant_entt, m_npc_navmesh.lock(), m_player_navmesh.lock() );
         }
       }
+
       get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG, plant_entt ) );
     }
   }
