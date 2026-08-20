@@ -115,9 +115,7 @@ void CryptSystem::update( sf::Time dt )
 
 void CryptSystem::shuffle_rooms_passages()
 {
-  Factory::Obstacle::UUIDEntityMap uuid_map;
-  for ( auto [e, uuid] : reg().view<Cmp::UUID>().each() )
-    if ( !reg().all_of<Cmp::Obstacle>( e ) ) uuid_map[uuid] = e;
+  auto uuid_map = build_non_obstacle_uuid_map();
 
   auto selected_rooms = Utils::Rnd::get_n_rand_components<Cmp::Crypt::RoomClosed>(
       reg(), 4, {}, Utils::Rnd::ExcludePack<Cmp::Crypt::RoomStart, Cmp::Crypt::RoomEnd>{}, 0 );
@@ -155,9 +153,7 @@ void CryptSystem::shuffle_rooms_passages()
 
 void CryptSystem::unlock_objective_passage()
 {
-  Factory::Obstacle::UUIDEntityMap uuid_map;
-  for ( auto [e, uuid] : reg().view<Cmp::UUID>().each() )
-    if ( !reg().all_of<Cmp::Obstacle>( e ) ) uuid_map[uuid] = e;
+  auto uuid_map = build_non_obstacle_uuid_map();
 
   auto player_pos_cmp = Utils::Player::get_position( reg() );
 
@@ -181,9 +177,7 @@ void CryptSystem::unlock_objective_passage()
 
 void CryptSystem::unlock_exit_passage()
 {
-  Factory::Obstacle::UUIDEntityMap uuid_map;
-  for ( auto [e, uuid] : reg().view<Cmp::UUID>().each() )
-    if ( !reg().all_of<Cmp::Obstacle>( e ) ) uuid_map[uuid] = e;
+  auto uuid_map = build_non_obstacle_uuid_map();
 
   auto player_pos_cmp = Utils::Player::get_position( reg() );
 
@@ -315,12 +309,11 @@ void CryptSystem::unlock_crypt_door()
     // Crypt door is already opened
     if ( cryptdoor_cmp.is_open() )
     {
-
       // Set the z-order value
-      auto crypt_view = reg().view<Cmp::Crypt::BuildingMultiBlock>();
-      for ( auto [crypt_entt, crypt_cmp] : crypt_view.each() )
+      auto crypt_entt = find_intersecting_multiblock( door_pos_cmp );
+      if ( crypt_entt != entt::null )
       {
-        if ( not door_pos_cmp.findIntersection( crypt_cmp ) ) continue;
+        auto &crypt_cmp = reg().get<Cmp::Crypt::BuildingMultiBlock>( crypt_entt );
         reg().emplace_or_replace<Cmp::ZOrderValue>( crypt_entt, crypt_cmp.position.y - 16.f );
         if ( reg().any_of<Cmp::Player::NoPath>( crypt_entt ) )
         {
@@ -332,10 +325,10 @@ void CryptSystem::unlock_crypt_door()
     }
     {
       // Set the z-order value
-      auto crypt_view = reg().view<Cmp::Crypt::BuildingMultiBlock>();
-      for ( auto [crypt_entt, crypt_cmp] : crypt_view.each() )
+      auto crypt_entt = find_intersecting_multiblock( door_pos_cmp );
+      if ( crypt_entt != entt::null )
       {
-        if ( not door_pos_cmp.findIntersection( crypt_cmp ) ) continue;
+        auto &crypt_cmp = reg().get<Cmp::Crypt::BuildingMultiBlock>( crypt_entt );
         reg().emplace_or_replace<Cmp::ZOrderValue>( crypt_entt, crypt_cmp.position.y + 16.f );
       }
     }
@@ -587,7 +580,7 @@ void CryptSystem::create_initial_closed_rooms( sf::Vector2u map_grid_size )
     }
 
     // check for intersection with walls
-    if ( !overlaps_existing )
+    if ( not overlaps_existing )
     {
       auto wall_view = reg().view<Cmp::Wall, Cmp::Position>();
       for ( auto [wall_entity, wall_cmp, wall_pos_cmp] : wall_view.each() )
@@ -601,7 +594,7 @@ void CryptSystem::create_initial_closed_rooms( sf::Vector2u map_grid_size )
     }
 
     // check for intersection with start room
-    if ( !overlaps_existing )
+    if ( not overlaps_existing )
     {
       auto start_room_view = reg().view<Cmp::Crypt::RoomStart>();
       for ( auto [start_room_entity, start_room_cmp] : start_room_view.each() )
@@ -615,7 +608,7 @@ void CryptSystem::create_initial_closed_rooms( sf::Vector2u map_grid_size )
     }
 
     // check for intersection with end room
-    if ( !overlaps_existing )
+    if ( not overlaps_existing )
     {
       auto end_room_view = reg().view<Cmp::Crypt::RoomEnd>();
       for ( auto [end_room_entity, end_room_cmp] : end_room_view.each() )
@@ -677,8 +670,6 @@ void CryptSystem::create_initial_closed_rooms( sf::Vector2u map_grid_size )
         }
       }
 
-      SPDLOG_DEBUG( "Added new crypt room entity {}, total rooms: {}, position count {}", entt::to_integral( entity ), room_count,
-                    new_room.m_position_list.size() );
       reg().emplace<Cmp::Crypt::RoomClosed>( new_room_entt, std::move( new_room ) );
       room_count++;
     }
@@ -717,11 +708,28 @@ void CryptSystem::create_end_room( sf::Vector2u map_grid_size )
 
   auto end_room_entity = reg().create();
   reg().emplace_or_replace<Cmp::Crypt::RoomEnd>( end_room_entity,
-                                               sf::Vector2f{ objective_position.position.x - kGridSizePxF.x, objective_position.position.y },
-                                               sf::Vector2f{ objective_position.size.x, objective_position.size.y + ( kGridSizePxF.y * 2.f ) } );
+                                                 sf::Vector2f{ objective_position.position.x - kGridSizePxF.x, objective_position.position.y },
+                                                 sf::Vector2f{ objective_position.size.x, objective_position.size.y + ( kGridSizePxF.y * 2.f ) } );
 }
 
 /// PRIVATE FUNCTIONS
+
+Factory::Obstacle::UUIDEntityMap CryptSystem::build_non_obstacle_uuid_map()
+{
+  Factory::Obstacle::UUIDEntityMap uuid_map;
+  for ( auto [e, uuid] : reg().view<Cmp::UUID>().each() )
+    if ( not reg().all_of<Cmp::Obstacle>( e ) ) uuid_map[uuid] = e;
+  return uuid_map;
+}
+
+entt::entity CryptSystem::find_intersecting_multiblock( const Cmp::Position &pos_cmp )
+{
+  for ( auto [crypt_entt, crypt_cmp] : reg().view<Cmp::Crypt::BuildingMultiBlock>().each() )
+  {
+    if ( pos_cmp.findIntersection( crypt_cmp ) ) return crypt_entt;
+  }
+  return entt::null;
+}
 
 void CryptSystem::decorate_interior_wall( entt::entity main_entt, Cmp::Position &main_pos_cmp, RoomWallType room_wall_type )
 {

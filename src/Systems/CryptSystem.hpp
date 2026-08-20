@@ -112,6 +112,13 @@ public:
   }
 
 private:
+  //! @brief Build a map of Cmp::UUID -> entity for all entities that are not Cmp::Obstacle
+  Factory::Obstacle::UUIDEntityMap build_non_obstacle_uuid_map();
+
+  //! @brief Find the Cmp::Crypt::BuildingMultiBlock entity intersecting the given position
+  //! @return The intersecting entity, or entt::null if none found
+  entt::entity find_intersecting_multiblock( const Cmp::Position &pos_cmp );
+
   void decorate_interior_wall( entt::entity main_entt, Cmp::Position &main_pos_cmp, RoomWallType room_wall_type );
 
   //! @brief Unlock the objective passage
@@ -197,8 +204,6 @@ private:
 
   sf::Clock m_lava_effect_cooldown_timer;
   sf::Time m_lava_effect_cooldown_threshold{ sf::seconds( 1.f ) };
-
-  sf::Clock m_priest_fear_clock;
 
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
   PathFinding::SpatialHashGridWeakPtr m_player_navmesh;
