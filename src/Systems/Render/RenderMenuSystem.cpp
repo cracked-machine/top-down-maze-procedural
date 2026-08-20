@@ -135,7 +135,7 @@ void RenderMenuSystem::render_settings( sf::Time globalDeltaTime )
   title_text.setPosition( { 10.f, 10.f } );
   m_window.draw( title_text );
 
-  sf::Text restore_text( m_font, "Press <R> key to restore defaults", display_size.x / 40 );
+  sf::Text restore_text( m_font, "Press <U> key to undo changes", display_size.x / 40 );
   restore_text.setFillColor( sf::Color::White );
   auto restore_right_align_px = static_cast<float>( display_size.x ) - restore_text.getGlobalBounds().size.x - 10.f;
   restore_text.setPosition( { restore_right_align_px, 30.f } );
@@ -159,6 +159,9 @@ const std::vector<sf::Vector2u> RenderMenuSystem::DisplaySettings::resolutions =
 void RenderMenuSystem::render_settings_widgets( sf::Time dt, sf::FloatRect title_text_dimensions )
 {
   auto padding_px = 10.f;
+  bool resolution_change_pending = false;
+  sf::Vector2u pending_resolution;
+
   // need to make sure we call Update() and Render() every frame
   ImGui::SFML::Update( m_window, dt );
   ImGui::Begin( "Settings", nullptr, kImGuiWindowOptions );
@@ -180,23 +183,14 @@ void RenderMenuSystem::render_settings_widgets( sf::Time dt, sf::FloatRect title
     if ( ImGui::Combo( "Display Resolution", &current_resolution, DisplaySettings::get, nullptr,
                        static_cast<int>( DisplaySettings::resolutions.size() ) ) )
     {
-      // Resolution changed - apply the selected resolution
-      auto &display_resolution = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
-      display_resolution = DisplaySettings::resolutions[current_resolution];
-
-      m_window.create( sf::VideoMode( display_resolution ), "Your Game Title", sf::State::Fullscreen );
-      m_window.setVerticalSyncEnabled( true );
-
-      auto shader_view = reg().view<ShaderSpriteOwner>();
-      for ( auto [entt, shader] : shader_view.each() )
-      {
-        if ( not shader.sprite ) continue;
-        if ( shader.sprite->get_tag() == "TitleShader" )
-        {
-          shader.sprite->resize_texture( display_resolution );
-          SPDLOG_DEBUG( "Selected resolution: {}x{}", display_resolution.x, display_resolution.y );
-        }
-      }
+      // Don't recreate the window here: we're still mid-ImGui-frame (inside Begin/End,
+      // before SFML::Render). Recreating it now tears down the GL context that ImGui-SFML's
+      // font atlas/device objects are bound to without telling the backend, so the rest of
+      // this frame - and every frame after it - renders with stale/dangling GL handles.
+      // Defer the actual window recreation until after the frame has been rendered and
+      // reinitialize ImGui-SFML against the new context (see below).
+      resolution_change_pending = true;
+      pending_resolution = DisplaySettings::resolutions[current_resolution];
     }
 
     ImGui::SeparatorText( "Player Settings" );
@@ -304,6 +298,32 @@ void RenderMenuSystem::render_settings_widgets( sf::Time dt, sf::FloatRect title
   }
   ImGui::End();
   ImGui::SFML::Render( m_window );
+
+  if ( resolution_change_pending )
+  {
+    // Only now, after the frame has been fully rendered with the *old* GL context, is it safe
+    // to tear the window down. ImGui::SFML::Shutdown/Init rebuild the backend's font atlas and
+    // device objects against the new context - skipping this step is what left ImGui-SFML
+    // rendering with dangling GL handles (the cause of the settings menu visually corrupting).
+    auto &display_resolution = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
+    display_resolution = pending_resolution;
+
+    ImGui::SFML::Shutdown( m_window );
+    m_window.create( sf::VideoMode( display_resolution ), "Your Game Title", sf::State::Fullscreen );
+    m_window.setVerticalSyncEnabled( true );
+    if ( not ImGui::SFML::Init( m_window ) ) { SPDLOG_ERROR( "Failed to reinitialize ImGui-SFML after display resolution change" ); }
+
+    auto shader_view = reg().view<ShaderSpriteOwner>();
+    for ( auto [entt, shader] : shader_view.each() )
+    {
+      if ( not shader.sprite ) continue;
+      if ( shader.sprite->get_tag() == "TitleShader" )
+      {
+        shader.sprite->resize_texture( display_resolution );
+        SPDLOG_DEBUG( "Selected resolution: {}x{}", display_resolution.x, display_resolution.y );
+      }
+    }
+  }
 }
 
 void RenderMenuSystem::render_paused( sf::Time dt )

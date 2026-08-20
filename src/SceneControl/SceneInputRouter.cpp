@@ -100,7 +100,7 @@ void SceneInputRouter::settings_scene_state_handler()
     if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::Escape ) { enqueue( Events::SceneManagerEvent::Type::EXIT_SETTINGS_MENU ); }
-      else if ( keyPressed->scancode == sf::Keyboard::Scancode::R ) { get_systems_event_queue().trigger( Events::LoadSettingsEvent() ); }
+      else if ( keyPressed->scancode == sf::Keyboard::Scancode::U ) { get_systems_event_queue().trigger( Events::LoadSettingsEvent() ); }
     }
   }
 }
@@ -114,7 +114,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
     if ( dispatch_common_window_event( *event ) ) continue;
     if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
     {
-      if ( try_handle_debug_key( keyReleased->scancode ) ) { }
+      if ( try_handle_debug_key( keyReleased->scancode ) ) {}
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F5 )
       {
         auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
@@ -195,7 +195,7 @@ void SceneInputRouter::crypt_scene_state_handler()
     if ( dispatch_common_window_event( *event ) ) continue;
     if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
     {
-      if ( try_handle_debug_key( keyReleased->scancode ) ) { }
+      if ( try_handle_debug_key( keyReleased->scancode ) ) {}
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
       {
         // Prevent skipping the death animation and leaving the game in a bad state
@@ -243,7 +243,7 @@ void SceneInputRouter::healing_spring_scene_state_handler()
     if ( dispatch_common_window_event( *event ) ) continue;
     if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
     {
-      if ( try_handle_debug_key( keyReleased->scancode ) ) { }
+      if ( try_handle_debug_key( keyReleased->scancode ) ) {}
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { queue_quit_game_event(); }
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
@@ -274,7 +274,7 @@ void SceneInputRouter::shop_scene_state_handler()
     if ( dispatch_common_window_event( *event ) ) continue;
     if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
     {
-      if ( try_handle_debug_key( keyReleased->scancode ) ) { }
+      if ( try_handle_debug_key( keyReleased->scancode ) ) {}
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { queue_quit_game_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Num1 ) { queue_buy_item_event( 1 ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Num2 ) { queue_buy_item_event( 2 ); }
@@ -310,7 +310,7 @@ void SceneInputRouter::ruin_scene_state_handler()
     if ( dispatch_common_window_event( *event ) ) continue;
     if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
     {
-      if ( try_handle_debug_key( keyReleased->scancode ) ) { }
+      if ( try_handle_debug_key( keyReleased->scancode ) ) {}
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { queue_quit_game_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Space )
       {
@@ -456,10 +456,7 @@ void SceneInputRouter::queue_suicide_event()
   get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::Player::Mortality::State::SUICIDE, Utils::Player::get_position( reg() ) ) );
 }
 
-void SceneInputRouter::queue_buy_item_event( uint8_t item_idx )
-{
-  get_systems_event_queue().enqueue( Events::BuyShopItemEvent( item_idx ) );
-}
+void SceneInputRouter::queue_buy_item_event( uint8_t item_idx ) { get_systems_event_queue().enqueue( Events::BuyShopItemEvent( item_idx ) ); }
 
 void SceneInputRouter::queue_quit_game_event()
 {
