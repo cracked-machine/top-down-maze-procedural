@@ -47,6 +47,7 @@
 #include <Components/Ruin/RuneMarking.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/SelectedPosition.hpp>
+#include <Components/Spring/ActiveHealing.hpp>
 #include <Components/Spring/HealingSpringMultiBlock.hpp>
 #include <Components/Stats/BaseAction.hpp>
 #include <Components/Stats/CarryAction.hpp>
@@ -134,6 +135,7 @@ void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
 
   check_player_mortality();
   check_timed_action_side_effects( dt );
+  create_healing_particles();
 
   if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock() )
   {
@@ -596,10 +598,18 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
       }
 
       // healing spring
+
       Cmp::BaseAction fountain_effects( { +5 }, { -5 }, { -5 }, { -5 }, { -5 }, {} );
-      for ( auto [fountain_entt, fountain_mb_cmp] : reg().view<Cmp::HealingSpringMultiBlock>().each() )
+      for ( auto [fountain_entt, fountain_mb_cmp, fountain_uuid_cmp] : reg().view<Cmp::HealingSpringMultiBlock, Cmp::UUID>().each() )
       {
+
         if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), fountain_mb_cmp ) ) continue;
+
+        if ( Utils::Player::is_player_near( reg(), fountain_mb_cmp ) )
+        {
+          reg().emplace_or_replace<Cmp::HealingSpring::ActiveHealing>( fountain_entt );
+        }
+        else { reg().remove<Cmp::HealingSpring::ActiveHealing>( fountain_entt ); }
 
         float player_distance = Utils::Maths::getEuclideanDistance( fountain_mb_cmp.position, Utils::Player::get_position( reg() ).position );
         if ( player_distance > 500 ) continue;
@@ -674,6 +684,40 @@ void PlayerSystem::check_player_max_fear_despair()
             Utils::Player::get_mortality( reg() ).state != Cmp::Player::Mortality::State::DEAD )
   {
     on_player_mortality_event( Events::PlayerMortalityEvent( Cmp::Player::Mortality::State::SUICIDE, Utils::Player::get_position( reg() ) ) );
+  }
+}
+
+void PlayerSystem::create_healing_particles()
+{
+  for ( auto [fountain_entt, fountain_mb_cmp, fountain_uuid_cmp] : reg().view<Cmp::HealingSpringMultiBlock, Cmp::UUID>().each() )
+  {
+    if ( not reg().any_of<Cmp::HealingSpring::ActiveHealing>( fountain_entt ) ) continue;
+
+    // Add player healing particle sprite if player is near fountain and doesn't already have PS already, otherwise delete any existing PS.
+    std::vector<entt::entity> player_healing_ps_owner_list;
+    for ( auto [ps_entt, ps_cmp, ps_uuid_cmp] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+    {
+      if ( ps_uuid_cmp != fountain_uuid_cmp ) continue;
+      if ( ps_cmp.sprite->get_tag() == "player.healing.particles" ) player_healing_ps_owner_list.push_back( ps_entt );
+    }
+    if ( Utils::Player::is_player_near( reg(), fountain_mb_cmp ) )
+    {
+      if ( player_healing_ps_owner_list.empty() )
+      {
+        auto player_pos = Utils::Player::get_position( reg() );
+        Factory::Particle::add_player_healing_ps( reg(), "player.healing.particles", 0.3F, 10.f, fountain_uuid_cmp, player_pos.getCenter(),
+                                                  player_pos.y() - 1 );
+      }
+      Factory::Particle::update_position( reg(), fountain_uuid_cmp, Utils::Player::get_position( reg() ).getCenter() );
+    }
+    else
+    {
+      for ( auto ps_entt : player_healing_ps_owner_list )
+      {
+        reg().destroy( ps_entt );
+        m_sound_bank.get_effect( "active_healing" ).stop();
+      }
+    }
   }
 }
 

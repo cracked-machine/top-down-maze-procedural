@@ -81,7 +81,7 @@ bool ActionSystem::is_digging_on_cooldown()
 {
   auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( reg() ).get_value();
   auto *player_dig_cooldown = reg().try_get<Cmp::Player::DiggingCooldown>( Utils::Player::get_entity( reg() ) );
-  return player_dig_cooldown and player_dig_cooldown->getElapsedTime() < sf::seconds( digging_cooldown_amount );
+  return ( player_dig_cooldown != nullptr ) and player_dig_cooldown->getElapsedTime() < sf::seconds( digging_cooldown_amount );
 }
 
 void ActionSystem::check_player_smash_pot()
@@ -106,9 +106,11 @@ void ActionSystem::check_player_smash_pot()
     {
       SPDLOG_INFO( "Found lootable entity at position: [{}, {}]!", loot_pos_cmp.position.x, loot_pos_cmp.position.y );
 
-      // TODO: check player is facing the obstacle
-      // skip this iteration of the loop if player too far away
-      if ( not Utils::Player::is_player_near( reg(), loot_pos_cmp ) ) { continue; }
+      // check player is near obstacle that was mouse-selected
+      if ( not Utils::Player::is_player_near( reg(), loot_pos_cmp ) ) continue;
+
+      // check player is facing the obstacle
+      if ( not Utils::Player::get_projected_position( reg() ).findIntersection( loot_pos_cmp ) ) continue;
 
       reg().emplace_or_replace<Cmp::Player::DiggingCooldown>( Utils::Player::get_entity( reg() ) );
       loot_cmp.hp -= Utils::Maths::to_percent( 100.f, Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( reg() ).get_value() );
@@ -376,9 +378,11 @@ void ActionSystem::check_player_dig_plant_collision()
   {
     if ( mouse_position_bounds.findIntersection( plant_mb_cmp ) )
     {
-      // TODO: check player is facing the obstacle
-      // skip this iteration of the loop if player too far away
-      if ( not Utils::Player::is_player_near( reg(), plant_mb_cmp ) ) { continue; }
+      // check player is near obstacle that was mouse-selected
+      if ( not Utils::Player::is_player_near( reg(), plant_mb_cmp ) ) continue;
+
+      // check player is facing the obstacle
+      if ( not Utils::Player::get_projected_position( reg() ).findIntersection( plant_mb_cmp ) ) continue;
 
       // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
       // Add a new SelectedPosition component to the entity

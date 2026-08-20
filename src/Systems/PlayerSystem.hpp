@@ -88,6 +88,8 @@ private:
   //! @brief Send mortality event if player fear/despair is 100%
   void check_player_max_fear_despair();
 
+  void create_healing_particles();
+
   //! @brief If player is carry suitable weapon did the action event occur in NPC vicinity?
   void check_player_axe_npc_kill();
 

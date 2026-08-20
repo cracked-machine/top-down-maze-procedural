@@ -17,6 +17,8 @@ namespace Game::Factory::Particle
 void add_test( entt::registry &reg, Sys::ParticleSystem &psys, const std::string &tag );
 void add_crypt_altar_ps( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp, sf::Vector2f pos,
                          float zorder );
+void add_player_healing_ps( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp, sf::Vector2f pos,
+                            float zorder );
 void add_watchman_gunfire_ps( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp, sf::Vector2f pos,
                               float zorder );
 void add_rune_ps( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp, sf::Vector2f pos,
@@ -32,6 +34,11 @@ void add_shockwave( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid
 
 void delete_expired_particle_sprites( entt::registry &reg, const std::string &search_pattern );
 void update_position( entt::registry &reg, const std::string &search_pattern, sf::Vector2f pos );
+
+//! @brief Update the particle sprite position so that it follows `pos`
+//! @param reg
+//! @param uuid_cmp
+//! @param pos
 void update_position( entt::registry &reg, Cmp::UUID uuid_cmp, sf::Vector2f pos );
 
 } // namespace Game::Factory::Particle

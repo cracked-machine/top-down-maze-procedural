@@ -137,7 +137,7 @@ void RuinSceneLowerFloor::on_enter()
   m_persistent_sys.initialize_component_registry();
   m_persistent_sys.load_state();
 
-  m_sound_bank.get_music( "game_music" ).stop();
+  m_sound_bank.get_music( "graveyard_music" ).stop();
 
   auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( m_reg );
   if ( inventory_type != "sprite.item.witchesjar" )

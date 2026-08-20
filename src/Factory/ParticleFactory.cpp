@@ -1,6 +1,7 @@
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Particle/CryptAltarParticleSprite.hpp>
 #include <Components/Particle/ObstacleDigParticleSprite.hpp>
+#include <Components/Particle/PlayerHealingParticleSprite.hpp>
 #include <Components/Particle/RuneParticleSprite.hpp>
 #include <Components/Particle/ShockWave.hpp>
 #include <Components/Particle/SpriteTest.hpp>
@@ -45,6 +46,24 @@ void add_crypt_altar_ps( entt::registry &reg, const std::string &tag, float life
   auto entt = reg.create();
   reg.emplace_or_replace<Sys::ParticleSpriteOwner>( entt,
                                                     Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::CryptAltarParticleSprite>( ps ) ) );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
+  reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
+  SPDLOG_DEBUG( "Created flame ParticleSprite {}", static_cast<uint32_t>( entt ) );
+}
+
+void add_player_healing_ps( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp, sf::Vector2f pos,
+                            float zorder )
+{
+  auto ps = Cmp::Particle::PlayerHealingParticleSprite( 100 );
+  ps.set_tag( tag );
+  ps.set_emitter_position( pos );
+  ps.set_lifetime_ms( std::uniform_int_distribution<int>( 0, sf::seconds( lifetime_seconds ).asMilliseconds() ) );
+  ps.set_speed( std::uniform_real_distribution<float>( 1.f, speed ) );
+  ps.set_angle( std::uniform_real_distribution<float>( 1.f, 360.f ) );
+
+  auto entt = reg.create();
+  reg.emplace_or_replace<Sys::ParticleSpriteOwner>( entt,
+                                                    Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::PlayerHealingParticleSprite>( ps ) ) );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
   reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
   SPDLOG_DEBUG( "Created flame ParticleSprite {}", static_cast<uint32_t>( entt ) );
@@ -230,11 +249,10 @@ void update_position( entt::registry &reg, const std::string &search_pattern, sf
 
 void update_position( entt::registry &reg, Cmp::UUID uuid_cmp, sf::Vector2f pos )
 {
-  // update the position so that it follows player
-  for ( auto [smoke_entt, smoke_ps_cmp, ps_uuid_cmp] : reg.view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+  for ( auto [ps_entt, ps_cmp, ps_uuid_cmp] : reg.view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
   {
     if ( ps_uuid_cmp != uuid_cmp ) continue;
-    smoke_ps_cmp.sprite->set_emitter_position( pos );
+    ps_cmp.sprite->set_emitter_position( pos );
   }
 }
 

@@ -208,10 +208,10 @@ void GraveyardScene::on_enter()
   m_persistent_sys.load_state();
 
   m_sound_bank.get_music( "title_music" ).stop();
-  if ( m_sound_bank.get_music( "game_music" ).getStatus() != sf::Sound::Status::Playing )
+  if ( m_sound_bank.get_music( "graveyard_music" ).getStatus() != sf::Sound::Status::Playing )
   {
-    m_sound_bank.get_music( "game_music" ).play();
-    m_sound_bank.get_music( "game_music" ).setLooping( true );
+    m_sound_bank.get_music( "graveyard_music" ).play();
+    m_sound_bank.get_music( "graveyard_music" ).setLooping( true );
   }
 
   // prevent residual lerp movements from previous scene causing havoc in the new one
@@ -243,7 +243,7 @@ void GraveyardScene::on_exit()
 {
   SPDLOG_INFO( "Exiting {}", get_name() );
   m_reg.clear();
-  m_sound_bank.get_music( "game_music" ).stop();
+  m_sound_bank.get_music( "graveyard_music" ).stop();
   m_sound_bank.get_music( "title_music" ).play();
 
   auto &m_player_sys = m_sys.find<Sys::Store::Type::PlayerSystem>();
@@ -254,7 +254,7 @@ void GraveyardScene::on_exit()
     floor_cmp.clear();
   }
 
-  m_sound_bank.get_music( "game_music" ).stop();
+  m_sound_bank.get_music( "graveyard_music" ).stop();
 }
 
 void GraveyardScene::do_update( sf::Time dt )

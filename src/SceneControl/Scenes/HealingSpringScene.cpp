@@ -20,6 +20,7 @@
 #include <Systems/FootstepSystem.hpp>
 #include <Systems/HealingSpringSystem.hpp>
 #include <Systems/LootSystem.hpp>
+#include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/PlayerSystem.hpp>
@@ -82,7 +83,12 @@ void HealingSpringScene::on_init()
 void HealingSpringScene::on_enter()
 {
   SPDLOG_INFO( "Entering {}", get_name() );
-  m_sound_bank.get_music( "game_music" ).stop();
+  m_sound_bank.get_music( "graveyard_music" ).stop();
+  if ( m_sound_bank.get_music( "healing_spring" ).getStatus() != sf::Sound::Status::Playing )
+  {
+    m_sound_bank.get_music( "healing_spring" ).play();
+    m_sound_bank.get_music( "healing_spring" ).setLooping( true );
+  }
 
   auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
   m_persistent_sys.initialize_component_registry();
@@ -100,11 +106,15 @@ void HealingSpringScene::on_enter()
   // prevent the player from wandering off before the scene has loaded
   auto &player_dir = Utils::Player::get_direction( m_reg );
   player_dir = Cmp::Direction{ { 0.f, 0.f } };
+
+  // no blink/cooldown in the healing spring is required
+  m_sys.find<Sys::Store::Type::PlayerSystem>().force_expire_damage_cooldown();
 }
 
 void HealingSpringScene::on_exit()
 {
   SPDLOG_INFO( "Exiting {}", get_name() );
+  m_sound_bank.get_music( "healing_spring" ).stop();
   m_reg.clear();
 
   // Hide the sudden position update/camera pan behind a forced loading screen.
@@ -121,6 +131,7 @@ void HealingSpringScene::do_update( sf::Time dt )
   // m_sys.find<Sys::Store::Type::HealingSpringSystem>().check_inventory_deposit( dt );
 
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
+  m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
   m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_generic_npc_navmesh );
