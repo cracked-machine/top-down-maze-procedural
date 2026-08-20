@@ -5,6 +5,7 @@
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/Altar/MultiBlock.hpp>
 #include <Components/AnimData.hpp>
+#include <Components/Crypt/Chest.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Exit.hpp>
 #include <Components/FootStepTimer.hpp>
@@ -1016,6 +1017,13 @@ void PlayerSystem::on_player_action_event( Game::Events::PlayerActionEvent ev )
 
   if ( ev.action == Events::PlayerActionEvent::GameActions::DROP_CARRYITEM )
   {
+    // if player is standing next to a Cmp::Crypt::Chest let them open it without dropping the inventory item
+    for ( auto [chest_entt, chest_cmp, chest_pos_cmp] : reg().view<Cmp::Crypt::Chest, Cmp::Position>().each() )
+    {
+      if ( not Utils::Player::is_player_near( reg(), chest_pos_cmp ) ) continue;
+      return;
+    }
+
     if ( m_inventory_cooldown_timer.getElapsedTime() < sf::milliseconds( 750.f ) ) return;
 
     auto player_pos = Cmp::RectBounds::scaled( Utils::Player::get_position( reg() ), 0.5 );

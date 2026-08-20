@@ -100,7 +100,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
   auto common_activation = [&]( SacrificeAnimType sacrifice_anim_type )
   {
     Sprites::SpriteMetaType sprite_type = ( sacrifice_anim_type == SacrificeAnimType::KEY ) ? "sprite.graveyard.altar.key.anim"
-                                                                                             : "sprite.graveyard.altar.relic.anim";
+                                                                                            : "sprite.graveyard.altar.relic.anim";
 
     Factory::Player::destroy_inventory( reg(), sacrifice_type );
 
@@ -135,6 +135,8 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
 
     if ( anim_cmp->m_sprite_type == "sprite.crypt.altar.inactive" )
     {
+      if ( not Utils::Player::get_projected_position( reg() ).findIntersection( altar_cmp ) ) return;
+
       // player gains extra life protection
       anim_cmp->m_sprite_type = "sprite.crypt.altar.active";
       Factory::Particle::add_crypt_altar_ps( m_reg, "crypt.altar.particles", 0.5, 25.f, *altar_uuid_cmp,
@@ -167,8 +169,8 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
     if ( sacrifice_type.contains( "sprite.item.relic" ) )
     {
       uint8_t sacrifice_count = altar_cmp.get_sacrifice_count();
-      reg().patch<Cmp::Altar::MultiBlock>(
-          altar_entity, [&]( Cmp::Altar::MultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( sacrifice_count + 1 ); } );
+      reg().patch<Cmp::Altar::MultiBlock>( altar_entity,
+                                           [&]( Cmp::Altar::MultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( sacrifice_count + 1 ); } );
       Factory::Particle::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[sacrifice_count], 5000 );
       SPDLOG_DEBUG( "Altar activated to state {}.", sacrifice_count + 1 );
 

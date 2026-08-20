@@ -1,8 +1,8 @@
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Direction.hpp>
-#include <Components/Inventory/WearLevel.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
+#include <Components/Inventory/WearLevel.hpp>
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/LastDirection.hpp>
 #include <Components/LerpPosition.hpp>
@@ -16,8 +16,8 @@
 #include <Components/Player/Mortality.hpp>
 #include <Components/Player/RuinLocation.hpp>
 #include <Components/Player/SpeedPenalty.hpp>
-#include <Components/Player/Wealth.hpp>
 #include <Components/Player/TorchRadius.hpp>
+#include <Components/Player/Wealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/SpawnArea.hpp>
@@ -256,9 +256,9 @@ Cmp::Position get_projected_position( entt::registry &reg )
 {
   auto player_pos = get_position( reg );
   auto player_last_direction = get_last_direction( reg );
-  return Cmp::Position( { player_pos.getCenter().x + ( player_last_direction.x * Constants::kGridSizePxF.x ),
-                           player_pos.getCenter().y + ( player_last_direction.y * Constants::kGridSizePxF.y ) },
-                         { 1.f, 1.f } );
+  return { { player_pos.getCenter().x + ( player_last_direction.x * Constants::kGridSizePxF.x ),
+             player_pos.getCenter().y + ( player_last_direction.y * Constants::kGridSizePxF.y ) },
+           { 1.f, 1.f } };
 }
 
 Cmp::Player::CadaverCount &get_cadaver_count( entt::registry &reg )
