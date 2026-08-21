@@ -205,7 +205,7 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
   using namespace Sys;
   m_sys.find<Store::Type::AnimSystem>().update( dt );
   m_sys.find<Store::Type::NpcSystem>().update( dt );
-  m_sys.find<Sys::Store::Type::FootstepSystem>().update();
+  m_sys.find<Sys::Store::Type::FootstepSystem>().update( Sys::FootstepSystem::FootStepSfx::NONE );
   m_sys.find<Store::Type::LootSystem>().check_loot_collision();
   m_sys.find<Store::Type::RuinSystem>().check_floor_access_collision( Cmp::Ruin::FloorAccess::Direction::TO_UPPER );
   m_sys.find<Store::Type::RuinSystem>().check_movement_slowdowns();
@@ -213,7 +213,7 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Store::Type::RuinSystem>().check_puzzle_status();
   m_sys.find<Store::Type::ActionSystem>().update( dt );
 
-  m_sys.find<Store::Type::PlayerSystem>().update( dt, Sys::PlayerSystem::FootStepSfx::NONE );
+  m_sys.find<Store::Type::PlayerSystem>().update( dt );
 
   auto [_, map_size_pixel] = m_scene_data->map_size();
 

@@ -143,6 +143,7 @@ void CryptScene::on_exit()
   // Cleanup any resources or entities specific to the CryptScene
   SPDLOG_INFO( "Exiting {}", get_name() );
   Factory::Crypt::destroy_crypt_shuffle_timer( m_reg );
+  m_sys.find<Sys::Store::Type::FootstepSystem>().stop_footsteps_sound();
 
   Factory::Player::remove_player_extra_life( m_reg );
 

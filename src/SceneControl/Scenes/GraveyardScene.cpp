@@ -250,8 +250,7 @@ void GraveyardScene::on_exit()
   m_sound_bank.get_music( "graveyard_music" ).stop();
   m_sound_bank.get_music( "title_music" ).play();
 
-  auto &m_player_sys = m_sys.find<Sys::Store::Type::PlayerSystem>();
-  m_player_sys.stop_footsteps_sound();
+  m_sys.find<Sys::Store::Type::FootstepSystem>().stop_footsteps_sound();
 
   for ( auto [floor_entt, floor_cmp] : m_reg.view<Sprites::Containers::VertexFloor>().each() )
   {

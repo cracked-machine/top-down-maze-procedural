@@ -2,6 +2,7 @@
 
 #include <Audio/SoundBank.hpp>
 #include <SceneControl/Events/ProcessGameoverSceneInputEvent.hpp>
+#include <Systems/FootstepSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/Render/RenderMenuSystem.hpp>
@@ -24,8 +25,7 @@ void GameOverScene::on_exit()
   SPDLOG_INFO( "Exiting {}", get_name() );
   m_reg.clear();
 
-  auto &m_player_sys = m_sys.find<Sys::Store::Type::PlayerSystem>();
-  m_player_sys.stop_footsteps_sound();
+  m_sys.find<Sys::Store::Type::FootstepSystem>().stop_footsteps_sound();
 }
 
 void GameOverScene::do_update( [[maybe_unused]] sf::Time dt )

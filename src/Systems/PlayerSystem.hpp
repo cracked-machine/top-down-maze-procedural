@@ -42,14 +42,7 @@ public:
   }
 
   //! @brief Update the player system.
-  void update( sf::Time dt, FootStepSfx footstep_sfx = FootStepSfx::GRAVEL );
-
-  //! @brief
-  //! @param type
-  void play_footsteps_sound( FootStepSfx type );
-
-  //! @brief
-  void stop_footsteps_sound();
+  void update( sf::Time dt );
 
   //! @brief
   void disable_damage_cooldown();

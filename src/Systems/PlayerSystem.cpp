@@ -114,7 +114,7 @@ PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprit
   std::ignore = get_systems_event_queue().sink<Events::DropInventoryEvent>().connect<&PlayerSystem::on_drop_inventory_event>( this );
 }
 
-void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
+void PlayerSystem::update( sf::Time dt )
 {
   update_player_no_path_cmp( dt );
 
@@ -135,7 +135,6 @@ void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
     update_player_animation();
 
     Utils::Player::get_zorder( reg() ).setZOrder( Utils::Player::get_position( reg() ).position.y );
-    Utils::Player::get_direction( reg() ) == sf::Vector2f( 0.f, 0.f ) ? stop_footsteps_sound() : play_footsteps_sound( footstep_sfx );
   }
 
   check_player_mortality();
@@ -150,31 +149,6 @@ void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
   {
     open_navmesh->update( Utils::Player::get_entity( reg() ), old_player_pos, Utils::Player::get_position( reg() ) );
   }
-}
-
-void PlayerSystem::play_footsteps_sound( FootStepSfx type )
-{
-  switch ( type )
-  {
-    case FootStepSfx::NONE:
-      break;
-    case FootStepSfx::GRAVEL: {
-      // Restarting prematurely creates a stutter effect, so check first
-      auto &footsteps = m_sound_bank.get_effect( "footsteps" );
-      if ( footsteps.getStatus() == sf::Sound::Status::Playing ) return;
-      footsteps.play();
-      break;
-    }
-    case FootStepSfx::FLOORBOARDS: {
-      break;
-    }
-  }
-}
-
-void PlayerSystem::stop_footsteps_sound()
-{
-  // add more footstep sfx here when needed
-  m_sound_bank.get_effect( "footsteps" ).stop();
 }
 
 void PlayerSystem::disable_damage_cooldown()
@@ -503,7 +477,6 @@ void PlayerSystem::check_player_mortality()
       {
         SPDLOG_DEBUG( "Player has progressed to deadness." );
         reg().remove<Cmp::Player::PostDeathTimeout>( entity );
-        stop_footsteps_sound();
 
         m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::GAME_OVER );
       }
@@ -1163,7 +1136,6 @@ void PlayerSystem::on_player_mortality_event( Game::Events::PlayerMortalityEvent
   {
     reg().emplace_or_replace<Cmp::Player::PostDeathTimeout>( Utils::Player::get_entity( reg() ) );
     reg().emplace_or_replace<Cmp::NoRender>( Utils::Player::get_entity( reg() ) );
-    stop_footsteps_sound();
     Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ -100 }, {}, {}, {}, {}, {} } );
     SPDLOG_INFO( "Player death code: {}", static_cast<uint8_t>( ev.m_new_state ) );
     Utils::Player::get_mortality( reg() ).state = Cmp::Player::Mortality::State::DEAD;

@@ -1,3 +1,4 @@
+#include <Audio/SoundBank.hpp>
 #include <Components/AbsoluteOffset.hpp>
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/AnimData.hpp>
@@ -14,6 +15,7 @@
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Utils/Constants.hpp>
+#include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
 
 #include <SFML/System/Time.hpp>
@@ -47,6 +49,35 @@ std::optional<FootstepVariant> footstep_variant_for( const sf::Vector2f &dir )
 
 namespace Game::Sys
 {
+
+void FootstepSystem::update( FootStepSfx footstep_sfx )
+{
+
+  // add new footstep for player
+  auto player_view = reg().view<Cmp::Player::Character, Cmp::Position, Cmp::Direction>();
+  for ( auto [entity, player, pos_cmp, dir_cmp] : player_view.each() )
+  {
+    if ( dir_cmp == sf::Vector2f( 0.0f, 0.0f ) ) { continue; }
+    add_footstep( pos_cmp, dir_cmp );
+  }
+
+  static const unsigned int kFootstepFadeFactor{ 1 };
+  auto view = reg().view<Cmp::FootStepTimer, Cmp::FootStepAlpha>();
+  for ( auto [entity, timer, alpha] : view.each() )
+  {
+    if ( timer.m_clock.getElapsedTime() > sf::seconds( Sys::PersistSystem::get<Cmp::Persist::PlayerFootstepFadeDelay>( reg() ).get_value() ) )
+    {
+      alpha.m_alpha -= kFootstepFadeFactor;
+      if ( alpha.m_alpha <= 0 )
+      {
+        SPDLOG_DEBUG( "Removing footstep entity {}", int( entity ) );
+        reg().destroy( entity );
+      }
+    }
+  }
+
+  Utils::Player::get_direction( reg() ) == sf::Vector2f( 0.f, 0.f ) ? stop_footsteps_sound() : play_footsteps_sound( footstep_sfx );
+}
 
 void FootstepSystem::on_pause()
 {
@@ -113,31 +144,29 @@ void FootstepSystem::add_footstep( const Cmp::Position &pos, const Cmp::Directio
   }
 }
 
-void FootstepSystem::update()
+void FootstepSystem::play_footsteps_sound( FootStepSfx type )
 {
-
-  // add new footstep for player
-  auto player_view = reg().view<Cmp::Player::Character, Cmp::Position, Cmp::Direction>();
-  for ( auto [entity, player, pos_cmp, dir_cmp] : player_view.each() )
+  switch ( type )
   {
-    if ( dir_cmp == sf::Vector2f( 0.0f, 0.0f ) ) { continue; }
-    add_footstep( pos_cmp, dir_cmp );
-  }
-
-  static const unsigned int kFootstepFadeFactor{ 1 };
-  auto view = reg().view<Cmp::FootStepTimer, Cmp::FootStepAlpha>();
-  for ( auto [entity, timer, alpha] : view.each() )
-  {
-    if ( timer.m_clock.getElapsedTime() > sf::seconds( Sys::PersistSystem::get<Cmp::Persist::PlayerFootstepFadeDelay>( reg() ).get_value() ) )
-    {
-      alpha.m_alpha -= kFootstepFadeFactor;
-      if ( alpha.m_alpha <= 0 )
-      {
-        SPDLOG_DEBUG( "Removing footstep entity {}", int( entity ) );
-        reg().destroy( entity );
-      }
+    case FootStepSfx::NONE:
+      break;
+    case FootStepSfx::GRAVEL: {
+      // Restarting prematurely creates a stutter effect, so check first
+      auto &footsteps = m_sound_bank.get_effect( "footsteps" );
+      if ( footsteps.getStatus() == sf::Sound::Status::Playing ) return;
+      footsteps.play();
+      break;
+    }
+    case FootStepSfx::FLOORBOARDS: {
+      break;
     }
   }
+}
+
+void FootstepSystem::stop_footsteps_sound()
+{
+  // add more footstep sfx here when needed
+  m_sound_bank.get_effect( "footsteps" ).stop();
 }
 
 } // namespace Game::Sys

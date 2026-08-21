@@ -3,6 +3,7 @@
 #include <Components/Player/Wealth.hpp>
 #include <SceneControl/Events/ProcessLevelCompleteSceneInputEvent.hpp>
 #include <SceneControl/Scenes/LevelCompleteScene.hpp>
+#include <Systems/FootstepSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/Render/RenderMenuSystem.hpp>
@@ -29,9 +30,7 @@ void LevelCompleteScene::on_exit()
 {
   SPDLOG_INFO( "Exiting {}", get_name() );
   m_reg.clear();
-
-  auto &player_sys = m_sys.find<Sys::Store::Type::PlayerSystem>();
-  player_sys.stop_footsteps_sound();
+  m_sys.find<Sys::Store::Type::FootstepSystem>().stop_footsteps_sound();
 }
 
 void LevelCompleteScene::do_update( sf::Time dt )

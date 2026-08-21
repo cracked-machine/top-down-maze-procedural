@@ -112,6 +112,8 @@ void ShopScene::on_exit()
   SPDLOG_INFO( "Exiting {}", get_name() );
   m_reg.clear();
 
+  m_sys.find<Sys::Store::Type::FootstepSystem>().stop_footsteps_sound();
+
   // Hide the sudden position update/camera pan behind a forced loading screen.
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 }

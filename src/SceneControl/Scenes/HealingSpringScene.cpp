@@ -115,6 +115,7 @@ void HealingSpringScene::on_exit()
 {
   SPDLOG_INFO( "Exiting {}", get_name() );
   m_sound_bank.get_music( "healing_spring" ).stop();
+  m_sys.find<Sys::Store::Type::FootstepSystem>().stop_footsteps_sound();
   m_reg.clear();
 
   // Hide the sudden position update/camera pan behind a forced loading screen.
