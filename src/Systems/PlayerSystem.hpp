@@ -1,17 +1,19 @@
 #ifndef SRC_SYSTEMS_PLAYERSYSTEM_HPP__
 #define SRC_SYSTEMS_PLAYERSYSTEM_HPP__
 
+#include <Components/Direction.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <entt/entity/fwd.hpp>
+#include <optional>
 
 // clang-format off
 namespace Game::Events { class DropInventoryEvent; class PlayerActionEvent; class PlayerMortalityEvent; }
 namespace Game::Sprites { class SpriteSheet; }
-namespace Game::Cmp { class Direction; class LerpPosition; class Position; class AnimData; class RectBounds; }
+namespace Game::Cmp { class LerpPosition; class Position; class AnimData; class RectBounds; }
 namespace Game::Cmp::Npc { class Shockwave; }
 namespace Game::Cmp::Player { class Mortality; }
 namespace Game::Cmp::Peristent { class EffectsVolume; } 
@@ -64,6 +66,16 @@ public:
   void on_resume() override {}
 
 private:
+  //! @brief True while a recent push/pull obstacle move is still suppressing player movement.
+  bool movement_suppressed();
+
+  //! @brief Computes the scaled movement vector for the current frame from the player's raw input
+  //! direction. Returns std::nullopt if the player has no directional input.
+  //! @param dt frame delta time
+  //! @param apply_speed_penalty whether to factor in Utils::Player::get_speed_penalty - only the main
+  //!        position update does; push/pull obstacle checks move at the base movement speed
+  std::optional<Cmp::Direction> compute_step_direction( sf::Time dt, bool apply_speed_penalty );
+
   //! @brief
   //! @param dt
   //! @param collision_disabled
@@ -166,9 +178,6 @@ private:
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
   PathFinding::SpatialHashGridWeakPtr m_player_navmesh;
   PathFinding::SpatialHashGridWeakPtr m_open_navmesh;
-
-  //! @brief Prevent the player from moving when running
-  sf::Clock m_movement_suppress_clock{};
 
   //! @brief Hazard cell currently being pushed against by `resolve_hazard_pushback`, or entt::null.
   entt::entity m_hazard_pushback_target;

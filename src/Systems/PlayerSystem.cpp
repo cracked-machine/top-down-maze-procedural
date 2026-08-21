@@ -37,6 +37,7 @@
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <Components/Player/Character.hpp>
 #include <Components/Player/Mortality.hpp>
+#include <Components/Player/MovementSuppressCooldown.hpp>
 #include <Components/Player/NoPath.hpp>
 #include <Components/Player/PostDeathTimeout.hpp>
 #include <Components/Player/TorchRadius.hpp>
@@ -200,6 +201,28 @@ void PlayerSystem::force_expire_damage_cooldown()
   }
 }
 
+bool PlayerSystem::movement_suppressed()
+{
+  auto *suppress_cmp = reg().try_get<Cmp::Player::MovementSuppressCooldown>( Utils::Player::get_entity( reg() ) );
+  if ( not suppress_cmp ) return false;
+
+  auto movement_delay = Sys::PersistSystem::get<Cmp::Persist::PostPullMovementDelay>( reg() );
+  return suppress_cmp->getElapsedTime().asSeconds() < movement_delay.get_value();
+}
+
+std::optional<Cmp::Direction> PlayerSystem::compute_step_direction( sf::Time dt, bool apply_speed_penalty )
+{
+  const Cmp::Direction raw_direction = Utils::Player::get_direction( reg() );
+  if ( raw_direction == sf::Vector2f( 0.f, 0.f ) ) return std::nullopt; // optimization
+
+  auto &player_movement_speed = Sys::PersistSystem::get<Cmp::Persist::PlayerMovementSpeed>( reg() );
+  float speed = player_movement_speed.get_value();
+  if ( apply_speed_penalty ) speed *= Utils::Player::get_speed_penalty( reg() );
+  const float step = speed * dt.asSeconds();
+
+  return raw_direction.componentWiseMul( { step, step } );
+}
+
 void PlayerSystem::move_obstacle( const sf::FloatRect &target_position )
 {
   // check if player can move the obstacle
@@ -309,7 +332,7 @@ void PlayerSystem::move_obstacle( const sf::FloatRect &target_position )
           rune_cmp.active = any_obstacle_on_rune;
         }
       }
-      m_movement_suppress_clock.restart();
+      reg().emplace_or_replace<Cmp::Player::MovementSuppressCooldown>( Utils::Player::get_entity( reg() ) );
       break;
     }
   }
@@ -317,14 +340,11 @@ void PlayerSystem::move_obstacle( const sf::FloatRect &target_position )
 
 void PlayerSystem::check_player_can_push( sf::Time dt )
 {
-  auto movement_delay = Sys::PersistSystem::get<Cmp::Persist::PostPullMovementDelay>( reg() );
-  if ( m_movement_suppress_clock.getElapsedTime().asSeconds() < movement_delay.get_value() ) return;
+  if ( movement_suppressed() ) return;
 
-  const Cmp::Direction raw_direction = Utils::Player::get_direction( reg() );
-  if ( raw_direction == sf::Vector2f( 0.f, 0.f ) ) return; // optimization
-  auto &player_movement_speed = Sys::PersistSystem::get<Cmp::Persist::PlayerMovementSpeed>( reg() );
-  const float step = player_movement_speed.get_value() * dt.asSeconds();
-  const Cmp::Direction direction = raw_direction.componentWiseMul( { step, step } );
+  auto step_direction = compute_step_direction( dt, false );
+  if ( not step_direction ) return;
+  const Cmp::Direction &direction = *step_direction;
 
   const auto player_pos = Utils::Player::get_position( reg() );
   const sf::FloatRect next_horizontal_move( { player_pos.position.x + direction.x, player_pos.position.y }, player_pos.size );
@@ -334,14 +354,11 @@ void PlayerSystem::check_player_can_push( sf::Time dt )
 }
 void PlayerSystem::check_player_can_pull( sf::Time dt )
 {
-  auto movement_delay = Sys::PersistSystem::get<Cmp::Persist::PostPullMovementDelay>( reg() );
-  if ( m_movement_suppress_clock.getElapsedTime().asSeconds() < movement_delay.get_value() ) return;
+  if ( movement_suppressed() ) return;
 
-  const Cmp::Direction raw_direction = Utils::Player::get_direction( reg() );
-  if ( raw_direction == sf::Vector2f( 0.f, 0.f ) ) return; // optimization
-  auto &player_movement_speed = Sys::PersistSystem::get<Cmp::Persist::PlayerMovementSpeed>( reg() );
-  const float step = player_movement_speed.get_value() * dt.asSeconds();
-  const Cmp::Direction direction = raw_direction.componentWiseMul( { step, step } );
+  auto step_direction = compute_step_direction( dt, false );
+  if ( not step_direction ) return;
+  const Cmp::Direction &direction = *step_direction;
 
   const auto player_pos = Utils::Player::get_position( reg() );
   const sf::FloatRect prev_horizontal_move( { player_pos.position.x - direction.x, player_pos.position.y }, player_pos.size );
@@ -352,18 +369,16 @@ void PlayerSystem::check_player_can_pull( sf::Time dt )
 
 void PlayerSystem::update_player_position( sf::Time dt )
 {
-  auto movement_delay = Sys::PersistSystem::get<Cmp::Persist::PostPullMovementDelay>( reg() );
-  if ( m_movement_suppress_clock.getElapsedTime().asSeconds() < movement_delay.get_value() ) return;
+  if ( movement_suppressed() ) return;
 
   Cmp::Position &player_pos = Utils::Player::get_position( reg() );
 
-  const Cmp::Direction raw_direction = Utils::Player::get_direction( reg() );
-  if ( raw_direction == sf::Vector2f( 0.f, 0.f ) ) return; // optimization
-
-  auto &player_movement_speed = Sys::PersistSystem::get<Cmp::Persist::PlayerMovementSpeed>( reg() );
-  float penalised_movement_speed = player_movement_speed.get_value() * Utils::Player::get_speed_penalty( reg() );
-  const float step = penalised_movement_speed * dt.asSeconds();
-  const Cmp::Direction direction = raw_direction.componentWiseMul( { step, step } );
+  auto step_direction = compute_step_direction( dt, true );
+  if ( not step_direction ) return;
+  const Cmp::Direction &direction = *step_direction;
+  // Direction components are always in {-1, 0, 1} (see Cmp::Direction), so the active axis/axes
+  // carry the full step magnitude - recover it here for the edge-nudge clamp below.
+  const float step = std::max( std::abs( direction.x ), std::abs( direction.y ) );
 
   const sf::FloatRect next_horizontal_move( { player_pos.position.x + direction.x, player_pos.position.y }, player_pos.size );
   const sf::FloatRect next_vertical_move( { player_pos.position.x, player_pos.position.y + direction.y }, player_pos.size );
@@ -439,8 +454,7 @@ void PlayerSystem::update_player_position( sf::Time dt )
 void PlayerSystem::update_player_animation()
 {
 
-  auto movement_delay = Sys::PersistSystem::get<Cmp::Persist::PostPullMovementDelay>( reg() );
-  if ( m_movement_suppress_clock.getElapsedTime().asSeconds() < movement_delay.get_value() ) return;
+  if ( movement_suppressed() ) return;
 
   const Cmp::Direction direction_cmp = Utils::Player::get_direction( reg() );
   Cmp::AnimData &anim_cmp = Utils::Player::get_sprite_anim( reg() );
@@ -471,25 +485,24 @@ void PlayerSystem::check_player_mortality()
   auto player_view = reg().view<Cmp::Player::Character, Cmp::Player::Mortality, Cmp::Position>();
   for ( auto [entity, pc_cmp, mortality_cmp, player_pos_cmp] : player_view.each() )
   {
-    auto *player_post_death_timeout = reg().try_get<Cmp::Player::PostDeathTimeout>( Utils::Player::get_entity( reg() ) );
+    auto *player_post_death_timeout = reg().try_get<Cmp::Player::PostDeathTimeout>( entity );
     if ( player_post_death_timeout and player_post_death_timeout->getElapsedTime() < sf::seconds( 5.f ) ) continue;
     if ( mortality_cmp.state == Cmp::Player::Mortality::State::DEAD )
     {
       if ( Utils::Player::player_has_extra_life( reg() ) )
       {
-        Utils::Player::get_position( reg() ).position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( reg() );
+        player_pos_cmp.position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( reg() );
         Factory::Player::remove_player_extra_life( reg() );
         m_sound_bank.get_effect( "player_respawn" ).play();
         Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ 100 }, {}, {}, {}, {}, {} } );
-        Utils::Player::get_mortality( reg() ).state = Cmp::Player::Mortality::State::ALIVE;
+        mortality_cmp.state = Cmp::Player::Mortality::State::ALIVE;
         reg().remove<Cmp::NoRender>( entity );
-        reg().remove<Cmp::Player::PostDeathTimeout>( Utils::Player::get_entity( reg() ) );
+        reg().remove<Cmp::Player::PostDeathTimeout>( entity );
       }
       else
       {
-        // reg().remove<Cmp::AnimData>( Utils::Player::get_entity( reg() ) );
         SPDLOG_DEBUG( "Player has progressed to deadness." );
-        reg().remove<Cmp::Player::PostDeathTimeout>( Utils::Player::get_entity( reg() ) );
+        reg().remove<Cmp::Player::PostDeathTimeout>( entity );
         stop_footsteps_sound();
 
         m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::GAME_OVER );
@@ -781,40 +794,35 @@ void PlayerSystem::check_player_axe_npc_kill()
       m_sound_bank.get_effect( "axe_whip" ).play();
       m_sound_bank.get_effect( "rattling_bones" ).play();
 
-      auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
-      if ( inventory_slot_type == "sprite.item.axe" )
+      auto skelebones_particle_uuid = Cmp::UUID::generate();
+      Factory::Particle::add_skelebones_ps( reg(), "graveyard.skele.bones.particle", 50, 2.f, 50.f, 14.f, skelebones_particle_uuid,
+                                            npc_pos_cmp.getCenter(), npc_pos_cmp.position.y );
+      // drop loot - 1 in 3 chance
+      auto [sprite_type, sprite_index] = m_sprite_factory.get_random_type_and_texture_index(
+          std::vector<std::string>{ "sprite.graveyard.loot.health", "sprite.graveyard.loot.blast", "sprite.graveyard.loot.repair" } );
+
+      Cmp::RandomInt do_drop( 0, 2 );
+      if ( do_drop.gen() == 0 )
       {
+        auto dropped_loot_entt = Factory::Loot::create_loot_drop(
+            reg(), Cmp::AnimData( Cmp::AnimData::Config{ .sprite_type = sprite_type, .enabled = false } ),
+            Cmp::RectBounds::scaled( npc_pos_cmp.position, npc_pos_cmp.size, 2.f ).getBounds(), Factory::IncludePack<>{},
+            Factory::ExcludePack<Cmp::Player::Character, Cmp::ReservedPosition, Cmp::Obstacle>{},
+            Factory::ExcludePack<Cmp::Player::Character, Cmp::ReservedPosition, Cmp::Obstacle>{} );
 
-        auto skelebones_particle_uuid = Cmp::UUID::generate();
-        Factory::Particle::add_skelebones_ps( reg(), "graveyard.skele.bones.particle", 50, 2.f, 50.f, 14.f, skelebones_particle_uuid,
-                                              npc_pos_cmp.getCenter(), npc_pos_cmp.position.y );
-        // drop loot - 1 in 3 chance
-        auto [sprite_type, sprite_index] = m_sprite_factory.get_random_type_and_texture_index(
-            std::vector<std::string>{ "sprite.graveyard.loot.health", "sprite.graveyard.loot.blast", "sprite.graveyard.loot.repair" } );
-
-        Cmp::RandomInt do_drop( 0, 2 );
-        if ( do_drop.gen() == 0 )
+        if ( dropped_loot_entt != entt::null )
         {
-          auto dropped_loot_entt = Factory::Loot::create_loot_drop(
-              reg(), Cmp::AnimData( Cmp::AnimData::Config{ .sprite_type = sprite_type, .enabled = false } ),
-              Cmp::RectBounds::scaled( npc_pos_cmp.position, npc_pos_cmp.size, 2.f ).getBounds(), Factory::IncludePack<>{},
-              Factory::ExcludePack<Cmp::Player::Character, Cmp::ReservedPosition, Cmp::Obstacle>{},
-              Factory::ExcludePack<Cmp::Player::Character, Cmp::ReservedPosition, Cmp::Obstacle>{} );
-
-          if ( dropped_loot_entt != entt::null )
-          {
-            auto player_pos = Utils::Player::get_position( reg() );
-            SPDLOG_INFO( "Player position was at {},{} when loot was dropped", player_pos.position.x, player_pos.position.y );
-            m_sound_bank.get_effect( "drop_loot" ).play();
-          }
+          auto player_pos = Utils::Player::get_position( reg() );
+          SPDLOG_INFO( "Player position was at {},{} when loot was dropped", player_pos.position.x, player_pos.position.y );
+          m_sound_bank.get_effect( "drop_loot" ).play();
         }
+      }
 
-        // now destroy the NPC
-        if ( reg().valid( npc_entity ) )
-        {
-          pathfinding_navmesh->remove( npc_entity, npc_pos_cmp );
-          Factory::Npc::destroy_npc( reg(), npc_entity );
-        }
+      // now destroy the NPC
+      if ( reg().valid( npc_entity ) )
+      {
+        pathfinding_navmesh->remove( npc_entity, npc_pos_cmp );
+        Factory::Npc::destroy_npc( reg(), npc_entity );
       }
 
       SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", npc_pos_cmp.position.x, npc_pos_cmp.position.y );
@@ -869,6 +877,11 @@ void PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entit
     auto [mb_entt, segment_entt_list] = Factory::Multiblock::add_multiblock_with_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>(
         reg(), Utils::snap_to_grid( { pos.x, pos.y - Constants::kGridSizePxF.y } ),
         m_sprite_factory.get_spritesheet_by_type( inventory_slot_cmp->m_item.sprite_type ) );
+
+    // Preserve the item this plant was grown from, so digging it back up (see the DIG handler in
+    // on_player_action_event) can hand it back via the normal pickup_world_item path instead of
+    // having to re-derive an item id from the multiblock's sprite.
+    reg().emplace_or_replace<Cmp::WorldItem>( mb_entt, inventory_slot_cmp->m_item );
 
     // rebuild the m_player_navmesh here
     if ( auto player_navmesh = m_player_navmesh.lock() )
@@ -1102,6 +1115,7 @@ void PlayerSystem::on_player_action_event( Game::Events::PlayerActionEvent ev )
       if ( inventory_view.size() > 0 ) { break; }                                  // don't pickup another if we already have one
 
       // ok pick it up
+      SPDLOG_INFO( "GameActions::DROP_CARRYITEM calling 'pickup_world_item' with entt id {} ", static_cast<uint32_t>( carryitem_entt ) );
       pickup_world_item( reg(), carryitem_entt );
     }
     m_inventory_cooldown_timer.restart();
@@ -1114,6 +1128,7 @@ void PlayerSystem::on_player_action_event( Game::Events::PlayerActionEvent ev )
   }
   else if ( ev.action == Game::Events::PlayerActionEvent::GameActions::DIG )
   {
+    SPDLOG_INFO( "GameActions::DIG calling 'pickup_world_item' with entt id {} ", static_cast<uint32_t>( ev.m_entt ) );
     if ( reg().valid( ev.m_entt ) ) pickup_world_item( reg(), ev.m_entt );
   }
 }

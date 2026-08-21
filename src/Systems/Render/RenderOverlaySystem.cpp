@@ -16,9 +16,9 @@
 #include <Components/FootStepTimer.hpp>
 #include <Components/Grave/ExitSegment.hpp>
 #include <Components/Grave/MultiBlock.hpp>
-#include <Components/Grave/Segment.hpp>
 #include <Components/Grave/PlantMultiBlock.hpp>
 #include <Components/Grave/PlantSegment.hpp>
+#include <Components/Grave/Segment.hpp>
 #include <Components/Hazard/CorruptionCell.hpp>
 #include <Components/Hazard/FieldCell.hpp>
 #include <Components/Hazard/SinkholeCell.hpp>
@@ -28,8 +28,9 @@
 #include <Components/Inventory/FlashUIRadius.hpp>
 #include <Components/Inventory/FlashUIWealth.hpp>
 #include <Components/Inventory/Grimoire.hpp>
-#include <Components/Inventory/WearLevel.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
+#include <Components/Inventory/WearLevel.hpp>
+#include <Components/Inventory/WorldItem.hpp>
 #include <Components/LastDirection.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/Moveable.hpp>
@@ -851,6 +852,7 @@ void RenderOverlaySystem::render_ui_entity_inspect()
       if ( reg().all_of<Cmp::Crypt::Entrance>( entity ) ) draw_line( " Entrance", sf::Color::Cyan );
       if ( reg().all_of<Cmp::Ruin::Entrance>( entity ) ) draw_line( " Entrance", sf::Color::Cyan );
       if ( reg().all_of<Cmp::HealingSpringEntrance>( entity ) ) draw_line( " HealingSpringEntrance", sf::Color::Cyan );
+      if ( reg().all_of<Cmp::WorldItem>( entity ) ) draw_line( " WorldItem", sf::Color::Green );
 
       if ( auto *cmp = reg().try_get<Cmp::UUID>( entity ) ) draw_line( " " + cmp->str(), sf::Color::White );
 

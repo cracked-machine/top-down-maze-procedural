@@ -15,12 +15,14 @@
 #include <Components/Grave/PlantMultiBlock.hpp>
 #include <Components/Grave/PlantSegment.hpp>
 #include <Components/Grave/Segment.hpp>
+#include <Components/Inventory/WorldItem.hpp>
 #include <Components/Moveable.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/Persistent/MaxNumCrypts.hpp>
 #include <Components/Player/Character.hpp>
 #include <Components/Position.hpp>
+#include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/BuildingSegment.hpp>
@@ -515,11 +517,9 @@ std::vector<entt::entity> LevelGenerator::gen_random_plants( sf::Vector2u map_gr
     auto [random_entity, random_pos] = Utils::Rnd::get_random_position(
         reg(), {}, Utils::Rnd::ExcludePack<Cmp::Player::Character, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
 
-    // select a random number within the range of possible flora CarryItems
-    auto [rand_plant_type, rnd_plant_idx] = m_sprite_factory.get_random_type_and_texture_index(
-        { "sprite.item.plant1", "sprite.item.plant2", "sprite.item.plant3", "sprite.item.plant4", "sprite.item.plant5", "sprite.item.plant6",
-          "sprite.item.plant7", "sprite.item.plant8", "sprite.item.plant9", "sprite.item.plant10", "sprite.item.plant11", "sprite.item.plant12" } );
-
+    std::vector<std::string> plant_item_type_list{ "item.plant1", "item.plant2", "item.plant3", "item.plant4",  "item.plant5",  "item.plant6",
+                                                   "item.plant7", "item.plant8", "item.plant9", "item.plant10", "item.plant11", "item.plant12" };
+    auto chosen_plant_item_type = plant_item_type_list.at( Cmp::RandomInt( 0, static_cast<int>( plant_item_type_list.size() - 1 ) ).gen() );
     auto world_pos_entt = Utils::get_world_pos_entt( reg(), random_pos );
     if ( world_pos_entt != entt::null )
     {
@@ -527,8 +527,12 @@ std::vector<entt::entity> LevelGenerator::gen_random_plants( sf::Vector2u map_gr
       {
         // now create the plant at a new entt
         auto [mb_entt, _] = Factory::Multiblock::add_multiblock_with_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>(
-            reg(), random_pos.position, m_sprite_factory.get_spritesheet_by_type( rand_plant_type ) );
+            reg(), random_pos.position, m_sprite_factory.get_spritesheet_by_type( "sprite." + chosen_plant_item_type ) );
         SPDLOG_DEBUG( "Created plant at {},{}", random_pos.position.x, random_pos.position.y );
+
+        // Add the worlditem now so we don't have to look it up later when digging up the plant
+        reg().emplace_or_replace<Cmp::WorldItem>( mb_entt, chosen_plant_item_type, "sprite." + chosen_plant_item_type );
+
         assigned_entts.push_back( random_entity );
 
         // Protect every cell covered by this plant: segment entities carry the UUID and
