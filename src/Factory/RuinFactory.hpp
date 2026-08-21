@@ -15,17 +15,37 @@ namespace Game::Factory::Ruin
 {
 
 // void create_staircase( entt::registry &reg, sf::Vector2f spawn_position, const Sprites::SpriteSheet &stairs_ms );
+
+//! @brief Decorate the existing world position entity at `spawn_position` as a ruin bookcase obstacle.
+//! Modifies the existing Position-owning entity rather than creating a new one, so pathfinding stays in sync.
+//! @param reg
+//! @param spawn_position
+//! @param bookcase_ms
+//! @param sprite_index
 void create_bookcase( entt::registry &reg, sf::Vector2f spawn_position, const Sprites::SpriteSheet &bookcase_ms, int sprite_index );
+
+//! @brief Decorate `selected_entt` as a ruin cobweb obstacle.
+//! @param reg
+//! @param selected_entt Entity to attach the cobweb components to.
+//! @param spawn_position
+//! @param cobweb_ms
+//! @param sprite_index
 void create_cobweb( entt::registry &reg, entt::entity selected_entt, sf::Vector2f spawn_position, const Sprites::SpriteSheet &cobweb_ms,
                     int sprite_index );
 
 //! @brief Create a shadow hand entt if none exists
 //! @param reg
-//! @param spawn_position
-//! @param cobweb_ms
+//! @param scene_dimensions Used to position the hand off-screen at the vertical center.
+//! @param hand_ms
 //! @param sprite_index
 void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, const Sprites::SpriteSheet &hand_ms, int sprite_index = 0 );
 
+//! @brief Create a rune marker entity used to mark a hexagram position in a ruin.
+//! @param reg
+//! @param pos
+//! @param zorder
+//! @param sprite_idx
+//! @return The new rune marker entity.
 entt::entity create_rune_marker( entt::registry &reg, Cmp::Position pos, float zorder, size_t sprite_idx );
 
 } // namespace Game::Factory::Ruin

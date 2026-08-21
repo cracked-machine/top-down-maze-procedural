@@ -8,6 +8,10 @@
 namespace Game::Factory::Altar
 {
 
+//! @brief Spawn the one-shot sacrifice animation played on an altar.
+//! @param reg
+//! @param pos Position and size of the animation entity.
+//! @param anim_type Sprite type to play.
 void create_altar_sacrifice_anim( entt::registry &reg, Cmp::Position pos, Sprites::SpriteMetaType anim_type );
 
 } // namespace Game::Factory::Altar

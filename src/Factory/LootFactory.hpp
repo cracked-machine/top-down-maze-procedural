@@ -21,13 +21,28 @@ class SpriteFactory;
 namespace Game::Factory::Loot
 {
 
+//! @brief Turn `entt` into a loot container entity (chest/pot etc.) that can later drop loot.
+//! @param registry
+//! @param entt Entity to attach the loot container components to.
+//! @param pos_cmp
+//! @param sprite_type
+//! @param sprite_tile_idx
+//! @param zorder
 void create_loot_container( entt::registry &registry, entt::entity entt, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
                             std::size_t sprite_tile_idx, float zorder );
 
+//! @brief Remove the components added by create_loot_container(), without destroying the entity.
+//! @param registry
+//! @param loot_entity
 void destroy_loot_container( entt::registry &registry, entt::entity loot_entity );
 
 namespace detail
 {
+//! @brief Whether any entity with component `T` occupies `pos`.
+//! @tparam T Component type to search for.
+//! @param registry
+//! @param pos
+//! @return true if a `T`-tagged entity overlaps `pos`.
 template <typename T>
 bool has_component_at_pos( entt::registry &registry, const Cmp::Position &pos )
 {
@@ -38,6 +53,11 @@ bool has_component_at_pos( entt::registry &registry, const Cmp::Position &pos )
   return false;
 }
 
+//! @brief Whether `pos` is occupied by any entity carrying one of the `SpatialExclude` component types.
+//! @tparam SpatialExclude Component types to check spatially (separate entities at the same position).
+//! @param registry
+//! @param pos
+//! @return true if any excluded component is found at `pos`.
 template <typename... SpatialExclude>
 bool has_any_spatial_excluded_at_pos( entt::registry &registry, const Cmp::Position &pos, ExcludePack<SpatialExclude...> )
 {
@@ -88,9 +108,17 @@ inline entt::entity create_loot_drop( entt::registry &registry, Cmp::AnimData &&
   return entt::null;
 }
 
+//! @brief Destroy a loot drop entity created by create_loot_drop().
+//! @param registry
+//! @param loot_entity
 void destroy_loot_drop( entt::registry &registry, entt::entity loot_entity );
 
-// Iterate and generate loot containers
+//! @brief Scatter loot containers across the map at random unreserved positions.
+//! @param reg
+//! @param sprite_factory Used to pick sprite size/random sprite index for each container.
+//! @param map_grid_size Map size in grid cells; determines how many containers to place.
+//! @param reserved_navmesh Positions already reserved are skipped.
+//! @return The entities that were assigned loot containers.
 std::vector<entt::entity> gen_loot_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size,
                                                PathFinding::SpatialHashGridSharedPtr reserved_navmesh );
 

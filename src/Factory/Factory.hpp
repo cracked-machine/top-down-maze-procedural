@@ -3,13 +3,15 @@
 
 namespace Game::Factory
 {
-// Helper structs for variadic template parameter packs
+//! @brief Tag type wrapping a parameter pack of component types a view must include.
+//! @tparam Types Component types to require.
 template <typename... Types>
 struct IncludePack
 {
 };
 
-// Helper structs for variadic template parameter packs
+//! @brief Tag type wrapping a parameter pack of component types a view must exclude.
+//! @tparam Types Component types to exclude.
 template <typename... Types>
 struct ExcludePack
 {

@@ -20,6 +20,14 @@ namespace Game::Factory::Multiblock
 namespace detail
 {
 
+//! @brief Create the multiblock "root" entity: emplaces the MULTIBLOCK bounds, anim, z-order, UUID and position.
+//! @tparam MULTIBLOCK Multiblock bounds component type.
+//! @param reg
+//! @param entity Entity to emplace the multiblock components onto.
+//! @param uuid Identifier shared with the multiblock's segment entities.
+//! @param pos
+//! @param ss
+//! @param ss_index Sprite frame index within `ss`.
 template <typename MULTIBLOCK>
   requires IsMB<MULTIBLOCK>
 void create_multiblock( entt::registry &reg, entt::entity entity, const Cmp::UUID &uuid, Cmp::Position pos, const Sprites::SpriteSheet &ss,
@@ -52,14 +60,13 @@ void create_multiblock( entt::registry &reg, entt::entity entity, const Cmp::UUI
   // clang-format on
 }
 
-//! @brief
-//! @tparam MULTIBLOCK
-//! @tparam MBSEGMENT
+//! @brief Recompute solid mask, z-order and pathfinding-blocking components for every MBSEGMENT inside `mb_cmp`'s bounds.
+//! @tparam MULTIBLOCK Multiblock bounds component type.
+//! @tparam MBSEGMENT Multiblock segment component type.
 //! @param reg
-//! @param ss
+//! @param ss Sprite sheet providing the solid mask and z-order lookup tables.
 //! @param mb_entt
-//! @param mb_cmp
-//! @return requires&&
+//! @param mb_cmp Multiblock bounds used to find owned segments and their relative grid position.
 template <typename MULTIBLOCK, typename MBSEGMENT>
   requires IsMB<MULTIBLOCK> && IsMBSegment<MBSEGMENT>
 void update_segments( entt::registry &reg, const Sprites::SpriteSheet &ss, [[maybe_unused]] entt::entity mb_entt, MULTIBLOCK mb_cmp )
@@ -100,15 +107,16 @@ void update_segments( entt::registry &reg, const Sprites::SpriteSheet &ss, [[may
   }
 }
 
-//! @brief Create a multiblock segments object
-//! @tparam MULTIBLOCK
-//! @tparam MBSEGMENT
+//! @brief Create one MBSEGMENT entity per world tile inside the multiblock's bounds, tagging the door tile
+//! with the type-appropriate entrance/exit component.
+//! @tparam MULTIBLOCK Multiblock bounds component type.
+//! @tparam MBSEGMENT Multiblock segment component type.
 //! @param reg
 //! @param multiblock_entity
-//! @param uuid
+//! @param uuid Identifier shared with the multiblock root entity.
 //! @param mb_pos_cmp
-//! @param ss
-//! @return requires&&
+//! @param ss Sprite sheet providing the door position and grid size.
+//! @return The newly created segment entities.
 template <typename MULTIBLOCK, typename MBSEGMENT>
   requires IsMB<MULTIBLOCK> && IsMBSegment<MBSEGMENT>
 std::vector<entt::entity> create_multiblock_segments( entt::registry &reg, entt::entity multiblock_entity, const Cmp::UUID &uuid,
@@ -191,15 +199,15 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &reg, entt:
 
 } // namespace detail
 
-//! @brief
-//! @tparam MULTIBLOCK
-//! @tparam MBSEGMENT
+//! @brief Create a multiblock structure (e.g. an altar, crypt building, staircase) along with all of its segments.
+//! @tparam MULTIBLOCK Multiblock bounds component type.
+//! @tparam MBSEGMENT Multiblock segment component type.
 //! @param reg
-//! @param position
+//! @param position World position of the multiblock's origin.
 //! @param ss
-//! @param ss_index
-//! @param zorder
-//! @return requires&&
+//! @param ss_index Sprite frame index within `ss`.
+//! @param zorder Explicit z-order; if 0, falls back to the sprite sheet's json z-order, then to the y-position.
+//! @return The multiblock root entity and its created segment entities.
 template <typename MULTIBLOCK, typename MBSEGMENT>
   requires IsMB<MULTIBLOCK> && IsMBSegment<MBSEGMENT>
 std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments( entt::registry &reg, sf::Vector2f position,

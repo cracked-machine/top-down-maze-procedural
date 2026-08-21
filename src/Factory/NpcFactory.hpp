@@ -22,8 +22,19 @@ class SpriteFactory;
 namespace Game::Factory::Npc
 {
 
+//! @brief Turn `entt` into an NPC spawn container (e.g. bones pile), used to lazily spawn a real NPC later.
+//! @param registry
+//! @param entt Entity to attach the container components to.
+//! @param pos_cmp
+//! @param sprite_type
+//! @param sprite_tile_idx
+//! @param zorder
 void create_npc_container( entt::registry &registry, entt::entity entt, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
                            std::size_t sprite_tile_idx, float zorder );
+
+//! @brief Remove the components added by create_npc_container(), without destroying the entity.
+//! @param registry
+//! @param npc_container_entity
 void destroy_npc_container( entt::registry &registry, entt::entity npc_container_entity );
 
 //! @brief Create a new NPC. Creates a new entity at `position_entity`. Returns the new entity.
@@ -32,14 +43,37 @@ void destroy_npc_container( entt::registry &registry, entt::entity npc_container
 //! @param npc_type
 //! @return entt::entity
 entt::entity create_npc( entt::registry &registry, entt::entity position_entity, const std::string &npc_type );
+
+//! @brief Remove an NPC's components (applying its DestroyAction stat modifiers to the player first).
+//! @param registry
+//! @param npc_entity
+//! @return entt::null. Kept for symmetry with create_npc(); no loot entity is created here.
 entt::entity destroy_npc( entt::registry &registry, entt::entity npc_entity );
 
+//! @brief Create the death animation entity played when an NPC dies.
+//! @param registry
+//! @param npc_position_cmp
+//! @param death_anim
+//! @return The new death animation entity.
 entt::entity create_npc_death_anim( entt::registry &registry, Cmp::Position npc_position_cmp, const Sprites::SpriteMetaType &death_anim );
+
+//! @brief Remove the components added by create_npc_death_anim(), without destroying the entity.
+//! @param registry
+//! @param entity
 void remove_npc_death_anim( entt::registry &registry, entt::entity entity );
 
+//! @brief Emit a shockwave from an NPC (e.g. a priest) if its ShockwaveTimer has exceeded the configured frequency.
+//! @param registry
+//! @param npc_entt Entity carrying the Cmp::Npc::ShockwaveTimer and Cmp::Position.
+//! @return true if a shockwave entity was created.
 bool create_shockwave( entt::registry &registry, entt::entity npc_entt );
 
-// Iterate and generate npc containers
+//! @brief Scatter NPC spawn containers across the map at random unreserved positions.
+//! @param reg
+//! @param sprite_factory Used to pick a random container sprite type/index.
+//! @param map_grid_size Map size in grid cells; determines how many containers to place.
+//! @param reserved_navmesh Positions already reserved are skipped.
+//! @return The entities that were assigned NPC containers.
 std::vector<entt::entity> gen_npc_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size,
                                               PathFinding::SpatialHashGridSharedPtr reserved_navmesh );
 

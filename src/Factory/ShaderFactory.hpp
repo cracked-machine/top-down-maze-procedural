@@ -12,11 +12,34 @@
 namespace Game::Factory::Shader
 {
 
+//! @brief Register the title screen shader.
+//! @param shader_sys
+//! @param display_res
 void add_title( Sys::ShaderSystem &shader_sys, const Cmp::Persist::DisplayResolution &display_res );
+
+//! @brief Register the mist overlay shader, sized to double the map's pixel bounds.
+//! @param shader_sys
+//! @param map_size_pixel
 void add_mist( Sys::ShaderSystem &shader_sys, sf::Vector2f map_size_pixel );
+
+//! @brief Register the flood water shader, sized to double the map's pixel bounds.
+//! @param shader_sys
+//! @param map_size_pixel
 void add_water( Sys::ShaderSystem &shader_sys, sf::Vector2f map_size_pixel );
+
+//! @brief Register the night static/pulsing overlay shader.
+//! @param shader_sys
+//! @param map_size_pixel
 void add_night_static( Sys::ShaderSystem &shader_sys, sf::Vector2f map_size_pixel );
+
+//! @brief Register the dark mode overlay shader.
+//! @param shader_sys
+//! @param map_size_pixel
 void add_dark( Sys::ShaderSystem &shader_sys, sf::Vector2f map_size_pixel );
+
+//! @brief Register the curse (dripping blood) overlay shader.
+//! @param shader_sys
+//! @param map_size_pixel
 void add_curse( Sys::ShaderSystem &shader_sys, sf::Vector2f map_size_pixel );
 
 } // namespace Game::Factory::Shader

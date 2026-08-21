@@ -13,7 +13,7 @@
 namespace Game::Sprites
 {
 
-// This class manages the creation of SpriteSheet objects in the game.
+//! @brief Manages the creation and lookup of SpriteSheet objects in the game.
 class SpriteFactory
 {
 public:
@@ -34,6 +34,9 @@ public:
   //! @return A pair containing the selected SpriteMetaType and its associated texture index
   std::pair<SpriteMetaType, std::size_t> get_random_type_and_texture_index( std::vector<SpriteMetaType> type_list );
 
+  //! @brief Selects a random sprite type from the given list of types.
+  //! @param type_list A selection list of SpriteMetaType values
+  //! @return The selected SpriteMetaType, or "ERROR_SPRITE" if `type_list` is empty.
   SpriteMetaType get_random_type( std::vector<SpriteMetaType> type_list );
 
   //! @brief Get the all sprite types by pattern object
@@ -78,7 +81,9 @@ private:
   //! @throws std::runtime_error if the type is not found
   const SpriteSheet &get_spritedata_by_type( const SpriteMetaType &type, std::source_location loc = std::source_location::current() );
 
-  // Internal use function used by get_random_type_and_texture_index()
+  //! @brief Get the SpriteSheet for a randomly chosen type from `type_list`.
+  //! @param type_list A selection list of SpriteMetaType values
+  //! @return The randomly selected SpriteSheet, or the error sprite if `type_list` is empty.
   const SpriteSheet &get_random_spritedata( std::vector<SpriteMetaType> type_list );
 
   //! @brief Map of sprite types to their corresponding metadata
