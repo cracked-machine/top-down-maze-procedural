@@ -719,7 +719,6 @@ void PlayerSystem::create_healing_particles()
       for ( auto ps_entt : player_healing_ps_owner_list )
       {
         reg().destroy( ps_entt );
-        m_sound_bank.get_effect( "active_healing" ).stop();
       }
     }
   }
