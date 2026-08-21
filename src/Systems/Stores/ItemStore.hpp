@@ -8,9 +8,15 @@
 namespace Game::Sys
 {
 
+//! @brief Singleton store of item metadata (Cmp::WorldItem, keyed by item id) loaded from res/json/items.json.
 class ItemStore : public StoreSingleton<ItemStore, Cmp::WorldItem>
 {
 public:
+  //! @brief Construct a new Item Store object
+  //! @param reg
+  //! @param window
+  //! @param sprite_factory
+  //! @param sound_bank
   ItemStore( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
   ~ItemStore() {}
 

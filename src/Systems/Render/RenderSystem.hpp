@@ -26,6 +26,9 @@ class RectBounds;
 namespace Game::Sys
 {
 
+//! @brief Base class for the game's render systems (RenderGameSystem, RenderMenuSystem, RenderOverlaySystem). Owns the shared world view
+//! and font, and provides common rendering primitives such as safe sprite rendering with fallback squares, text rendering, and
+//! world/screen coordinate conversion.
 class RenderSystem : public BaseSystem
 {
 public:
@@ -116,26 +119,58 @@ protected:
   void render_text( std::string text, unsigned int size, sf::Vector2f position, Alignment align, float letter_spacing = 1.f,
                     sf::Color fill_color = sf::Color::White, sf::Color outline_color = sf::Color::Transparent );
 
-  // Variant that renders to a specific render target (shader, texture, etc.)
+  //! @brief Render a sprite by type/index to an arbitrary render target, drawing a fallback square if the sprite type or index is
+  //! missing.
+  //! @param target
+  //! @param sprite_type
+  //! @param pos_cmp
+  //! @param sprite_index
+  //! @param scale
+  //! @param alpha
+  //! @param origin
+  //! @param angle
   void safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type, const sf::FloatRect &pos_cmp,
                                      std::size_t sprite_index = 0, sf::Vector2f scale = { 1.f, 1.f }, uint8_t alpha = 255,
                                      sf::Vector2f origin = { 0.f, 0.f }, sf::Angle angle = sf::degrees( 0.f ) );
 
-  // Fallback rendering for missing sprites (also target-aware)
+  //! @brief Draw a solid colored square to the given target in place of a missing sprite.
+  //! @param target
+  //! @param pos_cmp
+  //! @param color
   void render_fallback_square_to_target( sf::RenderTarget &target, const sf::FloatRect &pos_cmp, const sf::Color &color = sf::Color::Magenta );
 
-  // Safe sprite accessor that renders a fallback square if sprite is missing
+  //! @brief Render a sprite by type/index in screen view coordinates. Draws a fallback square if the sprite type or index is missing.
+  //! @param sprite_type
+  //! @param position
+  //! @param sprite_index
+  //! @param scale
+  //! @param alpha
+  //! @param origin
+  //! @param angle
   void safe_render_sprite_screen( const std::string &sprite_type, const sf::FloatRect &position, std::size_t sprite_index = 0,
                                   sf::Vector2f scale = { 1.f, 1.f }, uint8_t alpha = 255, sf::Vector2f origin = { 0.f, 0.f },
                                   sf::Angle angle = sf::degrees( 0.f ) );
 
+  //! @brief Render a sprite by type/index in world view coordinates. Draws a fallback square if the sprite type or index is missing.
+  //! @param sprite_type
+  //! @param position
+  //! @param sprite_index
+  //! @param scale
+  //! @param alpha
+  //! @param origin
+  //! @param angle
   void safe_render_sprite_world( const std::string &sprite_type, const sf::FloatRect &position, std::size_t sprite_index = 0,
                                  sf::Vector2f scale = { 1.f, 1.f }, uint8_t alpha = 255, sf::Vector2f origin = { 0.f, 0.f },
                                  sf::Angle angle = sf::degrees( 0.f ) );
 
-  // Fallback rendering for missing sprites
+  //! @brief Draw a solid colored square in world view coordinates in place of a missing sprite.
+  //! @param pos_cmp
+  //! @param color
   void render_fallback_square_world( const sf::FloatRect &pos_cmp, const sf::Color &color = sf::Color::Magenta );
 
+  //! @brief Draw an outlined rectangle for the given bounds in world view coordinates, if visible in the current world view.
+  //! @param bounds
+  //! @param color
   void render_rectbounds( Cmp::RectBounds &bounds, sf::Color color );
 
   //! @brief Common window options for ImGui windows

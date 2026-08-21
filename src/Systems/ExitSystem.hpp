@@ -14,6 +14,12 @@ namespace Game::Sys
 class ExitSystem : public BaseSystem
 {
 public:
+  //! @brief Construct a new Exit System object
+  //! @param reg
+  //! @param window
+  //! @param sprite_factory
+  //! @param sound_bank
+  //! @param scenemanager_event_dispatcher
   ExitSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
               entt::dispatcher &scenemanager_event_dispatcher );
 

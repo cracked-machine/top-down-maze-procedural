@@ -18,6 +18,8 @@ namespace Game::PathFinding{ class SpatialHashGrid; }
 namespace Game::Sys
 {
 
+//! @brief Base class for all game systems. Provides shared access to the entity registry, render
+//! window, sprite factory, sound bank, and the systems-wide event dispatcher.
 class BaseSystem
 {
 public:
@@ -46,21 +48,26 @@ public:
   /// `std::ignore = getEventDispatcher().sink<Events::ResumeClocksEvent>().connect<&Sys::DerivedSystem::onResume>(this);`
   virtual void on_resume() = 0;
 
-  // singleton event dispatcher
-  // Use this to get temporary access to the dispatcher to register event handlers
+  //! @brief Singleton event dispatcher shared by all systems.
+  //! @note Use this to get temporary access to the dispatcher to register event handlers.
   static entt::dispatcher &get_systems_event_queue()
   {
     if ( !m_systems_event_queue ) { m_systems_event_queue = std::make_unique<entt::dispatcher>(); }
     return *m_systems_event_queue;
   }
 
+  //! @brief Get the entity registry.
   entt::registry &reg() { return m_reg.get(); }
+
+  //! @brief Get the entity registry.
   [[nodiscard]] const entt::registry &reg() const { return m_reg.get(); }
+
+  //! @brief Re-point this system at a different registry (called by SceneManager on scene change).
   void reg( entt::registry &reg ) { m_reg = std::ref( reg ); }
 
 protected:
-  // Entity registry: non-owning, re-assignable reference (by SceneManager)
-  // The registry is owned by the current Scene.
+  //! @brief Entity registry: non-owning, re-assignable reference (by SceneManager).
+  //! The registry is owned by the current Scene.
   std::reference_wrapper<entt::registry> m_reg;
 
   //! @brief Non-owning reference to the OpenGL window
@@ -73,7 +80,7 @@ protected:
   Audio::SoundBank &m_sound_bank;
 
 private:
-  // Prevent access to uninitialised dispatcher - use getEventDispatcher()
+  //! @brief Prevent access to uninitialised dispatcher - use get_systems_event_queue()
   static std::unique_ptr<entt::dispatcher> m_systems_event_queue;
 };
 

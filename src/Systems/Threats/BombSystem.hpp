@@ -32,10 +32,16 @@ class SpatialHashGrid;
 namespace Game::Sys
 {
 
-// this currently only supports one bomb at a time
+//! @brief Manages arming, fuse timing and detonation of bombs and their explosion effects.
+//! @note This currently only supports one bomb at a time.
 class BombSystem : public BaseSystem
 {
 public:
+  //! @brief Construct a new Bomb System object
+  //! @param reg
+  //! @param window
+  //! @param sprite_factory
+  //! @param sound_bank
   BombSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief init the weak pointer for the pathfinding navmesh
@@ -48,14 +54,30 @@ public:
     m_ghost_navmesh = ghost_navmesh;
   }
 
+  //! @brief Arm a bomb centered on the player's current position (used for grave bombs).
   void arm_grave_bomb();
+
+  //! @brief Arm a bomb on the destructable tile the player is currently standing on, consuming a bomb item from the player's inventory.
   void arm_player_bomb();
+
+  //! @brief Arm a bomb centered on the given target entity (used for chain-reacting nearby explosives).
+  //! @param target_entt
   void arm_entt( entt::entity target_entt );
 
+  //! @brief Recursively arm all destructable entities in concentric rings out from an epicenter, up to blast_radius layers, in clockwise order per
+  //! layer.
+  //! @param epicenter_entity
+  //! @param blast_radius
+  //! @param depth Current recursion depth; recursion stops once it reaches the internal max recursion depth.
   void place_concentric_bomb_pattern( const entt::entity &epicenter_entity, const int blast_radius, int depth = 0 );
+
+  //! @brief Detonate any armed bombs whose fuse has expired: destroys obstacles, loot containers, npc containers and nearby items, damages the
+  //! player and npcs caught in the blast, triggers chain reactions with other explosives, and replaces the bomb with a detonated sprite.
   void update();
 
   /// EVENTS
+  //! @brief Dispatches DROP_BOMB and GRAVE_BOMB player actions to arm_player_bomb() and arm_grave_bomb() respectively.
+  //! @param event
   void on_bomb_event( const Events::PlayerActionEvent &event );
 
   //! @brief event handlers for pausing system clocks
@@ -64,10 +86,16 @@ public:
   void on_resume() override;
 
 private:
+  //! @brief Maximum extent of an explosion's effect zone (3x3 grid cells).
   const sf::Vector2f max_explosion_zone_size{ Constants::kGridSizePx.x * 3.f, Constants::kGridSizePx.y * 3.f };
 
+  //! @brief Weak pointer to the NPC pathfinding navmesh, updated when obstacles are destroyed by explosions.
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
+
+  //! @brief Weak pointer to the ghost pathfinding navmesh, updated when obstacles are destroyed by explosions.
   PathFinding::SpatialHashGridWeakPtr m_ghost_navmesh;
+
+  //! @brief Weak pointer to the player pathfinding navmesh, updated when obstacles are destroyed by explosions.
   PathFinding::SpatialHashGridWeakPtr m_player_navmesh;
 };
 

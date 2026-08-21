@@ -28,9 +28,17 @@ class SpatialHashGrid;
 namespace Game::Sys
 {
 
+//! @brief Handles the ruin's upper/lower floor transitions, bookcase decoration, rune-marking puzzle,
+//! player curse and the shadow hand hazard.
 class RuinSystem : public BaseSystem
 {
 public:
+  //! @brief Construct a new Ruin System object
+  //! @param reg
+  //! @param window
+  //! @param sprite_factory
+  //! @param sound_bank
+  //! @param scenemanager_event_dispatcher
   RuinSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
               entt::dispatcher &scenemanager_event_dispatcher );
 
@@ -38,12 +46,24 @@ public:
   //! @param pathfinding_navmesh
   void init( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh ) { m_pathfinding_navmesh = pathfinding_navmesh; }
 
+  //! @brief Check for player collision with the ruin entrance
   void check_entrance_collision();
+
+  //! @brief Sync the exit multiblock's z-order to the segment the player is currently standing on.
   void update_exit_zorder();
+
+  //! @brief Create a floor access (staircase) entity at the given position.
+  //! @param spawn_position
+  //! @param size
+  //! @param dir
   void spawn_floor_access( sf::Vector2f spawn_position, sf::Vector2f size, Cmp::Ruin::FloorAccess::Direction dir );
 
+  //! @brief Pan the creaking rope sound effect back and forth over time.
   void creaking_rope_update();
 
+  //! @brief Trigger a floor transition scene event when the player steps onto a floor access tile leading
+  //! in `direction`, debounced by m_floor_access_cooldown.
+  //! @param direction
   void check_floor_access_collision( Cmp::Ruin::FloorAccess::Direction direction );
 
   //! @brief Reset the floor access cooldown (call when entering a ruin scene)
@@ -53,12 +73,25 @@ public:
     m_was_on_floor_access = true; // Assume we just landed on a floor access
   }
 
+  //! @brief Procedurally place rows of bookcase obstacles across the lower floor scene.
+  //! @param scene_dimensions
   void gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions );
 
+  //! @brief Destroy cobweb obstacles surrounded on more than three sides by rune markings, so puzzle runes stay reachable.
+  //! @param non_obstacle_spatialgrid
   void remove_rune_markings_neighbouring_cobwebs( PathFinding::SpatialHashGrid &non_obstacle_spatialgrid );
+
+  //! @brief Apply a player movement speed penalty while standing on ruin staircases.
   void check_movement_slowdowns();
+
+  //! @brief Clear the player's shadow curse and reset the curse-activation future.
   void reset_player_curse();
+
+  //! @brief Check for player collision with the ruin exit
   void check_exit_collision();
+
+  //! @brief Enable/disable the stairs gate depending on whether all rune markings are active, playing a
+  //! secret sound the first time it unlocks.
   void check_puzzle_status();
 
   //! @brief Create a witch entt if none exist
@@ -81,7 +114,12 @@ public:
   //! @return false
   bool check_activate_player_curse( sf::Vector2f scene_dimensions );
 
+  //! @brief Advance the shadow hand NPC's position towards the edge of the scene.
+  //! @param scene_dimensions
   void update_shadow_hand_pos( sf::Vector2f scene_dimensions );
+
+  //! @brief Apply the shadow hand's collision action to the player and trigger death if health reaches zero.
+  //! @param dt
   void check_player_shadow_hand_collision( sf::Time dt );
 
   //! @brief event handlers for pausing system clocks
@@ -95,12 +133,14 @@ private:
 
   //! @brief Cooldown clock to prevent immediate floor access re-triggering
   sf::Clock m_floor_access_cooldown{};
+
   static constexpr float kFloorAccessCooldownSeconds = 0.5f;
 
   //! @brief Track if player was on floor access last frame (requires leaving before re-triggering)
   bool m_was_on_floor_access{ false };
 
   sf::Clock m_creaking_rope_swing_timer{};
+
   std::future<void> m_curse_activation_future;
 
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;

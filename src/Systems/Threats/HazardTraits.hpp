@@ -11,10 +11,12 @@
 namespace Game::Sys
 {
 
+//! @brief Traits describing how a HazardFieldSystem should behave for a given hazard cell component type. Specialized per hazard type.
+//! @tparam T
 template <typename T>
 struct HazardTraits;
 
-// Traits for Sinkhole hazard field types
+//! @brief Traits for Sinkhole hazard field types: kills instantly on contact and excludes corruption cells.
 template <>
 struct HazardTraits<Cmp::SinkholeCell>
 {
@@ -26,7 +28,7 @@ struct HazardTraits<Cmp::SinkholeCell>
   static constexpr int odds = 2;
 };
 
-// Traits for Corruption hazard field types
+//! @brief Traits for Corruption hazard field types: gradually drains health on contact and excludes sinkhole cells.
 template <>
 struct HazardTraits<Cmp::CorruptionCell>
 {

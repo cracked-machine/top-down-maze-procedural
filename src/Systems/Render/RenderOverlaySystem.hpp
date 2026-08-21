@@ -25,9 +25,12 @@ namespace Game::PathFinding { class SpatialHashGrid; }
 namespace Game::Sys
 {
 
+//! @brief Renders everything layered on top of the game world: HUD elements (meters, labels, icons, texts), the shop and grimoire
+//! overlays, and the debug overlay (misc stats, Z-order list, NPC list, entity inspector, navmesh/pathfinding visualisation).
 class RenderOverlaySystem : public RenderSystem
 {
 public:
+  //! @brief Construct a new Render Overlay System object. Loads the main, debug and shop UI layout data from their JSON files.
   RenderOverlaySystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
       : RenderSystem( reg, window, sprite_factory, sound_bank ),
         m_debug_overlay_tex( { 1, 1 } )
@@ -68,38 +71,97 @@ public:
   //! @param spatial_grid_ptr
   void init( const PathFinding::SpatialHashGridSharedPtr &spatial_grid_ptr ) { m_npc_navmesh = spatial_grid_ptr; }
 
+  //! @brief Render the main UI's outline rectangles (e.g. panel borders).
   void render_ui_outlines();
+
+  //! @brief Render the main UI's icons, excluding the inventory icon which is handled by render_ui_inventory_icon.
   void render_ui_icons();
 
   //! @brief Render the sprite in the Inventory UI.
   //! @note ParticleSprites are rendered seperately in RenderGameSystem::render_game
   void render_ui_inventory_icon();
+
+  //! @brief Render the main UI's meters (health, fear, infamy, despair, toxicity, inventory wear) and flash their outline colour on
+  //! recent changes.
+  //! @param dt
   void render_ui_meters( sf::Time dt );
+
+  //! @brief Render the main UI's static text elements.
   void render_ui_texts();
+
+  //! @brief Render the main UI's dynamic labels (blast radius, cadaver count, wealth, current inventory item) and flash their colour on
+  //! recent changes.
+  //! @param dt
   void render_ui_labels( sf::Time dt );
 
+  //! @brief Render the current dungeon level depth text while its display cooldown has not yet elapsed.
   void render_level_depth();
+
+  //! @brief Render the shop UI overlay (outlines, item icons and slot labels) if a Cmp::Shop::Inventory is enabled in the registry.
   void render_shop_inventory_overlay();
+
+  //! @brief Render the grimoire UI overlay listing spell entries and their shown/hidden state, if a Cmp::Grimoire is enabled in the
+  //! registry.
   void render_grimoire_inventory_overlay();
 
+  //! @brief Render the debug "entity_stats" panel: player/mouse position and direction, plus various entity counts.
   void render_ui_misc_stats();
+
+  //! @brief Render the debug "zorder_list" panel: the Z-order and entity id of each queued render entry, excluding a fixed set of
+  //! noisy sprite types.
+  //! @param zorder_queue
   void render_ui_zorder_list( std::vector<ZOrder> &zorder_queue );
+
+  //! @brief Render the debug "npc_list" panel listing each NPC's entity id, position and sprite type.
   void render_ui_npc_list();
 
+  //! @brief Render the start/target squares of every NPC's in-progress lerp movement.
   void render_lerp_positions();
+
+  //! @brief Draw an outlined square in world view coordinates.
+  //! @param pos
+  //! @param size
+  //! @param color
   void render_square( sf::Vector2f pos, sf::Vector2f size, sf::Color color );
 
+  //! @brief Render the countdown until the crypt maze next shuffles, if the shuffle timer has not already expired.
+  //! @param pos
+  //! @param size
   void render_crypt_maze_timer( sf::Vector2f pos, unsigned int size );
 
+  //! @brief Draw a small wear-level bar above an item, filled proportionally to `wearlevel`.
+  //! @param wearlevel
+  //! @param pos
   void render_wear_level( float wearlevel, const Cmp::Position &pos );
+
+  //! @brief Draw an outlined square around each spatial hash grid neighbour of `query_pos`, excluding the player and NPCs.
+  //! @param query_pos
+  //! @param color
+  //! @param query_compass
   void render_spatial_grid_neighbours( const Cmp::Position &query_pos, sf::Color color, PathFinding::QueryCompass query_compass );
+
+  //! @brief Draw an outlined square for each node of the A* path between `start_pos_cmp` and `end_pos_cmp`, if the start position is
+  //! visible in the world view.
+  //! @param start_pos_cmp
+  //! @param end_pos_cmp
+  //! @param color
+  //! @param query_compass
   void render_pathfinding_vector( const Cmp::Position &start_pos_cmp, const Cmp::Position &end_pos_cmp, sf::Color color,
                                   PathFinding::QueryCompass query_compass );
 
+  //! @brief Debug-draw the spatial hash grid navmesh: the neighbour bucket size and cell edges at every position in view.
+  //! @param npc_navmesh
   void render_navmesh( PathFinding::SpatialHashGridSharedPtr npc_navmesh );
 
+  //! @brief Render the debug "inspect_list" panel: a breakdown of the components and stats of the entity currently under the mouse
+  //! cursor.
   void render_ui_entity_inspect();
 
+  //! @brief Draw an outlined square over the entity's Cmp::Position, if it also has the given Component.
+  //! @tparam Component
+  //! @param entity
+  //! @param square_color
+  //! @param square_thickness
   template <typename Component>
   void render_square_for_entity( entt::entity entity, sf::Color square_color = sf::Color::Red, float square_thickness = 1.f )
   {
@@ -117,6 +179,10 @@ public:
     }
   }
 
+  //! @brief Draw an outlined square for every entity that has the given Component (used as a position), if visible in the world view.
+  //! @tparam Component
+  //! @param square_color
+  //! @param square_thickness
   template <typename Component>
   void render_square_for_vector2f_cmp( sf::Color square_color = sf::Color::Red, float square_thickness = 1.f )
   {
@@ -133,6 +199,10 @@ public:
     }
   }
 
+  //! @brief Draw an outlined square for every entity that has the given Component (used as a bounds rect), if visible in the world view.
+  //! @tparam Component
+  //! @param square_color
+  //! @param square_thickness
   template <typename Component>
   void render_square_for_floatrect_cmp( sf::Color square_color = sf::Color::Red, float square_thickness = 1.f )
   {
@@ -156,28 +226,38 @@ public:
 
   //! @brief Layout data object for the main UI
   std::unique_ptr<Render::UiData> m_main_ui_data;
+
   //! @brief Layout data object for the debug UI
   std::unique_ptr<Render::UiData> m_dbg_ui_data;
+
   //! @brief Layout data object for the shop scene overlay
   std::unique_ptr<Render::UiData> m_shop_ui_data;
 
 private:
   //! @brief Draw the debug ui to this texture.
   sf::RenderTexture m_debug_overlay_tex;
+
   //! @brief Signals when the texture is ready to be drawn to the sf::RenderWindow
   bool m_debug_overlay_ready{ false };
+
   //! @brief tracks the npc pathfinding navmesh i.e. where the NPC cannot move to
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
+
   //! @brief Used to flash the UI wealth text
   sf::Time m_flash_wealth_ui_interval;
+
   //! @brief Used to flash the UI health text
   sf::Time m_flash_health_ui_interval;
+
   //! @brief Used to flash the UI cadaver text
   sf::Time m_flash_cadaver_ui_interval;
+
   //! @brief Used to flash the UI inevntory text
   sf::Time m_flash_inventory_ui_interval;
+
   //! @brief Used to flash the UI radius text
   sf::Time m_flash_radius_ui_interval;
+
   //! @brief Screen flash frequency
   int m_ui_flash_factor{ 300 };
 };

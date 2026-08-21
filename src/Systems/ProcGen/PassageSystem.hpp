@@ -21,21 +21,35 @@ namespace Game::PathFinding { class SpatialHashGrid; }
 namespace Game::Sys
 {
 
+//! @brief Carves and manages passage blocks that connect crypt rooms together, driven by
+//!        Events::PassageEvent. Handles connecting the start/occupied/end rooms to nearby open
+//!        or closed rooms, caching passage layouts per region, and opening/filling passages as
+//!        the player explores the level.
 class PassageSystem : public Game::Sys::BaseSystem
 {
 public:
+  //! @brief Construct a new Passage System object
   PassageSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
+  //! @brief Store the crypt scene data used to look up map size for passage carving.
+  //! @param crypt_scene_data
   void init_scene_data( const Scene::SceneMapSharedPtr &crypt_scene_data ) { m_crypt_scene_data = crypt_scene_data; }
 
   //! @brief init the weak pointer for the spatial grid
   //! @param npc_navmesh
   void init_nav_mesh( const PathFinding::SpatialHashGridSharedPtr &npc_navmesh );
 
+  //! @brief Dispatches a Events::PassageEvent to the corresponding passage operation
+  //!        (remove, open, connect rooms, cache connections, or add spike traps).
+  //! @param event
   void on_passage_event( Events::PassageEvent &event );
 
+  //! @brief Per-frame update; when a full-level connection pass has been requested it spawns
+  //!        one cached passage region per call until all regions are placed.
+  //! @param dt
   void update( sf::Time dt );
 
+  //! @brief Empty out passage block areas, removing obstacles/chests so passages become walkable.
   void open_passages();
 
   //! @brief Create west, north, east passages for the start room via find_passage_target()
@@ -48,15 +62,20 @@ public:
   //! @brief Create west, north, east and south passages for all open rooms via find_passage_target()
   void cache_all_room_connections();
 
+  //! @brief Connect the end room to the nearest reachable closed room via its south door, marking
+  //!        that closed room as the BFS root for later room-connectivity checks.
   void connect_end_room_to_nearest_closed_room();
 
   //! @brief Create north passage for occupied room to the end room. Calls createDrunkenWalkPassage() directly.
   //! @param end_room_entt The entity ID of the end room
   void connect_occupied_and_end_room_passages( entt::registry &reg, entt::entity end_room_entt, sf::Vector2f map_size_pixel );
 
+  //! @brief Add spike traps along each already-carved passage, one per passage ID.
   void add_spike_traps();
 
+  //! @brief event handlers for pausing system clocks
   void on_pause() override {}
+  //! @brief event handlers for resuming system clocks
   void on_resume() override {}
 
 private:
@@ -73,13 +92,35 @@ private:
   //! @param exclude_closed_rooms
   void tidy_passage_blocks( bool include_closed_rooms = false );
 
+  //! @brief Instantiate every passage block queued in m_uncached_passage_list as an entity.
   void create_uncached_passages();
+
+  //! @brief Instantiate the passage blocks for the region at m_region_idx (from m_cached_passage_list)
+  //!        as entities, advancing to the next region; once all regions are spawned it opens the
+  //!        passages and adds spike traps.
   void create_cached_passages();
 
+  //! @brief Build a priority queue of candidate target rooms of type ROOMTYPE within a search
+  //!        quadrant, ordered nearest-first by distance from the starting door.
+  //! @tparam ROOMTYPE
+  //! @param start_passage_door
+  //! @param search_quadrant
+  //! @param exclude_entts
+  //! @return ProcGen::MidPointDistanceQueue
   template <typename ROOMTYPE>
   ProcGen::MidPointDistanceQueue find_room_distances( Cmp::Crypt::PassageDoor &start_passage_door, const sf::FloatRect &search_quadrant,
                                                       std::set<entt::entity> exclude_entts );
 
+  //! @brief Walk the distance-ordered room queue, attempting to carve a passage to each candidate
+  //!        room in turn (nearest first) until one succeeds, and return the resulting passage blocks.
+  //! @tparam ROOMTYPE
+  //! @param start_passage_door
+  //! @param dist_pqueue
+  //! @param walktype
+  //! @param map_size_pixel
+  //! @param passage_limit
+  //! @param duplicates_policy
+  //! @return std::vector<Cmp::Crypt::PassageBlock>
   template <typename ROOMTYPE>
   std::vector<Cmp::Crypt::PassageBlock>
   find_passages( Cmp::Crypt::PassageDoor &start_passage_door, ProcGen::MidPointDistanceQueue &dist_pqueue, ProcGen::WalkingType walktype,
@@ -97,15 +138,17 @@ private:
   //! @brief flag for enabling final dynamic scene update via the update function
   bool m_connect_all_rooms{ false };
 
-  //! @brief
+  //! @brief Precalculated passage blocks for every room connection, bucketed by region, spawned
+  //!        incrementally by create_cached_passages() during the final dynamic scene update.
   ProcGen::PassageCachedRegions<40> m_cached_passage_list;
 
   //! @brief The list of passage blocks for all paths during dynamic scene updates
   std::vector<Cmp::Crypt::PassageBlock> m_uncached_passage_list;
 
-  //! @brief
+  //! @brief Owns the drunken-walk/dog-leg passage carving algorithms and the current passage ID.
   ProcGen::PassageAlogirthms m_passage_algos;
 
+  //! @brief Spatial grid of all currently-instantiated passage block entities.
   PathFinding::SpatialHashGrid m_passage_block_grid;
 };
 

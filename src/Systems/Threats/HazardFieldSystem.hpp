@@ -26,7 +26,8 @@ namespace Game::Sys
 template <typename T>
 struct HazardTraits;
 
-// Concept to constrain valid hazard field types
+//! @brief Component requirements for a hazard field cell type: must provide a HazardTraits<T> specialization defining its seed component,
+//! mutually-exclusive hazard type, instant-kill flag, mortality state and sprite type.
 template <typename T>
 concept ValidHazard = requires {
   typename HazardTraits<T>::SeedType;
@@ -36,13 +37,10 @@ concept ValidHazard = requires {
   { HazardTraits<T>::sprite_type } -> std::convertible_to<std::string_view>;
 };
 
-/**
- * @brief A templated system that manages the creation and spread of hazard
- * fields in a procedural maze.
- *
- * @tparam HazardType The type of hazard component that this system will manage.
- *         Must satisfy the ValidHazard concept.
- */
+//! @brief A templated system that manages the creation and spread of hazard
+//! fields in a procedural maze.
+//! @tparam HazardType The type of hazard component that this system will manage.
+//! Must satisfy the ValidHazard concept.
 template <ValidHazard HazardType>
 class HazardFieldSystem : public Sys::BaseSystem
 {
@@ -56,9 +54,17 @@ public:
   //! @param sprite_factory Reference to the sprite factory
   HazardFieldSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
+  //! @brief Spread the hazard field, then check for player and NPC collisions with it.
+  //! @return The position of any newly added hazard cell, or an empty vector if none was added.
   sf::Vector2f update();
+
+  //! @brief Spawn the initial hazard cell for this hazard type at a random valid obstacle position, if one does not already exist.
+  //! @return The position of the newly spawned hazard cell, or an empty vector if one already exists or no valid position was found.
   sf::Vector2f init_hazard_field();
+
+  //! @brief event handlers for pausing system clocks
   void on_pause() override;
+  //! @brief event handlers for resuming system clocks
   void on_resume() override;
 
 private:

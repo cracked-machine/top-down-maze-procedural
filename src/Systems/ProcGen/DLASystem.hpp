@@ -10,8 +10,10 @@ namespace Game::Sys::ProcGen
 class DLASystem : public BaseSystem
 {
 public:
+  //! @brief Shape used to bias/constrain where DLA particles are spawned from.
   enum class SpawnShape { Circle, Ellipse };
 
+  //! @brief Construct a new DLASystem object
   DLASystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
       : BaseSystem( reg, window, sprite_factory, sound_bank )
   {

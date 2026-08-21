@@ -12,6 +12,8 @@
 namespace Game::Sys
 {
 
+//! @brief Spawns Wisp NPCs and drives their free-roaming pathfinding on the open navmesh,
+//! retargeting them once they arrive at or get stuck heading towards their current target.
 class WispSystem : public BaseSystem
 {
 public:

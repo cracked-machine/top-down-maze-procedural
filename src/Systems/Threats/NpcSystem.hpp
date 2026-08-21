@@ -41,6 +41,8 @@ class SpatialHashGrid;
 namespace Game::Sys
 {
 
+//! @brief Drives NPC movement, pathfinding, animation, sound effects, and collision handling
+//! (container proximity, timed/instant collision actions, knockback) for all NPCs in the scene.
 class NpcSystem : public BaseSystem
 {
 public:
@@ -137,6 +139,7 @@ private:
 
   //! @brief Used for NPCs to pathfind around blocking obstacles
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
+
   PathFinding::SpatialHashGridWeakPtr m_ghost_navmesh;
 
   //! @brief Used for NPCs to move freely within the level boundaries.

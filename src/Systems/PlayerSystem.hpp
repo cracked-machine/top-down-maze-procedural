@@ -23,10 +23,18 @@ namespace Game::PathFinding { class SpatialHashGrid; }
 namespace Game::Sys
 {
 
+//! @brief Drives player movement, animation, obstacle push/pull, hazard collision and mortality.
 class PlayerSystem : public BaseSystem
 {
 public:
   enum class FootStepSfx { NONE, GRAVEL, FLOORBOARDS };
+
+  //! @brief Construct a new Player System object
+  //! @param reg
+  //! @param window
+  //! @param sprite_factory
+  //! @param sound_bank
+  //! @param scenemanager_event_dispatcher
   PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
                 entt::dispatcher &scenemanager_event_dispatcher );
 
@@ -44,10 +52,10 @@ public:
   //! @brief Update the player system.
   void update( sf::Time dt );
 
-  //! @brief
+  //! @brief Stop the player's damage cooldown timer.
   void disable_damage_cooldown();
 
-  //! @brief
+  //! @brief Restart the player's damage cooldown timer.
   void enable_damage_cooldown();
 
   //! @brief Force the player's very next damage check to land regardless of the damage cooldown timer.
@@ -93,10 +101,19 @@ private:
   //! @brief Send mortality event if player fear/despair is 100%
   void check_player_max_fear_despair();
 
+  //! @brief Add/remove the player healing particle sprite depending on proximity to an active healing spring fountain.
   void create_healing_particles();
 
+  //! @brief Move a selected Cmp::Moveable obstacle by one step in the direction the player is pushing/pulling.
+  //! @param target_position
   void move_obstacle( const sf::FloatRect &target_position );
+
+  //! @brief Check if the player is pushing a moveable obstacle and move it if so.
+  //! @param dt
   void check_player_can_push( sf::Time dt );
+
+  //! @brief Check if the player is pulling a moveable obstacle and move it if so.
+  //! @param dt
   void check_player_can_pull( sf::Time dt );
 
   //! @brief Fade the player alpha if they intiiated wormhole jump.
@@ -142,16 +159,20 @@ private:
 
   //! @brief Weak pointer to the pathfinding navmesh.
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
+
   PathFinding::SpatialHashGridWeakPtr m_player_navmesh;
+
   PathFinding::SpatialHashGridWeakPtr m_open_navmesh;
 
   //! @brief Hazard cell currently being pushed against by `resolve_hazard_pushback`, or entt::null.
   entt::entity m_hazard_pushback_target;
+
   //! @brief How long the player has continuously pushed into m_hazard_pushback_target.
   sf::Clock m_hazard_pushback_clock;
 
   //! @brief Tracks how long the bow has been held drawn, between DRAW_BOW and RELEASE_BOW.
   sf::Clock m_bow_draw_clock;
+
   //! @brief True while the bow is being drawn (left mouse button held with bow equipped).
   bool m_bow_drawing{ false };
 };

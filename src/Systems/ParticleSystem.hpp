@@ -42,8 +42,16 @@ struct ParticleSpriteOwner
 class ParticleSystem : public BaseSystem
 {
 public:
+  //! @brief Construct a new Particle System object
+  //! @param reg
+  //! @param window
+  //! @param sprite_factory
+  //! @param sound_bank
   ParticleSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
+  //! @brief Add one or more particle sprites, each wrapped and stored under its own entity.
+  //! @tparam PARTICLESPRITES
+  //! @param sprites Pack of (particle sprite, z-order) pairs.
   template <typename... PARTICLESPRITES>
   void add( const std::pair<PARTICLESPRITES, Cmp::ZOrderValue> &...sprites )
   {
@@ -55,6 +63,11 @@ public:
     ( add_one( sprites ), ... );
   }
 
+  //! @brief Add a particle sprite tagged with an existing Cmp::UUID, so it can be looked up by that UUID.
+  //! @tparam PARTICLESPRITE
+  //! @param uuid_cmp
+  //! @param ps
+  //! @param zorder
   template <typename PARTICLESPRITE>
   void add( Cmp::UUID &uuid_cmp, PARTICLESPRITE ps, Cmp::ZOrderValue zorder )
   {
@@ -84,6 +97,11 @@ private:
   //! @param zorder
   //! @return std::vector<entt::entity>
   std::vector<entt::entity> add_to_registry( ParticleSpriteOwner owner, Cmp::ZOrderValue zorder );
+
+  //! @brief Add a wrapped particle sprite and zorder component to the registry, tagged with `uuid_cmp`.
+  //! @param uuid_cmp
+  //! @param owner
+  //! @param zorder
   void add_to_registry( Cmp::UUID &uuid_cmp, ParticleSpriteOwner owner, Cmp::ZOrderValue zorder );
 };
 

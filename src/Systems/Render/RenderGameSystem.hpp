@@ -52,10 +52,16 @@ namespace Game::Sys
 
 class RenderOverlaySystem;
 
+//! @brief Renders everything that exists in the game world: the z-ordered entity queue (sprites, particles, shaders, floor tiles),
+//! player-adjacent effects (shockwaves, lightning, compass arrow), and the camera. Delegates all UI and debug overlay rendering to
+//! RenderOverlaySystem.
 class RenderGameSystem : public RenderSystem
 {
 public:
+  //! @brief Construct a new Render Game System object
   RenderGameSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+
+  //! @brief Destroy the Render Game System object
   ~RenderGameSystem();
 
   //! @brief Entrypoint for rendering the game
@@ -77,7 +83,10 @@ public:
   void update_camera( sf::Time deltaTime );
 
 private:
-  sf::Vector2f m_camera_position{ 0.f, 0.f }; // Smoothed camera position
+  //! @brief Smoothed camera position, lerped towards the player's position each frame.
+  sf::Vector2f m_camera_position{ 0.f, 0.f };
+
+  //! @brief Whether `m_camera_position` has been seeded with the player's position yet, to avoid lerping from the origin on the first frame.
   bool m_camera_initialized{ false };
 
   //! @brief Renders the armed obstacles in the game world
@@ -95,6 +104,7 @@ private:
   //! @brief Used by GraveyardScene when player is struck by lightning
   void render_lightning_strike();
 
+  //! @brief Renders the crack decal sequence on obstacles that have taken damage.
   void render_obstacle_cracks();
 
   //! @brief Flashes the screen
@@ -137,15 +147,19 @@ private:
 
   //! @brief Delay for updating the debug UI
   const sf::Time m_debug_update_interval{ sf::milliseconds( 500 ) };
+
   //! @brief The timer for managing the debug UI update delays
   sf::Clock m_debug_update_timer;
 
   //! @brief Time component of the sine wave for the compass arrow bouncing movement
   sf::Clock m_compass_osc_clock;
+
   //! @brief Frequency component of the sine wave for the compass arrow bouncing movement
   float m_compass_freq{ 4.0f };
+
   //! @brief Min range for the compass arrow dynamic resize
   float m_compass_min_scale{ 0.5f };
+
   //! @brief Max range for the compass arrow dynamic resize
   float m_compass_max_scale{ 1.5f };
 

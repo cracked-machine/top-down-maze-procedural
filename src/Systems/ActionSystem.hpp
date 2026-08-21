@@ -21,7 +21,8 @@ class SpatialHashGrid;
 namespace Game::Sys
 {
 
-// ActionSystem handles player actions within the game. This system is mainly event-driven, responding to Events::PlayerActionEvent.
+//! @brief Handles player actions within the game. This system is mainly event-driven, responding to
+//! Events::PlayerActionEvent.
 class ActionSystem : public BaseSystem
 {
 public:
@@ -52,7 +53,8 @@ public:
   void on_resume() override {}
 
 private:
-  // Event handler for player actions
+  //! @brief Event handler for player actions
+  //! @param event
   void on_player_action( const Events::PlayerActionEvent &event );
 
   //! @brief Single drop, no pickup
@@ -79,7 +81,7 @@ private:
   //! @return entt::entity
   void drop_inventory_item( sf::Vector2f pos, entt::entity inventory_slot_entt );
 
-  //! @brief
+  //! @brief Add the world item to the player's inventory and destroy the world entity.
   //! @param reg
   //! @param world_item_entt
   void pickup_world_item( entt::registry &reg, entt::entity world_item_entt );
@@ -95,8 +97,10 @@ private:
 
   //! @brief all grid positions that block NPC pathfinding
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
+
   //! @brief All grid positions that block ghost NPC pathfinding
   PathFinding::SpatialHashGridWeakPtr m_ghost_navmesh;
+
   //! @brief All grid positions that block player movement
   PathFinding::SpatialHashGridWeakPtr m_player_navmesh;
 

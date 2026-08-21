@@ -9,9 +9,15 @@
 namespace Game::Sys
 {
 
+//! @brief Singleton store of NPC metadata (Cmp::Npc::NPC, keyed by NPC id) loaded from res/json/npc.json.
 class NpcStore : public StoreSingleton<NpcStore, Cmp::Npc::NPC>
 {
 public:
+  //! @brief Construct a new Npc Store object
+  //! @param reg
+  //! @param window
+  //! @param sprite_factory
+  //! @param sound_bank
   NpcStore( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
   ~NpcStore() {}
 

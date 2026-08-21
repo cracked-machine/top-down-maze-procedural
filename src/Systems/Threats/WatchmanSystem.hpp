@@ -10,6 +10,8 @@
 namespace Game::Sys
 {
 
+//! @brief Drives the Watchman NPC: rate-limited spawning, searchlight sweep/lock-on behaviour,
+//! gunfire cocking/firing timing, and gunfire collision against the player and Skeleton NPCs.
 class WatchmanSystem : public BaseSystem
 {
 public:
@@ -50,7 +52,13 @@ private:
   //! `from` and `to`, so the searchlight can't see/catch the player through cover.
   bool has_line_of_sight( sf::Vector2f from, sf::Vector2f to );
 
+  //! @brief Spawn the gunfire particle effect and play the firing sound effect.
+  //! @param npc_pos_cmp
+  //! @param npc_uuid_cmp
   void fire_gun( Cmp::Position &npc_pos_cmp, Cmp::UUID &npc_uuid_cmp );
+
+  //! @brief Play the gun-cocking/reload sound effect ahead of the next shot.
+  //! @param npc_pos_cmp
   void cock_gun( Cmp::Position &npc_pos_cmp );
 
   //! @brief Damage the player if any active gunfire particle is touching them

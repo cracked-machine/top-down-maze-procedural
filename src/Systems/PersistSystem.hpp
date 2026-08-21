@@ -15,9 +15,16 @@
 namespace Game::Sys
 {
 
+//! @brief Serializes and deserializes registered Cmp::Persist::IBasePersistent components to/from JSON,
+//! so game settings and progress survive between sessions.
 class PersistSystem : public BaseSystem
 {
 public:
+  //! @brief Construct a new Persist System object
+  //! @param reg
+  //! @param window
+  //! @param sprite_factory
+  //! @param sound_bank
   PersistSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   /**
@@ -45,16 +52,22 @@ public:
   void save_state();
 
   /// EVENTS
+  //! @brief Event handler that forwards to save_state().
+  //! @param event
   void on_save_settings_event( [[maybe_unused]] const Events::SaveSettingsEvent &event )
   {
     SPDLOG_DEBUG( "Save Settings Event received" );
     save_state();
   }
+
+  //! @brief Event handler that forwards to load_state().
+  //! @param event
   void on_load_settings_event( [[maybe_unused]] const Events::LoadSettingsEvent &event )
   {
     SPDLOG_DEBUG( "Load Settings Event received" );
     load_state();
   }
+
   /**
    * @brief Initializes the component registry for the persistent system.
    *
@@ -87,7 +100,7 @@ public:
   template <typename T>
   static T &get( entt::registry &reg );
 
-  // Accessor for RenderMenuSystem to iterate components
+  //! @brief Accessor for RenderMenuSystem to iterate components
   const std::vector<Cmp::Persist::IBasePersistent *> &get_registered_components() { return m_registered_components; }
 
   //! @brief event handlers for pausing system clocks
@@ -96,6 +109,7 @@ public:
   void on_resume() override {}
 
 private:
+  //! @brief Register the serialize/deserialize functions for every persistent component type.
   void initialize_type_registry();
 
   //! @brief registers the serialize/deserialize function with the given JSON object name and Component type.
@@ -118,8 +132,14 @@ private:
    * an entity-component system or similar architecture.
    */
   std::unordered_map<std::string, std::function<void( const nlohmann::json & )>> m_component_loaders;
+
+  //! @brief Map of component deserialize functions indexed by component type name; populated by register_types().
   std::unordered_map<std::string, std::function<void( const nlohmann::json & )>> m_type_registry;
+
+  //! @brief Map of component serialize functions indexed by component type name; populated by register_types().
   std::unordered_map<std::string, std::function<nlohmann::json()>> m_component_serializers;
+
+  //! @brief Persistent components that implement Cmp::Persist::IBasePersistent, for RenderMenuSystem to iterate.
   std::vector<Cmp::Persist::IBasePersistent *> m_registered_components;
 };
 

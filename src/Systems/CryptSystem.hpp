@@ -21,10 +21,19 @@ namespace Game::Cmp::Crypt { class RoomEnd; class RoomStart; }
 namespace Game::Sys
 {
 
+//! @brief Drives the procedurally-shuffled crypt maze: room open/close state, levers, chests, lava pits,
+//! spike traps, and the entrance/exit/objective sequence.
 class CryptSystem : public Game::Sys::BaseSystem
 {
 public:
   enum class RoomWallType { INTERIOR = 0, BORDER = 1 };
+
+  //! @brief Construct a new Crypt System object
+  //! @param reg
+  //! @param window
+  //! @param sprite_factory
+  //! @param sound_bank
+  //! @param scenemanager_event_dispatcher
   CryptSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
                entt::dispatcher &scenemanager_event_dispatcher )
       : Game::Sys::BaseSystem( reg, window, sprite_factory, sound_bank ),
@@ -59,6 +68,7 @@ public:
   //! @param event
   void on_room_event( Events::CryptRoomEvent &event );
 
+  //! @brief Sync the exit multiblock's z-order to the segment the player is currently standing on.
   void update_exit_zorder();
 
   //! @brief Check for collisions with the entrance
@@ -78,6 +88,8 @@ public:
   //! @param action
   void check_lever_activation();
 
+  //! @brief Open a chest the player has activated, dropping loot from it.
+  //! @param action
   void check_chest_activation( Events::PlayerActionEvent::GameActions action );
 
   //! @brief Restores border Cmp::Obstacles to Cmp::Crypt::RoomEnd, Cmp::Crypt::RoomStart and Cmp::Crypt::RoomOpen areas
@@ -105,6 +117,7 @@ public:
   //! @param map_grid_size
   void create_end_room( sf::Vector2u map_grid_size );
 
+  //! @brief Reset the maze unlock state and lever count (call when re-entering the crypt scene).
   void reset_maze()
   {
     m_maze_unlocked = false;
@@ -119,6 +132,10 @@ private:
   //! @return The intersecting entity, or entt::null if none found
   entt::entity find_intersecting_multiblock( const Cmp::Position &pos_cmp );
 
+  //! @brief Restore the interior/border wall obstacle and its z-fighting-avoidance cap block for one wall position.
+  //! @param main_entt
+  //! @param main_pos_cmp
+  //! @param room_wall_type
   void decorate_interior_wall( entt::entity main_entt, Cmp::Position &main_pos_cmp, RoomWallType room_wall_type );
 
   //! @brief Unlock the objective passage
@@ -145,13 +162,22 @@ private:
   //! @brief Removes Cmp::Obstacles from Cmp::Crypt::RoomOpen areas
   void empty_open_rooms( const Factory::Obstacle::UUIDEntityMap &uuid_map );
 
+  //! @brief Collect open-room floor positions not occupied by the player, a lava pit, a lever, a chest,
+  //! or a nearby passage block.
+  //! @return The candidate position entities.
   std::vector<entt::entity> get_available_room_positions();
+
   //! @brief Adds Cmp::Lever components to Cmp::Crypt::RoomOpen areas
   void add_lever_to_open_rooms();
+
+  //! @brief Add a chest to a random border position of each open room the player is not standing in.
+  //! @param player_pos_cmp
   void add_chest_to_open_rooms( const Cmp::Position &player_pos_cmp );
 
   //! @brief Add lava pits to open rooms
   void add_lava_pit_open_rooms( const Cmp::Position &player_pos_cmp );
+
+  //! @brief Advance the lava pit's animated hazard cells once the effect cooldown has elapsed.
   void do_lava_pit_animation();
 
   //! @brief Remove lava pits from open rooms
@@ -172,10 +198,15 @@ private:
 
   //! @brief Removes Cmp::Lever components from Cmp::Crypt::RoomOpen areas
   void remove_lever_open_rooms( const Cmp::Position &player_pos_cmp );
+
+  //! @brief Destroy chests in open rooms the player is not standing in.
+  //! @param player_pos_cmp
   void remove_chest_open_rooms( const Cmp::Position &player_pos_cmp );
 
   //! @brief Removes ALL levers.
   void remove_all_levers();
+
+  //! @brief Removes ALL chests.
   void remove_all_chests();
 
   //! @brief Spawn NPCs in each open room in the game area
@@ -194,6 +225,7 @@ private:
 
   //! @brief Prevents rapid external entrance door unlocking
   sf::Clock m_door_cooldown_timer;
+
   float m_door_cooldown_time{ 1.0f }; // 1 second cooldown
 
   //! @brief Number of enabled levers
@@ -203,9 +235,11 @@ private:
   bool m_maze_unlocked{ false };
 
   sf::Clock m_lava_effect_cooldown_timer;
+
   sf::Time m_lava_effect_cooldown_threshold{ sf::seconds( 1.f ) };
 
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
+
   PathFinding::SpatialHashGridWeakPtr m_player_navmesh;
 };
 

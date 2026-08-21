@@ -6,10 +6,12 @@
 namespace Game::Events
 {
 
-// Event to lock a passage in the system
+//! @brief Event used to trigger PassageSystem operations, such as removing, opening, connecting,
+//!        or caching crypt room passages, and adding spike traps.
 class PassageEvent
 {
 public:
+  //! @brief The passage operation to perform when this event is handled.
   enum class Type {
     REMOVE_PASSAGES,               //< Remove all passages
     OPEN_PASSAGES,                 //< Open all passages
@@ -32,6 +34,7 @@ public:
 
   //! @brief Event type
   Type type;
+
   //! @brief Event entity.
   entt::entity entity;
 };

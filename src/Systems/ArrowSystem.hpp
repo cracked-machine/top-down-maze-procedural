@@ -11,9 +11,15 @@ namespace Game::Events { class PlayerActionEvent; }
 namespace Game::Sys
 {
 
+//! @brief Handles bow draw/release, arrow flight, and arrow-NPC collision.
 class ArrowSystem : public BaseSystem
 {
 public:
+  //! @brief Construct a new Arrow System object
+  //! @param reg
+  //! @param window
+  //! @param sprite_factory
+  //! @param sound_bank
   ArrowSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief Arrow actions
@@ -32,6 +38,7 @@ public:
 private:
   //! @brief Tracks how long the bow has been held drawn, between DRAW_BOW and RELEASE_BOW.
   sf::Clock m_bow_draw_clock;
+
   //! @brief True while the bow is being drawn (left mouse button held with bow equipped).
   bool m_bow_drawing{ false };
 

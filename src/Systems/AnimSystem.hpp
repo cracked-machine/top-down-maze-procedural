@@ -14,9 +14,15 @@
 namespace Game::Sys
 {
 
+//! @brief Advances sprite sheet animation frames each frame based on each entity's Cmp::AnimData.
 class AnimSystem : public BaseSystem
 {
 public:
+  //! @brief Construct a new Anim System object
+  //! @param reg
+  //! @param window
+  //! @param sprite_factory
+  //! @param sound_bank
   AnimSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
       : BaseSystem( reg, window, sprite_factory, sound_bank )
   {
@@ -31,7 +37,8 @@ public:
   //! @brief event handlers for resuming system clocks
   void on_resume() override {}
 
-  // update frames on all SpriteAnimation components
+  //! @brief Update frames on all SpriteAnimation components
+  //! @param dt
   void update( sf::Time dt );
 
 private:

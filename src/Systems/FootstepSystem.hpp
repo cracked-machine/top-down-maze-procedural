@@ -12,9 +12,15 @@
 namespace Game::Sys
 {
 
+//! @brief Spawns and fades footstep sprites behind the player, and plays/stops the matching footstep sound.
 class FootstepSystem : public BaseSystem
 {
 public:
+  //! @brief Construct a new Footstep System object
+  //! @param reg
+  //! @param window
+  //! @param sprite_factory
+  //! @param sound_bank
   FootstepSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
       : BaseSystem( reg, window, sprite_factory, sound_bank )
   {
@@ -22,7 +28,8 @@ public:
 
   enum class FootStepSfx { NONE, GRAVEL, FLOORBOARDS };
 
-  // Update all FootstepAlpha based on their FootstepTimer, remove any entities with FootstepAlpha
+  //! @brief Update all FootstepAlpha based on their FootstepTimer, remove any entities with FootstepAlpha
+  //! @param footstep_sfx
   void update( FootStepSfx footstep_sfx = FootStepSfx::GRAVEL );
 
   //! @brief event handlers for pausing footstep clocks
@@ -30,17 +37,17 @@ public:
   //! @brief event handlers for resuming footstep clocks
   void on_resume() override;
 
-  //! @brief
+  //! @brief Stop the currently playing footstep sound.
   void stop_footsteps_sound();
 
 private:
   //! @brief Rate-limit adding the footstep sprites
   sf::Clock update_clock;
 
-  // create an entity with components: Position, Direction, FootstepTimer, FootstepAlpha
+  //! @brief Create an entity with components: Position, Direction, FootstepTimer, FootstepAlpha
   void add_footstep( const Cmp::Position &pos, const Cmp::Direction &dir );
 
-  //! @brief
+  //! @brief Play the looping footstep sound matching `type`, if not already playing.
   //! @param type
   void play_footsteps_sound( FootStepSfx type );
 };

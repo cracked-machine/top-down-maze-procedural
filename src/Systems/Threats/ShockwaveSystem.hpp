@@ -10,6 +10,8 @@
 namespace Game::Sys
 {
 
+//! @brief Grows and animates the priest NPC's radial shockwave attack, splitting its ring into
+//! segments where it hits obstacles and checking those segments against the player for collision/knockback.
 class ShockwaveSystem : public BaseSystem
 {
 public:
@@ -38,7 +40,7 @@ public:
   void on_resume() override {};
 
 private:
-  //! @brief
+  //! @brief Tracks time since the last shockwave radius/collision update.
   sf::Clock shockwave_update_clock;
 
   //! @brief Check if shockwave has collided with an obstacle and needs to be segmented.

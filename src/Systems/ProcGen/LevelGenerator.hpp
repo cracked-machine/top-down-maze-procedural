@@ -25,7 +25,10 @@ public:
   //! @brief Used by level gen / cell automata
   enum class SceneType { GRAVEYARD_EXTERIOR, RUIN_INTERIOR };
 
+  //! @brief Construct a new Level Generator object
   LevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+
+  //! @brief Destroy the Level Generator object
   ~LevelGenerator() = default;
 
   //! @brief Generate game area using data from the SceneData object.
@@ -44,9 +47,13 @@ public:
   //! @brief Create "sprite.crypt.wall.int" sprites for the graveyard obstacles.
   void decorate_ruin_interior_obstacles();
 
-  //! @brief
+  //! @brief Place a handful of decorative rune-marking entities at random unreserved positions.
   void add_ruin_rune_markers();
 
+  //! @brief Scatter decorative cobweb entities across the lower floor, skipping tiles that would
+  //!        collide with stairs, other cobwebs, exits, or the edge of the scene.
+  //! @param num_cobwebs Number of cobwebs to attempt to place.
+  //! @param scene_dimensions
   void add_lowerfloor_cobwebs( int num_cobwebs, sf::FloatRect scene_dimensions );
 
   //! @brief create multiblock sprites (i.e. graves, altars, crypts) for the graveyard scene.
@@ -89,6 +96,7 @@ private:
   //! @brief Spatial map for marking void areas that are not part of the game area.
   PathFinding::SpatialHashGridUniquePtr m_void_sm;
 
+  //! @brief Spatial map for decorative, non-obstacle entities placed during level gen (e.g. runes, cobwebs).
   PathFinding::SpatialHashGridUniquePtr m_non_obstacle_sm;
 };
 

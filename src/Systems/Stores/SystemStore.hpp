@@ -55,6 +55,8 @@ class WatchmanSystem;
 class WispSystem;
 class WormholeSystem;
 
+//! @brief Owns and type-erases all Sys::* system instances, keyed by Store::Type, so the rest of the codebase can
+//! look them up by enum without depending on every system's header.
 class Store
 {
 public:

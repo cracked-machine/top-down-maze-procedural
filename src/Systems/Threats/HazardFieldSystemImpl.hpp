@@ -30,6 +30,7 @@
 namespace Game::Sys
 {
 
+//! @copydoc HazardFieldSystem::HazardFieldSystem(entt::registry&,sf::RenderWindow&,Sprites::SpriteFactory&,Audio::SoundBank&)
 template <ValidHazard HazardType>
 HazardFieldSystem<HazardType>::HazardFieldSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
                                                   Audio::SoundBank &sound_bank )
@@ -39,6 +40,7 @@ HazardFieldSystem<HazardType>::HazardFieldSystem( entt::registry &reg, sf::Rende
   get_systems_event_queue().sink<Events::ResumeClocksEvent>().connect<&Sys::HazardFieldSystem<HazardType>::on_resume>( this );
 }
 
+//! @copydoc HazardFieldSystem::update()
 template <ValidHazard HazardType>
 sf::Vector2f HazardFieldSystem<HazardType>::update()
 {
@@ -51,6 +53,7 @@ sf::Vector2f HazardFieldSystem<HazardType>::update()
   return add_hazard_cell;
 }
 
+//! @copydoc HazardFieldSystem::init_hazard_field()
 template <ValidHazard HazardType>
 sf::Vector2f HazardFieldSystem<HazardType>::init_hazard_field()
 {
@@ -84,18 +87,21 @@ sf::Vector2f HazardFieldSystem<HazardType>::init_hazard_field()
   return random_pos.position;
 }
 
+//! @copydoc HazardFieldSystem::on_pause()
 template <ValidHazard HazardType>
 void HazardFieldSystem<HazardType>::on_pause()
 {
   m_spread_update_clock.stop();
 }
 
+//! @copydoc HazardFieldSystem::on_resume()
 template <ValidHazard HazardType>
 void HazardFieldSystem<HazardType>::on_resume()
 {
   m_spread_update_clock.start();
 }
 
+//! @copydoc HazardFieldSystem::update_hazard_field()
 template <ValidHazard HazardType>
 sf::Vector2f HazardFieldSystem<HazardType>::update_hazard_field()
 {
@@ -168,6 +174,7 @@ sf::Vector2f HazardFieldSystem<HazardType>::update_hazard_field()
   return {};
 }
 
+//! @copydoc HazardFieldSystem::check_player_hazard_field_collision()
 template <ValidHazard HazardType>
 void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
 {
@@ -220,6 +227,7 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
   }
 }
 
+//! @copydoc HazardFieldSystem::check_npc_hazard_field_collision()
 template <ValidHazard HazardType>
 void HazardFieldSystem<HazardType>::check_npc_hazard_field_collision()
 {

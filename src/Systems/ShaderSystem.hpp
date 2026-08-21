@@ -19,11 +19,20 @@ struct ShaderSpriteOwner
   }
 };
 
+//! @brief Core system for adding and updating IShaderSprite objects
 class ShaderSystem : public BaseSystem
 {
 public:
+  //! @brief Construct a new Shader System object
+  //! @param reg
+  //! @param window
+  //! @param sprite_factory
+  //! @param sound_bank
   ShaderSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
+  //! @brief Wrap and add a shader sprite to the registry.
+  //! @param shader
+  //! @param z_order
   void add( std::unique_ptr<Sprites::IShaderSprite> shader, Cmp::ZOrderValue z_order )
   {
     add_to_registry( ShaderSpriteOwner( std::move( shader ) ), z_order );

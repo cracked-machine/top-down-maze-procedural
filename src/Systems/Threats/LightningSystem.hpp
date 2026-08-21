@@ -50,7 +50,7 @@ public:
                                          int lines_per_strike );
 
 private:
-  //! @brief
+  //! @brief Set by on_lightning_event(); consumed by update() to trigger creation of a new lightning strike.
   bool trigger_lightning{ false };
 
   //! @brief Create a lightning strike object

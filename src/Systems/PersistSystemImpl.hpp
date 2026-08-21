@@ -11,18 +11,21 @@
 namespace Game::Sys
 {
 
+//! @copydoc PersistSystem::add(entt::registry&)
 template <typename T>
 void PersistSystem::add( entt::registry &reg )
 {
   if ( not reg.ctx().contains<T>() ) { reg.ctx().emplace<T>(); }
 }
 
+//! @copydoc PersistSystem::add(entt::registry&,Args&&...)
 template <typename T, typename... Args>
 void PersistSystem::add( entt::registry &reg, Args &&...args )
 {
   if ( not reg.ctx().contains<T>() ) { reg.ctx().emplace<T>( std::forward<Args>( args )... ); }
 }
 
+//! @copydoc PersistSystem::get(entt::registry&)
 template <typename T>
 T &PersistSystem::get( entt::registry &reg )
 {
@@ -34,6 +37,7 @@ T &PersistSystem::get( entt::registry &reg )
   return reg.ctx().get<T>();
 }
 
+//! @copydoc PersistSystem::register_types(const std::string&)
 template <typename T>
 void PersistSystem::register_types( const std::string &name )
 {

@@ -9,9 +9,16 @@
 namespace Game::Sys
 {
 
+//! @brief Handles the shop's inventory generation, shopkeeper interaction and item purchases.
 class ShopSystem : public BaseSystem
 {
 public:
+  //! @brief Construct a new Shop System object
+  //! @param reg
+  //! @param window
+  //! @param sprite_factory
+  //! @param sound_bank
+  //! @param scenemanager_event_dispatcher
   ShopSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
               entt::dispatcher &scenemanager_event_dispatcher )
       : Game::Sys::BaseSystem( reg, window, sprite_factory, sound_bank ),
