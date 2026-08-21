@@ -11,6 +11,15 @@ namespace Game::Cmp::Particle
 
 enum class ViewType { SCREEN, WORLD };
 
+//! @brief Preset scale for particle sprites rendered in the UI/inventory view (see IParticleSprite::set_scale()).
+//! @note Defined in SpriteBase.cpp (not inline/constexpr here) so tuning the value only recompiles that one file,
+//        not everything that includes this header.
+extern const float kUiScalePreset;
+//! @brief Preset scale for particle sprites rendered in the game world view (see IParticleSprite::set_scale()).
+//! @note Defined in SpriteBase.cpp (not inline/constexpr here) so tuning the value only recompiles that one file,
+//        not everything that includes this header.
+extern const float kWorldScalePreset;
+
 // ============================================================
 // IParticle — individual particle contract
 // ============================================================
@@ -148,6 +157,8 @@ public:
 
   virtual void set_view_type( ViewType v ) = 0;
   virtual ViewType get_view_type() = 0;
+
+  virtual void set_scale( float scale ) = 0;
 
   virtual void set_particle_size_range( std::uniform_real_distribution<float> size_dist ) = 0;
 };
@@ -465,15 +476,25 @@ public:
     }
   }
 
+  void set_scale( float scale ) override { m_scale = scale; }
+
 protected:
   //! @brief Default translation function is a noop. See set_view_transform()
   std::function<sf::Vector2f( sf::Vector2f )> m_world_to_screen = []( sf::Vector2f p ) { return p; };
 
   //! @brief Disables IParticleSprite::simulate() if false
   bool m_sprite_active{ true };
+
+  //! @brief Max lifetime of the Particles
   sf::Time m_max_lifetime;
 
+  //! @brief Scales the overall spatial extent of the flame (sway width, rise height) — independent of per-particle dot size.
+  //! @note World-view flames pass through a camera transform that magnifies this trajectory; screen-view (UI) flames don't,
+  //        so the same raw amplitude/speed values read as differently sized. Tune this per view rather than the shared constants.
+  float m_scale;
+
 private:
+  //! @brief Max generations for the Particles in this sprite.
   size_t m_max_generations{ 0 };
 
   //! @brief Particle velocity range

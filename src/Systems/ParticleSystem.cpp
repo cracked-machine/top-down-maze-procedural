@@ -1,6 +1,7 @@
 #include <algorithm>
 
 #include <Components/Inventory/WorldItem.hpp>
+#include <Components/Particle/Flame.hpp>
 #include <Components/Position.hpp>
 #include <Components/UUID.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -52,7 +53,7 @@ void ParticleSystem::update( sf::Time dt )
     {
       if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
       if ( ps_uuid_cmp != candle_uuid_cmp ) continue;
-      ps_owner.sprite->set_emitter_position( candle_pos_cmp.getCenter() );
+      ps_owner.sprite->set_emitter_position( { candle_pos_cmp.getCenter().x, candle_pos_cmp.getCenter().y - Cmp::Particle::Flame::kVerticalOffset } );
     }
   }
 

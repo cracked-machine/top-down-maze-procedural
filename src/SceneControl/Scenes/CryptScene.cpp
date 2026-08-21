@@ -5,6 +5,7 @@
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
+#include <Components/Particle/SpriteBase.hpp>
 #include <Components/Persistent/CryptShuffleTimeout.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/Character.hpp>
@@ -105,7 +106,9 @@ void CryptScene::on_init()
   for ( auto [candle_entt, candle_cmp, candle_pos, uuid_cmp] : m_reg.view<Cmp::WorldItem, Cmp::Position, Cmp::UUID>().each() )
   {
     if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
-    Factory::Particle::add_flame( m_reg, "particle.candle", uuid_cmp, candle_pos.getCenter(), Utils::Player::get_position( m_reg ).y() - 1 );
+    Factory::Particle::add_flame( m_reg, "particle.candle", uuid_cmp,
+                                  { candle_pos.getCenter().x, candle_pos.getCenter().y - Cmp::Particle::Flame::kVerticalOffset },
+                                  Utils::Player::get_position( m_reg ).y() - 1, Cmp::Particle::kWorldScalePreset );
   }
 }
 

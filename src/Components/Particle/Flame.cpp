@@ -9,6 +9,7 @@ namespace Game::Cmp::Particle
 //! @brief Implementation detail — do not use externally
 namespace detail
 {
+
 void FlameParticle::emit()
 {
   static std::random_device rd;
@@ -22,6 +23,8 @@ void FlameParticle::emit()
   m_velocity = sf::Vector2f( 0.f, -m_speed_range( rng ) );
 };
 } // namespace detail
+
+const float Flame::kVerticalOffset = 2.f;
 
 Flame::Flame( size_t count )
     : SpriteBase( count ) {};
@@ -50,7 +53,7 @@ void Flame::simulate( sf::Time dt )
     const float wave_x = ( ratio > 0.8f ) ? amplitude * std::sin( ( 2.f * std::numbers::pi_v<float> * p.m_frequency * p.m_wave_time ) + p.m_phase )
                                           : 0.f;
 
-    p.m_vertex.position += sf::Vector2f{ wave_x, p.m_velocity.y } * dt.asSeconds();
+    p.m_vertex.position += sf::Vector2f{ wave_x, p.m_velocity.y } * dt.asSeconds() * m_scale;
 
     if ( ratio > k_flame_phase )
     {

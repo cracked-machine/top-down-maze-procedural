@@ -7,6 +7,8 @@
 #include <Components/LerpPosition.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
+#include <Components/Particle/Flame.hpp>
+#include <Components/Particle/SpriteBase.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/Persistent/GraveyardProcGenBirthThreshold.hpp>
 #include <Components/Persistent/GraveyardProcGenInitChance.hpp>
@@ -194,7 +196,9 @@ void GraveyardScene::on_init()
   for ( auto [candle_entt, candle_cmp, candle_pos, uuid_cmp] : m_reg.view<Cmp::WorldItem, Cmp::Position, Cmp::UUID>().each() )
   {
     if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
-    Factory::Particle::add_flame( m_reg, "particle.candle", uuid_cmp, candle_pos.getCenter(), Utils::Player::get_position( m_reg ).y() - 1 );
+    Factory::Particle::add_flame( m_reg, "particle.candle", uuid_cmp,
+                                  { candle_pos.getCenter().x, candle_pos.getCenter().y - Cmp::Particle::Flame::kVerticalOffset },
+                                  Utils::Player::get_position( m_reg ).y() - 1, Cmp::Particle::kWorldScalePreset );
   }
 }
 

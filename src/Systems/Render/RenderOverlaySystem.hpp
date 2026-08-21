@@ -70,6 +70,9 @@ public:
 
   void render_ui_outlines();
   void render_ui_icons();
+
+  //! @brief Render the sprite in the Inventory UI.
+  //! @note ParticleSprites are rendered seperately in RenderGameSystem::render_game
   void render_ui_inventory_icon();
   void render_ui_meters( sf::Time dt );
   void render_ui_texts();

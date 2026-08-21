@@ -171,7 +171,8 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
       uint8_t sacrifice_count = altar_cmp.get_sacrifice_count();
       reg().patch<Cmp::Altar::MultiBlock>( altar_entity,
                                            [&]( Cmp::Altar::MultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( sacrifice_count + 1 ); } );
-      Factory::Particle::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[sacrifice_count], 5000 );
+      sf::Vector2f flame_ps_pos = altar_cmp.position + altar_cmp.flame_offsets[sacrifice_count];
+      Factory::Particle::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, flame_ps_pos, 5000, Cmp::Particle::kWorldScalePreset );
       SPDLOG_DEBUG( "Altar activated to state {}.", sacrifice_count + 1 );
 
       // Apply the effects from exhuming this item to the player stats

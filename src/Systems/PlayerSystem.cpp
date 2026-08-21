@@ -27,6 +27,7 @@
 #include <Components/Npc/Wisp.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/ObstacleCap.hpp>
+#include <Components/Particle/SpriteBase.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerMovementSpeed.hpp>
@@ -94,6 +95,7 @@
 #include <algorithm>
 #include <cmath>
 #include <spdlog/spdlog.h>
+#include <stdexcept>
 #include <string>
 
 namespace Game::Sys
@@ -934,7 +936,7 @@ void PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entit
       if ( ps_uuid_cmp == *uuid_cmp )
       {
         ps_owner.sprite->set_view_type( Cmp::Particle::ViewType::WORLD );
-        // Put the flame particle just behind the players zorder
+        ps_owner.sprite->set_scale( Cmp::Particle::kWorldScalePreset );
         reg().emplace_or_replace<Cmp::ZOrderValue>( ps_entt, Utils::Player::get_position(reg()).y() - 1);
       }
     }
@@ -952,17 +954,15 @@ void PlayerSystem::pickup_world_item( entt::registry &reg, entt::entity world_it
   auto *anim_data_cmp = reg.try_get<Cmp::AnimData>( world_item_entt );
   if ( not anim_data_cmp ) return;
 
-  auto sprite_key = anim_data_cmp->m_sprite_type;
-  if ( sprite_key.starts_with( "sprite." ) )
-    sprite_key = sprite_key.substr( 7 );
-  auto world_item_cmp = Sys::ItemStore::instance().get_item( sprite_key );  
+  auto *world_item_cmp = reg.try_get<Cmp::WorldItem>(world_item_entt);
+  if (not world_item_cmp) throw std::runtime_error("PlayerSystem::pickup_world_item - Unable to get world item component from " + std::to_string(static_cast<uint32_t>(world_item_entt)));
 
   // create the basic inventory slot entt
   auto inventory_entity = reg.create();
-  reg.emplace_or_replace<Cmp::PlayerInventorySlot>( inventory_entity, world_item_cmp );
+  reg.emplace_or_replace<Cmp::PlayerInventorySlot>( inventory_entity, *world_item_cmp );
   // clang-format off
   reg.emplace_or_replace<Cmp::AnimData>( inventory_entity, Cmp::AnimData::Config{  
-        .sprite_type =  world_item_cmp.sprite_type,
+        .sprite_type =  world_item_cmp->sprite_type,
         .enabled = false
   });
   // clang-format on
@@ -975,12 +975,10 @@ void PlayerSystem::pickup_world_item( entt::registry &reg, entt::entity world_it
     {
       if ( ps_uuid_cmp == *uuid_cmp )
       {
-        // Move the ParticleSprite to the UI view. Any particle sprites should be fully cleared
-        // otherwise we get particle effects in strange places during the transition frame.
-        // The emitter position is set by RenderGameSystem using the UiData object.
+        // Move the ParticleSprite to the UI view. Reset the scale, zorder and view type.
         ps_owner.sprite->clear();
+        ps_owner.sprite->set_scale( Cmp::Particle::kUiScalePreset );
         ps_owner.sprite->set_view_type( Cmp::Particle::ViewType::SCREEN );
-        // The flame particle needs to be in front of everything when in the UI panel
         reg.emplace_or_replace<Cmp::ZOrderValue>( ps_entt, 50000 );
       }
     }
@@ -997,7 +995,6 @@ void PlayerSystem::pickup_world_item( entt::registry &reg, entt::entity world_it
   if ( explosive_cmp ) { reg.emplace_or_replace<Cmp::Explosive>( inventory_entity, false ); }
 
   // now destroy the world item entt
-  SPDLOG_DEBUG( "Picked up world entt {}", static_cast<uint32_t>( world_item_entt ) );
   Factory::Plant::remove_plant_mb( reg, world_item_entt, m_npc_navmesh.lock(), m_player_navmesh.lock() );
   if ( reg.valid( world_item_entt ) ) reg.destroy( world_item_entt );
 

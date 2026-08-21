@@ -29,6 +29,8 @@ public:
   Flame( size_t count );
   void simulate( sf::Time dt ) override;
 
+  static const float kVerticalOffset;
+
   float m_wave_time{ 0.f };                   // single shared wave time for all particles
   sf::Color m_final_flame_color{ 255, 0, 0 }; // red
 };
