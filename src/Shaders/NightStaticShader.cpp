@@ -67,6 +67,8 @@ void NightStaticShader::update( entt::registry &reg )
     npc_cone_directions.push_back( searchlight_cmp.cone_direction );
   }
 
+  float fear_amount = static_cast<float>( Utils::Player::get_player_stats( reg ).fear() ) / 100.f;
+
   Sprites::UniformBuilder{}
       .set( "resolution", sf::Vector2f{ display_size } )
       .set( "time", elapsed().asSeconds() )
@@ -80,6 +82,7 @@ void NightStaticShader::update( entt::registry &reg )
       .set( "npc_directions", npc_cone_directions )
       .set( "npc_torch_length", Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanConeLength>( reg ).get_value() )
       .set( "npc_torch_angle", Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanConeHalfAngle>( reg ).get_value() )
+      .set( "fear", fear_amount )
       .apply( &get_shader() );
 
   // shader position at the top left of the world
