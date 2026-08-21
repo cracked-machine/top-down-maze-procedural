@@ -1,8 +1,8 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Exit.hpp>
-#include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
+#include <Components/Npc/Npc.hpp>
 #include <Components/Npc/ShadowHand.hpp>
 #include <Components/Persistent/RuinMaxSpiders.hpp>
 #include <Components/Player/Character.hpp>
@@ -21,12 +21,12 @@
 #include <Components/Ruin/Entrance.hpp>
 #include <Components/Ruin/FloorAccess.hpp>
 #include <Components/Ruin/GateSegment.hpp>
+#include <Components/Ruin/RuneMarking.hpp>
 #include <Components/Ruin/StairsBalustradeMultiBlock.hpp>
 #include <Components/Ruin/StairsGateMultiBlock.hpp>
 #include <Components/Ruin/StairsLowerMultiBlock.hpp>
 #include <Components/Ruin/StairsSegment.hpp>
 #include <Components/Ruin/StairsUpperMultiBlock.hpp>
-#include <Components/Ruin/RuneMarking.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/Stats/BaseAction.hpp>
 #include <Components/Stats/CollisionAction.hpp>
@@ -132,12 +132,6 @@ void RuinSystem::check_exit_collision()
                                                               Cmp::RectBounds::ScaleAxis::XY ); // shrink entrance bounds slightly for better UX
 
     if ( not player_pos.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
-
-    auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
-    if ( inventory_slot_type.contains( "candle" ) )
-    {
-      get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos.position ) );
-    }
 
     m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::EXIT_RUIN );
     reset_player_curse();
@@ -253,7 +247,7 @@ void RuinSystem::check_movement_slowdowns()
 
   // Check cobweb collision
   if ( Utils::Collision::check_cmp<Cmp::Ruin::Cobweb>( reg(), Cmp::RectBounds::scaled( player_pos, 1 ),
-                                                     []( const Cmp::Ruin::Cobweb &cobweb ) { return cobweb.integrity > 0; } ) )
+                                                       []( const Cmp::Ruin::Cobweb &cobweb ) { return cobweb.integrity > 0; } ) )
   {
     slowdown_penalty = std::max( slowdown_penalty, 0.5f );
   }

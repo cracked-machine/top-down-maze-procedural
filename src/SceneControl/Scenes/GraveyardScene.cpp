@@ -240,6 +240,9 @@ void GraveyardScene::on_enter()
   auto &player_dir = Utils::Player::get_direction( m_reg );
   player_dir = Cmp::Direction{ { 0.f, 0.f } };
 
+  // check if the player inventory has a candle, if so light it up!
+  Factory::Particle::add_flame_for_player_inventory_slot( m_reg );
+
   m_scene_exit_cooldown.restart();
 }
 

@@ -95,9 +95,6 @@ private:
 
   void create_healing_particles();
 
-  //! @brief If player is carry suitable weapon did the action event occur in NPC vicinity?
-  void check_player_axe_npc_kill();
-
   void move_obstacle( const sf::FloatRect &target_position );
   void check_player_can_push( sf::Time dt );
   void check_player_can_pull( sf::Time dt );
@@ -107,19 +104,6 @@ private:
 
   //! @brief Blink the player if damage cooldown was activated.
   void blink_player();
-
-  //! @brief Remove the CarryItem from player inventory and place it into the world
-  //! @param reg the ECS registry
-  //! @param pos the postion to place the item
-  //! @param sprite the spritesheet object
-  //! @param inventory_slot_cmp_entt the player inventory slot entt
-  //! @return entt::entity
-  void drop_inventory_slot_into_world( sf::Vector2f pos, entt::entity inventory_slot_entt );
-
-  //! @brief
-  //! @param reg
-  //! @param world_item_entt
-  void pickup_world_item( entt::registry &reg, entt::entity world_item_entt );
 
   //! @brief Checks if the player's movement to a given position is valid
   //! Validates whether the player can move to the specified position by checking
@@ -135,14 +119,6 @@ private:
   //! @param search_bounds The (already scaled) target move bounds to test against hazard cells
   //! @return true if movement should be allowed, false if still being resisted
   bool resolve_hazard_pushback( const Cmp::RectBounds &search_bounds );
-
-  //! @brief Single drop, no pickup
-  //! @param ev
-  void on_drop_inventory_event( Game::Events::DropInventoryEvent ev );
-
-  //! @brief Attack, Dig and Drop/Pickup events
-  //! @param ev
-  void on_player_action_event( Game::Events::PlayerActionEvent ev );
 
   //! @brief Checking if Cmp::Player::NoPath should be activated.
   //! @param dt
@@ -160,9 +136,6 @@ private:
 
   //! @brief Global fear stat increase timer when player is standing in darkness.
   sf::Time m_darkness_fear_clock;
-
-  //! @brief Prevent player from spamming the drop inventory action.
-  sf::Clock m_inventory_cooldown_timer;
 
   //! @brief Cooldown for checking if Cmp::Player::NoPath should be activated.
   sf::Time m_plantcheck_accumulator;

@@ -10,9 +10,9 @@
 #include <Components/SceneSettings/ShowNavmesh.hpp>
 #include <Components/SceneSettings/ShowPathFinding.hpp>
 #include <Components/Shop/Inventory.hpp>
-
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/NpcFactory.hpp>
+#include <Factory/ParticleFactory.hpp>
 #include <Factory/PathfindingFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SceneControl/Events/ProcessShopSceneInputEvent.hpp>
@@ -23,6 +23,7 @@
 #include <Systems/FootstepSystem.hpp>
 #include <Systems/HealingSpringSystem.hpp>
 #include <Systems/LootSystem.hpp>
+#include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/PlayerSystem.hpp>
@@ -105,6 +106,9 @@ void ShopScene::on_enter()
     SPDLOG_INFO( "player_start_pos_px: {},{}", player_pos.position.x, player_pos.position.y );
     m_just_spawned = false;
   }
+
+  // check if the player inventory has a candle, if so light it up!
+  Factory::Particle::add_flame_for_player_inventory_slot( m_reg );
 }
 
 void ShopScene::on_exit()
@@ -124,6 +128,7 @@ void ShopScene::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Sys::Store::Type::AnimSystem>().update( dt );
   m_sys.find<Sys::Store::Type::FootstepSystem>().update();
   m_sys.find<Sys::Store::Type::ShopSystem>().check_exit_collision();
+  m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );
 
   if ( m_scene_data )
   {
