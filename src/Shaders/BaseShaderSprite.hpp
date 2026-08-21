@@ -80,6 +80,8 @@ public:
   void active( bool active ) override { m_active = active; }
   bool active() const override { return m_active; }
 
+  sf::RenderTexture &get_render_texture() override { return m_render_texture; }
+
 protected:
   sf::Shader &get_shader() override { return m_shader; }
 

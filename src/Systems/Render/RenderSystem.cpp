@@ -1,6 +1,5 @@
 #include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/RectBounds.hpp>
-#include <Utils/Optimizations.hpp>
 #include <Shaders/DarkModeShader.hpp>
 #include <Shaders/DrippingBloodShader.hpp>
 #include <Shaders/FloodWaterShader.hpp>
@@ -11,6 +10,7 @@
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Constants.hpp>
+#include <Utils/Optimizations.hpp>
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -57,8 +57,8 @@ void RenderSystem::render_text( std::string text, unsigned int size, sf::Vector2
   title_bg.setFillColor( sf::Color::Black );
   title_bg.setPosition( { final_position.x + title_bounds.position.x - cell_padding, final_position.y + title_bounds.position.y - cell_padding } );
 
-  m_window.draw( title_bg );
-  m_window.draw( title_text );
+  active_render_target().draw( title_bg );
+  active_render_target().draw( title_text );
 }
 
 void RenderSystem::safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type, const sf::FloatRect &pos_cmp,
@@ -111,27 +111,30 @@ void RenderSystem::render_fallback_square_to_target( sf::RenderTarget &target, c
 void RenderSystem::safe_render_sprite_world( const std::string &sprite_type, const sf::FloatRect &pos_cmp, std::size_t sprite_index,
                                              sf::Vector2f scale, uint8_t alpha, sf::Vector2f origin, sf::Angle angle )
 {
-  const sf::View previous_view = m_window.getView();
-  m_window.setView( get_world_view() );
-  safe_render_sprite_to_target( m_window, sprite_type, pos_cmp, sprite_index, scale, alpha, origin, angle );
-  m_window.setView( previous_view );
+  auto &target = active_render_target();
+  const sf::View previous_view = target.getView();
+  target.setView( get_world_view() );
+  safe_render_sprite_to_target( target, sprite_type, pos_cmp, sprite_index, scale, alpha, origin, angle );
+  target.setView( previous_view );
 }
 
 void RenderSystem::safe_render_sprite_screen( const std::string &sprite_type, const sf::FloatRect &pos_cmp, std::size_t sprite_index,
                                               sf::Vector2f scale, uint8_t alpha, sf::Vector2f origin, sf::Angle angle )
 {
-  const sf::View previous_view = m_window.getView();
-  m_window.setView( get_screen_view() );
-  safe_render_sprite_to_target( m_window, sprite_type, pos_cmp, sprite_index, scale, alpha, origin, angle );
-  m_window.setView( previous_view );
+  auto &target = active_render_target();
+  const sf::View previous_view = target.getView();
+  target.setView( get_screen_view() );
+  safe_render_sprite_to_target( target, sprite_type, pos_cmp, sprite_index, scale, alpha, origin, angle );
+  target.setView( previous_view );
 }
 
 void RenderSystem::render_fallback_square_world( const sf::FloatRect &pos_cmp, const sf::Color &color )
 {
-  const sf::View previous_view = m_window.getView();
-  m_window.setView( get_world_view() );
-  render_fallback_square_to_target( m_window, pos_cmp, color );
-  m_window.setView( previous_view );
+  auto &target = active_render_target();
+  const sf::View previous_view = target.getView();
+  target.setView( get_world_view() );
+  render_fallback_square_to_target( target, pos_cmp, color );
+  target.setView( previous_view );
 }
 
 void RenderSystem::render_rectbounds( Cmp::RectBounds &bounds, sf::Color color )

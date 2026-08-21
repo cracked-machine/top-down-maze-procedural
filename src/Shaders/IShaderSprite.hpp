@@ -19,6 +19,11 @@ public:
   virtual void active( bool active ) = 0;
   virtual bool active() const = 0;
 
+  //! @brief Access the render texture this sprite's shader will sample as its `texture` uniform.
+  //! Used by RenderGameSystem to redirect a frame's drawing into a post-process shader (e.g.
+  //! FearDistortionShader) instead of the flat clear color the other overlay shaders use.
+  virtual sf::RenderTexture &get_render_texture() = 0;
+
 protected:
   virtual sf::Shader &get_shader() = 0;
 };

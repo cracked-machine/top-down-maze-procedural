@@ -21,8 +21,8 @@
 #include <Components/Exit.hpp>
 #include <Components/FractalCurve.hpp>
 #include <Components/Grave/MultiBlock.hpp>
-#include <Components/Inventory/WearLevel.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
+#include <Components/Inventory/WearLevel.hpp>
 #include <Components/LastDirection.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Npc/Shockwave.hpp>
@@ -114,8 +114,27 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   bool debug_tick = Utils::scene_setting<Cmp::SceneSettings::ShowDebugStats>( reg() ).enabled and
                     ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval );
 
+  // Full-screen fear distortion post-process: if the current scene registered one (see
+  // Factory::Shader::add_fear_distortion) and shaders aren't disabled, redirect the world-content
+  // portion of this frame's drawing into its render texture instead of the window. The distorted
+  // result is composited back onto the window once world drawing is done, below — deliberately
+  // BEFORE the UI/HUD overlay is drawn, so menus, meters, icons and text stay crisp and undistorted.
+  auto *fear_shader = ShaderSystem::find( reg(), "FearDistortion" );
+  bool distortion_active = fear_shader != nullptr && fear_shader->active() && Utils::scene_setting<Cmp::SceneSettings::Shaders>( reg() ).enabled;
+
   // main render begin
-  m_window.clear();
+  if ( distortion_active )
+  {
+    fear_shader->update( reg() );
+    // RenderOverlaySystem is a separate RenderSystem instance with its own render target.
+    // render_wear_level() below is called from within the z-order loop as a world-anchored
+    // element (a bar above an item), not UI chrome, so it must be redirected along with `this` for
+    // the world-content portion of the frame; it's restored well before the UI/HUD section starts.
+    set_render_target( fear_shader->get_render_texture() );
+    render_overlay_sys.redirect_render_target( fear_shader->get_render_texture() );
+    active_render_target().clear();
+  }
+  else { m_window.clear(); }
 
   // render anything with a ZOrderValue component in lowest value first order
   for ( const auto &zorder_entry : m_zorder_queue_ )
@@ -227,6 +246,17 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
 
   render_lightning_strike();
   render_obstacle_cracks();
+
+  if ( distortion_active )
+  {
+    // finalize the captured world-content frame and composite it back onto the window through the
+    // distortion shader now, before any UI/HUD drawing starts below, so the UI stays undistorted.
+    restore_render_target();
+    render_overlay_sys.restore_external_render_target();
+    fear_shader->get_render_texture().display();
+    draw_screen( *fear_shader );
+  }
+
   render_overlay_sys.render_shop_inventory_overlay();
   render_overlay_sys.render_grimoire_inventory_overlay();
 
@@ -381,7 +411,7 @@ void RenderGameSystem::render_shockwaves()
 
       if ( Utils::is_visible_in_view( RenderSystem::get_world_view(), segment_bounds ) )
       {
-        segment.draw( m_window, sf::RenderStates::Default, npc_sw_cmp.sprite.get_position(), npc_sw_cmp.sprite.get_radius(),
+        segment.draw( active_render_target(), sf::RenderStates::Default, npc_sw_cmp.sprite.get_position(), npc_sw_cmp.sprite.get_radius(),
                       npc_sw_cmp.sprite.get_outline_thickness(), npc_sw_cmp.sprite.get_outline_color(), npc_sw_cmp.sprite.get_points_per_segment() );
       }
     }

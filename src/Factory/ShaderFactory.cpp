@@ -54,4 +54,12 @@ void add_curse( Sys::ShaderSystem &shader_sys, sf::Vector2f map_size_pixel )
                                                                             map_size_pixel_2u );
   shader_sys.add( std::move( cursed_mode_shader ), Cmp::ZOrderValue( 20000.f ) );
 }
+
+void add_fear_distortion( Sys::ShaderSystem &shader_sys, const Cmp::Persist::DisplayResolution &display_res )
+{
+  auto fear_distortion_shader = std::make_unique<Sprites::FearDistortionShader>( "res/shaders/Generic.vert", "res/shaders/fear_distortion.frag",
+                                                                                 display_res );
+  fear_distortion_shader->set_tag( "FearDistortion" );
+  shader_sys.add_post_process( std::move( fear_distortion_shader ) );
+}
 } // namespace Game::Factory::Shader

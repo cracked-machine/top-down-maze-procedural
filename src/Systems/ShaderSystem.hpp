@@ -1,9 +1,9 @@
 #ifndef SRC_SYSTEMS_SHADERSYSTEM_HPP__
 #define SRC_SYSTEMS_SHADERSYSTEM_HPP__
 
+#include <Components/ZOrderValue.hpp>
 #include <Shaders/IShaderSprite.hpp>
 #include <Systems/BaseSystem.hpp>
-#include <Components/ZOrderValue.hpp>
 namespace Game::Sys
 {
 
@@ -36,6 +36,19 @@ public:
   void add( std::unique_ptr<Sprites::IShaderSprite> shader, Cmp::ZOrderValue z_order )
   {
     add_to_registry( ShaderSpriteOwner( std::move( shader ) ), z_order );
+  }
+
+  //! @brief Wrap and add a post-process shader sprite to the registry, deliberately without a
+  //! Cmp::ZOrderValue so RenderGameSystem::refresh_z_order_queue skips it: post-process shaders (e.g.
+  //! FearDistortionShader) are composited as an explicit final pass over the whole frame rather than
+  //! drawn inline as a world/screen entity. Still findable via ShaderSystem::find and still updated
+  //! wherever the caller invokes IShaderSprite::update() on it directly.
+  //! @param shader
+  void add_post_process( std::unique_ptr<Sprites::IShaderSprite> shader )
+  {
+    auto entt = reg().create();
+    reg().emplace<ShaderSpriteOwner>( entt, ShaderSpriteOwner( std::move( shader ) ) );
+    SPDLOG_INFO( "Created post-process ShaderSprite {}", static_cast<uint32_t>( entt ) );
   }
 
   //! @brief Calls IShaderSprite::update() function within all added ShaderSpriteBase<T>
