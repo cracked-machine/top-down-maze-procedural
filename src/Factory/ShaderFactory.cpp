@@ -57,7 +57,10 @@ void add_curse( Sys::ShaderSystem &shader_sys, sf::Vector2f map_size_pixel )
 
 void add_fear_distortion( Sys::ShaderSystem &shader_sys, const Cmp::Persist::DisplayResolution &display_res )
 {
-  auto fear_distortion_shader = std::make_unique<Sprites::FearDistortionShader>( "res/shaders/Generic.vert", "res/shaders/FearDistortion.frag",
+  // Swap the .frag path here to switch between the full-screen wobble (FearDistortion.frag) and the
+  // localized hallucination patches (FearRandomHaze.frag) - both take the same uniforms via this
+  // same FearDistortionShader class, so nothing else needs to change to go back.
+  auto fear_distortion_shader = std::make_unique<Sprites::FearDistortionShader>( "res/shaders/Generic.vert", "res/shaders/FearRandomHaze.frag",
                                                                                  display_res );
   fear_distortion_shader->set_tag( "FearDistortion" );
   // Highest z-order of any shader so it distorts everything else drawn in the z-order queue,
