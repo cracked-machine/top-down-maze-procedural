@@ -114,24 +114,26 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   bool debug_tick = Utils::scene_setting<Cmp::SceneSettings::ShowDebugStats>( reg() ).enabled and
                     ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval );
 
-  // Full-screen fear distortion post-process: if the current scene registered one (see
-  // Factory::Shader::add_fear_distortion) and shaders aren't disabled, redirect the world-content
-  // portion of this frame's drawing into its render texture instead of the window. The distorted
-  // result is composited back onto the window once world drawing is done, below — deliberately
-  // BEFORE the UI/HUD overlay is drawn, so menus, meters, icons and text stay crisp and undistorted.
-  auto *fear_shader = ShaderSystem::find( reg(), "FearDistortion" );
-  bool distortion_active = fear_shader != nullptr && fear_shader->active() && Utils::scene_setting<Cmp::SceneSettings::Shaders>( reg() ).enabled;
+  // A post-process shader (e.g. FearDistortionShader, see Factory::Shader::add_fear_distortion)
+  // samples everything drawn so far rather than blending its own texture onto the scene, so this
+  // frame's drawing has to start out redirected into its render texture instead of the window —
+  // there's no way to discover that lazily mid-frame, since the first thing drawn has to land
+  // somewhere. Exactly how much of the frame ends up distorted is then driven entirely by that
+  // shader's own Cmp::ZOrderValue: the z-order loop below finalizes the capture and composites it
+  // back onto the window at the point it reaches that shader's entity, like any normal z-ordered
+  // draw, rather than at a hand-picked point in this function.
+  auto *post_process_shader = ShaderSystem::find( reg(), "FearDistortion" );
+  bool distortion_active = post_process_shader != nullptr && post_process_shader->active() &&
+                           Utils::scene_setting<Cmp::SceneSettings::Shaders>( reg() ).enabled;
 
   // main render begin
   if ( distortion_active )
   {
-    fear_shader->update( reg() );
-    // RenderOverlaySystem is a separate RenderSystem instance with its own render target.
-    // render_wear_level() below is called from within the z-order loop as a world-anchored
-    // element (a bar above an item), not UI chrome, so it must be redirected along with `this` for
-    // the world-content portion of the frame; it's restored well before the UI/HUD section starts.
-    set_render_target( fear_shader->get_render_texture() );
-    render_overlay_sys.redirect_render_target( fear_shader->get_render_texture() );
+    // RenderOverlaySystem is a separate RenderSystem instance with its own render target, and
+    // render_wear_level() below is called from within the z-order loop as a world-anchored element
+    // (a bar above an item), not UI chrome, so it must be redirected along with `this`.
+    set_render_target( post_process_shader->get_render_texture() );
+    render_overlay_sys.redirect_render_target( post_process_shader->get_render_texture() );
     active_render_target().clear();
   }
   else { m_window.clear(); }
@@ -202,7 +204,22 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
       auto &shader_sprite_owner = reg().get<ShaderSpriteOwner>( entity );
       if ( not shader_sprite_owner.sprite ) continue;
       shader_sprite_owner.sprite->update( reg() );
-      if ( Utils::scene_setting<Cmp::SceneSettings::Shaders>( reg() ).enabled ) { draw_world( *shader_sprite_owner.sprite ); }
+      if ( not Utils::scene_setting<Cmp::SceneSettings::Shaders>( reg() ).enabled ) continue;
+
+      if ( shader_sprite_owner.sprite->is_post_process() )
+      {
+        // Reached this shader's ZOrderValue-driven position in the queue: everything up to here has
+        // been redirected into its render texture (see the bootstrap above), so finalize that
+        // capture and composite the distorted result onto the window now, before continuing. If
+        // distortion_active is false, nothing was ever redirected into it this frame, so there's
+        // nothing to composite.
+        if ( not distortion_active ) continue;
+        shader_sprite_owner.sprite->get_render_texture().display();
+        restore_render_target();
+        render_overlay_sys.restore_external_render_target();
+        draw_screen( *shader_sprite_owner.sprite );
+      }
+      else { draw_world( *shader_sprite_owner.sprite ); }
     }
     else if ( reg().all_of<ParticleSpriteOwner>( entity ) )
     {
@@ -246,16 +263,6 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
 
   render_lightning_strike();
   render_obstacle_cracks();
-
-  if ( distortion_active )
-  {
-    // finalize the captured world-content frame and composite it back onto the window through the
-    // distortion shader now, before any UI/HUD drawing starts below, so the UI stays undistorted.
-    restore_render_target();
-    render_overlay_sys.restore_external_render_target();
-    fear_shader->get_render_texture().display();
-    draw_screen( *fear_shader );
-  }
 
   render_overlay_sys.render_shop_inventory_overlay();
   render_overlay_sys.render_grimoire_inventory_overlay();

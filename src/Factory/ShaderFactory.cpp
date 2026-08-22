@@ -60,6 +60,8 @@ void add_fear_distortion( Sys::ShaderSystem &shader_sys, const Cmp::Persist::Dis
   auto fear_distortion_shader = std::make_unique<Sprites::FearDistortionShader>( "res/shaders/Generic.vert", "res/shaders/FearDistortion.frag",
                                                                                  display_res );
   fear_distortion_shader->set_tag( "FearDistortion" );
-  shader_sys.add_post_process( std::move( fear_distortion_shader ) );
+  // Highest z-order of any shader so it distorts everything else drawn in the z-order queue,
+  // including other overlay shaders like NightStatic (40000).
+  shader_sys.add( std::move( fear_distortion_shader ), Cmp::ZOrderValue( 999999.f ) );
 }
 } // namespace Game::Factory::Shader

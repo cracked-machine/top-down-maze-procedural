@@ -11,9 +11,10 @@ namespace Game::Sprites
 
 //! @brief Full-screen post-process shader that warps the already-rendered game frame with a wave
 //! distortion whose intensity tracks the player's fear stat. Unlike the other IShaderSprite overlays,
-//! its render texture is not left as a flat color: RenderGameSystem redirects the frame's world/UI
-//! drawing into it (via BaseShaderSprite::get_render_texture()) before compositing the distorted
-//! result back onto the window as the final step of the frame.
+//! its render texture is not left as a flat color: registered with a normal Cmp::ZOrderValue (see
+//! Factory::Shader::add_fear_distortion) like any other shader, its ZOrderValue is what decides how
+//! much of the frame gets captured into it before RenderGameSystem's z-order loop reaches this
+//! sprite, finalizes the capture, and composites the distorted result back onto the window.
 class FearDistortionShader : public BaseShaderSprite
 {
 public:
@@ -28,6 +29,8 @@ public:
 
   void post_setup_shader() override { m_shader.setUniform( "texture", sf::Shader::CurrentTexture ); }
   void update( entt::registry &reg ) override;
+
+  [[nodiscard]] bool is_post_process() const override { return true; }
 };
 
 } // namespace Game::Sprites

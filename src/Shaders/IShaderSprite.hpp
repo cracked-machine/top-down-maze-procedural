@@ -24,6 +24,15 @@ public:
   //! FearDistortionShader) instead of the flat clear color the other overlay shaders use.
   virtual sf::RenderTexture &get_render_texture() = 0;
 
+  //! @brief Whether this shader samples everything drawn so far (rather than blending its own
+  //! self-contained texture onto the scene, like the other overlay shaders do). A GPU can't read
+  //! and write the same render target in one draw, so RenderGameSystem's z-order loop handles a
+  //! post-process shader differently when it reaches its ZOrderValue-driven position in the queue:
+  //! it finalizes whatever's been captured into get_render_texture() so far and composites the
+  //! distorted result onto the window, instead of just blending this sprite in place like a normal
+  //! overlay. See FearDistortionShader for the concrete example.
+  [[nodiscard]] virtual bool is_post_process() const { return false; }
+
 protected:
   virtual sf::Shader &get_shader() = 0;
 };
