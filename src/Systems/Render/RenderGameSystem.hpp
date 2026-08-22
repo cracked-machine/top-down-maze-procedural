@@ -8,11 +8,15 @@
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Constants.hpp>
+#include <Utils/Maths.hpp>
 #include <Utils/Optimizations.hpp>
 
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <entt/entity/fwd.hpp>
+#include <optional>
+#include <queue>
+#include <tuple>
 
 namespace Game::Sprites
 {
@@ -40,6 +44,8 @@ namespace Game::Cmp
 {
 class ZOrderValue;
 class Position;
+class Armed;
+struct FractalCurve;
 } // namespace Game::Cmp
 
 namespace Game::Cmp::Particle
@@ -89,7 +95,11 @@ private:
   //! @brief Whether `m_camera_position` has been seeded with the player's position yet, to avoid lerping from the origin on the first frame.
   bool m_camera_initialized{ false };
 
-  //! @brief Renders the armed obstacles in the game world
+  //! @brief Draws every entity in `m_zorder_queue_` (sprites, particles, shaders, floor tiles), lowest z-order first
+  //! @param render_overlay_sys anything that is not part of the game world itself. i.e. UI, debug info, etc..
+  //! @param distortion_active Whether this frame's drawing has been redirected into the FearDistortion shader's render
+  //! texture; passed through so the post-process shader entry point in the queue knows whether to composite it back
+  void render_zorder_queue( RenderOverlaySystem &render_overlay_sys, bool distortion_active );
 
   //! @brief Used by CryptScene for Priest NPC weapon
   //! @param floormap
@@ -101,6 +111,19 @@ private:
   //! @brief Used by GraveyardScene when player places a seeing stone
   void render_seeingstone_doglegs( const Cmp::SeeingStone &stone_cmp, const Cmp::Position &pos_cmp );
 
+  //! @brief Renders the flashing warning square over an armed obstacle in the game world
+  void render_armed_indicator( const Cmp::Armed &armed_cmp, const Cmp::Position &pos_cmp );
+
+  //! @brief Draws the zigzag vertex sequence shared by lightning strikes and obstacle cracks: a thick
+  //! main line through the zero-index vertex of each row, with thinner lines to/from the other vertices.
+  //! @param curve The vertex sequence and lifetime state to draw
+  //! @param main_color Colour of the zero-index (main) line
+  //! @param aux_color Colour of the non-zero-index (branch) lines
+  //! @param main_thickness Thickness of the main line
+  //! @param aux_thickness Thickness of the branch lines
+  void render_fractal_curve( const Cmp::FractalCurve &curve, sf::Color main_color, sf::Color aux_color, float main_thickness,
+                             float aux_thickness );
+
   //! @brief Used by GraveyardScene when player is struck by lightning
   void render_lightning_strike();
 
@@ -110,6 +133,31 @@ private:
   //! @brief Flashes the screen
   //! @param color
   void render_screen_flash( sf::Color color );
+
+  //! @brief Finds the nearest position among a view of entities to a source point, skipping entities the
+  //! predicate rejects.
+  //! @tparam View An entt view already filtered to the desired component types
+  //! @tparam ToPositionFn Callable taking (entt::entity, const Components&...) matching `view`, returning
+  //! std::optional<Cmp::Position> — std::nullopt skips that entity
+  //! @param view The entt view to search
+  //! @param from The point to measure distance from
+  //! @param to_position Projects a matched entity's components to its Cmp::Position, or skips it
+  //! @return The nearest matched Cmp::Position, or std::nullopt if no entity in the view qualified
+  template <typename View, typename ToPositionFn>
+  std::optional<Cmp::Position> find_nearest_target( View &&view, sf::Vector2f from, ToPositionFn &&to_position )
+  {
+    using DistanceQueue = std::priority_queue<std::pair<float, Cmp::Position>, std::vector<std::pair<float, Cmp::Position>>,
+                                               Utils::Maths::DistancePositionComparator>;
+    DistanceQueue distance_queue;
+    for ( auto &&row : view.each() )
+    {
+      std::optional<Cmp::Position> maybe_pos = std::apply( to_position, row );
+      if ( not maybe_pos ) continue;
+      auto float_distance = Utils::Maths::getEuclideanDistance( maybe_pos->position, from );
+      distance_queue.emplace( float_distance, *maybe_pos );
+    }
+    return distance_queue.empty() ? std::nullopt : std::optional<Cmp::Position>{ distance_queue.top().second };
+  }
 
   //! @brief Adds visible entities of a specific component type to the Z-order queue
   //! Optimized (single-type view) query on entt components for visibility check and Z-order queue

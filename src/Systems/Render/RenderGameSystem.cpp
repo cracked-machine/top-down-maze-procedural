@@ -83,7 +83,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <algorithm>
 #include <memory>
-#include <queue>
+#include <optional>
 #include <ranges>
 
 namespace Game::Sys
@@ -111,16 +111,16 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   // re-populate the z-order queue with the latest entity/component data
   refresh_z_order_queue();
 
-  bool debug_tick = Utils::scene_setting<Cmp::SceneSettings::ShowDebugStats>( reg() ).enabled and
-                    ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval );
+  const bool show_debug_stats = Utils::scene_setting<Cmp::SceneSettings::ShowDebugStats>( reg() ).enabled;
+  bool debug_tick = show_debug_stats and ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval );
 
   // A post-process shader (e.g. FearDistortionShader, see Factory::Shader::add_fear_distortion)
   // samples everything drawn so far rather than blending its own texture onto the scene, so this
   // frame's drawing has to start out redirected into its render texture instead of the window —
   // there's no way to discover that lazily mid-frame, since the first thing drawn has to land
   // somewhere. Exactly how much of the frame ends up distorted is then driven entirely by that
-  // shader's own Cmp::ZOrderValue: the z-order loop below finalizes the capture and composites it
-  // back onto the window at the point it reaches that shader's entity, like any normal z-ordered
+  // shader's own Cmp::ZOrderValue: render_zorder_queue() below finalizes the capture and composites
+  // it back onto the window at the point it reaches that shader's entity, like any normal z-ordered
   // draw, rather than at a hand-picked point in this function.
   auto *post_process_shader = ShaderSystem::find( reg(), "FearDistortion" );
   bool distortion_active = post_process_shader != nullptr && post_process_shader->active() &&
@@ -138,6 +138,90 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   }
   else { m_window.clear(); }
 
+  // render the zorder queue, anything after this is treated as an "overlay" to the main render pipeline
+  render_zorder_queue( render_overlay_sys, distortion_active );
+
+  render_shockwaves();
+  render_arrow_compass();
+
+  render_lightning_strike();
+  render_obstacle_cracks();
+
+  render_overlay_sys.render_shop_inventory_overlay();
+  render_overlay_sys.render_grimoire_inventory_overlay();
+
+  // lava pit outline
+  render_overlay_sys.render_square_for_floatrect_cmp<Cmp::Crypt::RoomLavaPit>( sf::Color( 16, 16, 16 ), 0.5f );
+
+  if ( Utils::scene_setting<Cmp::SceneSettings::ShowNavmesh>( reg() ).enabled ) { render_overlay_sys.render_navmesh( npc_navmesh ); }
+  if ( Utils::scene_setting<Cmp::SceneSettings::ShowPathFinding>( reg() ).enabled )
+  {
+
+    Cmp::Position player_center_hitbox( player_pos_cmp.getCenter(), { 1.f, 1.f } );
+    render_overlay_sys.render_square( player_center_hitbox.position, player_center_hitbox.size, sf::Color::Blue );
+    render_overlay_sys.render_lerp_positions();
+    render_overlay_sys.render_spatial_grid_neighbours( player_center_hitbox, sf::Color::Cyan, PathFinding::QueryCompass::CARDINAL );
+
+    for ( auto [npc_entt, npc_cmp, npc_pos_cmp, anim_cmp] : reg().view<Cmp::Npc::NPC, Cmp::Position, Cmp::AnimData>().each() )
+    {
+      auto query_compass = PathFinding::QueryCompass::CARDINAL;
+      if ( anim_cmp.m_sprite_type.contains( "sprite.ghost" ) ) query_compass = PathFinding::QueryCompass::BOTH;
+      Cmp::Position npc_center_hitbox( npc_pos_cmp.getCenter(), { 1.f, 1.f } );
+
+      render_overlay_sys.render_spatial_grid_neighbours( npc_center_hitbox, sf::Color::Magenta, query_compass );
+      render_overlay_sys.render_pathfinding_vector( npc_pos_cmp, player_pos_cmp, sf::Color::White, query_compass );
+    }
+  }
+
+  // render normal game UI
+  render_overlay_sys.render_ui_outlines();
+  render_overlay_sys.render_ui_icons();
+  render_overlay_sys.render_ui_inventory_icon();
+  render_overlay_sys.render_ui_meters( dt );
+  render_overlay_sys.render_ui_labels( dt );
+  render_overlay_sys.render_ui_texts();
+  render_overlay_sys.render_level_depth();
+
+  auto display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
+  render_overlay_sys.render_crypt_maze_timer( { static_cast<float>( display_size.x ) / 2.f, 0.f }, 100 );
+
+  // these debug shapes are only drawn within the current view to prevent FPS drops
+  if ( show_debug_stats )
+  {
+    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::Crypt::RoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
+    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::Crypt::RoomOpen>( sf::Color::Green, 1.f );
+    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::Crypt::RoomStart>( sf::Color::Blue, 1.f );
+    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::Crypt::RoomEnd>( sf::Color::Yellow, 1.f );
+    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::Crypt::RoomClosed>( sf::Color::Red, 1.f );
+    render_overlay_sys.render_square_for_vector2f_cmp<Cmp::Crypt::PassageBlock>( sf::Color::Black, 1.f );
+  }
+
+  // limit the update frequency to prevent FPS drops
+  if ( debug_tick )
+  {
+    render_overlay_sys.begin_debug_overlay( m_window.getSize() );
+
+    render_overlay_sys.render_ui_misc_stats();
+    render_overlay_sys.render_ui_zorder_list( m_zorder_queue_ );
+    render_overlay_sys.render_ui_npc_list();
+    render_overlay_sys.render_ui_entity_inspect();
+    for ( auto [selected_entt, selected_cmp, pos_cmp] : reg().view<Cmp::SelectedPosition, Cmp::Position>().each() )
+    {
+      if ( not Utils::is_visible_in_view( get_screen_view(), pos_cmp ) ) continue;
+      render_overlay_sys.render_square( pos_cmp.position, pos_cmp.size, sf::Color::Yellow );
+    }
+
+    render_overlay_sys.end_debug_overlay();
+    m_debug_update_timer.restart();
+  }
+
+  if ( show_debug_stats ) render_overlay_sys.draw_debug_overlay( m_window );
+
+  m_window.display();
+}
+
+void RenderGameSystem::render_zorder_queue( RenderOverlaySystem &render_overlay_sys, bool distortion_active )
+{
   // render anything with a ZOrderValue component in lowest value first order
   for ( const auto &zorder_entry : m_zorder_queue_ )
   {
@@ -177,27 +261,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
         render_overlay_sys.render_wear_level( reg().get<Cmp::Inventory::WearLevel>( entity ).m_level, pos_cmp );
       }
 
-      if ( reg().any_of<Cmp::Armed>( entity ) )
-      {
-        const auto &armed_cmp = reg().get<Cmp::Armed>( entity );
-        sf::RectangleShape temp_square( Constants::kGridSizePxF );
-        temp_square.setPosition( pos_cmp.position );
-        temp_square.setOutlineColor( sf::Color::Transparent );
-        temp_square.setFillColor( sf::Color::Transparent );
-        if ( armed_cmp.getElapsedWarningTime() > armed_cmp.m_warning_delay )
-        {
-          const float &flash_clk_elapsed_secs = Utils::Player::get_global_bomb_flash_clk( reg() ).getElapsedTime().asSeconds();
-          const float &armed_blink_hertz = Sys::PersistSystem::get<Cmp::Persist::ArmedBlinkFreq>( reg() ).get_value();
-          const bool flash_on = static_cast<int>( flash_clk_elapsed_secs * armed_blink_hertz * 2.f ) % 2 == 0;
-          if ( flash_on )
-          {
-            temp_square.setOutlineColor( armed_cmp.m_armed_color_border );
-            temp_square.setFillColor( armed_cmp.m_armed_color_fill );
-          }
-        }
-        temp_square.setOutlineThickness( 1.f );
-        draw_world( temp_square );
-      }
+      if ( reg().any_of<Cmp::Armed>( entity ) ) { render_armed_indicator( reg().get<Cmp::Armed>( entity ), pos_cmp ); }
     }
     else if ( reg().all_of<ShaderSpriteOwner>( entity ) )
     {
@@ -256,85 +320,6 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
       draw_world( floor_tiles );
     }
   }
-
-  // finally render anything on top
-  render_shockwaves();
-  render_arrow_compass();
-
-  render_lightning_strike();
-  render_obstacle_cracks();
-
-  render_overlay_sys.render_shop_inventory_overlay();
-  render_overlay_sys.render_grimoire_inventory_overlay();
-
-  // lava pit outline
-  render_overlay_sys.render_square_for_floatrect_cmp<Cmp::Crypt::RoomLavaPit>( sf::Color( 16, 16, 16 ), 0.5f );
-
-  if ( Utils::scene_setting<Cmp::SceneSettings::ShowNavmesh>( reg() ).enabled ) { render_overlay_sys.render_navmesh( npc_navmesh ); }
-  if ( Utils::scene_setting<Cmp::SceneSettings::ShowPathFinding>( reg() ).enabled )
-  {
-
-    Cmp::Position player_center_hitbox( player_pos_cmp.getCenter(), { 1.f, 1.f } );
-    render_overlay_sys.render_square( player_center_hitbox.position, player_center_hitbox.size, sf::Color::Blue );
-    render_overlay_sys.render_lerp_positions();
-    render_overlay_sys.render_spatial_grid_neighbours( player_center_hitbox, sf::Color::Cyan, PathFinding::QueryCompass::CARDINAL );
-
-    for ( auto [npc_entt, npc_cmp, npc_pos_cmp, anim_cmp] : reg().view<Cmp::Npc::NPC, Cmp::Position, Cmp::AnimData>().each() )
-    {
-      auto query_compass = PathFinding::QueryCompass::CARDINAL;
-      if ( anim_cmp.m_sprite_type.contains( "sprite.ghost" ) ) query_compass = PathFinding::QueryCompass::BOTH;
-      Cmp::Position npc_center_hitbox( npc_pos_cmp.getCenter(), { 1.f, 1.f } );
-
-      render_overlay_sys.render_spatial_grid_neighbours( npc_center_hitbox, sf::Color::Magenta, query_compass );
-      render_overlay_sys.render_pathfinding_vector( npc_pos_cmp, player_pos_cmp, sf::Color::White, query_compass );
-    }
-  }
-
-  // render normal game UI
-  render_overlay_sys.render_ui_outlines();
-  render_overlay_sys.render_ui_icons();
-  render_overlay_sys.render_ui_inventory_icon();
-  render_overlay_sys.render_ui_meters( dt );
-  render_overlay_sys.render_ui_labels( dt );
-  render_overlay_sys.render_ui_texts();
-  render_overlay_sys.render_level_depth();
-
-  auto display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
-  render_overlay_sys.render_crypt_maze_timer( { static_cast<float>( display_size.x ) / 2.f, 0.f }, 100 );
-
-  // these debug shapes are only drawn within the current view to prevent FPS drops
-  if ( Utils::scene_setting<Cmp::SceneSettings::ShowDebugStats>( reg() ).enabled )
-  {
-    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::Crypt::RoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
-    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::Crypt::RoomOpen>( sf::Color::Green, 1.f );
-    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::Crypt::RoomStart>( sf::Color::Blue, 1.f );
-    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::Crypt::RoomEnd>( sf::Color::Yellow, 1.f );
-    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::Crypt::RoomClosed>( sf::Color::Red, 1.f );
-    render_overlay_sys.render_square_for_vector2f_cmp<Cmp::Crypt::PassageBlock>( sf::Color::Black, 1.f );
-  }
-
-  // limit the update frequency to prevent FPS drops
-  if ( debug_tick )
-  {
-    render_overlay_sys.begin_debug_overlay( m_window.getSize() );
-
-    render_overlay_sys.render_ui_misc_stats();
-    render_overlay_sys.render_ui_zorder_list( m_zorder_queue_ );
-    render_overlay_sys.render_ui_npc_list();
-    render_overlay_sys.render_ui_entity_inspect();
-    for ( auto [selected_entt, selected_cmp, pos_cmp] : reg().view<Cmp::SelectedPosition, Cmp::Position>().each() )
-    {
-      if ( not Utils::is_visible_in_view( get_screen_view(), pos_cmp ) ) continue;
-      render_overlay_sys.render_square( pos_cmp.position, pos_cmp.size, sf::Color::Yellow );
-    }
-
-    render_overlay_sys.end_debug_overlay();
-    m_debug_update_timer.restart();
-  }
-
-  if ( Utils::scene_setting<Cmp::SceneSettings::ShowDebugStats>( reg() ).enabled ) render_overlay_sys.draw_debug_overlay( m_window );
-
-  m_window.display();
 }
 
 void RenderGameSystem::refresh_z_order_queue()
@@ -449,35 +434,28 @@ void RenderGameSystem::render_arrow_compass()
   // if holding a cryptkey then target the nearest inactive crypt
   if ( found_carryitem_type.contains( "cryptkey" ) )
   {
-    using CryptDistanceQueue = std::priority_queue<std::pair<float, Cmp::Position>, std::vector<std::pair<float, Cmp::Position>>,
-                                                   Utils::Maths::DistancePositionComparator>;
-    CryptDistanceQueue distance_queue;
-    auto crypt_view = reg().view<Cmp::Crypt::Entrance, Cmp::Position>();
-    for ( auto [crypt_entity, crypt_cmp, crypt_pos_cmp] : crypt_view.each() )
-    {
-      if ( crypt_cmp.is_open() ) continue;
-      auto float_distance = Utils::Maths::getEuclideanDistance( crypt_pos_cmp.position, Utils::Player::get_position( reg() ).position );
-      distance_queue.emplace( float_distance, crypt_pos_cmp );
-    }
-    if ( distance_queue.empty() ) return; // there are no suitable crypts so give up
-    arrow_target = distance_queue.top().second;
+    auto nearest = find_nearest_target(
+        reg().view<Cmp::Crypt::Entrance, Cmp::Position>(), Utils::Player::get_position( reg() ).position,
+        []( entt::entity, const Cmp::Crypt::Entrance &crypt_cmp, const Cmp::Position &crypt_pos_cmp ) -> std::optional<Cmp::Position>
+        {
+          if ( crypt_cmp.is_open() ) return std::nullopt;
+          return crypt_pos_cmp;
+        } );
+    if ( not nearest ) return; // there are no suitable crypts so give up
+    arrow_target = *nearest;
   }
 
   // if holding a relic then target the nearest inactive altar
   if ( found_carryitem_type.contains( "relic" ) )
   {
-    using AltarDistanceQueue = std::priority_queue<std::pair<float, Cmp::Position>, std::vector<std::pair<float, Cmp::Position>>,
-                                                   Utils::Maths::DistancePositionComparator>;
-    AltarDistanceQueue distance_queue;
-    auto crypt_view = reg().view<Cmp::Altar::MultiBlock>();
-    for ( auto [altar_entity, altar_cmp] : crypt_view.each() )
-    {
-      if ( altar_cmp.is_exitkey_lockout() ) continue;
-      auto float_distance = Utils::Maths::getEuclideanDistance( altar_cmp.position, Utils::Player::get_position( reg() ).position );
-      distance_queue.emplace( float_distance, Cmp::Position( altar_cmp.position, altar_cmp.size ) );
-    }
-    if ( distance_queue.empty() ) return; // there are no suitable crypts so give up
-    arrow_target = distance_queue.top().second;
+    auto nearest = find_nearest_target( reg().view<Cmp::Altar::MultiBlock>(), Utils::Player::get_position( reg() ).position,
+                                        []( entt::entity, const Cmp::Altar::MultiBlock &altar_cmp ) -> std::optional<Cmp::Position>
+                                        {
+                                          if ( altar_cmp.is_exitkey_lockout() ) return std::nullopt;
+                                          return Cmp::Position( altar_cmp.position, altar_cmp.size );
+                                        } );
+    if ( not nearest ) return; // there are no suitable altars so give up
+    arrow_target = *nearest;
   }
 
   for ( auto [player_entity, pc_cmp, pc_pos_cmp] : player_view.each() )
@@ -555,39 +533,96 @@ void RenderGameSystem::render_seeingstone_doglegs( const Cmp::SeeingStone &stone
   };
 
   constexpr float kLineThickness = 3.f;
-  // for ( auto [seeingstone_ent, stone_cmp, pos_cmp] : reg().view<Cmp::SeeingStone, Cmp::Position>().each() )
+  if ( not stone_cmp.active ) { return; }
+  switch ( stone_cmp.target )
   {
-    if ( not stone_cmp.active ) { return; }
-    switch ( stone_cmp.target )
+    case Cmp::SeeingStone::Target::YELLOW: {
+      auto altar_view = reg().view<Cmp::Altar::MultiBlock>();
+      for ( auto [altar_entt, altar_cmp] : altar_view.each() )
+      {
+        // yellow for altar paths
+        draw_dogleg( pos_cmp.getCenter(), altar_cmp.getCenter(), sf::Color( 255, 255, 0, 128 ), kLineThickness );
+      }
+      break;
+    }
+    case Cmp::SeeingStone::Target::RED: {
+      auto crypt_view = reg().view<Cmp::Crypt::Entrance, Cmp::Position>();
+      for ( auto [crypt_entt, crypt_cmp, crypt_pos_cmp] : crypt_view.each() )
+      {
+        // red for crypt paths
+        draw_dogleg( pos_cmp.getCenter(), crypt_pos_cmp.getCenter(), sf::Color( 255, 0, 0, 128 ), kLineThickness );
+      }
+      break;
+    }
+    case Cmp::SeeingStone::Target::GREEN: {
+      auto exit_view = reg().view<Cmp::Exit, Cmp::Position>();
+      for ( auto [exit_entt, exit_cmp, exit_pos_cmp] : exit_view.each() )
+      {
+        draw_dogleg( pos_cmp.getCenter(), exit_pos_cmp.getCenter(), sf::Color( 0, 255, 0, 128 ), kLineThickness );
+      }
+      break;
+    }
+    case Cmp::SeeingStone::Target::NONE: {
+      break;
+    }
+  }
+}
+
+void RenderGameSystem::render_armed_indicator( const Cmp::Armed &armed_cmp, const Cmp::Position &pos_cmp )
+{
+  sf::RectangleShape temp_square( Constants::kGridSizePxF );
+  temp_square.setPosition( pos_cmp.position );
+  temp_square.setOutlineColor( sf::Color::Transparent );
+  temp_square.setFillColor( sf::Color::Transparent );
+  if ( armed_cmp.getElapsedWarningTime() > armed_cmp.m_warning_delay )
+  {
+    const float &flash_clk_elapsed_secs = Utils::Player::get_global_bomb_flash_clk( reg() ).getElapsedTime().asSeconds();
+    const float &armed_blink_hertz = Sys::PersistSystem::get<Cmp::Persist::ArmedBlinkFreq>( reg() ).get_value();
+    const bool flash_on = static_cast<int>( flash_clk_elapsed_secs * armed_blink_hertz * 2.f ) % 2 == 0;
+    if ( flash_on )
     {
-      case Cmp::SeeingStone::Target::YELLOW: {
-        auto altar_view = reg().view<Cmp::Altar::MultiBlock>();
-        for ( auto [altar_entt, altar_cmp] : altar_view.each() )
+      temp_square.setOutlineColor( armed_cmp.m_armed_color_border );
+      temp_square.setFillColor( armed_cmp.m_armed_color_fill );
+    }
+  }
+  temp_square.setOutlineThickness( 1.f );
+  draw_world( temp_square );
+}
+
+void RenderGameSystem::render_fractal_curve( const Cmp::FractalCurve &curve, sf::Color main_color, sf::Color aux_color, float main_thickness,
+                                             float aux_thickness )
+{
+  // Draw the sequence of vertices by iterating pairs of vertices from the current and next row.
+  // Main strike line is index zero (thick). Aux strike lines are other indices (thin).
+  const auto &seq_rows = curve.sequence;
+  for ( auto curr_row_iter = seq_rows.begin(); curr_row_iter < seq_rows.end(); curr_row_iter++ )
+  {
+    auto next_row_iter = std::next( curr_row_iter );
+    if ( next_row_iter == seq_rows.end() ) { break; }
+
+    // next row's convergence point - all vertices in the current row connect to this
+    sf::Vector2f converge_pos = world_to_screen( next_row_iter->at( 0 ).position );
+
+    for ( auto [curr_row_idx, current_vertex] : std::views::enumerate( *curr_row_iter ) )
+    {
+      sf::Vector2f first_pos = world_to_screen( current_vertex.position );
+
+      // always converge non-zero index vertex back to the main line (zero-index)
+      if ( curr_row_idx > 0 ) { draw_screen( Utils::Maths::thick_line_rect( first_pos, converge_pos, aux_color, aux_thickness ) ); }
+      else if ( curr_row_idx == 0 )
+      {
+        // always draw main line on zero-index
+        draw_screen( Utils::Maths::thick_line_rect( first_pos, converge_pos, main_color, main_thickness ) );
+
+        for ( auto [next_row_idx, next_vertex] : std::views::enumerate( *next_row_iter ) )
         {
-          // yellow for altar paths
-          draw_dogleg( pos_cmp.getCenter(), altar_cmp.getCenter(), sf::Color( 255, 255, 0, 128 ), kLineThickness );
+          // always diverge zero-index vertex out to available non-zero index vertex on next row
+          if ( next_row_idx > 0 )
+          {
+            sf::Vector2f diverge_pos = world_to_screen( next_vertex.position );
+            draw_screen( Utils::Maths::thick_line_rect( first_pos, diverge_pos, aux_color, aux_thickness ) );
+          }
         }
-        break;
-      }
-      case Cmp::SeeingStone::Target::RED: {
-        auto crypt_view = reg().view<Cmp::Crypt::Entrance, Cmp::Position>();
-        for ( auto [crypt_entt, crypt_cmp, crypt_pos_cmp] : crypt_view.each() )
-        {
-          // red for crypt paths
-          draw_dogleg( pos_cmp.getCenter(), crypt_pos_cmp.getCenter(), sf::Color( 255, 0, 0, 128 ), kLineThickness );
-        }
-        break;
-      }
-      case Cmp::SeeingStone::Target::GREEN: {
-        auto exit_view = reg().view<Cmp::Exit, Cmp::Position>();
-        for ( auto [exit_entt, exit_cmp, exit_pos_cmp] : exit_view.each() )
-        {
-          draw_dogleg( pos_cmp.getCenter(), exit_pos_cmp.getCenter(), sf::Color( 0, 255, 0, 128 ), kLineThickness );
-        }
-        break;
-      }
-      case Cmp::SeeingStone::Target::NONE: {
-        break;
       }
     }
   }
@@ -595,7 +630,6 @@ void RenderGameSystem::render_seeingstone_doglegs( const Cmp::SeeingStone &stone
 
 void RenderGameSystem::render_lightning_strike()
 {
-
   const auto kAuxStrikeLineColor = sf::Color( 255, 255, 255, 255 );
   const auto kMainStrikeLineColor = sf::Color( 0, 255, 255, 255 );
 
@@ -616,45 +650,11 @@ void RenderGameSystem::render_lightning_strike()
 
   render_screen_flash( sf::Color( 255, 255, 255, 180 ) );
 
-  // Draw the sequence of vertices by iterating pairs of vertices from the current and next row.
-  // Main strike line is index zero (thick/blue). Aux strike lines are other indices (thin/white).
-  const auto &ls_seq_row = cmp.sequence;
-  for ( auto curr_row_iter = ls_seq_row.begin(); curr_row_iter < ls_seq_row.end(); curr_row_iter++ )
-  {
-    auto next_row_iter = std::next( curr_row_iter );
-    if ( next_row_iter == ls_seq_row.end() ) { break; }
-
-    // next row's convergence point - all vertices in the current row connect to this
-    sf::Vector2f converge_pos = world_to_screen( next_row_iter->at( 0 ).position );
-
-    for ( auto [curr_row_idx, current_vertex] : std::views::enumerate( *curr_row_iter ) )
-    {
-      sf::Vector2f first_pos = world_to_screen( current_vertex.position );
-
-      // always converge non-zero index vertex back to the main line (zero-index)
-      if ( curr_row_idx > 0 ) { draw_screen( Utils::Maths::thick_line_rect( first_pos, converge_pos, kAuxStrikeLineColor, kAuxLineThickness ) ); }
-      else if ( curr_row_idx == 0 )
-      {
-        // always draw main line on zero-index
-        draw_screen( Utils::Maths::thick_line_rect( first_pos, converge_pos, kMainStrikeLineColor, kMainLineThickness ) );
-
-        for ( auto [next_row_idx, next_vertex] : std::views::enumerate( *next_row_iter ) )
-        {
-          // always diverge zero-index vertex out to available non-zero index vertex on next row
-          if ( next_row_idx > 0 )
-          {
-            sf::Vector2f diverge_pos = world_to_screen( next_vertex.position );
-            draw_screen( Utils::Maths::thick_line_rect( first_pos, diverge_pos, kAuxStrikeLineColor, kAuxLineThickness ) );
-          }
-        }
-      }
-    }
-  }
+  render_fractal_curve( cmp, kMainStrikeLineColor, kAuxStrikeLineColor, kMainLineThickness, kAuxLineThickness );
 }
 
 void RenderGameSystem::render_obstacle_cracks()
 {
-
   const auto kAuxStrikeLineColor = sf::Color( 0, 0, 0, 255 );
   const auto kMainStrikeLineColor = sf::Color( 0, 0, 0, 255 );
 
@@ -663,47 +663,13 @@ void RenderGameSystem::render_obstacle_cracks()
 
   for ( auto [ob_crack_entt, ob_crack_cmp] : reg().view<Cmp::ObstacleCrack>().each() )
   {
-
     if ( ob_crack_cmp.sequence.size() < 2 )
     {
       SPDLOG_WARN( "Lightning component has empty sequence. Skipping rendering step." );
       return;
     }
 
-    // Draw the sequence of vertices by iterating pairs of vertices from the current and next row.
-    // Main strike line is index zero (thick/blue). Aux strike lines are other indices (thin/white).
-    const auto &ls_seq_row = ob_crack_cmp.sequence;
-    for ( auto curr_row_iter = ls_seq_row.begin(); curr_row_iter < ls_seq_row.end(); curr_row_iter++ )
-    {
-      auto next_row_iter = std::next( curr_row_iter );
-      if ( next_row_iter == ls_seq_row.end() ) { break; }
-
-      // next row's convergence point - all vertices in the current row connect to this
-      sf::Vector2f converge_pos = world_to_screen( next_row_iter->at( 0 ).position );
-
-      for ( auto [curr_row_idx, current_vertex] : std::views::enumerate( *curr_row_iter ) )
-      {
-        sf::Vector2f first_pos = world_to_screen( current_vertex.position );
-
-        // always converge non-zero index vertex back to the main line (zero-index)
-        if ( curr_row_idx > 0 ) { draw_screen( Utils::Maths::thick_line_rect( first_pos, converge_pos, kAuxStrikeLineColor, kAuxLineThickness ) ); }
-        else if ( curr_row_idx == 0 )
-        {
-          // always draw main line on zero-index
-          draw_screen( Utils::Maths::thick_line_rect( first_pos, converge_pos, kMainStrikeLineColor, kMainLineThickness ) );
-
-          for ( auto [next_row_idx, next_vertex] : std::views::enumerate( *next_row_iter ) )
-          {
-            // always diverge zero-index vertex out to available non-zero index vertex on next row
-            if ( next_row_idx > 0 )
-            {
-              sf::Vector2f diverge_pos = world_to_screen( next_vertex.position );
-              draw_screen( Utils::Maths::thick_line_rect( first_pos, diverge_pos, kAuxStrikeLineColor, kAuxLineThickness ) );
-            }
-          }
-        }
-      }
-    }
+    render_fractal_curve( ob_crack_cmp, kMainStrikeLineColor, kAuxStrikeLineColor, kMainLineThickness, kAuxLineThickness );
   }
 }
 
