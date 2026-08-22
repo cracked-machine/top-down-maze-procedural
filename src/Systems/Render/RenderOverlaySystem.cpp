@@ -91,15 +91,7 @@ void RenderOverlaySystem::render_ui_outlines()
     SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw Status Outline overlay" );
     return;
   }
-  for ( const auto &outline : m_main_ui_data->m_outlines )
-  {
-    auto rect = sf::RectangleShape( outline.rect.size );
-    rect.setPosition( outline.rect.position );
-    rect.setFillColor( outline.fill_color );
-    rect.setOutlineColor( outline.line_color );
-    rect.setOutlineThickness( static_cast<float>( outline.line_thickness ) );
-    draw_screen( rect );
-  }
+  render_outlines( m_main_ui_data->m_outlines );
 }
 
 void RenderOverlaySystem::render_ui_icons()
@@ -153,28 +145,13 @@ void RenderOverlaySystem::render_ui_meters( sf::Time dt )
     sf::Color meter_outer_color = sf::Color::Black;
     bool should_render = false;
 
-    auto health_flash_view = reg().view<Cmp::FlashUIHealth>();
     if ( meter.name == "health_meter" )
     {
       meter_value = static_cast<float>( Utils::Player::get_player_stats( reg() ).health() );
       meter_inner_color = sf::Color::Red;
       should_render = true;
 
-      if ( not health_flash_view.empty() )
-      {
-        auto flash_entt = health_flash_view.front();
-        auto &flash_cmp = health_flash_view.get<Cmp::FlashUIHealth>( flash_entt );
-        m_flash_health_ui_interval += dt;
-        if ( flash_cmp.duration != sf::Time::Zero and m_flash_health_ui_interval > flash_cmp.duration )
-        {
-          reg().remove<Cmp::FlashUIHealth>( flash_entt );
-          m_flash_health_ui_interval = sf::Time::Zero;
-        }
-        else if ( static_cast<int>( m_flash_health_ui_interval.asMilliseconds() / m_ui_flash_factor ) % 2 == 1 )
-        {
-          meter_outer_color = sf::Color::Cyan;
-        }
-      }
+      if ( update_flash_toggle<Cmp::FlashUIHealth>( dt, m_flash_health_ui_interval ) ) { meter_outer_color = sf::Color::Cyan; }
     }
     else if ( meter.name == "fear_meter" )
     {
@@ -278,79 +255,31 @@ void RenderOverlaySystem::render_ui_labels( sf::Time dt )
     text.setOutlineThickness( 2.f );
 
     // flash the text if we just increased the bomb blast radius
-    auto radius_flash_view = reg().view<Cmp::FlashUIRadius>();
-    if ( ui_label.name == "radius_label" and not radius_flash_view.empty() )
+    if ( ui_label.name == "radius_label" and update_flash_toggle<Cmp::FlashUIRadius>( dt, m_flash_radius_ui_interval ) )
     {
-      auto flash_entt = radius_flash_view.front();
-      auto &flash_cmp = radius_flash_view.get<Cmp::FlashUIRadius>( flash_entt );
-      m_flash_radius_ui_interval += dt;
-      if ( m_flash_radius_ui_interval > flash_cmp.duration )
-      {
-        reg().remove<Cmp::FlashUIRadius>( flash_entt );
-        m_flash_radius_ui_interval = sf::Time::Zero;
-      }
-      else if ( static_cast<int>( m_flash_radius_ui_interval.asMilliseconds() / m_ui_flash_factor ) % 2 == 1 )
-      {
-        text.setFillColor( sf::Color::White );
-        text.setOutlineColor( sf::Color::White );
-      }
+      text.setFillColor( sf::Color::White );
+      text.setOutlineColor( sf::Color::White );
     }
 
     // flash the text if we just picked up a cadaver
-    auto cadaver_flash_view = reg().view<Cmp::FlashUICadaver>();
-    if ( ui_label.name == "cadaver_label" and not cadaver_flash_view.empty() )
+    if ( ui_label.name == "cadaver_label" and update_flash_toggle<Cmp::FlashUICadaver>( dt, m_flash_cadaver_ui_interval ) )
     {
-      auto flash_entt = cadaver_flash_view.front();
-      auto &flash_cmp = cadaver_flash_view.get<Cmp::FlashUICadaver>( flash_entt );
-      m_flash_cadaver_ui_interval += dt;
-      if ( m_flash_cadaver_ui_interval > flash_cmp.duration )
-      {
-        reg().remove<Cmp::FlashUICadaver>( flash_entt );
-        m_flash_cadaver_ui_interval = sf::Time::Zero;
-      }
-      else if ( static_cast<int>( m_flash_cadaver_ui_interval.asMilliseconds() / m_ui_flash_factor ) % 2 == 1 )
-      {
-        text.setFillColor( sf::Color::White );
-        text.setOutlineColor( sf::Color::White );
-      }
+      text.setFillColor( sf::Color::White );
+      text.setOutlineColor( sf::Color::White );
     }
 
     // flash the text if we just deposited something in a well
-    auto wealth_flash_view = reg().view<Cmp::FlashUIWealth>();
-    if ( ui_label.name == "wealth_label" and not wealth_flash_view.empty() )
+    if ( ui_label.name == "wealth_label" and update_flash_toggle<Cmp::FlashUIWealth>( dt, m_flash_wealth_ui_interval ) )
     {
-      auto flash_entt = wealth_flash_view.front();
-      auto &flash_cmp = wealth_flash_view.get<Cmp::FlashUIWealth>( flash_entt );
-      m_flash_wealth_ui_interval += dt;
-      if ( m_flash_wealth_ui_interval > flash_cmp.duration )
-      {
-        reg().remove<Cmp::FlashUIWealth>( flash_entt );
-        m_flash_wealth_ui_interval = sf::Time::Zero;
-      }
-      else if ( static_cast<int>( m_flash_wealth_ui_interval.asMilliseconds() / m_ui_flash_factor ) % 2 == 1 )
-      {
-        text.setFillColor( sf::Color::White );
-        text.setOutlineColor( sf::Color::White );
-      }
+      text.setFillColor( sf::Color::White );
+      text.setOutlineColor( sf::Color::White );
     }
 
     // flash the text if we just picked up a Key
-    auto inventory_flash_view = reg().view<Cmp::FlashUIInventory>();
-    if ( ui_label.name == "inventory_label" and not inventory_flash_view.empty() )
+    if ( ui_label.name == "inventory_label" and update_flash_toggle<Cmp::FlashUIInventory>( dt, m_flash_inventory_ui_interval ) )
     {
-      auto flash_entt = inventory_flash_view.front();
-      auto &flash_cmp = inventory_flash_view.get<Cmp::FlashUIInventory>( flash_entt );
-      m_flash_inventory_ui_interval += dt;
-      if ( m_flash_inventory_ui_interval > flash_cmp.duration )
-      {
-        reg().remove<Cmp::FlashUIInventory>( flash_entt );
-        m_flash_inventory_ui_interval = sf::Time::Zero;
-      }
-      else if ( static_cast<int>( m_flash_inventory_ui_interval.asMilliseconds() / m_ui_flash_factor ) % 2 == 1 )
-      {
-        text.setFillColor( sf::Color::Black );
-        text.setOutlineColor( sf::Color::White );
-      }
+      text.setFillColor( sf::Color::Black );
+      text.setOutlineColor( sf::Color::White );
     }
 
     draw_screen( text );
@@ -385,15 +314,7 @@ void RenderOverlaySystem::render_shop_inventory_overlay()
   }
 
   // Draw all UI outlines
-  for ( const auto &outline : m_shop_ui_data->m_outlines )
-  {
-    auto rect = sf::RectangleShape( outline.rect.size );
-    rect.setPosition( outline.rect.position );
-    rect.setFillColor( outline.fill_color );
-    rect.setOutlineColor( outline.line_color );
-    rect.setOutlineThickness( static_cast<float>( outline.line_thickness ) );
-    draw_screen( rect );
-  }
+  render_outlines( m_shop_ui_data->m_outlines );
 
   // Draw all UI Icons
   for ( auto [icon, slot] : std::views::zip( m_shop_ui_data->m_icons, inventory_cmp.m_slots ) )
@@ -437,31 +358,14 @@ void RenderOverlaySystem::render_shop_inventory_overlay()
     sf::Text slot_price_txt( m_font, std::to_string( price ), 30 );
     slot_price_txt.setFillColor( sf::Color::Black );
 
+    const std::string idx_key = "slot" + std::to_string( i + 1 ) + "_idx";
+    const std::string desc_key = "slot" + std::to_string( i + 1 ) + "_desc";
+    const std::string price_key = "slot" + std::to_string( i + 1 ) + "_price";
     for ( const auto &ui_label : m_shop_ui_data->m_labels )
     {
-      switch ( i )
-      {
-        case 0:
-          if ( ui_label.name.contains( "slot1_idx" ) ) { draw_label_text_at( slot_idx_txt, ui_label.rect.position, ui_label.align ); }
-          if ( ui_label.name.contains( "slot1_desc" ) ) { draw_label_text_at( slot_desc_txt, ui_label.rect.position, ui_label.align ); }
-          if ( ui_label.name.contains( "slot1_price" ) ) { draw_label_text_at( slot_price_txt, ui_label.rect.position, ui_label.align ); }
-
-          break;
-        case 1:
-          if ( ui_label.name.contains( "slot2_idx" ) ) { draw_label_text_at( slot_idx_txt, ui_label.rect.position, ui_label.align ); }
-          if ( ui_label.name.contains( "slot2_desc" ) ) { draw_label_text_at( slot_desc_txt, ui_label.rect.position, ui_label.align ); }
-          if ( ui_label.name.contains( "slot2_price" ) ) { draw_label_text_at( slot_price_txt, ui_label.rect.position, ui_label.align ); }
-          break;
-
-        case 2:
-          if ( ui_label.name.contains( "slot3_idx" ) ) { draw_label_text_at( slot_idx_txt, ui_label.rect.position, ui_label.align ); }
-          if ( ui_label.name.contains( "slot3_desc" ) ) { draw_label_text_at( slot_desc_txt, ui_label.rect.position, ui_label.align ); }
-          if ( ui_label.name.contains( "slot3_price" ) ) { draw_label_text_at( slot_price_txt, ui_label.rect.position, ui_label.align ); }
-          break;
-
-        default:
-          break;
-      }
+      if ( ui_label.name.contains( idx_key ) ) { draw_label_text_at( slot_idx_txt, ui_label.rect.position, ui_label.align ); }
+      else if ( ui_label.name.contains( desc_key ) ) { draw_label_text_at( slot_desc_txt, ui_label.rect.position, ui_label.align ); }
+      else if ( ui_label.name.contains( price_key ) ) { draw_label_text_at( slot_price_txt, ui_label.rect.position, ui_label.align ); }
     }
   }
 }
@@ -482,21 +386,7 @@ void RenderOverlaySystem::render_grimoire_inventory_overlay()
   rect.setOutlineThickness( 2.f );
   draw_screen( rect );
 
-  float y_offset = 0.f;
-  constexpr unsigned int font_size = 18;
-  constexpr float line_height = 22.f;
-
-  //! @brief Draw a text line in the UI
-  auto draw_line = [&]( const std::string &str, sf::Color color = sf::Color::White )
-  {
-    sf::Text text( m_font, str, font_size );
-    text.setFillColor( color );
-    text.setOutlineColor( sf::Color::Black );
-    text.setOutlineThickness( 1.f );
-    text.setPosition( { rect_position.x, rect_position.y + y_offset } );
-    draw_screen( text );
-    y_offset += line_height;
-  };
+  DebugTextColumn draw_line{ *this, rect_position, 18, 22.f };
 
   // Draw all UI outlines
   for ( const auto &[item, is_enabled] : grimoire_cmp.contents )
@@ -509,24 +399,11 @@ void RenderOverlaySystem::render_ui_misc_stats()
 {
   if ( not m_dbg_ui_data ) { return; }
 
-  float y_offset = 0.f;
-  constexpr unsigned int font_size = 18;
-  constexpr float line_height = 22.f;
   for ( const auto &ui_label : m_dbg_ui_data->m_labels )
   {
     if ( ui_label.name != "entity_stats" ) { continue; }
 
-    //! @brief Draw a text line in the UI
-    auto draw_line = [&]( const std::string &str, sf::Color color = sf::Color::White )
-    {
-      sf::Text text( m_font, str, font_size );
-      text.setFillColor( color );
-      text.setOutlineColor( sf::Color::Black );
-      text.setOutlineThickness( 1.f );
-      text.setPosition( { ui_label.rect.position.x, ui_label.rect.position.y + y_offset } );
-      draw_screen( text );
-      y_offset += line_height;
-    };
+    DebugTextColumn draw_line{ *this, ui_label.rect.position, 18, 22.f };
 
     draw_line( "--- Stats ---", sf::Color::Yellow );
 
@@ -546,7 +423,7 @@ void RenderOverlaySystem::render_ui_misc_stats()
     draw_line( " Entities - " + std::to_string( reg().view<entt::entity>().size() ) );
     draw_line( " NPCs - " + std::to_string( reg().view<Cmp::Npc::NPC>().size() ) );
     draw_line( " Corruption - " + std::to_string( reg().view<Cmp::CorruptionCell>().size() ) );
-    draw_line( " Sinkhole - " + std::to_string( reg().view<Cmp::CorruptionCell>().size() ) );
+    draw_line( " Sinkhole - " + std::to_string( reg().view<Cmp::SinkholeCell>().size() ) );
     draw_line( " CryptPassageBlocks - " + std::to_string( reg().view<Cmp::Crypt::PassageBlock>().size() ) );
   }
 }
@@ -583,25 +460,11 @@ void RenderOverlaySystem::render_ui_zorder_list( std::vector<ZOrder> &zorder_que
   };
   // clang-format on
 
-  float y_offset = 0.f;
-  constexpr unsigned int font_size = 18;
-  constexpr float line_height = 22.f;
-
   for ( const auto &ui_label : m_dbg_ui_data->m_labels )
   {
     if ( ui_label.name != "zorder_list" ) { continue; }
 
-    //! @brief Draw a text line in the UI
-    auto draw_line = [&]( const std::string &str, sf::Color color = sf::Color::White )
-    {
-      sf::Text text( m_font, str, font_size );
-      text.setFillColor( color );
-      text.setOutlineColor( sf::Color::Black );
-      text.setOutlineThickness( 1.f );
-      text.setPosition( { ui_label.rect.position.x, ui_label.rect.position.y + y_offset } );
-      draw_screen( text );
-      y_offset += line_height;
-    };
+    DebugTextColumn draw_line{ *this, ui_label.rect.position, 18, 22.f };
 
     draw_line( "--- Z Order List ---", sf::Color::Yellow );
 
@@ -642,25 +505,11 @@ void RenderOverlaySystem::render_ui_npc_list()
     return;
   }
 
-  float y_offset = 0.f;
-  constexpr unsigned int font_size = 18;
-  constexpr float line_height = 22.f;
-
   for ( const auto &ui_label : m_dbg_ui_data->m_labels )
   {
     if ( ui_label.name != "npc_list" ) { continue; }
 
-    //! @brief Draw a text line in the UI
-    auto draw_line = [&]( const std::string &str, sf::Color color = sf::Color::White )
-    {
-      sf::Text text( m_font, str, font_size );
-      text.setFillColor( color );
-      text.setOutlineColor( sf::Color::Black );
-      text.setOutlineThickness( 1.f );
-      text.setPosition( { ui_label.rect.position.x, ui_label.rect.position.y + y_offset } );
-      draw_screen( text );
-      y_offset += line_height;
-    };
+    DebugTextColumn draw_line{ *this, ui_label.rect.position, 18, 22.f };
 
     draw_line( "--- NPCs ---", sf::Color::Yellow );
 
@@ -669,8 +518,8 @@ void RenderOverlaySystem::render_ui_npc_list()
     {
       // clang-format off
       draw_line( " " + std::to_string( entt::to_integral( npc_entity ) ) +
-                 ": [" + std::to_string( static_cast<int>( npc_pos_cmp.position.x ) ) + 
-                 "," + std::to_string( static_cast<int>( npc_pos_cmp.position.x ) ) + "] - " + 
+                 ": [" + std::to_string( static_cast<int>( npc_pos_cmp.position.x ) ) +
+                 "," + std::to_string( static_cast<int>( npc_pos_cmp.position.y ) ) + "] - " +
                  npc_anim_cmp.m_sprite_type);
       // clang-format on
     }
@@ -753,7 +602,7 @@ void RenderOverlaySystem::render_pathfinding_vector( const Cmp::Position &start_
   }
 }
 
-void RenderOverlaySystem::render_navmesh( PathFinding::SpatialHashGridSharedPtr npc_navmesh )
+void RenderOverlaySystem::render_navmesh( const PathFinding::SpatialHashGridSharedPtr &npc_navmesh )
 {
   for ( auto [pos_entt, pos_cmp] : reg().view<Cmp::Position>().each() )
   {
@@ -787,12 +636,11 @@ void RenderOverlaySystem::render_ui_entity_inspect()
   sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( m_window );
   sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::get_world_view() );
 
-  float y_offset = 0.f;
-  constexpr unsigned int font_size = 18;
-  constexpr float line_height = 22.f;
   for ( const auto &ui_label : m_dbg_ui_data->m_labels )
   {
     if ( ui_label.name != "inspect_list" ) { continue; }
+
+    DebugTextColumn draw_line{ *this, ui_label.rect.position, 18, 22.f };
 
     auto position_view = reg().view<Cmp::Position>();
     for ( auto [entity, pos_cmp] : position_view.each() )
@@ -801,17 +649,6 @@ void RenderOverlaySystem::render_ui_entity_inspect()
       if ( not pos_cmp.contains( mouse_world_pos ) ) { continue; }
 
       // Header: entity ID
-      auto draw_line = [&]( const std::string &str, sf::Color color = sf::Color::White )
-      {
-        sf::Text text( m_font, str, font_size );
-        text.setFillColor( color );
-        text.setOutlineColor( sf::Color::Black );
-        text.setOutlineThickness( 1.f );
-        text.setPosition( { ui_label.rect.position.x, ui_label.rect.position.y + y_offset } );
-        draw_screen( text );
-        y_offset += line_height;
-      };
-
       draw_line( "--- Entity #" + std::to_string( entt::to_integral( entity ) ) + " ---", sf::Color::Yellow );
 
       if ( auto *cmp = reg().try_get<Cmp::AnimData>( entity ) )
@@ -860,7 +697,15 @@ void RenderOverlaySystem::render_ui_entity_inspect()
       auto posy = std::to_string( static_cast<int>( pos_cmp.position.y ) );
       auto sizex = std::to_string( static_cast<int>( pos_cmp.size.x ) );
       auto sizey = std::to_string( static_cast<int>( pos_cmp.size.y ) );
-      draw_line( "  Size: [ " + sizex + " , " += sizey + " ]   Pos: [ " += posx + " , " += posy + " ]" );
+      draw_line( std::string( "  Size: [ " )
+                     .append( sizex )
+                     .append( " , " )
+                     .append( sizey )
+                     .append( " ]   Pos: [ " )
+                     .append( posx )
+                     .append( " , " )
+                     .append( posy )
+                     .append( " ]" ) );
 
       if ( auto *cmp = reg().try_get<Cmp::ZOrderValue>( entity ) )
       {

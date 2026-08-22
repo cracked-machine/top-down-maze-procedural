@@ -162,7 +162,7 @@ public:
 
   //! @brief Debug-draw the spatial hash grid navmesh: the neighbour bucket size and cell edges at every position in view.
   //! @param npc_navmesh
-  void render_navmesh( PathFinding::SpatialHashGridSharedPtr npc_navmesh );
+  void render_navmesh( const PathFinding::SpatialHashGridSharedPtr &npc_navmesh );
 
   //! @brief Render the debug "inspect_list" panel: a breakdown of the components and stats of the entity currently under the mouse
   //! cursor.
@@ -234,6 +234,65 @@ public:
   void on_pause() override {}
   //! @brief event handlers for resuming system clocks
   void on_resume() override {}
+
+  //! @brief Advances `interval` by `dt` while a `FlashComponent` is present on any entity, removing it once its duration has elapsed.
+  //! Returns whether the UI element should currently be drawn in its "flashed" state (toggles on/off at m_ui_flash_factor ms).
+  //! @tparam FlashComponent
+  //! @param dt
+  //! @param interval accumulated flash time; reset to zero once the flash expires
+  template <typename FlashComponent>
+  bool update_flash_toggle( sf::Time dt, sf::Time &interval )
+  {
+    auto view = reg().view<FlashComponent>();
+    if ( view.empty() ) return false;
+
+    auto flash_entt = view.front();
+    auto &flash_cmp = view.template get<FlashComponent>( flash_entt );
+    interval += dt;
+    if ( flash_cmp.duration != sf::Time::Zero and interval > flash_cmp.duration )
+    {
+      reg().remove<FlashComponent>( flash_entt );
+      interval = sf::Time::Zero;
+      return false;
+    }
+    return static_cast<int>( interval.asMilliseconds() / m_ui_flash_factor ) % 2 == 1;
+  }
+
+  //! @brief Draw a column of debug text lines, top to bottom, at a fixed origin, advancing by `line_height` after each call.
+  struct DebugTextColumn
+  {
+    RenderOverlaySystem &self;
+    sf::Vector2f origin;
+    unsigned int font_size;
+    float line_height;
+    float y_offset{ 0.f };
+
+    void operator()( const std::string &str, sf::Color color = sf::Color::White )
+    {
+      sf::Text text( self.m_font, str, font_size );
+      text.setFillColor( color );
+      text.setOutlineColor( sf::Color::Black );
+      text.setOutlineThickness( 1.f );
+      text.setPosition( { origin.x, origin.y + y_offset } );
+      self.draw_screen( text );
+      y_offset += line_height;
+    }
+  };
+
+  //! @brief Draw a list of UI outline rectangles (panel borders).
+  //! @param outlines
+  void render_outlines( const std::vector<Render::UiData::Outline> &outlines )
+  {
+    for ( const auto &outline : outlines )
+    {
+      auto rect = sf::RectangleShape( outline.rect.size );
+      rect.setPosition( outline.rect.position );
+      rect.setFillColor( outline.fill_color );
+      rect.setOutlineColor( outline.line_color );
+      rect.setOutlineThickness( static_cast<float>( outline.line_thickness ) );
+      draw_screen( rect );
+    }
+  }
 
   //! @brief Layout data object for the main UI
   std::unique_ptr<Render::UiData> m_main_ui_data;
