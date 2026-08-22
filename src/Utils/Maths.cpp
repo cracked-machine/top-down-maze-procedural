@@ -23,7 +23,7 @@ namespace Game::Utils::Maths
 //! @param posB The second position.
 //! @return unsigned int The Manhattan distance.
 template <typename T>
-constexpr inline T getManhattanDistance( sf::Vector2<T> posA, sf::Vector2<T> posB )
+constexpr T getManhattanDistance( sf::Vector2<T> posA, sf::Vector2<T> posB )
 {
   return std::abs( posA.x - posB.x ) + std::abs( posA.y - posB.y );
 }
@@ -45,7 +45,7 @@ template float getManhattanDistance<float>( sf::Vector2f, sf::Vector2f );
 //! @param posB The second position.
 //! @return unsigned int The Chebyshev distance.
 template <typename T>
-constexpr inline T getChebyshevDistance( sf::Vector2<T> posA, sf::Vector2<T> posB )
+constexpr T getChebyshevDistance( sf::Vector2<T> posA, sf::Vector2<T> posB )
 {
   return std::max( std::abs( posA.x - posB.x ), std::abs( posA.y - posB.y ) );
 }
@@ -67,11 +67,11 @@ template float getChebyshevDistance<float>( sf::Vector2<float>, sf::Vector2<floa
 //! @param posB The second position.
 //! @return unsigned int The Euclidean distance.
 template <typename T>
-constexpr inline T getEuclideanDistance( sf::Vector2<T> posA, sf::Vector2<T> posB )
+constexpr T getEuclideanDistance( sf::Vector2<T> posA, sf::Vector2<T> posB )
 {
   T dx = posA.x - posB.x;
   T dy = posA.y - posB.y;
-  return static_cast<T>( std::sqrt( dx * dx + dy * dy ) );
+  return static_cast<T>( std::sqrt( ( dx * dx ) + ( dy * dy ) ) );
 }
 
 template int getEuclideanDistance<int>( sf::Vector2<int>, sf::Vector2<int> );
@@ -80,7 +80,7 @@ template float getEuclideanDistance<float>( sf::Vector2<float>, sf::Vector2<floa
 float normalizeAngle( float angle )
 {
   angle = std::fmod( angle, 2.0f * std::numbers::pi );
-  return angle < 0 ? angle + 2.0f * std::numbers::pi : angle;
+  return angle < 0 ? angle + ( 2.0f * std::numbers::pi ) : angle;
 }
 
 std::optional<sf::Vector2f> normalized( sf::Vector2f v )
@@ -142,6 +142,11 @@ uint8_t to_percent( float max_value, uint8_t convert )
 {
   auto converted = std::round( ( max_value / 100 ) * convert );
   return static_cast<uint8_t>( converted );
+}
+
+float exp_decay( float current, float target, float rate, float dt )
+{
+  return current + ( ( target - current ) * ( 1.0f - std::exp( -rate * dt ) ) );
 }
 
 bool segment_intersects_rect( sf::Vector2f a, sf::Vector2f b, sf::FloatRect rect )

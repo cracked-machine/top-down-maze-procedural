@@ -31,6 +31,15 @@ public:
   void update( entt::registry &reg ) override;
 
   [[nodiscard]] bool is_post_process() const override { return true; }
+
+private:
+  // The `fear` stat (see Cmp::PlayerStats) only changes in coarse, discrete steps as gameplay ticks
+  // apply +/-N modifiers - most notably a -6/second drop while carrying a lit candle, six times the
+  // size of the +1/second darkness gain. FREQUENCY_EXP_K/VIGNETTE_LOG_K in FearDistortion.frag both
+  // curve steeply at low fear, so feeding that raw step straight into the shader every frame produced
+  // a visible snap in the wave whenever fear dropped. These smooth it into a continuous ramp instead.
+  float m_smoothed_fear{ 0.f };
+  sf::Time m_last_fear_update;
 };
 
 } // namespace Game::Sprites

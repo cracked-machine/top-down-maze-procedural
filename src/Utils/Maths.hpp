@@ -123,6 +123,19 @@ std::array<sf::Vertex, 4> thick_line_quad( sf::Vector2f start, sf::Vector2f end,
 //! @return uint8_t
 uint8_t to_percent( float max_value, uint8_t convert );
 
+//! @brief Frame-rate independent exponential smoothing of `current` towards `target`.
+//! @note Use this when a value updates in sudden discrete steps (e.g. a gameplay stat that only
+//!       changes once per tick) but is consumed somewhere that will make that snap visible (e.g. a
+//!       shader uniform sampled every frame). `rate` is how many "e-foldings" per second the gap
+//!       closes by - higher converges faster - and `dt` must be the caller's own per-frame delta so
+//!       the result doesn't depend on frame rate.
+//! @param current
+//! @param target
+//! @param rate
+//! @param dt
+//! @return float
+float exp_decay( float current, float target, float rate, float dt );
+
 //! @brief Test whether the line segment [a,b] intersects the axis-aligned rect.
 //! @note Uses the standard slab-clipping (Liang-Barsky) test.
 //! @param a segment start
