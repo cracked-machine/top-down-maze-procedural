@@ -151,8 +151,26 @@ void GraveSystem::open_grave( entt::entity grave_entity, Cmp::AnimData &grave_an
 
 void GraveSystem::trigger_grave_consequence( entt::entity grave_entity )
 {
-  auto grave_activation_rng = Cmp::RandomInt( 1, 4 );
-  switch ( static_cast<GraveConsequence>( grave_activation_rng.gen() ) )
+  // luck is range [0, 100]; higher luck shifts odds from traps (NPC_TRAP/BOMB_TRAP) toward loot (RELIC/JEWELRY).
+  // At luck 50 this reduces to a plain 25/25/25/25 split; at luck 0 it's all traps, at luck 100 it's all loot.
+  auto player_luck_stat = Utils::Player::get_player_stats( reg() ).luck();
+  const int good_weight = player_luck_stat;
+  const int bad_weight = 100 - good_weight;
+
+  const int tier1_threshold = bad_weight / 2;
+  const int tier2_threshold = bad_weight;
+  const int tier3_threshold = bad_weight + ( good_weight / 2 );
+
+  auto grave_activation_rng = Cmp::RandomInt( 0, 99 );
+  const int roll = grave_activation_rng.gen();
+
+  GraveConsequence consequence;
+  if ( roll < tier1_threshold ) { consequence = GraveConsequence::BOMB_TRAP; }
+  else if ( roll < tier2_threshold ) { consequence = GraveConsequence::NPC_TRAP; }
+  else if ( roll < tier3_threshold ) { consequence = GraveConsequence::RELIC; }
+  else { consequence = GraveConsequence::JEWELRY; }
+
+  switch ( consequence )
   {
     case GraveConsequence::NPC_TRAP: {
       SPDLOG_DEBUG( "Grave activated NPC trap." );
