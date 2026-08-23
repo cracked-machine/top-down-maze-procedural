@@ -171,35 +171,34 @@ void ActionSystem::check_player_smash_pot()
 
   auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
   auto loot_container_view = reg().view<Cmp::LootContainer, Cmp::Position, Cmp::AnimData>();
-  for ( auto [loot_entity, loot_cmp, loot_pos_cmp, loot_anim_cmp] : loot_container_view.each() )
+  for ( auto [loot_entity, loot_container, loot_container_pos, loot_container_anim] : loot_container_view.each() )
   {
-    if ( mouse_position_bounds.findIntersection( loot_pos_cmp ) )
+    if ( mouse_position_bounds.findIntersection( loot_container_pos ) )
     {
-      SPDLOG_INFO( "Found lootable entity at position: [{}, {}]!", loot_pos_cmp.position.x, loot_pos_cmp.position.y );
+      SPDLOG_INFO( "Found lootable entity at position: [{}, {}]!", loot_container_pos.position.x, loot_container_pos.position.y );
 
       // check player is near obstacle that was mouse-selected
-      if ( not Utils::Player::is_player_near( reg(), loot_pos_cmp ) ) continue;
+      if ( not Utils::Player::is_player_near( reg(), loot_container_pos ) ) continue;
 
       // check player is facing the obstacle
-      if ( not Utils::Player::get_projected_position( reg() ).findIntersection( loot_pos_cmp ) ) continue;
+      if ( not Utils::Player::get_projected_position( reg() ).findIntersection( loot_container_pos ) ) continue;
 
       reg().emplace_or_replace<Cmp::Player::DiggingCooldown>( Utils::Player::get_entity( reg() ) );
-      loot_cmp.hp -= Utils::Maths::to_percent( 100.f, Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( reg() ).get_value() );
+      loot_container.hp -= Utils::Maths::to_percent( 100.f, Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( reg() ).get_value() );
 
-      float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
-      Utils::Player::reduce_inventory_wear_level( reg(), reduction_amount );
+      float weapon_dmg_delta = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
+      Utils::Player::reduce_inventory_wear_level( reg(), weapon_dmg_delta );
 
-      if ( loot_cmp.hp > 0 )
+      if ( loot_container.hp > 0 )
       {
-        loot_anim_cmp.m_enabled = true;
+        loot_container_anim.m_enabled = true;
 
         if ( m_sound_bank.get_effect( "hit_pot" ).getStatus() == sf::Sound::Status::Stopped ) m_sound_bank.get_effect( "hit_pot" ).play();
       }
       else
       {
         const std::string selected_type = Sys::ItemStore::instance().get_random_item_from_list(
-            { "item.bomb", "item.seeingstone", "item.cursetablet" } );
-        SPDLOG_INFO( "Pot revealed {}", selected_type );
+            Utils::Player::get_player_stats( reg() ).luck(), { "item.cursetablet", "item.seeingstone", "item.bomb" } );
 
         get_systems_event_queue().trigger( Events::CreateItemEvent( Utils::Player::get_position( reg() ), selected_type, "drop_loot" ) );
 

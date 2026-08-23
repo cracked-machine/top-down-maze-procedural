@@ -7,8 +7,10 @@
 #include <Sprites/SpriteMetaType.hpp>
 #include <Systems/BaseSystem.hpp>
 
+#include <Utils/Player.hpp>
 #include <filesystem>
 #include <nlohmann/json_fwd.hpp>
+#include <stdexcept>
 
 namespace Game::Sys
 {
@@ -138,15 +140,33 @@ public:
     return keys;
   }
 
-  //! @brief Pick a random element from a caller-supplied list of keys.
-  //! @param list
-  //! @return The randomly chosen key.
+  //! @brief Pick a random element from a caller-supplied list of keys, biased by player luck.
+  //! @param player_luck_stat Player's luck stat, range [0, 100].
+  //! @param list Keys ordered from worst to best outcome; higher luck shifts odds towards the back.
+  //! @return The chosen key.
   //! @throws std::runtime_error if list is empty.
-  [[nodiscard]] std::string get_random_item_from_list( std::vector<std::string> list ) const
+  [[nodiscard]] std::string get_random_item_from_list( int player_luck_stat, std::vector<std::string> list ) const
   {
     if ( list.empty() ) throw std::runtime_error( "provided list is empty" );
-    Cmp::RandomInt picker( 0, static_cast<int>( list.size() ) - 1 );
-    return list.at( picker.gen() );
+
+    // mirrors GraveSystem::trigger_grave_consequence. The list is split into a "bad" front half and a
+    // "good" back half, and luck weights which half gets picked (uniformly within the half). At luck 0
+    // only the bad half is reachable, at luck 100 only the good half, and at luck 50 it reduces to a
+    // plain uniform pick across the whole list.
+    const int good_weight = player_luck_stat;
+    const int bad_weight = 100 - good_weight;
+
+    const std::size_t bad_count = list.size() / 2;
+    const std::size_t good_count = list.size() - bad_count;
+
+    const int half_roll = Cmp::RandomInt( 0, 99 ).gen();
+    const bool pick_bad_half = bad_count > 0 && half_roll < bad_weight;
+
+    const std::size_t start = pick_bad_half ? 0 : bad_count;
+    const std::size_t count = pick_bad_half ? bad_count : good_count;
+
+    const int index_roll = Cmp::RandomInt( 0, static_cast<int>( count ) - 1 ).gen();
+    return list.at( start + static_cast<std::size_t>( index_roll ) );
   }
 
 protected:

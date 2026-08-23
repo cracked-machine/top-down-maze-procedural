@@ -48,17 +48,11 @@ void LootSystem::check_loot_collision()
 
   std::vector<LootEffect> loot_effects;
 
-  // First pass: detect collisions and gather effects to apply
-  // clang-format off
-  auto player_collision_view = reg().view<Cmp::Player::Character, Cmp::Position>();
-  auto loot_collision_view = reg().view<Cmp::Loot, Cmp::Position, Cmp::AnimData>();
-  // clang-format on
-
-  for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : player_collision_view.each() )
+  for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : reg().view<Cmp::Player::Character, Cmp::Position>().each() )
   {
     // reduce hitbox to prevent premature pickup
     auto player_hitbox = Cmp::RectBounds::scaled( pc_pos_cmp.position, pc_pos_cmp.size, 0.5f );
-    for ( auto [loot_entt, loot_cmp, loot_pos_cmp, loot_sprite_anim] : loot_collision_view.each() )
+    for ( auto [loot_entt, loot_cmp, loot_pos_cmp, loot_sprite_anim] : reg().view<Cmp::Loot, Cmp::Position, Cmp::AnimData>().each() )
     {
       if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), loot_pos_cmp ) ) continue;
 
@@ -70,26 +64,29 @@ void LootSystem::check_loot_collision()
     }
   }
 
+  // collects the loot: plays the pickup sound and removes the loot entity
+  auto collect_loot = [this]( entt::entity loot_entity )
+  {
+    m_sound_bank.get_effect( "get_loot" ).play();
+    Factory::Loot::destroy_loot_drop( reg(), loot_entity );
+  };
+
   // Second pass: apply effects and remove loots
   for ( const auto &effect : loot_effects )
   {
     if ( !reg().valid( effect.player_entity ) ) continue;
-
-    auto blast_radius = reg().get<Cmp::Player::BlastRadius>( effect.player_entity );
 
     // Apply the effect
     if ( effect.type == "sprite.graveyard.loot.health" )
     {
       auto &health_bonus = Sys::PersistSystem::get<Cmp::Persist::HealthBonus>( reg() );
 
-      // pc_health_cmp.health = std::min( pc_health_cmp.health + health_bonus.get_value(), 100 );
       Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ health_bonus.get_value() }, {}, {}, {}, {}, {}, {} } );
-      m_sound_bank.get_effect( "get_loot" ).play();
-      Factory::Loot::destroy_loot_drop( reg(), effect.loot_entity );
+      collect_loot( effect.loot_entity );
     }
     else if ( effect.type == "sprite.graveyard.loot.repair" )
     {
-      // update the wear level of the player inventory, if any
+      // update the wear level of the first matching tool in the player inventory, if any
       auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
       for ( auto [weapons_entity, inventory_slot] : inventory_view.each() )
       {
@@ -101,17 +98,17 @@ void LootSystem::check_loot_collision()
           {
             // increase weapon level by 50, up to max level 100
             wear_level_cmp->m_level = std::clamp( wear_level_cmp->m_level + 50.f, 0.f, 100.f );
-            m_sound_bank.get_effect( "get_loot" ).play();
-            Factory::Loot::destroy_loot_drop( reg(), effect.loot_entity );
+            collect_loot( effect.loot_entity );
+            break; // only repair (and consume) one tool per loot pickup
           }
         }
       }
     }
     else if ( effect.type == "sprite.graveyard.loot.blast" )
     {
+      auto &blast_radius = reg().get<Cmp::Player::BlastRadius>( effect.player_entity );
       blast_radius.value = std::clamp( blast_radius.value + 1, 0, 5 );
-      m_sound_bank.get_effect( "get_loot" ).play();
-      Factory::Loot::destroy_loot_drop( reg(), effect.loot_entity );
+      collect_loot( effect.loot_entity );
 
       // signal UI to flash
       auto flash_entt = reg().create();
@@ -121,8 +118,7 @@ void LootSystem::check_loot_collision()
     {
       auto &pc_cadaver_count = reg().get<Cmp::Player::CadaverCount>( effect.player_entity );
       pc_cadaver_count.increment_count( 1 );
-      m_sound_bank.get_effect( "get_loot" ).play();
-      Factory::Loot::destroy_loot_drop( reg(), effect.loot_entity );
+      collect_loot( effect.loot_entity );
       m_sound_bank.get_effect( "secret" ).play();
 
       // signal UI to flash
@@ -137,14 +133,9 @@ void LootSystem::check_loot_collision()
     {
       auto &wealth_cmp = reg().get<Cmp::Player::Wealth>( effect.player_entity );
       wealth_cmp.wealth += 1;
-      m_sound_bank.get_effect( "get_loot" ).play();
-      Factory::Loot::destroy_loot_drop( reg(), effect.loot_entity );
+      collect_loot( effect.loot_entity );
     }
-    else
-    {
-      SPDLOG_WARN( "Unknown loot type encountered during pickup: {}", effect.type );
-      continue;
-    }
+    else { SPDLOG_WARN( "Unknown loot type encountered during pickup: {}", effect.type ); }
   }
 }
 
