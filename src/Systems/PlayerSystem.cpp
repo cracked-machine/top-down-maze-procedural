@@ -80,7 +80,6 @@
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
-#include <Systems/Stores/ItemStore.hpp>
 #include <Utils/Collision.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Maths.hpp>
@@ -489,7 +488,7 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
 
   Cmp::BaseAction net_modifier( {}, {}, {}, {}, {}, {}, {} );
   std::stringstream mod_log;
-  const auto candle_item = Sys::ItemStore::instance().get_item( "item.candle" );
+  const auto candle_carry_action = Utils::Player::get_action_from_item_store<Cmp::CarryAction>( "item.candle" );
 
   update_timed_action_clocks( dt );
 
@@ -526,8 +525,22 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
       mod_log << ")";
     }
 
+    // add the item modifiers to the `net_modifier`, each item ticking at its own `tick` interval from res/json/items.json.
+    for ( auto [slot_entt, slot_cmp] : reg().view<Cmp::PlayerInventorySlot>().each() )
+    {
+      for ( auto &[action_type, item_action_pair] : slot_cmp.m_item.actions )
+      {
+        if ( action_type != std::type_index( typeid( Cmp::CarryAction ) ) ) continue;
+        auto &[item_action, item_action_timer] = item_action_pair;
+        if ( item_action_timer.asSeconds() < item_action.interval() ) continue;
+        net_modifier += item_action;
+        mod_log << " inv_carry[" << item_action.fear() << "," << item_action.luck() << "]";
+        item_action_timer = sf::Time::Zero;
+      }
+    }
+
     // get the DarknessFear tick interval from the candle item in res/json/items.json
-    const static float kDarknessFearClockMax = candle_item.actions.at( std::type_index( typeid( Cmp::CarryAction ) ) ).action.interval();
+    const static float kDarknessFearClockMax = candle_carry_action.interval();
     if ( m_darkness_fear_clock.asSeconds() >= kDarknessFearClockMax )
     {
       Cmp::BaseAction fear_of_the_dark( {}, { +1 }, {}, {}, {}, {}, {} );
@@ -554,22 +567,7 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
         }
       }
 
-      // add the item modifiers to the `net_modifier` in sync with the `m_darkness_fear_clock` to prevent racing.
-      for ( auto [slot_entt, slot_cmp] : reg().view<Cmp::PlayerInventorySlot>().each() )
-      {
-        for ( auto &[action_type, item_action_pair] : slot_cmp.m_item.actions )
-        {
-          if ( action_type != std::type_index( typeid( Cmp::CarryAction ) ) ) continue;
-          auto &[item_action, item_action_timer] = item_action_pair;
-          if ( item_action.fear() == 0 ) continue;
-          net_modifier += item_action;
-          mod_log << " inv_light[" << item_action.fear() << "]";
-          item_action_timer = sf::Time::Zero;
-        }
-      }
-
       // apply candle item modifiers to the player when standing inside flame radius of altar
-      const static auto candle_action_modifiers = candle_item.actions.at( std::type_index( typeid( Cmp::CarryAction ) ) ).action;
       for ( auto [altar_entt, altar_cmp, altar_uuid_cmp] : reg().view<Cmp::Altar::MultiBlock, Cmp::UUID>().each() )
       {
         if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), altar_cmp ) ) continue;
@@ -580,7 +578,7 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
           float player_distance = Utils::Maths::getEuclideanDistance( particle_cmp.sprite->get_emitter_position(),
                                                                       Utils::Player::get_position( reg() ).position );
           if ( player_distance > torch_radius.value ) continue;
-          net_modifier += candle_action_modifiers;
+          net_modifier += candle_carry_action;
         }
       }
 
@@ -611,7 +609,7 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
 
         float player_distance = Utils::Maths::getEuclideanDistance( npc_pos_cmp.getCenter(), Utils::Player::get_position( reg() ).position );
         if ( player_distance > torch_radius.value ) continue;
-        net_modifier += candle_action_modifiers;
+        net_modifier += candle_carry_action;
       }
 
       m_darkness_fear_clock = sf::Time::Zero;

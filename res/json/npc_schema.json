@@ -39,35 +39,38 @@
           "items": {
             "type": "object",
             "maxProperties": 1,
-            "patternProperties": {
-              "^(carry|consume|destroy|spawn|proximity|sacrifice|projectile|collision)_action$": {
-                "type": "object",
-                "required": ["health", "fear", "despair", "infamy", "toxicity", "disease", "luck", "tick"],
-                "additionalProperties": false,
-                "properties": {
-                  "health":   { "type": "number" },
-                  "fear":     { "type": "number" },
-                  "despair":  { "type": "number" },
-                  "infamy":   { "type": "number" },
-                  "toxicity": { "type": "number" },
-                  "luck":     { "type": "number" },
-                  "disease": {
-                    "type": "object",
-                    "required": ["type", "tick"],
-                    "additionalProperties": false,
-                    "properties": {
-                      "type": {
-                        "type": "string",
-                        "enum": ["none", "rabies", "plague", "leprosy"]
-                      },
-                      "tick": { "type": "number" }
-                    }
-                  },
-                  "tick": { 
-                    "description": "Zero for instant dmg using knockback with cooldown, Non-zero for damage every tick.",
-                    "type": "number"
-                  }
-                }
+            "properties": {
+              "carry_action": {
+                "description": "Defined for schema uniformity with items.json; not currently applied to NPCs.",
+                "allOf": [{ "$ref": "#/definitions/action_effect" }]
+              },
+              "consume_action": {
+                "description": "Defined for schema uniformity with items.json; not currently applied to NPCs.",
+                "allOf": [{ "$ref": "#/definitions/action_effect" }]
+              },
+              "destroy_action": {
+                "description": "Applied to the player when this NPC is destroyed/removed, before the destroyed entity's components are removed. See NpcFactory.",
+                "allOf": [{ "$ref": "#/definitions/action_effect" }]
+              },
+              "spawn_action": {
+                "description": "Applied to the player when this NPC spawns. See NpcFactory/GraveSystem.",
+                "allOf": [{ "$ref": "#/definitions/action_effect" }]
+              },
+              "proximity_action": {
+                "description": "Applied repeatedly, at its own tick interval, while the player is near the NPC and it is within the current screen view.",
+                "allOf": [{ "$ref": "#/definitions/action_effect" }]
+              },
+              "sacrifice_action": {
+                "description": "Defined for schema uniformity with items.json; not currently applied to NPCs.",
+                "allOf": [{ "$ref": "#/definitions/action_effect" }]
+              },
+              "projectile_action": {
+                "description": "Applied to the player when hit by this NPC's ranged projectile (e.g. a priest's projectile or a watchman's gunfire). See ShockwaveSystem.",
+                "allOf": [{ "$ref": "#/definitions/action_effect" }]
+              },
+              "collision_action": {
+                "description": "Applied to the player when they physically collide with this NPC. See NpcSystem.",
+                "allOf": [{ "$ref": "#/definitions/action_effect" }]
               }
             },
             "additionalProperties": false
@@ -76,5 +79,36 @@
       }
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "definitions": {
+    "action_effect": {
+      "type": "object",
+      "required": ["health", "fear", "despair", "infamy", "toxicity", "disease", "luck", "tick"],
+      "additionalProperties": false,
+      "properties": {
+        "health":   { "type": "number" },
+        "fear":     { "type": "number" },
+        "despair":  { "type": "number" },
+        "infamy":   { "type": "number" },
+        "toxicity": { "type": "number" },
+        "luck":     { "type": "number" },
+        "disease": {
+          "type": "object",
+          "required": ["type", "tick"],
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["none", "rabies", "plague", "leprosy"]
+            },
+            "tick": { "type": "number" }
+          }
+        },
+        "tick": {
+          "description": "Zero for instant dmg using knockback with cooldown, Non-zero for damage every tick.",
+          "type": "number"
+        }
+      }
+    }
+  }
 }

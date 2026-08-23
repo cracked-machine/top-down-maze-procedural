@@ -228,6 +228,16 @@ void apply_action_from_inventory_item( entt::registry &reg );
 template <typename ActionT>
 void apply_action_from_item_store( entt::registry &reg, const std::string &item_type );
 
+//! @brief Look up the ActionT stat-modifier from the item store, without applying it.
+//! @tparam ActionT The Cmp::BaseAction subclass to look up (e.g. Cmp::DestroyAction). Only the subclasses
+//! in src/Components/Stats are explicitly instantiated in Player.cpp - using any other type is a link error.
+//! @param item_type string identifier (see item.json)
+//! @return Cmp::BaseAction The stat modifier, for the caller to accumulate/apply itself.
+//! @throws std::runtime_error if the key is not present in the store.
+//! @throws std::out_of_range if the item has no ActionT registered.
+template <typename ActionT>
+Cmp::BaseAction get_action_from_item_store( const std::string &item_type );
+
 //! @brief Lookup up and apply the ActionT stat-modifier from the npc store.
 //! @tparam ActionT The Cmp::BaseAction subclass to apply (e.g. Cmp::DestroyAction). Only the subclasses
 //! in src/Components/Stats are explicitly instantiated in Player.cpp - using any other type is a link error.

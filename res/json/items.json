@@ -79,7 +79,7 @@
   "item.plant1": {
     "sprite": "sprite.item.plant1",
     "actions": [
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": -10, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
@@ -90,7 +90,7 @@
   "item.plant2": {
     "sprite": "sprite.item.plant2",
     "actions": [
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": -10, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
@@ -101,7 +101,7 @@
   "item.plant3": {
     "sprite": "sprite.item.plant3",
     "actions": [
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": -10, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
@@ -112,7 +112,7 @@
   "item.plant4": {
     "sprite": "sprite.item.plant4",
     "actions": [
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": -10, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
@@ -123,7 +123,7 @@
   "item.plant5": {
     "sprite": "sprite.item.plant5",
     "actions": [
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": -10, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
@@ -134,7 +134,7 @@
   "item.plant6": {
     "sprite": "sprite.item.plant6",
     "actions": [
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": -10, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
@@ -145,7 +145,7 @@
   "item.plant7": {
     "sprite": "sprite.item.plant7",
     "actions": [
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": -10, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
@@ -156,7 +156,7 @@
   "item.plant8": {
     "sprite": "sprite.item.plant8",
     "actions": [
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": -10, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
@@ -167,7 +167,7 @@
   "item.plant9": {
     "sprite": "sprite.item.plant9",
     "actions": [
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": -10, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
@@ -178,7 +178,7 @@
   "item.plant10": {
     "sprite": "sprite.item.plant10",
     "actions": [
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": -10, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
@@ -189,7 +189,7 @@
   "item.plant11": {
     "sprite": "sprite.item.plant11",
     "actions": [
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": -10, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
@@ -200,7 +200,7 @@
   "item.plant12": {
     "sprite": "sprite.item.plant12",
     "actions": [
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": -10, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
@@ -211,7 +211,7 @@
   "item.relic1": {
     "sprite": "sprite.item.relic1",
     "actions": [
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 5, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 5, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "spawn_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
@@ -222,7 +222,7 @@
   "item.relic2": {
     "sprite": "sprite.item.relic2",
     "actions": [
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 5, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 5, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "spawn_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
@@ -233,7 +233,7 @@
   "item.relic3": {
     "sprite": "sprite.item.relic3",
     "actions": [
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 5, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 5, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "spawn_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
@@ -244,7 +244,7 @@
   "item.relic4": {
     "sprite": "sprite.item.relic4",
     "actions": [
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 5, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 5, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "spawn_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},

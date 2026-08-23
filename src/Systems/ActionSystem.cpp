@@ -30,6 +30,7 @@
 #include <Components/SelectedPosition.hpp>
 #include <Components/Stats/CarryAction.hpp>
 #include <Components/Stats/DestroyAction.hpp>
+#include <Components/Stats/SpawnAction.hpp>
 #include <Components/UUID.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/CreateItemEvent.hpp>
@@ -566,7 +567,7 @@ void ActionSystem::check_player_dig_plant_collision()
           auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
           auto player_pos = Utils::Player::get_position( reg() ).position;
           drop_inventory_item( player_pos, inventory_entt );
-          Utils::Player::apply_action_from_world_item<Cmp::CarryAction>( reg(), plant_entt );
+          Utils::Player::apply_action_from_world_item<Cmp::SpawnAction>( reg(), plant_entt );
           pickup_world_item( reg(), plant_entt );
         }
         else if ( inventory_slot.m_item.sprite_type == "sprite.item.axe" )

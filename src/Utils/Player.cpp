@@ -388,6 +388,24 @@ template void apply_action_from_item_store<Cmp::SacrificeAction>( entt::registry
 template void apply_action_from_item_store<Cmp::SpawnAction>( entt::registry &, const std::string & );
 
 template <typename ActionT>
+Cmp::BaseAction get_action_from_item_store( const std::string &item_type )
+{
+  auto item = Sys::ItemStore::instance().get_item( item_type );
+  return item.actions.at( std::type_index( typeid( ActionT ) ) ).action;
+}
+
+// Explicit instantiations for every Cmp::BaseAction subclass (see src/Components/Stats) - keeps the
+// template body out of Player.hpp while still allowing all known action kinds to be applied.
+template Cmp::BaseAction get_action_from_item_store<Cmp::CarryAction>( const std::string & );
+template Cmp::BaseAction get_action_from_item_store<Cmp::CollisionAction>( const std::string & );
+template Cmp::BaseAction get_action_from_item_store<Cmp::ConsumeAction>( const std::string & );
+template Cmp::BaseAction get_action_from_item_store<Cmp::DestroyAction>( const std::string & );
+template Cmp::BaseAction get_action_from_item_store<Cmp::ProjectileAction>( const std::string & );
+template Cmp::BaseAction get_action_from_item_store<Cmp::ProximityAction>( const std::string & );
+template Cmp::BaseAction get_action_from_item_store<Cmp::SacrificeAction>( const std::string & );
+template Cmp::BaseAction get_action_from_item_store<Cmp::SpawnAction>( const std::string & );
+
+template <typename ActionT>
 void apply_action_from_npc_store( entt::registry &reg, const std::string &npc_type )
 {
   auto npc = Sys::NpcStore::instance().get_item( npc_type );
