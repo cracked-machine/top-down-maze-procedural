@@ -24,10 +24,9 @@
         "actions": {
           "type": "array",
           "description": "List of actions available for this item",
-          "minItems": 9,
-          "maxItems": 9,
+          "minItems": 8,
+          "maxItems": 8,
           "allOf": [
-            { "contains": { "required": ["bury_action"] } },
             { "contains": { "required": ["carry_action"] } },
             { "contains": { "required": ["consume_action"] } },
             { "contains": { "required": ["destroy_action"] } },
@@ -41,7 +40,7 @@
             "type": "object",
             "maxProperties": 1,
             "patternProperties": {
-              "^(bury|carry|consume|destroy|spawn|proximity|sacrifice|projectile|collision)_action$": {
+              "^(carry|consume|destroy|spawn|proximity|sacrifice|projectile|collision)_action$": {
                 "type": "object",
                 "required": ["health", "fear", "despair", "infamy", "toxicity", "disease", "luck", "tick"],
                 "additionalProperties": false,

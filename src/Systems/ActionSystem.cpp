@@ -28,7 +28,6 @@
 #include <Components/Random.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SelectedPosition.hpp>
-#include <Components/Stats/BuryAction.hpp>
 #include <Components/Stats/CarryAction.hpp>
 #include <Components/Stats/DestroyAction.hpp>
 #include <Components/UUID.hpp>
@@ -610,7 +609,6 @@ void ActionSystem::drop_inventory_item( sf::Vector2f pos, entt::entity inventory
     // on_player_action_event) can hand it back via the normal pickup_world_item path instead of
     // having to re-derive an item id from the multiblock's sprite.
     reg().emplace_or_replace<Cmp::WorldItem>( mb_entt, inventory_slot_cmp->m_item );
-    Utils::Player::apply_action_from_world_item<Cmp::BuryAction>( reg(), mb_entt );
 
     // rebuild the m_player_navmesh here
     if ( auto player_navmesh = m_player_navmesh.lock() )
