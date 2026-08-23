@@ -211,6 +211,32 @@ template <typename ActionT>
 void apply_action_from_world_item( entt::registry &reg, entt::entity world_item_entt,
                                    const std::source_location &loc = std::source_location::current() );
 
+//! @brief Lookup up and apply the ActionT stat-modifier from the item in player's current inventory
+//! @tparam ActionT  The Cmp::BaseAction subclass to apply (e.g. Cmp::DestroyAction). Only the subclasses
+//! in src/Components/Stats are explicitly instantiated in Player.cpp - using any other type is a link error.
+//! @param reg reference to the entt registry
+//! @throws std::out_of_range if the player inventory item has no ActionT registered.
+template <typename ActionT>
+void apply_action_from_inventory_item( entt::registry &reg );
+
+//! @brief Lookup up and apply the ActionT stat-modifier from the item store.
+//! @tparam ActionT The Cmp::BaseAction subclass to apply (e.g. Cmp::DestroyAction). Only the subclasses
+//! in src/Components/Stats are explicitly instantiated in Player.cpp - using any other type is a link error.
+//! @param reg reference to the entt registry
+//! @param item_type string identifier (see item.json)
+//! @throws std::runtime_error if the key is not present in the store.
+template <typename ActionT>
+void apply_action_from_item_store( entt::registry &reg, const std::string &item_type );
+
+//! @brief Lookup up and apply the ActionT stat-modifier from the npc store.
+//! @tparam ActionT The Cmp::BaseAction subclass to apply (e.g. Cmp::DestroyAction). Only the subclasses
+//! in src/Components/Stats are explicitly instantiated in Player.cpp - using any other type is a link error.
+//! @param reg reference to the entt registry
+//! @param npc_type string identifier (see npc.json)
+//! @throws std::runtime_error if the key is not present in the store.
+template <typename ActionT>
+void apply_action_from_npc_store( entt::registry &reg, const std::string &npc_type );
+
 } // namespace Game::Utils::Player
 
 #endif // SRC_UTILS_PLAYER_HPP__

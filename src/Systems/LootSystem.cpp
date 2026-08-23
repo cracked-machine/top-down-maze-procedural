@@ -96,7 +96,7 @@ void LootSystem::check_loot_collision()
         if ( inventory_slot.m_item.sprite_type.contains( "axe" ) or inventory_slot.m_item.sprite_type.contains( "pickaxe" ) or
              inventory_slot.m_item.sprite_type.contains( "shovel" ) )
         {
-          auto wear_level_cmp = reg().try_get<Cmp::Inventory::WearLevel>( weapons_entity );
+          auto *wear_level_cmp = reg().try_get<Cmp::Inventory::WearLevel>( weapons_entity );
           if ( wear_level_cmp )
           {
             // increase weapon level by 50, up to max level 100

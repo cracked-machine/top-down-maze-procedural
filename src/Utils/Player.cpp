@@ -33,10 +33,11 @@
 #include <Components/Stats/SpawnAction.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Sprites/SpriteMetaType.hpp>
+#include <Systems/Stores/ItemStore.hpp>
+#include <Systems/Stores/NpcStore.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Player.hpp>
 
-#include <ios>
 #include <stdexcept>
 
 namespace Game::Utils::Player
@@ -342,5 +343,71 @@ template void apply_action_from_world_item<Cmp::ProjectileAction>( entt::registr
 template void apply_action_from_world_item<Cmp::ProximityAction>( entt::registry &, entt::entity, const std::source_location & );
 template void apply_action_from_world_item<Cmp::SacrificeAction>( entt::registry &, entt::entity, const std::source_location & );
 template void apply_action_from_world_item<Cmp::SpawnAction>( entt::registry &, entt::entity, const std::source_location & );
+
+template <typename ActionT>
+void apply_action_from_inventory_item( entt::registry &reg )
+{
+  auto inventory_view = reg.view<Cmp::PlayerInventorySlot>();
+  if ( inventory_view->empty() )
+  {
+    SPDLOG_WARN( "Player has no inventory. Unable to apply action modifiers" );
+    return;
+  }
+  for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
+  {
+    auto &player_stats = Utils::Player::get_player_stats( reg );
+    player_stats.apply_modifiers( inventory_cmp.m_item.actions.at( std::type_index( typeid( ActionT ) ) ).action );
+  }
+}
+
+// Explicit instantiations for every Cmp::BaseAction subclass (see src/Components/Stats) - keeps the
+// template body out of Player.hpp while still allowing all known action kinds to be applied.
+template void apply_action_from_inventory_item<Cmp::BuryAction>( entt::registry & );
+template void apply_action_from_inventory_item<Cmp::CarryAction>( entt::registry & );
+template void apply_action_from_inventory_item<Cmp::CollisionAction>( entt::registry & );
+template void apply_action_from_inventory_item<Cmp::ConsumeAction>( entt::registry & );
+template void apply_action_from_inventory_item<Cmp::DestroyAction>( entt::registry & );
+template void apply_action_from_inventory_item<Cmp::ProjectileAction>( entt::registry & );
+template void apply_action_from_inventory_item<Cmp::ProximityAction>( entt::registry & );
+template void apply_action_from_inventory_item<Cmp::SacrificeAction>( entt::registry & );
+template void apply_action_from_inventory_item<Cmp::SpawnAction>( entt::registry & );
+
+template <typename ActionT>
+void apply_action_from_item_store( entt::registry &reg, const std::string &item_type )
+{
+  auto item = Sys::ItemStore::instance().get_item( item_type );
+  Utils::Player::get_player_stats( reg ).apply_modifiers( item.actions.at( std::type_index( typeid( ActionT ) ) ).action );
+}
+
+// Explicit instantiations for every Cmp::BaseAction subclass (see src/Components/Stats) - keeps the
+// template body out of Player.hpp while still allowing all known action kinds to be applied.
+template void apply_action_from_item_store<Cmp::BuryAction>( entt::registry &, const std::string & );
+template void apply_action_from_item_store<Cmp::CarryAction>( entt::registry &, const std::string & );
+template void apply_action_from_item_store<Cmp::CollisionAction>( entt::registry &, const std::string & );
+template void apply_action_from_item_store<Cmp::ConsumeAction>( entt::registry &, const std::string & );
+template void apply_action_from_item_store<Cmp::DestroyAction>( entt::registry &, const std::string & );
+template void apply_action_from_item_store<Cmp::ProjectileAction>( entt::registry &, const std::string & );
+template void apply_action_from_item_store<Cmp::ProximityAction>( entt::registry &, const std::string & );
+template void apply_action_from_item_store<Cmp::SacrificeAction>( entt::registry &, const std::string & );
+template void apply_action_from_item_store<Cmp::SpawnAction>( entt::registry &, const std::string & );
+
+template <typename ActionT>
+void apply_action_from_npc_store( entt::registry &reg, const std::string &npc_type )
+{
+  auto npc = Sys::NpcStore::instance().get_item( npc_type );
+  Utils::Player::get_player_stats( reg ).apply_modifiers( npc.actions.at( std::type_index( typeid( ActionT ) ) ).action );
+}
+
+// Explicit instantiations for every Cmp::BaseAction subclass (see src/Components/Stats) - keeps the
+// template body out of Player.hpp while still allowing all known action kinds to be applied.
+template void apply_action_from_npc_store<Cmp::BuryAction>( entt::registry &, const std::string & );
+template void apply_action_from_npc_store<Cmp::CarryAction>( entt::registry &, const std::string & );
+template void apply_action_from_npc_store<Cmp::CollisionAction>( entt::registry &, const std::string & );
+template void apply_action_from_npc_store<Cmp::ConsumeAction>( entt::registry &, const std::string & );
+template void apply_action_from_npc_store<Cmp::DestroyAction>( entt::registry &, const std::string & );
+template void apply_action_from_npc_store<Cmp::ProjectileAction>( entt::registry &, const std::string & );
+template void apply_action_from_npc_store<Cmp::ProximityAction>( entt::registry &, const std::string & );
+template void apply_action_from_npc_store<Cmp::SacrificeAction>( entt::registry &, const std::string & );
+template void apply_action_from_npc_store<Cmp::SpawnAction>( entt::registry &, const std::string & );
 
 } // namespace Game::Utils::Player

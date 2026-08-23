@@ -141,8 +141,6 @@ void ShockwaveSystem::check_shockwave_player_collision()
   if ( not Utils::scene_setting<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled ) return;
 
   // we need the projectile_action modifiers for this NPC type.
-  auto priest_npc_cmp = Sys::NpcStore::instance().get_item( "npc.priest" );
-  auto priest_projectile_action = priest_npc_cmp.actions.at( std::type_index( typeid( Cmp::ProjectileAction ) ) );
   auto &pc_damage_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( reg() );
   auto player_view = reg().view<Cmp::Player::Character, Cmp::Position, Cmp::PlayerStats, Cmp::Player::Mortality>();
 
@@ -160,7 +158,7 @@ void ShockwaveSystem::check_shockwave_player_collision()
       if ( intersects_with_visible_segments( shockwave, player_pos ) )
       {
 
-        player_stats_cmp.apply_modifiers( priest_projectile_action.action );
+        Utils::Player::apply_action_from_npc_store<Cmp::ProjectileAction>( reg(), "npc.priest" );
         player_cmp.skip_damage_cooldown_once = false;
         m_sound_bank.get_effect( "damage_player" ).play();
         player_cmp.m_damage_cooldown_timer.restart();

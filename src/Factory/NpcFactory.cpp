@@ -137,8 +137,6 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
   {
     reg.emplace_or_replace<Cmp::Npc::Ghost>( new_pos_entity );
     reg.emplace_or_replace<Cmp::Npc::LerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
-    auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
-    Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
   }
   else if ( npc_type == "npc.nightwatchman" )
   {
@@ -152,16 +150,12 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
         new_pos_entity,
         Cmp::Npc::WatchmanSearchlight{ .sweep_phase = sweep_phase_rng.gen(),
                                        .idle_direction = Utils::Cardinal( static_cast<Utils::Cardinal::Value>( idle_direction_rng.gen() ) ) } );
-    auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
-    Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
     Factory::Npc::destroy_npc_container( reg, position_entity );
   }
   else if ( npc_type == "npc.skeleton" )
   {
     reg.emplace_or_replace<Cmp::Npc::Skeleton>( new_pos_entity );
     reg.emplace_or_replace<Cmp::Npc::LerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
-    auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
-    Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
     Factory::Npc::destroy_npc_container( reg, position_entity );
   }
   else if ( npc_type == "npc.priest" )
@@ -170,15 +164,11 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
     reg.emplace_or_replace<Cmp::Npc::LerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
     reg.emplace_or_replace<Cmp::Npc::ShockwaveTimer>( new_pos_entity );
     Factory::Npc::create_shockwave( reg, new_pos_entity );
-    auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
-    Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
   }
   else if ( npc_type == "npc.witch" )
   {
     reg.emplace_or_replace<Cmp::Npc::Witch>( new_pos_entity );
     reg.emplace_or_replace<Cmp::Npc::LerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
-    auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
-    Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
   }
   else if ( npc_type == "npc.wisp" )
   {
@@ -197,10 +187,8 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
   {
     reg.emplace_or_replace<Cmp::Npc::Drknox>( new_pos_entity );
     reg.emplace_or_replace<Cmp::Npc::Friendly>( new_pos_entity );
-    auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) );
-    Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
   }
-
+  Utils::Player::apply_action_from_npc_store<Cmp::SpawnAction>( reg, npc_type );
   return new_pos_entity;
 }
 

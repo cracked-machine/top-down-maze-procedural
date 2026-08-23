@@ -102,6 +102,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
     Sprites::SpriteMetaType sprite_type = ( sacrifice_anim_type == SacrificeAnimType::KEY ) ? "sprite.graveyard.altar.key.anim"
                                                                                             : "sprite.graveyard.altar.relic.anim";
 
+    Utils::Player::apply_action_from_inventory_item<Cmp::SacrificeAction>( reg() );
     Factory::Player::destroy_inventory( reg(), sacrifice_type );
 
     float altar_sacrifice_anim_height = m_sprite_factory.get_spritesheet_by_type( sprite_type ).get_sprite_size().y;
@@ -174,14 +175,6 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
       sf::Vector2f flame_ps_pos = altar_cmp.position + altar_cmp.flame_offsets[sacrifice_count];
       Factory::Particle::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, flame_ps_pos, 5000, Cmp::Particle::kWorldScalePreset );
       SPDLOG_DEBUG( "Altar activated to state {}.", sacrifice_count + 1 );
-
-      // Apply the effects from exhuming this item to the player stats
-      auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
-      for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
-      {
-        auto &player_stats = Utils::Player::get_player_stats( reg() );
-        player_stats.apply_modifiers( inventory_cmp.m_item.actions.at( std::type_index( typeid( Cmp::SacrificeAction ) ) ).action );
-      }
       common_activation( SacrificeAnimType::RELIC );
     }
   }

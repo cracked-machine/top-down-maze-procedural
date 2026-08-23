@@ -184,10 +184,7 @@ void GraveSystem::spawn_grave_loot( const std::vector<Sprites::SpriteMetaType> &
   const auto &selected_item_type = loot_pool.at( static_cast<std::size_t>( loot_picker.gen() ) );
 
   get_systems_event_queue().trigger( Events::CreateItemEvent( Utils::Player::get_position( reg() ), selected_item_type, "drop_loot" ) );
-
-  // Apply the effects from exhuming this item to the player stats
-  auto item = Sys::ItemStore::instance().get_item( selected_item_type );
-  Utils::Player::get_player_stats( reg() ).apply_modifiers( item.actions.at( std::type_index( typeid( Cmp::SpawnAction ) ) ).action );
+  Utils::Player::apply_action_from_item_store<Cmp::SpawnAction>( reg(), selected_item_type );
 }
 
 void GraveSystem::on_player_action( const Events::PlayerActionEvent &event )

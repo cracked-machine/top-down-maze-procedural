@@ -249,8 +249,6 @@ void WatchmanSystem::check_gunfire_player_collision()
 {
   if ( not Utils::scene_setting<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled ) return;
 
-  auto watchman_npc_cmp = Sys::NpcStore::instance().get_item( "npc.nightwatchman" );
-  auto gunfire_projectile_action = watchman_npc_cmp.actions.at( std::type_index( typeid( Cmp::ProjectileAction ) ) );
   auto &pc_damage_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( reg() );
 
   auto player_view = reg().view<Cmp::Player::Character, Cmp::Position, Cmp::PlayerStats, Cmp::Player::Mortality>();
@@ -269,7 +267,7 @@ void WatchmanSystem::check_gunfire_player_collision()
     }
     if ( not hit ) continue;
 
-    player_stats_cmp.apply_modifiers( gunfire_projectile_action.action );
+    Utils::Player::apply_action_from_npc_store<Cmp::ProjectileAction>( reg(), "npc.nightwatchman" );
     player_cmp.skip_damage_cooldown_once = false;
     m_sound_bank.get_effect( "damage_player" ).play();
     player_cmp.m_damage_cooldown_timer.restart();
