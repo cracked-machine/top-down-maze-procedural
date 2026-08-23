@@ -12,15 +12,23 @@ namespace Game::Cmp
 class AbsoluteAlpha
 {
 public:
+  //! @brief Construct with an initial alpha value.
+  //! @param alpha Alpha value in the range [0, 255]. Defaults to fully opaque.
   AbsoluteAlpha( uint8_t alpha = 255 )
       : m_alpha( alpha )
   {
   }
 
+  //! @brief Get the stored alpha value.
+  //! @return uint8_t Alpha value in the range [0, 255].
   uint8_t getAlpha() const { return m_alpha; }
+
+  //! @brief Set the stored alpha value.
+  //! @param alpha Alpha value in the range [0, 255].
   void setAlpha( uint8_t alpha ) { m_alpha = alpha; }
 
 private:
+  //! @brief Alpha value in the range [0, 255].
   uint8_t m_alpha;
 };
 

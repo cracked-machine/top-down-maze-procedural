@@ -7,6 +7,7 @@ namespace Game::Cmp
 //! @brief Used to mark an entity that cannot have an obstacle push into or its obstacle pulled from.
 struct NoMoveDest
 {
+  //! @brief Whether this restriction is currently active.
   [[maybe_unused]] bool active = true;
 };
 

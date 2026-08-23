@@ -134,12 +134,12 @@ void add_skelebones_ps( entt::registry &reg, const std::string &tag, int particl
 //! @param initial_pos Initial position of the emitter. Note this is changed per-frame by ParticleSystem::update()
 //! @param zorder Draw order relative to other entities.
 //! @param scale Multiplies the flame's sway/rise trajectory (not per-particle dot size). The world view's camera
-//              transform magnifies that trajectory relative to the untransformed inventory UI view, so world-space
-//              flames currently need a smaller scale than the inventory UI flame to read as the same visual size.
+//! transform magnifies that trajectory relative to the untransformed inventory UI view, so world-space
+//! flames currently need a smaller scale than the inventory UI flame to read as the same visual size.
 void add_flame( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp, sf::Vector2f initial_pos, float zorder, float scale );
 
 //! @brief Create (or move) a flame particle sprite for a candle currently equipped in the player's inventory,
-//        switching it to render in the UI/inventory view instead of the game world.
+//! switching it to render in the UI/inventory view instead of the game world.
 //! @param reg
 void add_flame_for_player_inventory_slot( entt::registry &reg );
 

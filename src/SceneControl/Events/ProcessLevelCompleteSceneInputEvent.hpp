@@ -4,6 +4,7 @@
 namespace Game::Events
 {
 
+//! @brief Per-frame marker enqueued by the active level-complete scene to tell SceneInputRouter to process its input.
 struct ProcessLevelCompleteSceneInputEvent
 {
 };

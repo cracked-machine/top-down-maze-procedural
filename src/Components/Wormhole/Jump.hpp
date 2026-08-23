@@ -6,11 +6,18 @@
 namespace Game::Cmp::Wormhole
 {
 
+//! @brief Tracks the teleport cooldown for an actor caught inside a wormhole.
+//! @details Attached to an entity when it collides with a wormhole's Singularity/MultiBlock.
+//!          WormholeSystem teleports the actor once jump_clock's elapsed time reaches
+//!          jump_cooldown, then removes this component.
 class Jump
 {
 public:
+  //! @brief Elapsed-time clock counting up towards the next teleport jump.
   sf::Clock jump_clock;
+  //! @brief Time the actor must remain in the wormhole before being teleported.
   sf::Time jump_cooldown{ sf::seconds( 2.0f ) };
+  //! @brief Whether this jump is currently active (clock running rather than paused).
   bool active{ true };
 };
 

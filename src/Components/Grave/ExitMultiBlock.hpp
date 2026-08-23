@@ -6,11 +6,14 @@
 namespace Game::Cmp::Grave
 {
 
-// MultiBlock component represents a multi-block sprite defined geometrically as a rectangle
-// It can be used to find its Segment parts and track overall activation state
+//! @brief Represents the level exit structure as a multi-block sprite defined geometrically as a rectangle.
+//! @details Can be used to find its ExitSegment parts and track overall activation state.
 class ExitMultiBlock : public sf::FloatRect
 {
 public:
+  //! @brief Construct a new ExitMultiBlock object.
+  //! @param position Top-left world position of the multi-block bounds.
+  //! @param size Width/height of the multi-block bounds.
   ExitMultiBlock( const sf::Vector2f &position, const sf::Vector2f &size )
       : sf::FloatRect( position, size )
   {

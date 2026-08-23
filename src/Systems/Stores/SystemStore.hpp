@@ -62,42 +62,79 @@ class Store
 public:
   //! @brief Key for the SystemStore concrete classes
   enum class Type {
+    //! @brief Key for AnimSystem.
     AnimSystem,
+    //! @brief Key for AltarSystem.
     AltarSystem,
+    //! @brief Key for ArrowSystem.
     ArrowSystem,
+    //! @brief Key for BombSystem.
     BombSystem,
+    //! @brief Key for ProcGen::CellAutomataSystem.
     CellAutomataSystem,
+    //! @brief Key for CorruptionHazardSystem.
     CorruptionHazardSystem,
+    //! @brief Key for CryptSystem.
     CryptSystem,
+    //! @brief Key for ProcGen::DLASystem.
     DiffusionLtdAggrSystem,
+    //! @brief Key for ActionSystem.
     ActionSystem,
+    //! @brief Key for ExitSystem.
     ExitSystem,
+    //! @brief Key for FootstepSystem.
     FootstepSystem,
+    //! @brief Key for GraveSystem.
     GraveSystem,
+    //! @brief Key for GrimoireSystem.
     GrimoireSystem,
+    //! @brief Key for HealingSpringSystem.
     HealingSpringSystem,
+    //! @brief Key for ItemStore.
     ItemStore,
+    //! @brief Key for ItemSystem.
     ItemSystem,
+    //! @brief Key for NpcStore.
     NpcStore,
+    //! @brief Key for RuinSystem.
     RuinSystem,
+    //! @brief Key for LightningSystem.
     LightningSystem,
+    //! @brief Key for LootSystem.
     LootSystem,
+    //! @brief Key for NpcSystem.
     NpcSystem,
+    //! @brief Key for ParticleSystem.
     ParticleSystem,
+    //! @brief Key for PassageSystem.
     PassageSystem,
+    //! @brief Key for PersistSystem.
     PersistSystem,
+    //! @brief Key for PlayerSystem.
     PlayerSystem,
+    //! @brief Key for ProcGen::LevelGenerator.
     LevelGenerator,
+    //! @brief Key for RenderGameSystem.
     RenderGameSystem,
+    //! @brief Key for RenderMenuSystem.
     RenderMenuSystem,
+    //! @brief Key for RenderOverlaySystem.
     RenderOverlaySystem,
+    //! @brief Key for SceneInputRouter.
     SceneInputRouter,
+    //! @brief Key for ShaderSystem.
     ShaderSystem,
+    //! @brief Key for ShockwaveSystem.
     ShockwaveSystem,
+    //! @brief Key for ShopSystem.
     ShopSystem,
+    //! @brief Key for SinkHoleHazardSystem.
     SinkHoleHazardSystem,
+    //! @brief Key for WatchmanSystem.
     WatchmanSystem,
+    //! @brief Key for WispSystem.
     WispSystem,
+    //! @brief Key for WormholeSystem.
     WormholeSystem,
   };
 
@@ -131,12 +168,15 @@ public:
   }
 
   //! @brief Get the first element of the SystemStore
+  //! @return Iterator to the first element.
   auto begin() { return m_sysmap.begin(); }
 
   //! @brief Get the last element of the SystemStore
+  //! @return Iterator past the last element.
   auto end() { return m_sysmap.end(); }
 
   //! @brief Get the size of the SystemStore
+  //! @return The number of systems in the store.
   [[nodiscard]] auto size() const { return m_sysmap.size(); }
 
 private:

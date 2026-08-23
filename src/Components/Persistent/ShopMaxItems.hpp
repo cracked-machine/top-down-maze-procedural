@@ -7,15 +7,24 @@
 namespace Game::Cmp::Persist
 {
 
+//! @brief Maximum number of items the shop generates for sale.
 class ShopMaxItems : public BasePersistent<uint8_t>
 {
 public:
+  //! @brief Construct with an initial item count and optional min/max bounds.
+  //! @param value initial item count
+  //! @param min_value minimum allowed item count
+  //! @param max_value maximum allowed item count
   ShopMaxItems( uint8_t value = 0, uint8_t min_value = 0, uint8_t max_value = 0 )
       : BasePersistent<uint8_t>( value, min_value, max_value )
   {
   }
 
+  //! @brief Get the class name used for persistence/registry lookup.
+  //! @return std::string the class name "ShopMaxItems"
   [[nodiscard]] std::string class_name() const override { return "ShopMaxItems"; }
+  //! @brief Get the human-readable detail/description text (currently unset).
+  //! @return std::string empty detail string
   [[nodiscard]] const std::string get_detail() const override { return ""; }
 };
 

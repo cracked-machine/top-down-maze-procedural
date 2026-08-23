@@ -10,8 +10,11 @@ namespace Game::Cmp
 //! @brief Use this component to associate two entities where persistance cannot be guaranteed with the entity id itself
 struct UUID
 {
+  //! @brief The 16 raw bytes of the UUID (version 4, variant per RFC 4122).
   std::array<uint8_t, 16> data{};
 
+  //! @brief Generate a new random version-4 UUID.
+  //! @return UUID A newly generated, randomly-seeded UUID.
   static UUID generate()
   {
     static std::mt19937 rng{ std::random_device{}() };
@@ -27,12 +30,15 @@ struct UUID
     return uuid;
   }
 
+  //! @brief Log the UUID in canonical hyphenated hex form via SPDLOG_INFO.
   void print() const
   {
     SPDLOG_INFO( "UUID: {:02x}{:02x}{:02x}{:02x}-{:02x}{:02x}-{:02x}{:02x}-{:02x}{:02x}-{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}", data[0], data[1],
                  data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9], data[10], data[11], data[12], data[13], data[14], data[15] );
   }
 
+  //! @brief Format the UUID in canonical hyphenated hex form.
+  //! @return std::string The UUID as a canonical hex string.
   std::string str() const
   {
     return std::format( "{:02x}{:02x}{:02x}{:02x}-{:02x}{:02x}-{:02x}{:02x}-{:02x}{:02x}-{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}", data[0], data[1],
@@ -52,9 +58,13 @@ struct UUID
 
 } // namespace Game::Cmp
 
+//! @brief std::hash specialization enabling Game::Cmp::UUID to be used as a key in unordered containers.
 template <>
 struct std::hash<Game::Cmp::UUID>
 {
+  //! @brief Compute a combined hash over all bytes of the UUID.
+  //! @param uuid The UUID to hash.
+  //! @return std::size_t The combined hash value.
   std::size_t operator()( const Game::Cmp::UUID &uuid ) const noexcept
   {
     std::size_t seed = 0;

@@ -32,7 +32,14 @@ public:
   //! @brief event handlers for resuming system clocks
   void on_resume() override;
 
-  enum class SpawnPhase { InitialSpawn, Respawn };
+  //! @brief Distinguishes the initial wormhole spawn from later respawns, controlling which position-picking strategy spawn_wormhole() uses.
+  enum class SpawnPhase
+  {
+    //! @brief First spawn of the scene: uses the persisted seeded position.
+    InitialSpawn,
+    //! @brief Subsequent spawn after a despawn: picks a fresh random position.
+    Respawn
+  };
 
   //! @brief Find a valid spawn position, remove any obstacle/loot/NPC container occupying it, and
   //! attach the wormhole's Singularity/MultiBlock/AnimData components there.

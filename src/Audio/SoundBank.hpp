@@ -8,9 +8,11 @@
 namespace Game::Audio
 {
 
+//! @brief Central registry and pool of sound effects and music tracks, keyed by name.
 class SoundBank
 {
 public:
+  //! @brief Construct a new Sound Bank. Call init() before resolving any effect/music name.
   SoundBank();
 
   //! @brief Registers every sound effect and music track by name, loading their buffers.

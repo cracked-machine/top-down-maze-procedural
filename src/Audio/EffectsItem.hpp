@@ -8,30 +8,34 @@
 namespace Game::Audio
 {
 
+//! @brief Owns the loaded sound buffer and playback control for a single registered sound effect.
 struct EffectsData
 {
-  //! @brief Sound buffer for the effect
-  //! Use unique_ptr for stable address
+  //! @brief Sound buffer for the effect.
+  //! @note Use unique_ptr for stable address.
   std::unique_ptr<sf::SoundBuffer> buffer;
 
-  //! @brief Sound control for the effect
+  //! @brief Sound control for the effect.
   sf::Sound control;
 
+  //! @brief Construct a new Effects Data object, loading its buffer from `filepath`.
+  //! @param filepath Path to the sound effect audio file.
   EffectsData( const std::filesystem::path &filepath );
 
-  //! @brief Construct a new Effects Data object
-  //! Need to define move constructor since we have unique_ptr
+  //! @brief Construct a new Effects Data object.
+  //! @note Need to define move constructor since we have unique_ptr.
   //! @param other
   EffectsData( EffectsData &&other ) noexcept;
 
-  //! @brief Move assignment operator
-  //! Need to define move assignment operator since we have unique_ptr
+  //! @brief Move assignment operator.
+  //! @note Need to define move assignment operator since we have unique_ptr.
   //! @param other
   //! @return EffectsData&
   auto operator=( EffectsData &&other ) noexcept -> EffectsData &;
 
-  //! Delete copy constructor and copy assignment operator
+  //! @brief Deleted copy constructor (buffer ownership is move-only).
   EffectsData( const EffectsData & ) = delete;
+  //! @brief Deleted copy assignment operator (buffer ownership is move-only).
   auto operator=( const EffectsData & ) -> EffectsData & = delete;
 };
 

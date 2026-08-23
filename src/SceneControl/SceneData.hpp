@@ -8,6 +8,8 @@
 namespace Game::Scene
 {
 
+//! @brief Deserializes a Tiled JSON scene file into map/tileset/tilelayer data used to build a
+//!        scene's game area (level generation, floor/wall rendering, multiblocks, player start).
 class SceneData : public Utils::JsonDeserializer
 {
 public:
@@ -63,7 +65,7 @@ public:
     sf::Vector2u tile_size;
   };
 
-  // main data structure
+  //! @brief Main data structure holding all deserialized scene data.
   struct Data
   {
     //! @brief Overal game map size for the scene
@@ -91,23 +93,55 @@ public:
     WallTileSet wall_tileset;
   };
 
+  //! @brief Construct a new Scene Data object, deserializing the given Tiled JSON scene file.
+  //! @param map_file Path to the Tiled JSON scene file to load.
   SceneData( const std::filesystem::path &map_file );
 
+  //! @brief Get the global tile ID (gid) of the void tile in the levelgen layer.
+  //! @return int
   [[nodiscard]] int void_tile_id() const { return m_map_data.main_tileset.void_tile_id + m_map_data.main_tileset.first_gid; }
+  //! @brief Get the global tile ID (gid) of the wall tile in the levelgen layer.
+  //! @return int
   [[nodiscard]] int wall_tile_id() const { return m_map_data.main_tileset.wall_tile_id + m_map_data.main_tileset.first_gid; }
+  //! @brief Get the global tile ID (gid) of the open (walkable) tile in the levelgen layer.
+  //! @return int
   [[nodiscard]] int open_tile_id() const { return m_map_data.main_tileset.open_tile_id + m_map_data.main_tileset.first_gid; }
+  //! @brief Get the global tile ID (gid) of the spawn tile in the levelgen layer.
+  //! @return int
   [[nodiscard]] int spawn_tile_id() const { return m_map_data.main_tileset.spawn_tile_id + m_map_data.main_tileset.first_gid; }
+  //! @brief Get the global tile ID (gid) of the player tile in the levelgen layer.
+  //! @return int
   [[nodiscard]] int player_tile_id() const { return m_map_data.main_tileset.player_tile_id + m_map_data.main_tileset.first_gid; }
+  //! @brief Get the global tile ID (gid) of the exit tile in the levelgen layer.
+  //! @return int
   [[nodiscard]] int exit_tile_id() const { return m_map_data.main_tileset.exit_tile_id + m_map_data.main_tileset.first_gid; }
+  //! @brief Get the global tile ID (gid) of the reserved tile in the levelgen layer.
+  //! @return int
   [[nodiscard]] int reserved_tile_id() const { return m_map_data.main_tileset.reserved_tile_id + m_map_data.main_tileset.first_gid; }
 
+  //! @brief Get the multiblock object layer, mapping each multiblock's sprite type to its position.
+  //! @return std::multimap<Sprites::SpriteMetaType, sf::Vector2f>
   [[nodiscard]] std::multimap<Sprites::SpriteMetaType, sf::Vector2f> multiblock_objectlayer() const { return m_map_data.multiblock_objectlayer; }
+  //! @brief Get the solid (collidable) object layer bounds.
+  //! @return std::vector<sf::FloatRect>
   [[nodiscard]] std::vector<sf::FloatRect> solid_objectlayer() const { return m_map_data.solid_objectlayer; }
+  //! @brief Get the levelgen tile layer's tile index list.
+  //! @return std::vector<int>
   [[nodiscard]] std::vector<int> levelgen_tilelayer() const { return m_map_data.levelgen_tilelayer; }
+  //! @brief Get the wall tile layer's tile index list.
+  //! @return std::vector<int>
   [[nodiscard]] std::vector<int> wall_tilelayer() const { return m_map_data.wall_tilelayer; }
+  //! @brief Get the file path of the floor tileset's image.
+  //! @return std::filesystem::path
   [[nodiscard]] std::filesystem::path floor_tileset_image() const { return m_map_data.floor_tileset.tileset_image; }
+  //! @brief Get the pool of tileset indexes to randomly choose the floor tile from.
+  //! @return std::vector<int>
   [[nodiscard]] std::vector<int> floor_tileset_pool() const { return m_map_data.floor_tileset.tileset_pool; }
+  //! @brief Get the player start position as grid position and pixel position.
+  //! @return std::pair<sf::Vector2u, sf::Vector2f>
   [[nodiscard]] std::pair<sf::Vector2u, sf::Vector2f> get_player_start_position() const;
+  //! @brief Get the wall tileset.
+  //! @return WallTileSet
   [[nodiscard]] WallTileSet wall_tileset() const { return m_map_data.wall_tileset; }
 
   //! @brief  Get the bounding box (in pixels) of every 'spawn' tile in the levelgen layer.
@@ -121,42 +155,36 @@ public:
 
 private:
   //! @brief Get the tilesets and tilelayers from the Tiled json file
-  //! @param scene_tiledata_path
+  //! @param json_scene_file_path Path to the Tiled JSON scene file to load
   void deserialize( const std::filesystem::path &json_scene_file_path );
 
-  //! @brief Get the embedded floor tileset from the JSON objectp
-  //! @param tileset The JSON input
-  //! @param floor_tileset The output
-  //! @return true
-  //! @return false
+  //! @brief Get the embedded floor tileset from the JSON object
+  //! @param json The JSON input
+  //! @return true if a floor tileset was found and deserialized
+  //! @return false otherwise
   bool deserialize_int_floor_tileset( const nlohmann::json &json );
 
   //! @brief Get the embedded wall tileset from the JSON object
-  //! @param tileset The JSON input
-  //! @param wall_first_gid The output
-  //! @return true
-  //! @return false
+  //! @param json The JSON input
+  //! @return true if a wall tileset was found and deserialized
+  //! @return false otherwise
   bool deserialize_int_wall_tileset( const nlohmann::json &json );
 
   //! @brief Get the external main tileset from the JSON object
   //! @param scene_tilemap_path Used for meaningful logging
   //! @param tileset The JSON input
-  //! @param main_tileset The output
-  //! @param main_ext_first_gid The output
-  //! @return true
-  //! @return false
+  //! @return true if the main tileset was found and deserialized
+  //! @return false otherwise
   bool deserialize_ext_main_tileset( const std::filesystem::path &scene_tilemap_path, const nlohmann::json &tileset );
 
   //! @brief Deserialize the scene tilemap json and copy in 'floor_tileset' and 'main_tileset'
-  //! @param scene_tilemap_path Used for meaningful logging
   //! @param scene_tilemap_json The JSON input
-  //! @param scene_tilemap The output
   void deserialize_tilelayers( const nlohmann::json &scene_tilemap_json );
 
   //! @brief Get the player start position from player_tilelayer
-  //! @param scene_tilemap
   void retrieve_player_start_pos();
 
+  //! @brief The deserialized scene data (tilesets, tile layers, object layers, player start position).
   Data m_map_data;
 };
 

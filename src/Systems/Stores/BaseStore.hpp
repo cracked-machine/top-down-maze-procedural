@@ -24,6 +24,8 @@ public:
   //! @param sprite_factory
   //! @param sound_bank
   BaseStore( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+
+  //! @brief Destroy the Base Store object
   ~BaseStore() {}
 
   //! @brief Load and parse a JSON file from disk.
@@ -37,30 +39,37 @@ public:
 
   //! @brief Extract the "health" field from a JSON action entry.
   //! @param item
+  //! @return The health value.
   int health( const nlohmann::json &item );
 
   //! @brief Extract the "fear" field from a JSON action entry.
   //! @param item
+  //! @return The fear value.
   int fear( const nlohmann::json &item );
 
   //! @brief Extract the "despair" field from a JSON action entry.
   //! @param item
+  //! @return The despair value.
   int despair( const nlohmann::json &item );
 
   //! @brief Extract the "infamy" field from a JSON action entry.
   //! @param item
+  //! @return The infamy value.
   int infamy( const nlohmann::json &item );
 
   //! @brief Extract the "toxicity" field from a JSON action entry.
   //! @param item
+  //! @return The toxicity value.
   int toxicity( const nlohmann::json &item );
 
   //! @brief Extract the "tick" field from a JSON action entry.
   //! @param item
+  //! @return The tick value.
   float tick( const nlohmann::json &item );
 
   //! @brief Extract the "disease" field (or the entry itself, if it has no nested "disease" object) from a JSON action entry.
   //! @param item
+  //! @return The extracted Cmp::Stats::Disease value.
   Cmp::Stats::Disease disease( const nlohmann::json &item );
 
   //! @brief event handlers for pausing system clocks
@@ -86,6 +95,8 @@ class StoreSingleton : public BaseStore
 {
 public:
   using BaseStore::BaseStore;
+
+  //! @brief String-keyed map type used to hold this store's loaded StoreValue entries.
   using store_map = std::unordered_map<std::string, StoreValue>;
 
   //! @brief Get the singleton instance of the Derived store.

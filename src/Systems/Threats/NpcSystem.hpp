@@ -140,6 +140,7 @@ private:
   //! @brief Used for NPCs to pathfind around blocking obstacles
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
 
+  //! @brief Used for ghost NPCs to pathfind while ignoring plant segments; falls back to m_npc_navmesh when unset.
   PathFinding::SpatialHashGridWeakPtr m_ghost_navmesh;
 
   //! @brief Used for NPCs to move freely within the level boundaries.

@@ -4,8 +4,10 @@
 namespace Game::Cmp
 {
 
+//! @brief Radius of light cast by the player's torch, used by the night/vision shader.
 struct TorchRadius
 {
+  //! @brief Torch light radius.
   float value;
 };
 

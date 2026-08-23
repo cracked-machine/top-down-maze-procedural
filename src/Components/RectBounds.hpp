@@ -21,7 +21,15 @@ namespace Game::Cmp
 class RectBounds
 {
 public:
-  enum class ScaleAxis { X, Y, XY };
+  //! @brief Which axis (or both) the bounds size/offset scaling is applied to.
+  enum class ScaleAxis {
+    //! Scale only the horizontal axis.
+    X,
+    //! Scale only the vertical axis.
+    Y,
+    //! Scale both axes.
+    XY
+  };
 
   //! @brief Create a scaled hitbox centered on a grid-aligned entity
   static RectBounds scaled( sf::Vector2f pos, sf::Vector2f size, float scale_factor, ScaleAxis scale_axis = ScaleAxis::XY )
@@ -105,6 +113,8 @@ public:
   //!       The offset is calculated using the default sprite dimensions and `kPositionOffsetFactor`.
   //! @param new_position The new position to set for the bounds
   void position( sf::Vector2f new_position ) { m_bounds.position = new_position - Constants::kGridSizePxF * kPositionOffsetFactor; }
+
+  //! @brief Retrieves the position of the rectangular bounds.
   sf::Vector2f position() const { return m_bounds.position; }
 
   //! @brief Sets the size of the rectangular bounds.
@@ -122,6 +132,7 @@ public:
   //! @brief Retrieves the underlying FloatRect bounds.
   sf::FloatRect getBounds() const { return m_bounds; }
 
+  //! @brief Converts the bounds to a Cmp::Position with matching position and size.
   Cmp::Position get_pos_cmp() const { return { m_bounds.position, m_bounds.size }; }
 
 private:

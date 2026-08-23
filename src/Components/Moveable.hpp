@@ -7,6 +7,7 @@ namespace Game::Cmp
 //! @brief Used to mark an entity that can have its obstacle pushed or pulled.
 struct Moveable
 {
+  //! @brief Whether this entity's obstacle can currently be pushed or pulled.
   [[maybe_unused]] bool active = true;
 };
 

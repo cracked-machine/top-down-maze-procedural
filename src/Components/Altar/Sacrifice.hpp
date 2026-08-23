@@ -7,6 +7,7 @@ namespace Game::Cmp::Altar
 //! @brief Marker component for identifying in-progress altar sacrifice animations
 struct Sacrifice
 {
+  //! @brief Whether this sacrifice animation is currently active/in-progress.
   bool active{ true };
 };
 

@@ -10,6 +10,7 @@ namespace Game::Cmp::Hazard
 //!        move through so the existing hazard collision checks can kill/damage the player as normal.
 struct CollisionResist
 {
+  //! @brief Time, in seconds, the player must keep pushing into the same hazard cell before the move is allowed through.
   float resist_seconds{ 0.35f };
 };
 

@@ -9,7 +9,13 @@
 namespace Game::Cmp::Particle
 {
 
-enum class ViewType { SCREEN, WORLD };
+//! @brief Distinguishes whether a particle sprite is rendered in world space or screen space.
+enum class ViewType {
+  //! @brief Rendered directly in screen/pixel space (e.g. UI/inventory), unaffected by the camera.
+  SCREEN,
+  //! @brief Rendered in world space and transformed through the camera view.
+  WORLD
+};
 
 //! @brief Preset scale for particle sprites rendered in the UI/inventory view (see IParticleSprite::set_scale()).
 //! @note Defined in SpriteBase.cpp (not inline/constexpr here) so tuning the value only recompiles that one file,
@@ -31,18 +37,34 @@ public:
   virtual ~IParticle() = default;
 
   //! @brief API for emitting the particle. Should be called by `simulate()` function of derived class.
-  //! @param emitter
-  //! @param lifetime
-  //! @param props
+  //! @note Resets the particle's position and rolls a new lifetime, then dispatches to the private
+  //!       emit()/idle() implementation depending on whether the particle is active (NVI idiom).
   virtual void do_emit() = 0;
+
+  //! @brief Get the number of times this particle has been re-emitted since the sprite was (re)started.
+  //! @return size_t The current generation count.
   virtual size_t generations() = 0;
 
+  //! @brief Set the range particle speed is randomly drawn from on each emit.
+  //! @param speed Uniform distribution to sample particle speed from.
   virtual void set_speed( std::uniform_real_distribution<float> speed ) = 0;
+  //! @brief Set the range particle launch angle is randomly drawn from on each emit.
+  //! @param angle Uniform distribution (degrees) to sample particle angle from.
   virtual void set_angle( std::uniform_real_distribution<float> angle ) = 0;
+  //! @brief Set the range particle wave phase is randomly drawn from on each emit.
+  //! @param phase Uniform distribution to sample particle phase from.
   virtual void set_phase( std::uniform_real_distribution<float> phase ) = 0;
+  //! @brief Set the range particle wave frequency is randomly drawn from on each emit.
+  //! @param freq Uniform distribution to sample particle frequency from.
   virtual void set_freq( std::uniform_real_distribution<float> freq ) = 0;
+  //! @brief Set the range particle lifetime (ms) is randomly drawn from on each emit.
+  //! @param lifetime Uniform distribution to sample particle lifetime (ms) from.
   virtual void set_lifetime( std::uniform_int_distribution<int> lifetime ) = 0;
+  //! @brief Set the position particles spawn from.
+  //! @param emitter_position World/screen position of the emitter.
   virtual void set_emitter_position( sf::Vector2f emitter_position ) = 0;
+  //! @brief Set the size of this particle.
+  //! @param size The particle size.
   virtual void set_size( float size ) = 0;
 
 private:

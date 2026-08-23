@@ -10,11 +10,40 @@
 
 namespace Game::Sys::ProcGen
 {
-enum class AllowDuplicatePassages { YES, NO };
-enum class OnePassagePerTargetRoom { YES, NO };
-enum class WalkingType { DRUNK, DOGLEG };
-enum class CachedOnly { TRUE, FALSE };
+//! @brief Whether a newly-carved passage may overlap an already-carved passage block.
+enum class AllowDuplicatePassages {
+  //! @brief Allow the passage to overlap existing passage blocks
+  YES,
+  //! @brief Disallow the passage from overlapping existing passage blocks
+  NO
+};
 
+//! @brief Whether a target room should only receive a single incoming passage.
+enum class OnePassagePerTargetRoom {
+  //! @brief Only carve one passage to the target room
+  YES,
+  //! @brief Allow multiple passages to the target room
+  NO
+};
+
+//! @brief Which passage-carving algorithm to use.
+enum class WalkingType {
+  //! @brief Random, wandering "drunken walk" carving, biased towards the target
+  DRUNK,
+  //! @brief Straight horizontal-then-vertical (or vice versa) "dog leg" carving
+  DOGLEG
+};
+
+//! @brief Whether to restrict a passage search to already-cached passage data only.
+enum class CachedOnly {
+  //! @brief Only consider cached passage data
+  TRUE,
+  //! @brief Also consider uncached/live passage data
+  FALSE
+};
+
+//! @brief Min-heap of (distance-from-start, room entity) pairs, ordered nearest-first, used to
+//!        pick candidate target rooms for passage carving.
 using MidPointDistanceQueue = std::priority_queue<std::pair<float, entt::entity>, std::vector<std::pair<float, entt::entity>>,
                                                   std::greater<std::pair<float, entt::entity>>>;
 
@@ -26,22 +55,23 @@ public:
   //! @brief Construct a new Passage Alogirthms object
   PassageAlogirthms() = default;
 
-  //! @brief Create a Drunken Walk Passage between start and end points
-
   //! @brief Place a passage block at the specified position
-  //! @param passage_id The ID of the passage to place
+  //! @param reg Entity-component registry to query existing passage blocks/walls from
   //! @param x The x-coordinate of the position
   //! @param y The y-coordinate of the position
   //! @param duplicates_policy Whether to allow duplicate passages blocks
-  //! @return Cmp::Crypt::PassageBlock
+  //! @param skip_wall_check If true, skip the wall-collision check
+  //! @return std::optional<Cmp::Crypt::PassageBlock> The placed block, or std::nullopt if blocked by a duplicate or a wall
   std::optional<Cmp::Crypt::PassageBlock> place_passage_block( entt::registry &reg, float x, float y,
                                                              AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO,
                                                              bool skip_wall_check = false );
 
   //! @brief Create a random, wandering "drunken walk" passage of blocks from the start door towards
   //!        the end bounds, biased to move towards the target while avoiding walls, rooms and other passages.
+  //! @param reg Entity-component registry to query/carve passage blocks in
   //! @param start The starting position and direction for the passage
   //! @param end_bounds The bounds of the end point for the passage
+  //! @param map_size_pixel Size of the map in pixels, used to keep the walk within bounds
   //! @param exclude_entts Entities to exclude from the search, e.g. the occupied room
   //! @param duplicates_policy Whether to allow duplicate passages blocks
   //! @return true if the passage was created successfully
@@ -51,6 +81,7 @@ public:
                                                            AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
 
   //! @brief Create a Dog Leg Passage between start and end points
+  //! @param reg Entity-component registry to query/carve passage blocks in
   //! @param start The starting position and direction for the passage
   //! @param end_bounds The bounds of the end point for the passage
   //! @param duplicates_policy Whether to allow duplicate passages blocks
@@ -71,7 +102,7 @@ public:
 
   //! @brief Precalculate and cache all wall obstacle bounds so passage carving can check for
   //!        wall collisions without repeatedly querying the registry.
-  //! @param reg
+  //! @param reg Entity-component registry to query wall obstacles from
   void cache_wall_components( entt::registry &reg );
 
 private:

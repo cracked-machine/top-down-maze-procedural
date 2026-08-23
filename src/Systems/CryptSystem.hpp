@@ -26,7 +26,14 @@ namespace Game::Sys
 class CryptSystem : public Game::Sys::BaseSystem
 {
 public:
-  enum class RoomWallType { INTERIOR = 0, BORDER = 1 };
+  //! @brief Which wall category a restored obstacle belongs to when decorating a room.
+  enum class RoomWallType
+  {
+    //! @brief A wall on the interior of a room.
+    INTERIOR = 0,
+    //! @brief A wall on the outer border between rooms.
+    BORDER = 1
+  };
 
   //! @brief Construct a new Crypt System object
   //! @param reg
@@ -93,9 +100,12 @@ public:
   void check_chest_activation( Events::PlayerActionEvent::GameActions action );
 
   //! @brief Restores border Cmp::Obstacles to Cmp::Crypt::RoomEnd, Cmp::Crypt::RoomStart and Cmp::Crypt::RoomOpen areas
+  //! @param uuid_map
   void create_room_borders( const Factory::Obstacle::UUIDEntityMap &uuid_map );
 
+  //! @brief event handlers for pausing system clocks
   void on_pause() override {}
+  //! @brief event handlers for resuming system clocks
   void on_resume() override {}
 
   //! @brief Shuffle the rooms and passages
@@ -129,6 +139,7 @@ private:
   Factory::Obstacle::UUIDEntityMap build_non_obstacle_uuid_map();
 
   //! @brief Find the Cmp::Crypt::BuildingMultiBlock entity intersecting the given position
+  //! @param pos_cmp
   //! @return The intersecting entity, or entt::null if none found
   entt::entity find_intersecting_multiblock( const Cmp::Position &pos_cmp );
 
@@ -146,9 +157,11 @@ private:
 
   //! @brief Change all Cmp::Crypt::RoomOpen to Cmp::Crypt::RoomClosed
   //! @note Excludes start/end rooms and the open room occupied by the player)
+  //! @param player_pos_cmp
   void close_open_rooms( const Cmp::Position &player_pos_cmp );
 
   //! @brief Restores missing Cmp::Obstacles components to Cmp::Crypt::RoomClosed areas
+  //! @param uuid_map
   void fill_closed_rooms( const Factory::Obstacle::UUIDEntityMap &uuid_map );
 
   //! @brief Change selected Cmp::Crypt::RoomClosed to Cmp::Crypt::RoomOpen.
@@ -160,6 +173,7 @@ private:
   void open_all_rooms();
 
   //! @brief Removes Cmp::Obstacles from Cmp::Crypt::RoomOpen areas
+  //! @param uuid_map
   void empty_open_rooms( const Factory::Obstacle::UUIDEntityMap &uuid_map );
 
   //! @brief Collect open-room floor positions not occupied by the player, a lava pit, a lever, a chest,
@@ -175,12 +189,14 @@ private:
   void add_chest_to_open_rooms( const Cmp::Position &player_pos_cmp );
 
   //! @brief Add lava pits to open rooms
+  //! @param player_pos_cmp
   void add_lava_pit_open_rooms( const Cmp::Position &player_pos_cmp );
 
   //! @brief Advance the lava pit's animated hazard cells once the effect cooldown has elapsed.
   void do_lava_pit_animation();
 
   //! @brief Remove lava pits from open rooms
+  //! @param player_pos_cmp
   void remove_lava_pit_open_rooms( const Cmp::Position &player_pos_cmp );
 
   //! @brief Check player collision with lava pits
@@ -197,6 +213,7 @@ private:
   void check_spike_trap_activation_by_proximity();
 
   //! @brief Removes Cmp::Lever components from Cmp::Crypt::RoomOpen areas
+  //! @param player_pos_cmp
   void remove_lever_open_rooms( const Cmp::Position &player_pos_cmp );
 
   //! @brief Destroy chests in open rooms the player is not standing in.
@@ -226,7 +243,8 @@ private:
   //! @brief Prevents rapid external entrance door unlocking
   sf::Clock m_door_cooldown_timer;
 
-  float m_door_cooldown_time{ 1.0f }; // 1 second cooldown
+  //! @brief Entrance door unlock cooldown duration, in seconds.
+  float m_door_cooldown_time{ 1.0f };
 
   //! @brief Number of enabled levers
   unsigned int m_enabled_levers{ 0 };
@@ -234,12 +252,16 @@ private:
   //! @brief Indicates if the maze was unlocked this cycle
   bool m_maze_unlocked{ false };
 
+  //! @brief Rate-limits how often the lava pit hazard animation advances.
   sf::Clock m_lava_effect_cooldown_timer;
 
+  //! @brief Minimum time between lava pit hazard animation advances.
   sf::Time m_lava_effect_cooldown_threshold{ sf::seconds( 1.f ) };
 
+  //! @brief All grid positions that block NPC pathfinding
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
 
+  //! @brief All grid positions that block player movement
   PathFinding::SpatialHashGridWeakPtr m_player_navmesh;
 };
 

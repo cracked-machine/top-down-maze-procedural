@@ -7,12 +7,15 @@
 namespace Game::Sys
 {
 
-//! @brief  This wraps SpriteBase<IParticle> so it can be emplaced/retrieved with the Entt registry as a single type.
-//!         ParticleSystem::find can retrieve SpriteBase<IParticle> via the specified `tag`
+//! @brief  This wraps IShaderSprite so it can be emplaced/retrieved with the Entt registry as a single type.
+//!         ShaderSystem::find can retrieve the wrapped IShaderSprite via the specified `tag`
 struct ShaderSpriteOwner
 {
+  //! @brief The owned shader sprite implementation.
   std::unique_ptr<Sprites::IShaderSprite> sprite;
 
+  //! @brief Construct a new Shader Sprite Owner object
+  //! @param sprite
   explicit ShaderSpriteOwner( std::unique_ptr<Sprites::IShaderSprite> sprite )
       : sprite( std::move( sprite ) )
   {
@@ -42,6 +45,9 @@ public:
   void update();
 
   //! @brief Find a ShaderSpriteOwner by tag and return a pointer to ShaderSpriteBase, or nullptr if not found
+  //! @param reg
+  //! @param tag
+  //! @return Sprites::IShaderSprite*
   [[nodiscard]] static Sprites::IShaderSprite *find( entt::registry &reg, const std::string &tag );
 
   //! @brief event handlers for pausing system clocks

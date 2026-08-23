@@ -6,31 +6,28 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
-// Usage:
-//
-// #include <BasicLogController.hpp>
-// std::unique_ptr<Test::Logging::BasicLogController> logger{
-//      std::make_unique<Test::Logging::BasicLogController>("logger", "log.txt")
-// };
-
+//! @brief Example usage:
+//! @code
+//! #include <BasicLogController.hpp>
+//! std::unique_ptr<Test::Logging::BasicLogController> logger{
+//!      std::make_unique<Test::Logging::BasicLogController>("logger", "log.txt")
+//! };
+//! @endcode
 namespace Game::Logging
 {
 
-//! @brief A non-synchronous log controller using SPDLog
-//
-//  Follows the Model–view–controller pattern:
-//
-// 1 Internal Model:
-// - `spdlog::logger`
-//
-// 3 External Views:
-// - `spdlog::sinks::stdout_color_sink_mt`
-// - `spdlog::sinks::basic_file_sink_mt`
-// - `spdlog::sinks::callback_sink_mt`
-//
+//! @brief A non-synchronous log controller using SPDLog.
+//! @details Follows the Model-View-Controller pattern:
+//!          - Internal Model: `spdlog::logger`
+//!          - External Views: `spdlog::sinks::stdout_color_sink_mt`, `spdlog::sinks::basic_file_sink_mt`,
+//!            `spdlog::sinks::callback_sink_mt`
 class BasicLogController
 {
 public:
+  //! @brief Construct a new Basic Log Controller, wiring up console, file, and callback sinks
+  //! and installing itself as spdlog's default logger.
+  //! @param log_name Name assigned to the underlying spdlog::logger.
+  //! @param log_path Filesystem path of the log file sink.
   BasicLogController( std::string log_name, std::string log_path )
       : m_log_name( log_name ),
         m_log_path( log_path )
@@ -48,22 +45,25 @@ public:
   }
 
 private:
+  //! @brief Name of the underlying spdlog::logger.
   std::string m_log_name{};
+  //! @brief Filesystem path of the log file sink.
   std::string m_log_path{};
 
-  // sink for Logging to stdout
+  //! @brief Sink for logging to stdout.
   std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> m_console_sink{ std::make_shared<spdlog::sinks::stdout_color_sink_mt>() };
 
-  // sink for Logging to file
+  //! @brief Sink for logging to file.
   std::shared_ptr<spdlog::sinks::basic_file_sink_mt> m_file_sink{ std::make_shared<spdlog::sinks::basic_file_sink_mt>( m_log_path, true ) };
 
+  //! @brief Sink that forwards log messages to a user-supplied callback (currently a no-op).
   std::shared_ptr<spdlog::sinks::callback_sink_mt> m_callback_sink{ std::make_shared<spdlog::sinks::callback_sink_mt>(
       []( [[maybe_unused]] const spdlog::details::log_msg &msg )
       {
         // std::cout << "BasicLogController Callback!!!" << "\n";
       } ) };
 
-  // initialise spdlog::logger with sinks
+  //! @brief The spdlog::logger instance, initialized with the console, file, and callback sinks.
   std::shared_ptr<spdlog::logger> m_logger{ std::make_shared<spdlog::logger>( spdlog::logger( m_log_name, {
                                                                                                               m_file_sink, m_console_sink,
                                                                                                               m_callback_sink // DISABLE CALLBACK HERE

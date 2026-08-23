@@ -17,6 +17,7 @@ namespace Game::Sprites
 class SpriteFactory
 {
 public:
+  //! @brief Construct an empty SpriteFactory. Call init() before use.
   SpriteFactory() = default;
 
   //! @brief Initializes the sprite factory
@@ -58,13 +59,25 @@ public:
   //! @brief Get a vector of all SpriteMetaType objects
   //! @return std::vector<SpriteMetaType>
   std::vector<SpriteMetaType> get_all_sprite_types();
+
+  //! @brief Get the set of all known SpriteMetaType objects.
+  //! @return std::unordered_set<SpriteMetaType>
   std::unordered_set<SpriteMetaType> get_all_sprite_types_set();
 
-  // Returns the pixel bounds of first sprite in array. Assumes that all sprites in the multi-sprite have the same size
+  //! @brief Returns the pixel bounds of the first sprite in the array. Assumes that all sprites in the
+  //! multi-sprite have the same size.
+  //! @param type The SpriteMetaType to search for
+  //! @param loc Call site captured for the error message if the type is not found
+  //! @return sf::Vector2f Pixel size of the sprite
   sf::Vector2f get_sprite_size_by_type( const SpriteMetaType &type, std::source_location loc = std::source_location::current() )
   {
     return get_spritedata_by_type( type, loc ).get_sprite_size();
   }
+
+  //! @brief Get the display name of a sprite type.
+  //! @param type The SpriteMetaType to search for
+  //! @param loc Call site captured for the error message if the type is not found
+  //! @return std::string Display name of the sprite
   std::string get_display_name_by_type( const SpriteMetaType &type, std::source_location loc = std::source_location::current() )
   {
     return get_spritedata_by_type( type, loc ).get_display_name();

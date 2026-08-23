@@ -12,6 +12,9 @@ namespace Game::Cmp::Weapons::Projectiles
 class Arrow
 {
 public:
+  //! @brief Construct a new Arrow projectile.
+  //! @param origin The position when the arrow was created.
+  //! @param destination The mouse pointer position when the arrow was created.
   Arrow( sf::Vector2f origin, sf::Vector2f destination )
       : m_origin( origin ),
         m_destination( destination )

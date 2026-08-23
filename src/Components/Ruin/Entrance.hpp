@@ -4,20 +4,27 @@
 namespace Game::Cmp::Ruin
 {
 
-// Used for collision detection on crypt doors
+//! @brief Component for a ruin entrance door, used for collision detection so the player can trigger the
+//! scene transition into the ruin.
 class Entrance
 {
 public:
+  //! @brief Construct a new Entrance.
+  //! @param is_open Initial open/closed state of the door.
   Entrance( bool is_open = false )
       : m_is_open( is_open )
   {
   }
 
+  //! @brief Get whether the door is currently open.
+  //! @return bool
   bool is_open() const { return m_is_open; }
+  //! @brief Set whether the door is open.
+  //! @param open
   void set_is_open( bool open ) { m_is_open = open; }
 
 private:
-  // Is collision detection enabled for this sprite
+  //! @brief Whether the door is currently open.
   bool m_is_open{ true };
 };
 

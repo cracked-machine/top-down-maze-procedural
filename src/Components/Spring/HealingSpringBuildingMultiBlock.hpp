@@ -8,12 +8,15 @@
 namespace Game::Cmp
 {
 
-// WellMultiBlock component represents a multi-block sprite defined geometrically as a rectangle
-// It can be used to find its WellSegment parts and track overall activation state
-// NOTE: This is used for both exterior well buildings and the interior well itself
+//! @brief Represents the exterior healing spring building as a multi-block sprite defined geometrically
+//! as a rectangle.
+//! @details Can be used to find its HealingSpringBuildingSegment parts and track overall activation state.
 class HealingSpringBuildingMultiBlock : public sf::FloatRect
 {
 public:
+  //! @brief Construct a new HealingSpringBuildingMultiBlock object.
+  //! @param position Top-left world position of the multi-block bounds.
+  //! @param size Width/height of the multi-block bounds.
   HealingSpringBuildingMultiBlock( const sf::Vector2f &position, const sf::Vector2f &size )
       : sf::FloatRect( position, size )
   {

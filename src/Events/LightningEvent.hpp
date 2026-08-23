@@ -4,6 +4,7 @@
 namespace Game::Events
 {
 
+//! @brief Triggers a lightning strike, e.g. via the debug F12 key, causing the lightning system to fire on its next update.
 struct LightningEvent
 {
 };

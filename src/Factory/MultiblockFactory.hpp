@@ -118,8 +118,8 @@ add_multiblock_with_segments( entt::registry &reg, sf::Vector2f position, const 
 
 } // namespace Game::Factory::Multiblock
 
-// Explicit instantiations are defined in MultiblockFactory.cpp for every MULTIBLOCK/MBSEGMENT
-// combination used across the codebase.
+//! @note Explicit instantiations are defined in MultiblockFactory.cpp for every MULTIBLOCK/MBSEGMENT
+//! combination used across the codebase.
 // clang-format off
 namespace Game::Factory::Multiblock::detail
 {

@@ -44,6 +44,7 @@ concept ValidHazard = requires {
 template <ValidHazard HazardType>
 class HazardFieldSystem : public Sys::BaseSystem
 {
+  //! @brief Convenience alias for the HazardTraits<HazardType> specialization backing this instantiation.
   using Traits = HazardTraits<HazardType>;
 
 public:

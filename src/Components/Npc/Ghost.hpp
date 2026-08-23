@@ -4,8 +4,10 @@
 namespace Game::Cmp::Npc
 {
 
+//! @brief Marker component tagging an entity as the Ghost NPC (a hostile NPC type).
 struct Ghost
 {
+  //! @brief Always true; presence of the component is what identifies the entity as a Ghost.
   bool ghost{ true };
 };
 

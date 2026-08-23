@@ -5,10 +5,15 @@
 namespace Game::Cmp
 {
 
-//! @brief Mark the entity as a plant obstacle
+//! @brief Represents a decorative plant obstacle as a multi-block sprite defined geometrically as a
+//! rectangle.
+//! @details Can be used to find its PlantSegment parts and track overall activation state.
 class PlantMultiBlock : public sf::FloatRect
 {
 public:
+  //! @brief Construct a new PlantMultiBlock object.
+  //! @param position Top-left world position of the multi-block bounds.
+  //! @param size Width/height of the multi-block bounds.
   PlantMultiBlock( const sf::Vector2f &position, const sf::Vector2f &size )
       : sf::FloatRect( position, size )
   {

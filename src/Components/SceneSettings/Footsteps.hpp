@@ -4,8 +4,10 @@
 namespace Game::Cmp::SceneSettings
 {
 
+//! @brief Scene-level setting toggling footstep effects (e.g. sound/visuals), e.g. via the F10 debug/cheat key.
 struct Footsteps
 {
+  //! @brief Whether footstep effects are active.
   bool enabled{ true };
 };
 

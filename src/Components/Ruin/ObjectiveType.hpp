@@ -6,13 +6,19 @@
 namespace Game::Cmp::Ruin
 {
 
+//! @brief Tags an entity with the sprite/type identifier of the ruin's quest objective.
+//! @note Persisted across scene transfers via SceneControl::RegistryTransfer so the objective's identity
+//! survives moving between the ruin's floors and other scenes.
 class ObjectiveType
 {
 public:
+  //! @brief Construct a new ObjectiveType.
+  //! @param type Sprite/meta type identifying the objective.
   ObjectiveType( Sprites::SpriteMetaType type )
       : m_type( type )
   {
   }
+  //! @brief Sprite/meta type identifying the objective.
   Sprites::SpriteMetaType m_type;
 };
 

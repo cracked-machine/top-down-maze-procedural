@@ -4,6 +4,7 @@
 namespace Game::Sprites
 {
 
+//! @brief Identifier string used to look up a SpriteSheet, e.g. by the sprite factory / sprite registry.
 using SpriteMetaType = std::string;
 
 } // namespace Game::Sprites

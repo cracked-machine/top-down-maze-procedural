@@ -4,43 +4,42 @@
 namespace Game::Sprites
 {
 
-/**
- * @class UniformBuilder
- * @brief A builder class for setting multiple shader uniforms in a chainable manner.
- *
- * The UniformBuilder class provides a fluent interface for setting shader uniforms
- * before applying them all at once to an sf::Shader object. It supports various
- * data types and provides special handling for sf::Color objects by converting
- * them to normalized Vec4 values.
- *
- * @details The class uses a function composition pattern to build up a series
- * of uniform assignments that are executed when apply() is called. Each call
- * to set() chains the new uniform assignment with the previous ones.
- *
- * Special type handling:
- * - sf::Color: Automatically converts RGBA values from 0-255 range to 0.0-1.0 range
- * - Other types: Passed directly to sf::Shader::setUniform()
- *
- * @example
- * UniformBuilder builder;
- * builder.set("color", sf::Color::Red)
- *        .set("time", 1.5f)
- *        .set("position", sf::Vector2f(10.0f, 20.0f))
- *        .apply(shader);
- */
+//! @class UniformBuilder
+//! @brief A builder class for setting multiple shader uniforms in a chainable manner.
+//!
+//! The UniformBuilder class provides a fluent interface for setting shader uniforms
+//! before applying them all at once to an sf::Shader object. It supports various
+//! data types and provides special handling for sf::Color objects by converting
+//! them to normalized Vec4 values.
+//!
+//! @details The class uses a function composition pattern to build up a series
+//! of uniform assignments that are executed when apply() is called. Each call
+//! to set() chains the new uniform assignment with the previous ones.
+//!
+//! Special type handling:
+//! - sf::Color: Automatically converts RGBA values from 0-255 range to 0.0-1.0 range
+//! - Other types: Passed directly to sf::Shader::setUniform()
+//!
+//! @example
+//! UniformBuilder builder;
+//! builder.set("color", sf::Color::Red)
+//!        .set("time", 1.5f)
+//!        .set("position", sf::Vector2f(10.0f, 20.0f))
+//!        .apply(shader);
 class UniformBuilder
 {
 private:
+  //! @brief Composed chain of pending uniform assignments, extended by each set() call and invoked by apply().
   std::function<void( sf::Shader & )> m_chain;
 
 public:
   //! @brief Update the chain with the new uniform. Save the existing chain,
-  //         build a new chain that calls the existing chain first,
-  //         then set this new uniform.
-  //! @tparam T
-  //! @param name
-  //! @param value
-  //! @return UniformBuilder&
+  //! build a new chain that calls the existing chain first,
+  //! then set this new uniform.
+  //! @tparam T The uniform's value type. sf::Color is special-cased to normalize to a Vec4; all other types are passed through to sf::Shader::setUniform().
+  //! @param name Name of the shader uniform to set.
+  //! @param value Value to assign to the uniform.
+  //! @return UniformBuilder& Reference to this builder, for chaining further set() calls.
   template <typename T>
   UniformBuilder &set( const std::string &name, const T &value )
   {
@@ -65,6 +64,11 @@ public:
     return *this;
   }
 
+  //! @brief Update the chain with a new uniform array assignment, chained the same way as set(name, value).
+  //! @tparam T Element type of the uniform array.
+  //! @param name Name of the shader uniform array to set.
+  //! @param values Values to assign to the uniform array.
+  //! @return UniformBuilder& Reference to this builder, for chaining further set() calls.
   template <typename T>
   UniformBuilder &set( const std::string &name, const std::vector<T> &values )
   {
@@ -82,6 +86,8 @@ public:
   // {
   //   if ( m_chain ) m_chain( shader );
   // }
+  //! @brief Execute the composed chain of set() calls, applying every accumulated uniform to the given shader.
+  //! @param shader The shader to apply all accumulated uniforms to.
   void apply( sf::Shader *shader )
   {
     if ( m_chain ) m_chain( *shader );

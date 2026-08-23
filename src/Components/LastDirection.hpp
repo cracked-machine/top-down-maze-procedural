@@ -13,18 +13,22 @@ namespace Game::Cmp
 class LastDirection : public sf::Vector2f
 {
 public:
+  //! @brief Construct with a zero direction vector.
   LastDirection() = default;
+
+  //! @brief Construct from an explicit direction vector.
+  //! @param dir The facing direction to store.
   LastDirection( const sf::Vector2f &dir )
       : sf::Vector2f( dir )
   {
   }
 
-  // used for sprite flipping:
-  // 1.f for moving right, -1.f for moving left
-  // default: 1.f otherwise we get no sprite until we move
+  //! @brief Used for sprite flipping: 1.f for moving right, -1.f for moving left.
+  //! @note Defaults to 1.f, otherwise we get no sprite until we move.
   float x_scale = 1.f;
-  // used for sprite positioning after flip:
-  // 0 for moving right, BaseSystem::kGridSquareSizePixels.x for moving left
+
+  //! @brief Used for sprite positioning after flip: 0 for moving right,
+  //!        BaseSystem::kGridSquareSizePixels.x for moving left.
   float x_offset = 0.f;
 };
 

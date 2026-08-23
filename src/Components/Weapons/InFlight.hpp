@@ -4,8 +4,10 @@
 namespace Game::Cmp::Weapons::Projectiles
 {
 
+//! @brief Marker component indicating a projectile is currently airborne / in flight.
 struct InFlight
 {
+  //! @brief Whether the projectile is currently in flight.
   [[maybe_unused]] bool active{ true };
 };
 

@@ -4,6 +4,7 @@
 namespace Game::Events
 {
 
+//! @brief Requests that a locked door/exit be unlocked.
 struct UnlockDoorEvent
 {
 };

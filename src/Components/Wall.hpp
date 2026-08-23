@@ -4,9 +4,10 @@
 namespace Game::Cmp
 {
 
-// Wall concept
+//! @brief Marks the entity as an impassable wall tile.
 struct Wall
 {
+  //! @brief Whether this wall is currently active/blocking.
   bool active = true;
 };
 

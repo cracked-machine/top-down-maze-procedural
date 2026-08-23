@@ -6,15 +6,22 @@
 namespace Game::Cmp::Persist
 {
 
+//! @brief Playback rate of the NPC death animation.
 class NpcDeathAnimFramerate : public BasePersistent<float>
 {
 public:
-  // time unit is seconds per frame, engine should convert to sf::Time as needed
+  //! @brief Construct the NPC death animation framerate setting.
+  //! @note The unit is seconds per frame; the engine should convert to sf::Time as needed.
+  //! @param seconds_per_frame Initial time each animation frame is held for, in seconds.
+  //! @param min_value Minimum allowed value (ImGui slider bound).
+  //! @param max_value Maximum allowed value (ImGui slider bound).
   NpcDeathAnimFramerate( float seconds_per_frame = 0.f, float min_value = 0.f, float max_value = 0.f )
       : BasePersistent<float>( seconds_per_frame, min_value, max_value )
   {
   }
+  //! @brief Returns the unique registry identifier for this persistent setting.
   virtual std::string class_name() const override { return "NpcDeathAnimFramerate"; }
+  //! @brief Returns the display description for this setting (unset).
   const std::string get_detail() const override { return ""; }
 };
 

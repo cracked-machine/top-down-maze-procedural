@@ -8,10 +8,12 @@
 namespace Game::Cmp::Crypt
 {
 
-// this is just a marker so we can easily query all existing animations
+//! @brief Marker component on a Cmp::Crypt::RoomLavaPitCell used to query all currently running lava
+//! bubbling/animation effects.
 class RoomLavaPitCellEffect
 {
 public:
+  //! @brief Whether this effect is currently active.
   bool active{ true };
 };
 

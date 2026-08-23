@@ -59,6 +59,9 @@ public:
   //! @brief Get the grid size object
   //! @return SpriteSize
   [[nodiscard]] sf::Vector2i get_grid_size() const { return m_grid_size; }
+
+  //! @brief Get the sprite size in pixels, derived from the grid size and the game's grid cell size.
+  //! @return sf::Vector2f
   [[nodiscard]] sf::Vector2f get_px_size() const
   {
     return { static_cast<float>( m_grid_size.x ) * Constants::kGridSizePxF.x, static_cast<float>( m_grid_size.y ) * Constants::kGridSizePxF.y };
@@ -80,7 +83,12 @@ public:
   //! @return const std::vector<bool>&
   [[nodiscard]] const std::vector<bool> &get_solid_mask() const { return m_solid_mask; }
 
+  //! @brief Get the door tile position within the sprite grid.
+  //! @return sf::Vector2i
   [[nodiscard]] sf::Vector2i get_door_position() const { return m_door_position; }
+
+  //! @brief Get the door tile position within the sprite grid, as a float vector.
+  //! @return sf::Vector2f
   [[nodiscard]] sf::Vector2f get_door_position_f() const { return sf::Vector2f( m_door_position ); }
 
   //! @brief Get the texture object
@@ -121,26 +129,27 @@ public:
   //! @brief
   // sf::VertexArray m_selected_vertices;
 
-  //! @brief
+  //! @brief One vertex array per sprite in the sheet, each ready to be drawn against m_tilemap_texture.
   std::vector<sf::VertexArray> m_va_list;
 
 private:
-  //! @brief
+  //! @brief Texture backing every sprite's vertex array in m_va_list. Shared so cheap copies of SpriteSheet
+  //! don't duplicate GPU texture data.
   std::shared_ptr<sf::Texture> m_tilemap_texture;
 
-  //! @brief
+  //! @brief Build the vertex array(s) for the tile indices picked from the tilemap texture.
   //! @param tilemap_picks
-  //! @return true
-  //! @return false
+  //! @return true if the sprite(s) were added successfully
+  //! @return false otherwise
   bool add_sprite( const std::vector<uint32_t> &tilemap_picks );
 
-  //! @brief
+  //! @brief Identifier for this sprite sheet's type.
   SpriteMetaType m_sprite_type;
 
-  //! @brief
+  //! @brief Human-readable name for this sprite sheet, e.g. shown in editor/debug UI.
   std::string m_display_name;
 
-  //! @brief
+  //! @brief Draw-order value per sprite index, indexed the same way as m_va_list.
   std::vector<float> m_zorder_list;
 
   //! @brief width and height grid size for the multi-sprite
@@ -149,12 +158,13 @@ private:
   //! @brief number of sprites per animation frame
   unsigned int m_sprites_per_frame{ 1 };
 
-  //! @brief
+  //! @brief Number of animation frames per full animation sequence.
   unsigned int m_sprites_per_sequence{ 1 };
 
   //! @brief Indicates which 'sprite_indices' the player cannot traverse. Array size must match sprite_indices size.
   std::vector<bool> m_solid_mask;
 
+  //! @brief Door tile position within the sprite grid, if this sheet represents a structure with a door.
   sf::Vector2i m_door_position;
 };
 

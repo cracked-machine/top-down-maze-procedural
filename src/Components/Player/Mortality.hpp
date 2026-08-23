@@ -5,10 +5,12 @@
 namespace Game::Cmp::Player
 {
 
+//! @brief Tracks the player's life/death state and the progress of any in-flight death animation.
 class Mortality
 {
 
 public:
+  //! @brief The player's current life/death state, and cause of death when dying/dead.
   enum class State : uint8_t {
     //! @brief Player is alive and well. Game is ongoing.
     ALIVE = 0,
@@ -41,12 +43,16 @@ public:
     DEAD = 255
   };
 
+  //! @brief Construct with an initial state and death progress.
+  //! @param initial_state initial life/death state
+  //! @param death_progress_init initial death animation progress
   explicit Mortality( State initial_state = State::ALIVE, float death_progress_init = 0.0f )
       : state( initial_state ),
         death_progress( death_progress_init )
   {
   }
 
+  //! @brief Current life/death state.
   State state{ State::ALIVE };
 
   //! @brief Progress of death animation from 0.0 (start) to 1.0 (complete)

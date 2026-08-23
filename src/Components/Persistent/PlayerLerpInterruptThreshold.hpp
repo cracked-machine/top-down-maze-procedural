@@ -13,11 +13,19 @@ namespace Game::Cmp::Persist
 //! 1.0 = can always interrupt (very responsive, but may feel jittery)
 struct PlayerLerpInterruptThreshold : BasePersistent<float>
 {
+  //! @brief Construct a new PlayerLerpInterruptThreshold object.
+  //! @param value Initial threshold value.
+  //! @param min Minimum allowed threshold value.
+  //! @param max Maximum allowed threshold value.
   PlayerLerpInterruptThreshold( float value = 0.f, float min = 0.f, float max = 0.f )
       : BasePersistent( value, min, max )
   {
   }
+  //! @brief Returns the class name used for identification and JSON serialization.
+  //! @return std::string The class name.
   virtual std::string class_name() const override { return "PlayerLerpInterruptThreshold"; }
+  //! @brief Returns the display detail string for this setting (currently unused/empty).
+  //! @return std::string The detail string.
   const std::string get_detail() const override { return ""; }
 };
 

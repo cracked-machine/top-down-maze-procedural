@@ -11,13 +11,23 @@ namespace Game::Cmp
 class Position : public sf::FloatRect
 {
 public:
+  //! @brief Construct a grid position at `pos` with grid square size `size`, both in pixels.
+  //! @param pos The grid position, in pixels.
+  //! @param size The grid square size, in pixels.
   Position( const sf::Vector2f &pos, const sf::Vector2f &size )
       : sf::FloatRect( pos, size )
   {
   }
+
+  //! @brief Returns the x coordinate of the position, in pixels.
   float x() { return position.x; }
+
+  //! @brief Returns the y coordinate of the position, in pixels.
   float y() { return position.y; }
 
+  //! @brief Adds the positions of two Position components, keeping this instance's size.
+  //! @param rhs The position to add.
+  //! @return Position The summed position with this instance's size.
   Position operator+( const Position &rhs ) const { return { position + rhs.position, size }; }
 };
 

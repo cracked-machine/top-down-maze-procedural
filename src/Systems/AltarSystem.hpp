@@ -35,6 +35,8 @@ private:
   void on_player_action( Events::PlayerActionEvent ev );
 
   //! @brief Rewards player for sacrificing various items at the altar
+  //! @param altar_entity
+  //! @param altar_cmp
   void check_player_altar_activation( entt::entity altar_entity, Cmp::Altar::MultiBlock &altar_cmp );
 };
 

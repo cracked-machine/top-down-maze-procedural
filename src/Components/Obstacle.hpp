@@ -4,10 +4,13 @@
 namespace Game::Cmp
 {
 
-// Mark the entity as a Rock obstacle
+//! @brief Mark the entity as a Rock obstacle
 struct Obstacle
 {
+  //! @brief Whether this obstacle is currently active/blocking.
   bool m_enabled{ true };
+
+  //! @brief Damage dealt by this obstacle (e.g. on collision).
   int damage{ 0 };
 };
 

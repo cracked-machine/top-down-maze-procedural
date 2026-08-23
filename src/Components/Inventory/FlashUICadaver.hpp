@@ -8,6 +8,7 @@ namespace Game::Cmp
 //! @note This is destroyed by the Render system.
 struct FlashUICadaver
 {
+  //! @brief How long the flash effect lasts before this component is destroyed.
   sf::Time duration{ sf::seconds( 3.f ) };
 };
 

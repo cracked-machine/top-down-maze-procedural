@@ -8,11 +8,14 @@
 namespace Game::Cmp::Wormhole
 {
 
-// MultiBlock component represents a multi-block sprite defined geometrically as a rectangle
-// It also tracks activation of its constituent sprites and overall activation state
+//! @brief Multi-block sprite for a wormhole, defined geometrically as a rectangle.
+//! @details Also tracks activation of its constituent sprites and overall activation state.
 class MultiBlock : public sf::FloatRect
 {
 public:
+  //! @brief Construct a wormhole MultiBlock at `position` with the given `size`.
+  //! @param position Top-left world position of the block's bounding rect.
+  //! @param size Width/height of the block's bounding rect.
   MultiBlock( const sf::Vector2f &position, const sf::Vector2f &size )
       : sf::FloatRect( position, size )
   {

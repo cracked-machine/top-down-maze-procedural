@@ -32,20 +32,24 @@ public:
   };
 
   //! @brief Append a region to the list.
-  //! @param br
+  //! @param br The region to append.
   void add( BlockRegion br ) { m_list.push_back( br ); }
 
   //! @brief Get an iterator to the first region.
+  //! @return Iterator to the first region.
   auto begin() { return m_list.begin(); }
 
   //! @brief Get an iterator past the last region.
+  //! @return Iterator past the last region.
   auto end() { return m_list.end(); }
 
   //! @brief Get the number of regions.
+  //! @return The number of regions currently stored.
   auto size() { return m_list.size(); }
 
   //! @brief Get the region at the specified index.
-  //! @param idx
+  //! @param idx Index of the region to fetch
+  //! @return const BlockRegion& The region at that index.
   const auto &get( size_t idx ) { return m_list.at( idx ); }
 
   //! @brief Clear all regions.

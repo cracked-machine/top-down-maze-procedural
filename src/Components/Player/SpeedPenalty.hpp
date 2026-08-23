@@ -10,10 +10,13 @@ namespace Game::Cmp::Player
 class SpeedPenalty
 {
 public:
+  //! @brief Construct with a speed penalty multiplier.
+  //! @param penalty percentage multiplier applied to Lerp speed
   SpeedPenalty( float penalty )
       : m_penalty( penalty )
   {
   }
+  //! @brief Percentage multiplier applied to Lerp speed.
   float m_penalty;
 };
 

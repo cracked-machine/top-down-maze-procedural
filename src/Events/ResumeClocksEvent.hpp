@@ -4,7 +4,7 @@
 namespace Game::Events
 {
 
-// Event to resume all clocks in the system
+//! @brief Requests that all system clocks be resumed.
 struct ResumeClocksEvent
 {
 };

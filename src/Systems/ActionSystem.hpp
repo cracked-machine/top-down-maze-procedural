@@ -35,6 +35,8 @@ public:
 
   //! @brief init the weak pointer for the pathfinding navmesh
   //! @param npc_navmesh
+  //! @param player_navmesh
+  //! @param ghost_navmesh
   void init( const PathFinding::SpatialHashGridSharedPtr &npc_navmesh, const PathFinding::SpatialHashGridSharedPtr &player_navmesh,
              const PathFinding::SpatialHashGridSharedPtr &ghost_navmesh = nullptr )
   {

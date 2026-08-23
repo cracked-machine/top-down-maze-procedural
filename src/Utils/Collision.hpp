@@ -8,12 +8,12 @@
 namespace Game::Utils::Collision
 {
 
-//! @brief Check if `Component` position collides with another component
-//! @tparam Component
+//! @brief Check if `pos` intersects the position of any entity that also owns a `Component`.
+//! @tparam Component The component type an entity must also have (alongside Cmp::Position) to be considered.
 //! @param reg reference to the entt reg
-//! @param pos Does this position contain a `Component`
+//! @param pos The bounds to test for intersection against each candidate's Cmp::Position
 //! @param filter Optional callback to filter candidates. Return true to consider this entity, false to skip.
-//! @return requires
+//! @return bool true if `pos` intersects the position of at least one matching, non-filtered-out entity
 template <typename Component>
 bool check_cmp( entt::registry &reg, Cmp::RectBounds pos, std::function<bool( const Component & )> filter = []( const Component & ) { return true; } )
 {
@@ -25,16 +25,17 @@ bool check_cmp( entt::registry &reg, Cmp::RectBounds pos, std::function<bool( co
   return false;
 };
 
-// Concept to check if Component inherits from one of the valid position/bounds types
+//! @brief Concept satisfied if `T` inherits from one of the valid position/bounds types.
+//! @tparam T The type to test.
 template <typename T>
 concept HasPositionBounds = std::is_base_of_v<Cmp::Position, T> || std::is_base_of_v<Cmp::RectBounds, T> || std::is_base_of_v<sf::FloatRect, T>;
 
-//! @brief Check if a `Component` collides with another component type
-//! @tparam `Component` must inherit from Cmp::Position, Cmp::RectBounds::scaled, sf::FloatRect
+//! @brief Check if `pos` intersects any entity's `Component`, where `Component` itself is a position/bounds type.
+//! @tparam Component Must satisfy HasPositionBounds (inherit from Cmp::Position, Cmp::RectBounds, or sf::FloatRect)
 //! @param reg reference to the entt reg
-//! @param pos Does this position contain a `Component`
+//! @param pos The bounds to test for intersection against each candidate's `Component`
 //! @param filter Optional callback to filter candidates. Return true to consider this entity, false to skip.
-//! @return requires
+//! @return bool true if `pos` intersects at least one matching, non-filtered-out entity's `Component`
 template <typename Component>
   requires HasPositionBounds<Component>
 bool check_pos( entt::registry &reg, Cmp::RectBounds pos, std::function<bool( const Component & )> filter = []( const Component & ) { return true; } )

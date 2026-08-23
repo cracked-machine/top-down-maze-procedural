@@ -51,7 +51,13 @@ void decorate_obstacle( entt::registry &registry, entt::entity entity, Cmp::Posi
                         std::size_t sprite_tile_idx, float zorder = 0, bool blocking = true );
 
 //! @brief Whether remove_obstacle() should also destroy the matching cap entity (tied by UUID).
-enum class DeleteExtras : bool { No = false, Yes = true };
+enum class DeleteExtras : bool
+{
+  //! @brief Do not delete the matching cap entity.
+  No = false,
+  //! @brief Also delete the matching cap entity.
+  Yes = true
+};
 
 //! @brief Remove the obstacle component from the entity
 //! @param registry
@@ -59,6 +65,7 @@ enum class DeleteExtras : bool { No = false, Yes = true };
 //! @param delete_extras Delete any extra obstacles entitys found (doesn't delete the search_entt)
 void remove_obstacle( entt::registry &reg, entt::entity search_entt, DeleteExtras delete_extras = DeleteExtras::No );
 
+//! @brief Map of obstacle UUID to its cap entity, built ahead of time for O(1) lookup during removal.
 using UUIDEntityMap = std::unordered_map<Cmp::UUID, entt::entity>;
 
 //! @brief Remove the obstacle component from the entity, using `uuid_map` for an O(1) cap entity lookup.

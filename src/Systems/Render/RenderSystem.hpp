@@ -34,6 +34,9 @@ class RenderSystem : public BaseSystem
 public:
   //! @brief Construct a new Render System object
   //! @param reg
+  //! @param window
+  //! @param sprite_factory
+  //! @param sound_bank
   RenderSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief polymorphic destructor for derived classes
@@ -56,7 +59,9 @@ protected:
   //! @brief Z-order entry for rendering queue
   struct ZOrder
   {
+    //! @brief Z-order value; lower values are drawn first.
     float z;
+    //! @brief The entity being ordered.
     entt::entity e;
   };
 
@@ -86,6 +91,8 @@ protected:
 
   //! @brief Dimension for `s_world_view`.
   constexpr static sf::Vector2u kWorldViewSize{ 300u, 200u };
+
+  //! @brief `kWorldViewSize` as a float vector, for use in float-based calculations.
   constexpr static sf::Vector2f kWorldViewSizeF{ static_cast<float>( kWorldViewSize.x ), static_cast<float>( kWorldViewSize.y ) };
 
   //! @brief Default font for rendering text
@@ -112,7 +119,7 @@ protected:
   //! @param position The screen coordinates where the text should be positioned
   //! @param align The alignment mode for the text (left or center). Left will
   //! respect position.x, center will ignore it.
-  //! @param padding Optional spacing around the text in pixels (default: 10.0f)
+  //! @param letter_spacing Optional letter spacing multiplier for the text (default: 1.f)
   //! @param fill_color Optional color for the text fill (default: White)
   //! @param outline_color Optional color for the text outline (default:
   //! Transparent). Outline thickness is 0.f if set to Transparent.

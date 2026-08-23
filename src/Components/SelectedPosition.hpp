@@ -10,6 +10,8 @@ namespace Game::Cmp
 class SelectedPosition : public sf::Vector2f
 {
 public:
+  //! @brief Construct the selected-position marker at the given world-space point.
+  //! @param pos The world-space position under the mouse pointer.
   SelectedPosition( const sf::Vector2f &pos )
       : sf::Vector2f( pos )
   {

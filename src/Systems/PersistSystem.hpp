@@ -27,28 +27,19 @@ public:
   //! @param sound_bank
   PersistSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
-  /**
-   * @brief Loads the persistent state data from storage.
-   *
-   * This function retrieves previously saved state information and restores
-   * the system to its last known configuration. The state data typically
-   * includes settings, progress, or other persistent information that should
-   * survive between application sessions.
-   *
-   * @throws std::runtime_error if the state file cannot be read or is corrupted
-   * @throws std::ios_base::failure if file I/O operations fail
-   */
+  //! @brief Loads the persistent state data from storage.
+  //! @details Retrieves previously saved state information and restores the system to its last
+  //! known configuration. The state data typically includes settings, progress, or other
+  //! persistent information that should survive between application sessions.
+  //! @throws std::runtime_error if the state file cannot be read or is corrupted
+  //! @throws std::ios_base::failure if file I/O operations fail
   void load_state();
 
-  /**
-   * @brief Saves the current state data to persistent storage.
-   *
-   * This function serializes the current configuration and state information
-   * of the system and writes it to a file or database. This ensures that
-   * important settings and progress are preserved for future sessions.
-   *
-   * @throws std::ios_base::failure if file I/O operations fail
-   */
+  //! @brief Saves the current state data to persistent storage.
+  //! @details Serializes the current configuration and state information of the system and
+  //! writes it to a file or database, so that important settings and progress are preserved
+  //! for future sessions.
+  //! @throws std::ios_base::failure if file I/O operations fail
   void save_state();
 
   /// EVENTS
@@ -68,20 +59,17 @@ public:
     load_state();
   }
 
-  /**
-   * @brief Initializes the component registry for the persistent system.
-   *
-   * This function sets up and registers all necessary components that need to
-   * persist across different game states or scenes. It should be called during
-   * system initialization to ensure all persistent components are properly
-   * configured and available for use.
-   */
+  //! @brief Initializes the component registry for the persistent system.
+  //! @details Sets up and registers all necessary components that need to persist across
+  //! different game states or scenes. Should be called during system initialization to ensure
+  //! all persistent components are properly configured and available for use.
   void initialize_component_registry();
 
   // Only declare templates in public API
   //! @brief Add a persistent component to the registry's context if it doesn't already exist
   //!
   //! @tparam T
+  //! @param reg
   template <typename T>
   static void add( entt::registry &reg );
 
@@ -89,6 +77,7 @@ public:
   //!
   //! @tparam T
   //! @tparam Args
+  //! @param reg
   //! @param args
   template <typename T, typename... Args>
   static void add( entt::registry &reg, Args &&...args );
@@ -96,6 +85,7 @@ public:
   //! @brief Get the persistent component object
   //!
   //! @tparam T
+  //! @param reg
   //! @return T&
   template <typename T>
   static T &get( entt::registry &reg );
@@ -119,18 +109,10 @@ private:
   template <typename T>
   void register_types( const std::string &name );
 
-  /**
-   * @brief Map of component loader functions indexed by component type name.
-   *
-   * This container stores function pointers that handle loading specific component types
-   * from JSON data. Each key represents a component type identifier (string), and the
-   * corresponding value is a function that takes a JSON object and deserializes it
-   * into the appropriate component type.
-   *
-   * @details The functions stored in this map are typically used during deserialization
-   * processes where JSON data needs to be converted back into component objects within
-   * an entity-component system or similar architecture.
-   */
+  //! @brief Map of component loader functions indexed by component type name.
+  //! @details Each key is a component type identifier (string), and the corresponding value is
+  //! a function that takes a JSON object and deserializes it into the appropriate component
+  //! type. Used during deserialization to convert JSON data back into component objects.
   std::unordered_map<std::string, std::function<void( const nlohmann::json & )>> m_component_loaders;
 
   //! @brief Map of component deserialize functions indexed by component type name; populated by register_types().

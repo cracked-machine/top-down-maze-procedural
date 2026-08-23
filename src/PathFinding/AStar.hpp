@@ -11,11 +11,20 @@ namespace Game::PathFinding
 
 class SpatialHashGrid;
 
+//! @brief A single node in the A* search: a grid position plus its cost bookkeeping and a link back to the
+//! node it was reached from, so the final path can be reconstructed by walking `parent` pointers.
 struct PathNode
 {
 
+  //! @brief World position of this node.
   Cmp::Position pos;
+
+  //! @brief X coordinate of `pos`.
+  //! @return The x pixel coordinate.
   float x() { return pos.position.x; }
+
+  //! @brief Y coordinate of `pos`.
+  //! @return The y pixel coordinate.
   float y() { return pos.position.y; }
 
   //! @brief Cost from start
@@ -25,6 +34,11 @@ struct PathNode
   //! @brief Pointer to parent node
   PathNode *parent{ nullptr };
 
+  //! @brief Construct a new Path Node object
+  //! @param pos World position of this node.
+  //! @param g Cost from the start node.
+  //! @param h Heuristic cost estimate to the goal.
+  //! @param p Parent node this one was reached from, or nullptr for the start node.
   PathNode( Cmp::Position pos, double g = 0, double h = 0, PathNode *p = nullptr )
       : pos( pos ),
         g( g ),
@@ -62,6 +76,15 @@ struct PathNode
   };
 };
 
+//! @brief Find a path from `start` to `goal` over the spatial hash grid using the A* algorithm, treating occupied
+//! grid cells (excluding other NPCs) as obstacles. Bails out once a fixed node-expansion limit is reached if the
+//! goal is unreachable.
+//! @param reg The registry used to look up components (e.g. Cmp::Position, Cmp::Npc::NPC) on candidate neighbour entities.
+//! @param grid The spatial hash grid used to query neighbouring occupied cells.
+//! @param start Starting position.
+//! @param goal Target position.
+//! @param query_compass Which neighbour offsets to consider when expanding a node.
+//! @return The path from start to goal as an ordered list of PathNode, or an empty vector if no path was found.
 std::vector<PathNode> astar( entt::registry &reg, const PathFinding::SpatialHashGrid &grid, Cmp::Position start, Cmp::Position goal,
                              PathFinding::QueryCompass query_compass = PathFinding::QueryCompass::CARDINAL );
 

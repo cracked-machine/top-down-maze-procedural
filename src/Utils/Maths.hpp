@@ -10,6 +10,7 @@
 namespace Game::Utils::Maths
 {
 
+//! @brief Comparator ordering (distance, position) pairs for a min-heap keyed on smallest distance first.
 struct DistanceVector2fComparator
 {
   bool operator()( const std::pair<float, sf::Vector2f> &a, const std::pair<float, sf::Vector2f> &b ) const
@@ -18,6 +19,7 @@ struct DistanceVector2fComparator
   }
 };
 
+//! @brief Comparator ordering (distance, Cmp::Position) pairs for a min-heap keyed on smallest distance first.
 struct DistancePositionComparator
 {
   bool operator()( const std::pair<float, Cmp::Position> &a, const std::pair<float, Cmp::Position> &b ) const

@@ -30,8 +30,11 @@ namespace Game::Sys
 //!         ParticleSystem::find can retrieve SpriteBase<IParticle> via the specified `tag`
 struct ParticleSpriteOwner
 {
+  //! @brief The owned particle sprite implementation.
   std::unique_ptr<Cmp::Particle::IParticleSprite> sprite;
 
+  //! @brief Construct a new Particle Sprite Owner object
+  //! @param sprite
   explicit ParticleSpriteOwner( std::unique_ptr<Cmp::Particle::IParticleSprite> sprite )
       : sprite( std::move( sprite ) )
   {
@@ -84,6 +87,9 @@ public:
   void check_collsion( const sf::FloatRect &target, const std::vector<std::string> &excl_ps_tag_list = {} );
 
   //! @brief Find a ParticleSpriteOwner by tag and return a pointer to SpriteBase<IParticle>, or nullptr if not found
+  //! @param reg
+  //! @param tag
+  //! @return std::vector<std::reference_wrapper<Cmp::Particle::IParticleSprite>>
   [[nodiscard]] static std::vector<std::reference_wrapper<Cmp::Particle::IParticleSprite>> find( entt::registry &reg, const std::string &tag );
 
   //! @brief event handlers for pausing system clocks

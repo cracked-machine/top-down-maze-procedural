@@ -6,6 +6,8 @@
 namespace Game::Cmp
 {
 
+//! @brief A single cell of a corruption hazard field. Corruption fields are composed of many CorruptionCell
+//! entities and gradually drain health from entities standing in them over time.
 struct CorruptionCell : public Hazard::FieldCell
 {
 };

@@ -21,41 +21,69 @@
 namespace Game::Scene
 {
 
+//! @brief Owns the SceneStack and drives scene lifecycle transitions (push/pop/replace), showing a
+//!        loading screen while each transition's on_init()/on_enter()/on_exit() callbacks run, and
+//!        using RegistryTransfer to carry player/component state between the outgoing and incoming
+//!        scene's registries. Also listens for Events::SceneManagerEvent to trigger transitions.
 class SceneManager
 {
 public:
+  //! @brief Construct a new Scene Manager object
+  //! @param w The OpenGL render window
+  //! @param sound_bank Sound bank used by scenes for playback
+  //! @param system_store Store of all game systems; the active scene's registry is injected into it on transition
+  //! @param nav_event_dispatcher Dispatcher used to route per-scene input-processing events
+  //! @param scenemanager_event_dispatcher Dispatcher used to receive scene transition requests
+  //! @param sprite_factory Used by scenes to construct sprite-owning entities
   explicit SceneManager( sf::RenderWindow &w, Audio::SoundBank &sound_bank, Sys::Store &system_store, entt::dispatcher &nav_event_dispatcher,
                          entt::dispatcher &scenemanager_event_dispatcher, Sprites::SpriteFactory &sprite_factory );
 
-  // Update the current scene
+  //! @brief Update the current scene
+  //! @param dt The time elapsed since the last update
   void update( sf::Time dt );
 
-  // Render the current scene
+  //! @brief Push a new scene onto the stack, calling on_exit() on the scene below it.
+  //! @param scene The scene to push
+  //! @param mode Which components (if any) to copy from the outgoing scene's registry into the new scene's registry
   void push( std::unique_ptr<IScene> scene, RegCopyMode mode = RegCopyMode::NONE );
-  // Push a new overlay scene - do not call on_exit() for the scene below this on the stack
+  //! @brief Push a new overlay scene - do not call on_exit() for the scene below this on the stack
+  //! @param scene The scene to push
+  //! @param mode Which components (if any) to copy from the outgoing scene's registry into the new scene's registry
   void push_no_exit( std::unique_ptr<IScene> scene, RegCopyMode mode = RegCopyMode::NONE );
 
-  // Pop the current scene
+  //! @brief Pop the current scene
+  //! @param mode Which components (if any) to copy from the popped scene's registry into the scene beneath it
   void pop( RegCopyMode mode = RegCopyMode::NONE );
-  // Pop the current overlay scene - do not call on_enter() for the scene below this on the stack
+  //! @brief Pop the current overlay scene - do not call on_enter() for the scene below this on the stack
+  //! @param mode Which components (if any) to copy from the popped scene's registry into the scene beneath it
   void pop_no_exit( RegCopyMode mode = RegCopyMode::NONE );
 
-  // Replace the current scene with a new one
+  //! @brief Replace the current scene with a new one
+  //! @param scene The scene to replace the current scene with
+  //! @param mode Which components (if any) to copy from the outgoing scene's registry into the new scene's registry
   void replace( std::unique_ptr<IScene> scene, RegCopyMode mode = RegCopyMode::NONE );
-  // Replace the current scene with a new one - do not call on_exit() for the replaced scene
+  //! @brief Replace the current scene with a new one - do not call on_exit() for the replaced scene
+  //! @param scene The scene to replace the current scene with
+  //! @param mode Which components (if any) to copy from the outgoing scene's registry into the new scene's registry
   void replace_no_exit( std::unique_ptr<IScene> scene, RegCopyMode mode = RegCopyMode::NONE );
 
-  // Get a pointer to the current active scene
+  //! @brief Get a pointer to the current active scene
+  //! @return IScene*
   IScene *current();
 
-  // Event handler for scene manager events
+  //! @brief Event handler for scene manager events
+  //! @param event The scene manager event describing which transition was requested
   void handle_events( const Events::SceneManagerEvent &event );
 
 private:
-  // Helper function to inject the current scene's registry into the system store
+  //! @brief Helper function to inject the current scene's registry into the system store
   void inject_current_scene_registry_into_systems();
 
-  // Loading screen implementation
+  //! @brief Runs `callable` asynchronously while displaying an animated "Loading..." screen and
+  //!        pumping window events, so the window doesn't appear to hang during long scene setup.
+  //! @tparam Callable Callable type invoked with no arguments; its return value is discarded
+  //! @param callable The work to perform asynchronously (e.g. a scene's on_init()/on_enter()/on_exit())
+  //! @param loading_texture Unused; reserved for a future loading screen background image
   template <typename Callable>
   void loading_screen( Callable &&callable, [[maybe_unused]] const sf::Texture &loading_texture )
   {
@@ -112,10 +140,10 @@ private:
   //! @brief Non-owning reference to the system store
   Sys::Store &m_system_store;
 
-  // Scene stack managing active scenes
+  //! @brief Scene stack managing active scenes
   SceneStack m_scene_stack;
 
-  // Splash screen texture
+  //! @brief Splash screen texture
   sf::Texture m_splash_texture{ "res/textures/splash.png" };
 
   //! @brief Non-owning reference to the navigation event dispatcher
@@ -127,6 +155,7 @@ private:
   //! @brief Used to transfer components from outgoing scene registry to an incoming scene registry
   RegistryTransfer m_reg_xfer;
 
+  //! @brief Non-owning reference to the sprite factory used to construct scene entities
   Sprites::SpriteFactory &m_sprite_factory;
 };
 

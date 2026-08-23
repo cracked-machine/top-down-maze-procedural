@@ -6,11 +6,14 @@
 namespace Game::Audio
 {
 
+//! @brief Owns the playback control for a single registered music track.
 struct MusicData
 {
   //! @brief Music control
   sf::Music control;
 
+  //! @brief Construct a new Music Data object, opening the track from `filepath` for streaming.
+  //! @param filepath Path to the music audio file.
   MusicData( const std::filesystem::path &filepath );
 };
 

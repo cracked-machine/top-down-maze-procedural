@@ -4,8 +4,10 @@
 namespace Game::Cmp::SceneSettings
 {
 
+//! @brief Scene-level setting toggling the on-screen debug stats overlay, e.g. via the F3 debug/cheat key.
 struct ShowDebugStats
 {
+  //! @brief Whether the debug stats overlay is shown.
   bool enabled{ false };
 };
 

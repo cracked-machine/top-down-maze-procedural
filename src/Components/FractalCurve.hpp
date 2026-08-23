@@ -21,6 +21,12 @@ struct FractalCurve
     float outer;
   } m_deviations;
 
+  //! @brief Construct a curve as a single segment between two endpoints; call the subdivision
+  //!        logic externally to generate further generations of `sequence`.
+  //! @param start World-space start point of the curve.
+  //! @param end World-space end point of the curve.
+  //! @param deviations Max perpendicular angle deviations applied when subdividing.
+  //! @param duration Lifetime of the curve; destruction is managed externally once `timer` exceeds it.
   FractalCurve( sf::Vector2f start, sf::Vector2f end, AngleDeviations deviations, sf::Time duration )
   {
     sequence.push_back( { sf::Vertex( start ) } );
@@ -46,6 +52,11 @@ struct FractalCurve
 //! @brief Type of FractalCurve used for LightningStrikes
 struct LightningStrike : public FractalCurve
 {
+  //! @brief Construct a lightning strike curve between two endpoints.
+  //! @param start World-space start point (typically the strike origin).
+  //! @param end World-space end point (typically the strike target).
+  //! @param deviations Max perpendicular angle deviations applied when subdividing.
+  //! @param duration Lifetime of the strike before it should be destroyed.
   LightningStrike( sf::Vector2f start, sf::Vector2f end, AngleDeviations deviations, sf::Time duration )
       : FractalCurve( start, end, deviations, duration )
   {
@@ -55,6 +66,11 @@ struct LightningStrike : public FractalCurve
 //! @brief Type of FractalCurve used for ObstacleCracks
 struct ObstacleCrack : public FractalCurve
 {
+  //! @brief Construct an obstacle crack curve between two endpoints.
+  //! @param start World-space start point of the crack.
+  //! @param end World-space end point of the crack.
+  //! @param deviations Max perpendicular angle deviations applied when subdividing.
+  //! @param duration Lifetime of the crack before it should be destroyed.
   ObstacleCrack( sf::Vector2f start, sf::Vector2f end, AngleDeviations deviations, sf::Time duration )
       : FractalCurve( start, end, deviations, duration )
   {

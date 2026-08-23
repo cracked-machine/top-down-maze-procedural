@@ -4,7 +4,7 @@
 namespace Game::Events
 {
 
-// Event to pause all clocks in the system
+//! @brief Requests that persisted settings be loaded from disk.
 struct LoadSettingsEvent
 {
 };

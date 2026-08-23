@@ -4,8 +4,10 @@
 namespace Game::Cmp::SceneSettings
 {
 
+//! @brief Scene-level setting toggling collision detection, e.g. via the F1 debug/cheat key.
 struct CollisionDetection
 {
+  //! @brief Whether collision detection is active.
   bool enabled{ true };
 };
 

@@ -7,8 +7,8 @@
 namespace Game::Sprites
 {
 
-//! @brief This represent the shockwave as a collection of sprite circle segments.
-//         As the shockwave hits obstacles it will split into segments.
+//! @brief Represents a shockwave as a collection of sprite circle segments.
+//! @details As the shockwave hits obstacles it will split into segments.
 class Shockwave
 {
 public:
@@ -101,11 +101,17 @@ public:
   [[nodiscard]] CircleSegments get_visible_segments() const;
 
 private:
+  //! @brief Center position of the shockwave circle.
   sf::Vector2f m_position;
+  //! @brief Radius of the shockwave circle.
   float m_radius;
+  //! @brief Outline color applied to all segments.
   sf::Color m_outline_color;
+  //! @brief Outline thickness applied to all segments.
   float m_outline_thickness;
+  //! @brief The angular segments that make up the shockwave circle.
   CircleSegments m_segments;
+  //! @brief Number of points used to tessellate each segment.
   int m_points_per_segment;
 
   //! @brief Invalidate all segment caches

@@ -17,9 +17,12 @@ namespace Game::PathFinding
 
 //! @brief Select Cardinal or All offsets for query function
 enum class QueryCompass {
-  CARDINAL, // cardinal only
+  //! @brief Cardinal-direction offsets only (self, up, down, left, right).
+  CARDINAL,
+  //! @brief Ordinal-direction (diagonal) offsets only.
   ORDINAL,
-  BOTH // include diagonals
+  //! @brief Both cardinal and ordinal offsets (self plus all 8 neighbours).
+  BOTH
 };
 
 //! @brief Store buckets of entities using their pixel positions as a key
@@ -49,6 +52,9 @@ public:
   //! @param new_pos
   void update( entt::entity e, const Cmp::Position &old_pos, const Cmp::Position &new_pos );
 
+  //! @brief Get the entities in the bucket for `pos`, without including neighbouring buckets.
+  //! @param pos
+  //! @return The entities in that single bucket, or an empty vector if the bucket doesn't exist.
   std::vector<entt::entity> at( const Cmp::Position &pos ) const;
 
   //! @brief Using `pos` as a lookup, flattens neighbouring buckets (9 max) into single vector
@@ -56,7 +62,11 @@ public:
   //! @return std::vector<entt::entity>
   std::vector<entt::entity> neighbours( const Cmp::Position &pos, QueryCompass offset = QueryCompass::BOTH ) const;
 
+  //! @brief Get the number of occupied buckets in the grid.
+  //! @return The bucket count.
   size_t size() { return m_grid.size(); }
+
+  //! @brief Remove all buckets from the grid.
   void clear() { m_grid.clear(); }
 
 private:

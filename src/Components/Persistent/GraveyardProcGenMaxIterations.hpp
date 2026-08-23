@@ -6,14 +6,24 @@
 namespace Game::Cmp::Persist
 {
 
+//! @brief Maximum number of iterations run by the graveyard exterior's cellular-automaton procedural
+//! generation pass (see Sys::CellAutomataSystem::iterate).
 class GraveyardProcGenMaxIterations : public BasePersistent<uint8_t>
 {
 public:
+  //! @brief Construct with an initial max iteration count and optional min/max bounds.
+  //! @param value initial max iteration count
+  //! @param min_value minimum allowed max iteration count
+  //! @param max_value maximum allowed max iteration count
   GraveyardProcGenMaxIterations( uint8_t value = 0.f, uint8_t min_value = 0.f, uint8_t max_value = 0.f )
       : BasePersistent<uint8_t>( value, min_value, max_value )
   {
   }
+  //! @brief Get the class name used for persistence/registry lookup.
+  //! @return std::string the class name "GraveyardProcGenMaxIterations"
   [[nodiscard]] std::string class_name() const override { return "GraveyardProcGenMaxIterations"; }
+  //! @brief Get the human-readable detail/description text (currently unset).
+  //! @return std::string empty detail string
   [[nodiscard]] const std::string get_detail() const override { return ""; }
 };
 

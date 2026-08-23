@@ -12,6 +12,9 @@ namespace Game::Cmp::Ruin
 class StairsGateMultiBlock : public sf::FloatRect
 {
 public:
+  //! @brief Construct a multi-block covering the given rectangle.
+  //! @param position Top-left world position of the multi-block.
+  //! @param size Pixel dimensions of the multi-block.
   StairsGateMultiBlock( const sf::Vector2f &position, const sf::Vector2f &size )
       : sf::FloatRect( position, size )
   {

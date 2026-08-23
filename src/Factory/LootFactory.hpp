@@ -65,18 +65,15 @@ bool has_any_spatial_excluded_at_pos( entt::registry &registry, const Cmp::Posit
 }
 } // namespace detail
 
-/**
- * @brief Attempts to create a loot drop at a traversable position within a specified search area.
- *
- * @tparam Include Component types the position entity must have.
- * @tparam Exclude Component types the position entity must NOT have.
- * @tparam SpatialExclude Component types to check spatially (separate entities at same position).
- * @param registry The entity registry.
- * @param loot_anim_cmp The sprite animation for the loot.
- * @param search The area in which to search for a suitable position.
- * @param zorder_offset Offset added to position.y for z-ordering.
- * @return The newly created loot entity, or entt::null if no suitable location was found.
- */
+//! @brief Attempts to create a loot drop at a traversable position within a specified search area.
+//! @tparam Include Component types the position entity must have.
+//! @tparam Exclude Component types the position entity must NOT have.
+//! @tparam SpatialExclude Component types to check spatially (separate entities at same position).
+//! @param registry The entity registry.
+//! @param loot_anim_cmp The sprite animation for the loot.
+//! @param search The area in which to search for a suitable position.
+//! @param zorder_offset Offset added to position.y for z-ordering.
+//! @return The newly created loot entity, or entt::null if no suitable location was found.
 template <typename... Include, typename... Exclude, typename... SpatialExclude>
 inline entt::entity create_loot_drop( entt::registry &registry, Cmp::AnimData &&loot_anim_cmp, sf::FloatRect search, IncludePack<Include...>,
                                       ExcludePack<Exclude...>, ExcludePack<SpatialExclude...> spatial_exclude = ExcludePack<>{},

@@ -4,8 +4,10 @@
 namespace Game::Cmp::Crypt
 {
 
+//! @brief Marks an entity as a crypt key item that the player can collect.
 struct Key
 {
+  //! @brief Whether the key is still active/available to collect.
   bool m_active{ true };
 };
 

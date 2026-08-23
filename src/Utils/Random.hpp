@@ -16,44 +16,42 @@
 namespace Game::Utils::Rnd
 {
 
-// Helper structs for variadic template parameter packs
+//! @brief Helper struct wrapping a variadic template parameter pack of component types to include in a view filter.
+//! @tparam Types The component types to include.
 template <typename... Types>
 struct IncludePack
 {
 };
 
-// Helper structs for variadic template parameter packs
+//! @brief Helper struct wrapping a variadic template parameter pack of component types to exclude from a view filter.
+//! @tparam Types The component types to exclude.
 template <typename... Types>
 struct ExcludePack
 {
 };
 
-/**
- * @brief Retrieves a random entity and its position component from entities matching the
- * specified criteria.
- *
- * This function selects a random entity and position component from a filtered view of entities
- * that have a Position component and all specified Include components, while excluding entities
- * with any of the Exclude components.
- *
- * @tparam Include... Variadic template parameter pack specifying component types that entities
- * must have
- * @tparam Exclude... Variadic template parameter pack specifying component types that entities
- * must not have
- *
- * @param include_pack Template parameter pack wrapper for components to include in the filter. Do
- * not include Cmp::Position here.
- * @param exclude_pack Template parameter pack wrapper for components to exclude from the filter
- * @param seed Optional seed value for random number generation. If 0 (default), uses
- * std::random_device
- *
- * @return std::pair<entt::entity, Cmp::Position> A pair containing the randomly selected entity
- * and its position component
- *
- * @note The function assumes there is at least one entity matching the filter criteria.
- *       If no entities match, the behavior is undefined.
- * @note Uses SPDLOG_DEBUG to log the number of matching positions found.
- */
+//! @brief Retrieves a random entity and its position component from entities matching the
+//! specified criteria.
+//! @details This function selects a random entity and position component from a filtered view of entities
+//! that have a Position component and all specified Include components, while excluding entities
+//! with any of the Exclude components.
+//! @tparam Include Variadic template parameter pack specifying component types that entities
+//! must have
+//! @tparam Exclude Variadic template parameter pack specifying component types that entities
+//! must not have
+//! @param reg reference to the entt registry
+//! @param include_pack Template parameter pack wrapper for components to include in the filter. Do
+//! not include Cmp::Position here.
+//! @param exclude_pack Template parameter pack wrapper for components to exclude from the filter
+//! @param seed Optional seed value for random number generation. If 0 (default), uses
+//! std::random_device
+//! @param loc Caller location, used in error messages (defaults to the call site).
+//! @return std::pair<entt::entity, Cmp::Position> A pair containing the randomly selected entity
+//! and its position component
+//! @note The function assumes there is at least one entity matching the filter criteria.
+//! @note Uses SPDLOG_DEBUG to log the number of matching positions found.
+//! @throws std::runtime_error if no entities match the filter criteria.
+//! @throws std::out_of_range if the randomly generated index is out of bounds (should not normally happen).
 template <typename... Include, typename... Exclude>
 static std::pair<entt::entity, Cmp::Position> get_random_position( entt::registry &reg, IncludePack<Include...>, ExcludePack<Exclude...>,
                                                                    unsigned long seed = 0,
@@ -110,7 +108,8 @@ static std::pair<entt::entity, Cmp::Position> get_random_position( entt::registr
 //! @param reg The entity registry
 //! @param result_size The number of random components to retrieve
 //! @param seed Optional seed value for random number generation
-//! @return std::map<entt::entity, Component> A map of entities to their corresponding components
+//! @return std::set<entt::entity> The randomly selected, unique entities (up to `result_size`, clamped
+//! to the number of matching entities if fewer are available)
 template <typename Component, typename... Include, typename... Exclude>
 static std::set<entt::entity> get_n_rand_components( entt::registry &reg, std::size_t result_size, IncludePack<Include...>, ExcludePack<Exclude...>,
                                                      unsigned long seed = 0 )
@@ -174,6 +173,16 @@ static std::set<entt::entity> get_n_rand_components( entt::registry &reg, std::s
   return results;
 }
 
+//! @brief Find an obstacle entity within `search_area`, matching the given Include/Exclude filters.
+//! @note Despite the name, this returns the first matching obstacle found in view iteration order,
+//! not a randomly selected one.
+//! @tparam Include Additional types of components that must be included
+//! @tparam Exclude Additional types of components that must be excluded
+//! @param reg reference to the entt registry
+//! @param search_area The area to search for an obstacle whose position intersects it.
+//! @param include_pack Template parameter pack wrapper for components to include in the filter.
+//! @param exclude_pack Template parameter pack wrapper for components to exclude from the filter.
+//! @return entt::entity The first matching obstacle entity found, or entt::null if none intersects `search_area`.
 template <typename... Include, typename... Exclude>
 entt::entity get_random_nearby_disabled_obstacle( entt::registry &reg, sf::FloatRect search_area, IncludePack<Include...>, ExcludePack<Exclude...> )
 {

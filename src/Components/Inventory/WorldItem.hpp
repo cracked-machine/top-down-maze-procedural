@@ -12,25 +12,33 @@ namespace Game::Cmp
 {
 
 //! @brief An item found in the world or placed in a players inventory slot.
-//         This defines both the sprite type and the action effects associated with the item.
+//! @details This defines both the sprite type and the action effects associated with the item.
 class WorldItem
 {
 public:
+  //! @brief Construct a new, empty World Item object.
   WorldItem() = default;
+  //! @brief Construct a new World Item object.
+  //! @param item_type Item identifier, e.g. "item.pickaxe". See res/json/sprite_metadata.json.
+  //! @param sprite_type The sprite used to render this item.
   WorldItem( std::string item_type, Sprites::SpriteMetaType sprite_type )
       : item_type( std::move( item_type ) ),
         sprite_type( std::move( sprite_type ) )
   {
   }
 
+  //! @brief Item identifier, e.g. "item.pickaxe". See res/json/sprite_metadata.json.
   std::string item_type;
 
   //! @brief The associated sprite
   Sprites::SpriteMetaType sprite_type;
 
+  //! @brief Pairs a stat-modifier action with the timestamp/duration used to schedule its re-application.
   struct ActionTimePair
   {
+    //! @brief The stat modifier to apply.
     BaseAction action;
+    //! @brief The time associated with the action (e.g. last-applied time or remaining duration).
     sf::Time time;
   };
 

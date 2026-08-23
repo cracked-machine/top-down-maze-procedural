@@ -4,8 +4,10 @@
 namespace Game::Cmp::Npc
 {
 
+//! @brief Marker component tagging an entity as the Wisp NPC (a friendly NPC type).
 struct Wisp
 {
+  //! @brief Always true; presence of the component is what identifies the entity as a Wisp.
   bool wisp{ true };
 };
 

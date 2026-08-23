@@ -6,13 +6,17 @@
 namespace Game::Cmp::Npc
 {
 //! @brief Used for NPC pathfinding if their target is not the player.
-// Add this component to an entity that already has a Cmp::Position to mark it as a NPC target
+//! @note Add this component to an entity that already has a Cmp::Position to mark it as an NPC target.
 struct Target
 {
+  //! @brief Construct a target reference.
+  //! @param id The entity being targeted (must have a Cmp::Position).
   Target( entt::entity id )
       : id( id )
   {
   }
+
+  //! @brief The entity being targeted, or entt::null if none.
   entt::entity id{ entt::null };
 };
 

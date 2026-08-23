@@ -8,6 +8,7 @@ namespace Game::Cmp
 struct NoRender
 {
 public:
+  //! @brief Whether rendering is currently disabled for this entity.
   [[maybe_unused]] bool m_active{ true };
 };
 

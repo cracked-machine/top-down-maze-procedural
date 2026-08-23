@@ -6,8 +6,10 @@
 namespace Game::Cmp
 {
 
+//! @brief Holds the current display/window size in pixels.
 struct DisplaySize
 {
+  //! @brief Width and height of the display/window, in pixels.
   sf::Vector2u m_size;
 };
 

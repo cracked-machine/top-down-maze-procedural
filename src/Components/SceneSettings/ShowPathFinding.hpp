@@ -4,8 +4,10 @@
 namespace Game::Cmp::SceneSettings
 {
 
+//! @brief Scene-level setting toggling the debug pathfinding overlay, e.g. via the F2 debug/cheat key.
 struct ShowPathFinding
 {
+  //! @brief Whether the pathfinding overlay is shown.
   bool enabled{ false };
 };
 

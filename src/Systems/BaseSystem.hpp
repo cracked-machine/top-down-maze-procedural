@@ -29,6 +29,8 @@ public:
   //! @brief polymorphic destructor for derived classes
   virtual ~BaseSystem() { SPDLOG_INFO( "BaseSystem destructor called for system at {}", static_cast<void *>( this ) ); };
 
+  //! @brief Systems are non-copyable and non-movable: they hold references to shared engine
+  //! resources (registry, window, sprite factory, sound bank) that must not be duplicated or rebound.
   BaseSystem( const BaseSystem & ) = delete;
   BaseSystem( BaseSystem && ) = delete;
   BaseSystem &operator=( const BaseSystem & ) = delete;

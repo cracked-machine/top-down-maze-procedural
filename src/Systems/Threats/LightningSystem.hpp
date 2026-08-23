@@ -13,6 +13,8 @@ class LightningStrike;
 namespace Game::Sys
 {
 
+//! @brief Drives lightning strike events: builds the zig-zagging fractal vertex sequence for a
+//! strike, ages and removes expired strikes, and notifies listeners via Events::LightningEvent.
 class LightningSystem : public BaseSystem
 {
 public:

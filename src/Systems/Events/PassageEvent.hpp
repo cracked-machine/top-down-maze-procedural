@@ -13,14 +13,22 @@ class PassageEvent
 public:
   //! @brief The passage operation to perform when this event is handled.
   enum class Type {
-    REMOVE_PASSAGES,               //< Remove all passages
-    OPEN_PASSAGES,                 //< Open all passages
-    CONNECT_START_TO_OPENROOMS,    //< Connect passage from the start room to all open rooms
-    CONNECT_OCCUPIED_TO_OPENROOMS, //< Connect passage from the occupied room to all open rooms
-    CONNECT_OCCUPIED_TO_ENDROOM,   //< Connect passage from the occupied room to the end room
-    CONNECT_ALL_ROOMS,             //< Connect all open rooms with passages
+    //! @brief Remove all passages
+    REMOVE_PASSAGES,
+    //! @brief Open all passages
+    OPEN_PASSAGES,
+    //! @brief Connect passage from the start room to all open rooms
+    CONNECT_START_TO_OPENROOMS,
+    //! @brief Connect passage from the occupied room to all open rooms
+    CONNECT_OCCUPIED_TO_OPENROOMS,
+    //! @brief Connect passage from the occupied room to the end room
+    CONNECT_OCCUPIED_TO_ENDROOM,
+    //! @brief Connect all open rooms with passages
+    CONNECT_ALL_ROOMS,
+    //! @brief Cache all room-to-room passage connections
     CACHE_ALL_ROOM_CONNECTIONS,
-    ADD_SPIKE_TRAPS //< Add spike traps to passages; should be called at the end of the passage creation cycle.
+    //! @brief Add spike traps to passages; should be called at the end of the passage creation cycle.
+    ADD_SPIKE_TRAPS
   };
 
   //! @brief Construct a new Passage Event object

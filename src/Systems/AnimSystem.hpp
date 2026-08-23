@@ -45,6 +45,7 @@ private:
   //! @brief Update a single animation sequence. Used for tilesets that consist of a single animation sequence.
   //! @param anim
   //! @param globalDeltaTime
+  //! @param ms
   //! @param frame_rate
   static void update_sequence_frame( Cmp::AnimData &anim, sf::Time globalDeltaTime, const Sprites::SpriteSheet &ms, sf::Time frame_rate );
 };

@@ -19,11 +19,19 @@ namespace Game::Scene { class SceneData; }
 namespace Game::Sys::ProcGen
 {
 
+//! @brief Builds a scene's game area from SceneData and drives procedural generation of obstacles,
+//!        decorations, and multiblocks, owning the spatial grids used to track obstacle/void/decor
+//!        placement during level generation and the cellular-automata pass.
 class LevelGenerator : public BaseSystem
 {
 public:
   //! @brief Used by level gen / cell automata
-  enum class SceneType { GRAVEYARD_EXTERIOR, RUIN_INTERIOR };
+  enum class SceneType {
+    //! @brief The outdoor graveyard scene
+    GRAVEYARD_EXTERIOR,
+    //! @brief The indoor ruin scene
+    RUIN_INTERIOR
+  };
 
   //! @brief Construct a new Level Generator object
   LevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
@@ -32,16 +40,20 @@ public:
   ~LevelGenerator() = default;
 
   //! @brief Generate game area using data from the SceneData object.
-  //! @param scene_map
+  //! @param scene_data The deserialized scene data to build the game area from
   void build_scene_from_data( const Scene::SceneData &scene_data );
 
   //! @brief Create obstacle components without sprites for initial proc gen
+  //! @param init_chance Probability (0-1) that any given eligible position becomes an obstacle
+  //! @param reserved_navmesh Positions excluded from obstacle placement
   void add_graveyard_exterior_obstacles( float init_chance, PathFinding::SpatialHashGridSharedPtr reserved_navmesh );
 
   //! @brief create "sprite.graveyard.wall.int.main" and "sprite.graveyard.wall.int.cap" sprites for the graveyard obstacles.
   void decorate_graveyard_exterior_obstacles();
 
   //! @brief Create obstacle components without sprites for initial proc gen
+  //! @param init_chance Probability (0-1) that any given eligible position becomes an obstacle
+  //! @param reserved_navmesh Positions excluded from obstacle placement
   void add_ruin_interior_obstacles( float init_chance, PathFinding::SpatialHashGridSharedPtr reserved_navmesh );
 
   //! @brief Create "sprite.crypt.wall.int" sprites for the graveyard obstacles.
@@ -53,20 +65,21 @@ public:
   //! @brief Scatter decorative cobweb entities across the lower floor, skipping tiles that would
   //!        collide with stairs, other cobwebs, exits, or the edge of the scene.
   //! @param num_cobwebs Number of cobwebs to attempt to place.
-  //! @param scene_dimensions
+  //! @param scene_dimensions World bounds of the scene to scatter cobwebs within.
   void add_lowerfloor_cobwebs( int num_cobwebs, sf::FloatRect scene_dimensions );
 
   //! @brief create multiblock sprites (i.e. graves, altars, crypts) for the graveyard scene.
   void gen_graveyard_exterior_multiblocks();
 
   //! @brief Find a valid spawn location for a large obstacle given a seed.
-  //! @param ms
-  //! @param seed
+  //! @param ms Sprite sheet of the object being placed, used to size its collision hitbox
+  //! @param seed Seed for the random position search
   //! @return std::pair<entt::entity, Cmp::Position>
   std::pair<entt::entity, Cmp::Position> find_spawn_location( const Sprites::SpriteSheet &ms, unsigned long seed );
 
   //! @brief Generate a number of plant world items in the new game area.
-  //! @param map_grid_size
+  //! @param map_grid_size Size of the game area, in grid cells
+  //! @param reserved_navmesh Positions excluded from plant placement
   //! @return std::vector<entt::entity>
   std::vector<entt::entity> gen_random_plants( sf::Vector2u map_grid_size, PathFinding::SpatialHashGridSharedPtr reserved_navmesh );
 

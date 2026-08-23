@@ -4,8 +4,10 @@
 namespace Game::Cmp::SceneSettings
 {
 
+//! @brief Scene-level setting toggling shader effects, e.g. via the F9 debug/cheat key.
 struct Shaders
 {
+  //! @brief Whether shader effects are active.
   bool enabled{ true };
 };
 

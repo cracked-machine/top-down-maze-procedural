@@ -11,15 +11,23 @@ namespace Game::Cmp
 class AbsoluteRenderOffset
 {
 public:
+  //! @brief Construct with an initial render offset.
+  //! @param offset Offset in pixels. Defaults to zero.
   AbsoluteRenderOffset( sf::Vector2f offset = { 0.f, 0.f } )
       : m_offset( offset )
   {
   }
 
+  //! @brief Get the stored render offset.
+  //! @return sf::Vector2f Offset in pixels.
   sf::Vector2f getOffset() const { return m_offset; }
+
+  //! @brief Set the stored render offset.
+  //! @param offset Offset in pixels.
   void setOffset( sf::Vector2f offset ) { m_offset = offset; }
 
 private:
+  //! @brief Render offset in pixels.
   sf::Vector2f m_offset;
 };
 

@@ -6,6 +6,7 @@
 namespace Game::Cmp
 {
 
+//! @brief A single cell of a sinkhole hazard field. Sinkhole fields instantly kill any entity that falls into them.
 struct SinkholeCell : public Hazard::FieldCell
 {
 };

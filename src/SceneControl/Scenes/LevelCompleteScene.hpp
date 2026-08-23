@@ -12,9 +12,15 @@ namespace Game::Audio { class SoundBank; }
 namespace Game::Scene
 {
 
+//! @brief The victory screen shown when the player wins: periodically converts any remaining collected
+//! cadavers into wealth while the victory screen is displayed.
 class LevelCompleteScene : public Scene<Events::ProcessLevelCompleteSceneInputEvent>
 {
 public:
+  //! @brief Construct a new LevelCompleteScene object
+  //! @param sound_bank Shared sound bank used to play/stop audio for this scene
+  //! @param system_store Store of game systems the scene drives each update
+  //! @param nav_event_dispatcher Used to notify the SceneInputRouter when new input events are available
   LevelCompleteScene( Audio::SoundBank &sound_bank, Sys::Store &system_store, entt::dispatcher &nav_event_dispatcher )
       : Scene( nav_event_dispatcher ),
         m_sound_bank( sound_bank ),
@@ -22,19 +28,32 @@ public:
   {
   }
 
+  //! @brief No-op: no world entities need to be created for this scene
   void on_init() override;
+  //! @brief Reloads persistent state and switches from graveyard music to title music
   void on_enter() override;
+  //! @brief Clears the registry and stops footstep audio
   void on_exit() override;
+  //! @brief Get the name of the scene
+  //! @return std::string "LevelCompleteScene"
   std::string get_name() const override { return "LevelCompleteScene"; }
 
+  //! @brief Get the registry object owned by the scene
+  //! @return entt::registry&
   entt::registry &registry() override;
 
 protected:
+  //! @brief Every second, converts one collected cadaver into 10 wealth (playing a loot sound) until none
+  //! remain, then renders the victory screen
+  //! @param dt The time elapsed since the last update
   void do_update( [[maybe_unused]] sf::Time dt ) override;
 
 private:
+  //! @brief Shared sound bank used to play/stop audio for this scene
   Audio::SoundBank &m_sound_bank;
+  //! @brief Store of game systems the scene drives each update
   Sys::Store &m_sys;
+  //! @brief Accumulates elapsed time between cadaver-to-wealth score conversion ticks
   sf::Time m_scorecheck_accumulator;
 };
 

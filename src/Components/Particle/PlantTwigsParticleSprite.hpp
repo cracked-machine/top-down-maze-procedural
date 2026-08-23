@@ -11,6 +11,7 @@ namespace Game::Cmp::Particle
 //! @brief Implementation detail — do not use externally
 namespace detail
 {
+//! @brief Individual twig-debris particle for a plant destroyed by the axe.
 struct PlantTwigsParticle : public Cmp::Particle::ParticleBase
 {
   //! @brief Add some variation to colour of each particle
@@ -26,18 +27,25 @@ struct PlantTwigsParticle : public Cmp::Particle::ParticleBase
   float m_bounce_phase = 0.f;
 
 private:
+  //! @brief Launches the particle on (re)emission.
   void emit() override;
 };
 } // namespace detail
 
-//! @brief
+//! @brief Particle sprite for the twig debris effect played when a plant is destroyed by the axe.
 class PlantTwigsParticleSprite : public SpriteBase<detail::PlantTwigsParticle>
 {
 public:
-  //! @brief Construct a new Particle Sprite Test object
+  //! @brief Construct a new Plant Twigs Particle Sprite object
+  //! @param count Number of particles in this sprite
   PlantTwigsParticleSprite( size_t count );
 
+  //! @brief Advances the twig debris simulation by one frame (bounce, speed falloff).
+  //! @param dt Time elapsed since the last frame.
   void simulate( sf::Time dt ) override;
+  //! @brief Draws each particle as its own shape rather than the base class's dot.
+  //! @param target Render target to draw to.
+  //! @param states Render states (transform/blend mode) to draw with.
   void draw( sf::RenderTarget &target, sf::RenderStates states ) const override;
 };
 

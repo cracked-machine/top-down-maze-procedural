@@ -26,6 +26,10 @@ public:
     static const std::vector<sf::Vector2u> resolutions;
 
     //! @brief ImGui-compatible getter for display resolutions
+    //! @param data Unused; required by the ImGui combo box callback signature.
+    //! @param idx Index into `resolutions`.
+    //! @param out_text Set to the "WIDTHxHEIGHT" string for `resolutions[idx]`.
+    //! @return true if `idx` was valid and `out_text` was set, false otherwise.
     static bool get( [[maybe_unused]] void *data, int idx, const char **out_text )
     {
       if ( idx < 0 || idx >= static_cast<int>( resolutions.size() ) ) return false;

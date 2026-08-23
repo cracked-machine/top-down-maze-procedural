@@ -4,8 +4,10 @@
 namespace Game::Cmp::Npc
 {
 
+//! @brief Marker component tagging an NPC as non-hostile; excluded from player-collision/threat views.
 struct Friendly
 {
+  //! @brief Always true; presence of the component is what marks the NPC as friendly.
   bool stub{ true };
 };
 

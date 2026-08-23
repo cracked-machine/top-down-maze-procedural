@@ -4,8 +4,10 @@
 namespace Game::Cmp
 {
 
+//! @brief Marks a world/inventory item as an explosive (bomb) and tracks whether it has been armed.
 struct Explosive
 {
+  //! @brief Whether the explosive has been armed and is counting down to detonation.
   bool armed{ false };
 };
 

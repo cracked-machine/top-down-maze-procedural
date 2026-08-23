@@ -12,6 +12,9 @@ namespace Game::Cmp::Crypt
 class RoomLavaPitCell : public Cmp::Position
 {
 public:
+  //! @brief Construct a new lava pit cell.
+  //! @param pos World position of the cell.
+  //! @param size Pixel dimensions of the cell.
   RoomLavaPitCell( const sf::Vector2f &pos, const sf::Vector2f &size )
       : Position( pos, size )
   {

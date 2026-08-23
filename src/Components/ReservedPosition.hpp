@@ -15,8 +15,10 @@ namespace Game::Cmp
 class ReservedPosition
 {
 public:
+  //! @brief Default construct a reserved marker.
   ReservedPosition() {}
 
+  //! @brief Whether this entity's position is currently reserved from algorithmic changes.
   bool reserved{ true };
 };
 

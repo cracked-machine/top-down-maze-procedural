@@ -5,19 +5,25 @@
 
 namespace Game::Cmp
 {
-//! @brief Construct a new Sacrifice Action object
-//! @param health
-//! @param fear
-//! @param despair
-//! @param infamy
+
+//! @brief Player-stat modifier applied when the player physically collides with an NPC.
 class CollisionAction : public BaseAction
 {
 public:
+  //! @brief Construct a new Collision Action object.
+  //! @param health Change applied to the health stat.
+  //! @param fear Change applied to the fear stat.
+  //! @param despair Change applied to the despair stat.
+  //! @param infamy Change applied to the infamy stat.
+  //! @param toxicity Change applied to the toxicity stat.
+  //! @param tick How often (seconds) the action re-applies, or 0 for a one-shot.
+  //! @param disease Disease affliction applied alongside the stat changes, if any.
   CollisionAction( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Toxicity toxicity, Stats::Tick tick,
                    Stats::Disease disease = {} )
       : BaseAction( health, fear, despair, infamy, toxicity, tick, disease )
   {
   }
+  //! @brief Destroy the Collision Action object.
   ~CollisionAction() {}
 
 private:

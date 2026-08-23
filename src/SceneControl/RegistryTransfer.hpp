@@ -14,32 +14,41 @@ enum class RegCopyMode {
   NONE,
   //! @brief Copy only player components
   PLAYER_ONLY,
+  //! @brief Copy all non-blacklisted entities and components
   ALL
 };
 
+//! @brief Copies selected entities/components between scene ECS registries during scene
+//!        transitions (e.g. carrying the player's state from one scene's registry into the next).
 class RegistryTransfer
 {
 public:
   //! @brief Type alias for a unique pointer to an entt::registry
   using RegCopy = std::unique_ptr<entt::registry>;
 
-  //! @brief Create a copy of the registry from the given scene
+  //! @brief Legacy/unused variant of copy_reg(); declared but not currently implemented.
   //! @param scene The scene to copy the registry from
   //! @param copy_mode The mode to use for copying
   //! @return RegCopy A unique pointer to the copied registry
   RegCopy copy_reg_old( IScene &scene, RegCopyMode copy_mode = RegCopyMode::NONE );
+
+  //! @brief Create a deep copy of selected entities from a scene's ECS registry into a new
+  //!        standalone registry, to preserve state (e.g. the player) across scene transitions.
+  //! @param scene The scene to copy the registry from
+  //! @param copy_mode The mode to use for copying
+  //! @return RegCopy A unique pointer to the copied registry
   RegCopy copy_reg( IScene &scene, RegCopyMode copy_mode = RegCopyMode::NONE );
 
   //! @brief Transfer all components owned by player entity from one registry to another
   //! @details Use this to transfer player owned components between scenes.
-  //           Note the component must be registered via `init_missing_cmp_storages()` in order for this to work
-  //! @param from_registry Source registry
-  //! @param to_registry Target registry
+  //!          Note the component must be registered via `init_missing_cmp_storages()` in order for this to work
+  //! @param source_registry Source registry
+  //! @param target_registry Target registry
   void xfer_player_entt( entt::registry &source_registry, entt::registry &target_registry );
 
   //! @brief Transfer a component from one registry to another
   //! @details Use this to transfer components between scenes.
-  //           Note the component must be registered via `init_missing_cmp_storages()` in order for this to work
+  //!          Note the component must be registered via `init_missing_cmp_storages()` in order for this to work
   //! @tparam COMPONENT
   //! @param source_registry Copy from
   //! @param target_registry Copy to

@@ -19,6 +19,8 @@ public:
   //! @param sprite_factory
   //! @param sound_bank
   NpcStore( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+
+  //! @brief Destroy the Npc Store object
   ~NpcStore() {}
 
   //! @brief Populates m_store with Cmp::Npc::NPC components

@@ -32,21 +32,21 @@ public:
   PassageSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief Store the crypt scene data used to look up map size for passage carving.
-  //! @param crypt_scene_data
+  //! @param crypt_scene_data Weak-owning pointer to the crypt scene's deserialized scene data
   void init_scene_data( const Scene::SceneMapSharedPtr &crypt_scene_data ) { m_crypt_scene_data = crypt_scene_data; }
 
   //! @brief init the weak pointer for the spatial grid
-  //! @param npc_navmesh
+  //! @param npc_navmesh Spatial grid used for NPC pathfinding
   void init_nav_mesh( const PathFinding::SpatialHashGridSharedPtr &npc_navmesh );
 
   //! @brief Dispatches a Events::PassageEvent to the corresponding passage operation
   //!        (remove, open, connect rooms, cache connections, or add spike traps).
-  //! @param event
+  //! @param event The passage event describing which operation to perform
   void on_passage_event( Events::PassageEvent &event );
 
   //! @brief Per-frame update; when a full-level connection pass has been requested it spawns
   //!        one cached passage region per call until all regions are placed.
-  //! @param dt
+  //! @param dt Time elapsed since the last update
   void update( sf::Time dt );
 
   //! @brief Empty out passage block areas, removing obstacles/chests so passages become walkable.
@@ -67,7 +67,9 @@ public:
   void connect_end_room_to_nearest_closed_room();
 
   //! @brief Create north passage for occupied room to the end room. Calls createDrunkenWalkPassage() directly.
+  //! @param reg Entity-component registry to query/carve passage blocks in
   //! @param end_room_entt The entity ID of the end room
+  //! @param map_size_pixel Size of the map in pixels, used to keep the walk within bounds
   void connect_occupied_and_end_room_passages( entt::registry &reg, entt::entity end_room_entt, sf::Vector2f map_size_pixel );
 
   //! @brief Add spike traps along each already-carved passage, one per passage ID.
@@ -89,7 +91,7 @@ private:
   void fill_all_passages();
 
   //! @brief Removes any Cmp::Crypt::PassageBlock components added inside rooms
-  //! @param exclude_closed_rooms
+  //! @param include_closed_rooms If true, also tidy passage blocks found inside closed rooms
   void tidy_passage_blocks( bool include_closed_rooms = false );
 
   //! @brief Instantiate every passage block queued in m_uncached_passage_list as an entity.
@@ -102,10 +104,10 @@ private:
 
   //! @brief Build a priority queue of candidate target rooms of type ROOMTYPE within a search
   //!        quadrant, ordered nearest-first by distance from the starting door.
-  //! @tparam ROOMTYPE
-  //! @param start_passage_door
-  //! @param search_quadrant
-  //! @param exclude_entts
+  //! @tparam ROOMTYPE The room component type to search for (e.g. Cmp::Crypt::RoomOpen)
+  //! @param start_passage_door Door the passage will start from
+  //! @param search_quadrant World bounds to restrict the room search to
+  //! @param exclude_entts Room entities to exclude from the search
   //! @return ProcGen::MidPointDistanceQueue
   template <typename ROOMTYPE>
   ProcGen::MidPointDistanceQueue find_room_distances( Cmp::Crypt::PassageDoor &start_passage_door, const sf::FloatRect &search_quadrant,
@@ -113,13 +115,13 @@ private:
 
   //! @brief Walk the distance-ordered room queue, attempting to carve a passage to each candidate
   //!        room in turn (nearest first) until one succeeds, and return the resulting passage blocks.
-  //! @tparam ROOMTYPE
-  //! @param start_passage_door
-  //! @param dist_pqueue
-  //! @param walktype
-  //! @param map_size_pixel
-  //! @param passage_limit
-  //! @param duplicates_policy
+  //! @tparam ROOMTYPE The room component type of the candidate rooms in dist_pqueue
+  //! @param start_passage_door Door the passage will start from
+  //! @param dist_pqueue Nearest-first queue of candidate target rooms
+  //! @param walktype Which passage-carving algorithm to use
+  //! @param map_size_pixel Size of the map in pixels, used to keep the walk within bounds
+  //! @param passage_limit Whether to stop after the first passage or allow multiple to the same target room
+  //! @param duplicates_policy Whether to allow duplicate passage blocks
   //! @return std::vector<Cmp::Crypt::PassageBlock>
   template <typename ROOMTYPE>
   std::vector<Cmp::Crypt::PassageBlock>

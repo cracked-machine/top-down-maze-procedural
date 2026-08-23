@@ -240,6 +240,7 @@ public:
   //! @tparam FlashComponent
   //! @param dt
   //! @param interval accumulated flash time; reset to zero once the flash expires
+  //! @return true if the UI element should currently be drawn in its "flashed" state, false otherwise.
   template <typename FlashComponent>
   bool update_flash_toggle( sf::Time dt, sf::Time &interval )
   {
@@ -261,12 +262,24 @@ public:
   //! @brief Draw a column of debug text lines, top to bottom, at a fixed origin, advancing by `line_height` after each call.
   struct DebugTextColumn
   {
+    //! @brief The overlay system used to draw each text line.
     RenderOverlaySystem &self;
+
+    //! @brief Screen position of the first line in the column.
     sf::Vector2f origin;
+
+    //! @brief Font size, in pixels, of each line.
     unsigned int font_size;
+
+    //! @brief Vertical spacing, in pixels, added after each line is drawn.
     float line_height;
+
+    //! @brief Running vertical offset from `origin`, advanced by `line_height` after each call.
     float y_offset{ 0.f };
 
+    //! @brief Draw one line of text at the current column offset, then advance the offset by `line_height`.
+    //! @param str The text to draw.
+    //! @param color Fill colour of the text.
     void operator()( const std::string &str, sf::Color color = sf::Color::White )
     {
       sf::Text text( self.m_font, str, font_size );

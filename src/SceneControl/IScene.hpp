@@ -13,6 +13,7 @@ namespace Game::Scene
 class IScene
 {
 public:
+  //! @brief Destroy the IScene object
   virtual ~IScene() = default;
 
   //! @brief Initialize the scene

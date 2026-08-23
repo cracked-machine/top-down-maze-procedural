@@ -4,7 +4,7 @@
 namespace Game::Events
 {
 
-// Event to pause all clocks in the system
+//! @brief Requests that all system clocks be paused.
 struct PauseClocksEvent
 {
 };

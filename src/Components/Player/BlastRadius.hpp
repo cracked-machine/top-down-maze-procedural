@@ -4,8 +4,10 @@
 namespace Game::Cmp::Player
 {
 
+//! @brief Radius (in tiles) of the player's bomb blast, mirrored from Cmp::Persist::BlastRadius.
 struct BlastRadius
 {
+  //! @brief Blast radius value.
   int value{};
 };
 

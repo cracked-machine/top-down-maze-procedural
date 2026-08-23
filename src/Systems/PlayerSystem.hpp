@@ -27,7 +27,16 @@ namespace Game::Sys
 class PlayerSystem : public BaseSystem
 {
 public:
-  enum class FootStepSfx { NONE, GRAVEL, FLOORBOARDS };
+  //! @brief Which footstep sound effect (if any) should accompany the player's footstep sprites.
+  enum class FootStepSfx
+  {
+    //! @brief No footstep sound effect.
+    NONE,
+    //! @brief Gravel/outdoor footstep sound effect.
+    GRAVEL,
+    //! @brief Wooden floorboard footstep sound effect.
+    FLOORBOARDS
+  };
 
   //! @brief Construct a new Player System object
   //! @param reg
@@ -40,6 +49,7 @@ public:
 
   //! @brief init the weak pointer for the pathfinding navmesh
   //! @param npc_navmesh
+  //! @param player_navmesh
   //! @param open_navmesh
   void init( const PathFinding::SpatialHashGridSharedPtr &npc_navmesh, const PathFinding::SpatialHashGridSharedPtr &player_navmesh,
              const PathFinding::SpatialHashGridSharedPtr &open_navmesh )
@@ -50,6 +60,7 @@ public:
   }
 
   //! @brief Update the player system.
+  //! @param dt
   void update( sf::Time dt );
 
   //! @brief Stop the player's damage cooldown timer.
@@ -77,9 +88,9 @@ private:
   //!        position update does; push/pull obstacle checks move at the base movement speed
   std::optional<Cmp::Direction> compute_step_direction( sf::Time dt, bool apply_speed_penalty );
 
-  //! @brief
+  //! @brief Compute and apply the player's per-frame movement, resolving collisions against
+  //! obstacles/hazards per axis and sliding along a wall via an edge-nudge when blocked on one axis.
   //! @param dt
-  //! @param collision_disabled
   void update_player_position( sf::Time dt );
 
   //! @brief Change to animation spritesheet for the players current direction.
@@ -160,8 +171,10 @@ private:
   //! @brief Weak pointer to the pathfinding navmesh.
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
 
+  //! @brief All grid positions that block player movement
   PathFinding::SpatialHashGridWeakPtr m_player_navmesh;
 
+  //! @brief All grid positions that are open (not blocked) for movement
   PathFinding::SpatialHashGridWeakPtr m_open_navmesh;
 
   //! @brief Hazard cell currently being pushed against by `resolve_hazard_pushback`, or entt::null.

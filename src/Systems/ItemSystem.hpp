@@ -24,6 +24,7 @@ public:
   //! @param sound_bank
   ItemSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
+  //! @brief Destroy the Item System object
   ~ItemSystem() {}
 
   //! @brief Event handler that forwards to create_world_item().

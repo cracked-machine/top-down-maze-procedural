@@ -4,6 +4,7 @@
 namespace Game::Events
 {
 
+//! @brief Per-frame marker enqueued by the active healing spring scene to tell SceneInputRouter to process its input.
 struct ProcessHealingSpringSceneInputEvent
 {
 };

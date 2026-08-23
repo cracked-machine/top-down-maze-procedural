@@ -4,6 +4,7 @@
 namespace Game::Events
 {
 
+//! @brief Per-frame marker enqueued by the active crypt scene to tell SceneInputRouter to process its input.
 struct ProcessCryptSceneInputEvent
 {
 };

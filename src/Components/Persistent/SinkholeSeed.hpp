@@ -5,15 +5,22 @@
 namespace Game::Cmp::Persist
 {
 
-// This component does not use JSON serialization as it is managed internally by the game engine.
+//! @brief RNG seed used to generate sinkhole placement/shape.
+//! @note This component does not use JSON serialization as it is managed internally by the game engine.
 class SinkholeSeed : public BasePersistent<uint64_t>
 {
 public:
+  //! @brief Construct with an initial seed value.
+  //! @param value initial seed value
   SinkholeSeed( uint64_t value = 0 )
       : BasePersistent<uint64_t>( value, 0, std::numeric_limits<uint64_t>::max() )
   {
   }
+  //! @brief Get the class name used for persistence/registry lookup.
+  //! @return std::string the class name "SinkholeSeed"
   virtual std::string class_name() const override { return "SinkholeSeed"; }
+  //! @brief Get the human-readable detail/description text (currently unset).
+  //! @return std::string empty detail string
   const std::string get_detail() const override { return ""; }
 };
 

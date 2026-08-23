@@ -4,9 +4,11 @@
 namespace Game::Cmp::Wormhole
 {
 
+//! @brief Marker component identifying the singularity (central point) entity of a wormhole.
 class Singularity
 {
 public:
+  //! @brief Whether the singularity is currently active.
   bool active{ true };
 };
 

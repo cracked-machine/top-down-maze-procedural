@@ -39,6 +39,9 @@ public:
   void check_exit_collision();
 
   //! @brief If player has walked up to shop keeper and triggered shop overlay
+  //! @param shopkeeper_pos
+  //! @return true if the player is colliding with the shopkeeper
+  //! @return false otherwise
   bool check_shopkeeper_collision( sf::Vector2f shopkeeper_pos );
 
   //! @brief Deduct player wealth, transfer item to player, replace item in shop inventory
