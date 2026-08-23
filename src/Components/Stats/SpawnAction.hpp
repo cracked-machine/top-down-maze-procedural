@@ -19,9 +19,9 @@ public:
   //! @param toxicity Change applied to the toxicity stat.
   //! @param tick How often (seconds) the action re-applies, or 0 for a one-shot.
   //! @param disease Disease affliction applied alongside the stat changes, if any.
-  SpawnAction( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Toxicity toxicity, Stats::Tick tick,
-               Stats::Disease disease = {} )
-      : BaseAction( health, fear, despair, infamy, toxicity, tick, disease )
+  SpawnAction( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Toxicity toxicity, Stats::Luck luck,
+               Stats::Tick tick, Stats::Disease disease = {} )
+      : BaseAction( health, fear, despair, infamy, toxicity, luck, tick, disease )
   {
   }
   //! @brief Destroy the Spawn Action object.

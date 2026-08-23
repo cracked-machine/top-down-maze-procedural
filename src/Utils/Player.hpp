@@ -7,6 +7,7 @@
 #include <Components/Stats/PlayerStats.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <Sprites/SpriteMetaType.hpp>
+#include <source_location>
 
 namespace Game::Cmp
 {
@@ -30,6 +31,11 @@ class Curse;
 class CadaverCount;
 class LevelDepth;
 } // namespace Game::Cmp::Player
+
+namespace std
+{
+class source_location;
+}
 
 namespace Game::Utils::Player
 {
@@ -193,6 +199,17 @@ sf::Clock &get_global_bomb_flash_clk( entt::registry &reg );
 //! @param reg reference to the entt registry
 //! @return bool true if any entity has a Cmp::Player::ExtraLife component.
 bool player_has_extra_life( entt::registry &reg );
+
+//! @brief Look up and apply the ActionT stat-modifier from a world item's action map.
+//! @tparam ActionT The Cmp::BaseAction subclass to apply (e.g. Cmp::DestroyAction). Only the subclasses
+//! in src/Components/Stats are explicitly instantiated in Player.cpp - using any other type is a link error.
+//! @param reg reference to the entt registry
+//! @param world_item_entt entity carrying the Cmp::WorldItem component to look the action up on
+//! @throws std::runtime_error if world_item_entt has no Cmp::WorldItem.
+//! @throws std::out_of_range if the world item has no ActionT registered.
+template <typename ActionT>
+void apply_action_from_world_item( entt::registry &reg, entt::entity world_item_entt,
+                                   const std::source_location &loc = std::source_location::current() );
 
 } // namespace Game::Utils::Player
 

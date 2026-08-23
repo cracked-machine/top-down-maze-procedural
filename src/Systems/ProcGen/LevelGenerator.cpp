@@ -531,7 +531,7 @@ std::vector<entt::entity> LevelGenerator::gen_random_plants( sf::Vector2u map_gr
         SPDLOG_DEBUG( "Created plant at {},{}", random_pos.position.x, random_pos.position.y );
 
         // Add the worlditem now so we don't have to look it up later when digging up the plant
-        reg().emplace_or_replace<Cmp::WorldItem>( mb_entt, chosen_plant_item_type, "sprite." + chosen_plant_item_type );
+        reg().emplace_or_replace<Cmp::WorldItem>( mb_entt, Sys::ItemStore::instance().get_item( chosen_plant_item_type ) );
 
         assigned_entts.push_back( random_entity );
 

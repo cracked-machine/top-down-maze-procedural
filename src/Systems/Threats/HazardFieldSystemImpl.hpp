@@ -213,7 +213,7 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
         {
 
           auto corruption_dmg = Sys::PersistSystem::get<Cmp::Persist::CorruptionDamage>( reg() ).get_value();
-          player_stats_cmp.apply_modifiers( { Cmp::Stats::Health{ -corruption_dmg }, {}, {}, {}, {}, {} } );
+          player_stats_cmp.apply_modifiers( { Cmp::Stats::Health{ -corruption_dmg }, {}, {}, {}, {}, {}, {}, {} } );
           SPDLOG_INFO( "Applying corruption damage {}", corruption_dmg );
           // trigger death animation
           if ( player_stats_cmp.health() <= 0 )

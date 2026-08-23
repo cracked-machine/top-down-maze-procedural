@@ -21,11 +21,22 @@
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/SpawnArea.hpp>
+#include <Components/Stats/BaseAction.hpp>
+#include <Components/Stats/BuryAction.hpp>
+#include <Components/Stats/CarryAction.hpp>
+#include <Components/Stats/CollisionAction.hpp>
+#include <Components/Stats/ConsumeAction.hpp>
+#include <Components/Stats/DestroyAction.hpp>
+#include <Components/Stats/ProjectileAction.hpp>
+#include <Components/Stats/ProximityAction.hpp>
+#include <Components/Stats/SacrificeAction.hpp>
+#include <Components/Stats/SpawnAction.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Player.hpp>
 
+#include <ios>
 #include <stdexcept>
 
 namespace Game::Utils::Player
@@ -306,5 +317,30 @@ bool player_has_extra_life( entt::registry &reg )
   auto player_view = reg.view<Cmp::Player::ExtraLife>();
   return not player_view.empty();
 }
+
+template <typename ActionT>
+void apply_action_from_world_item( entt::registry &reg, entt::entity world_item_entt, const std::source_location &loc )
+{
+  auto *plant_item = reg.try_get<Cmp::WorldItem>( world_item_entt );
+  if ( not plant_item )
+  {
+    throw std::runtime_error( std::string( loc.file_name() ) + "Unable to get Cmp::WorldItem from entt " +
+                              std::to_string( static_cast<uint32_t>( world_item_entt ) ) + ". Entity is " +
+                              std::string( reg.valid( world_item_entt ) ? "valid" : "invalid" ) );
+  }
+  Utils::Player::get_player_stats( reg ).apply_modifiers( plant_item->actions.at( std::type_index( typeid( ActionT ) ) ).action );
+}
+
+// Explicit instantiations for every Cmp::BaseAction subclass (see src/Components/Stats) - keeps the
+// template body out of Player.hpp while still allowing all known action kinds to be applied.
+template void apply_action_from_world_item<Cmp::BuryAction>( entt::registry &, entt::entity, const std::source_location & );
+template void apply_action_from_world_item<Cmp::CarryAction>( entt::registry &, entt::entity, const std::source_location & );
+template void apply_action_from_world_item<Cmp::CollisionAction>( entt::registry &, entt::entity, const std::source_location & );
+template void apply_action_from_world_item<Cmp::ConsumeAction>( entt::registry &, entt::entity, const std::source_location & );
+template void apply_action_from_world_item<Cmp::DestroyAction>( entt::registry &, entt::entity, const std::source_location & );
+template void apply_action_from_world_item<Cmp::ProjectileAction>( entt::registry &, entt::entity, const std::source_location & );
+template void apply_action_from_world_item<Cmp::ProximityAction>( entt::registry &, entt::entity, const std::source_location & );
+template void apply_action_from_world_item<Cmp::SacrificeAction>( entt::registry &, entt::entity, const std::source_location & );
+template void apply_action_from_world_item<Cmp::SpawnAction>( entt::registry &, entt::entity, const std::source_location & );
 
 } // namespace Game::Utils::Player

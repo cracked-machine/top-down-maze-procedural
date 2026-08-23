@@ -28,6 +28,9 @@
 #include <Components/Random.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SelectedPosition.hpp>
+#include <Components/Stats/BuryAction.hpp>
+#include <Components/Stats/CarryAction.hpp>
+#include <Components/Stats/DestroyAction.hpp>
 #include <Components/UUID.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/CreateItemEvent.hpp>
@@ -59,7 +62,9 @@
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/System/Time.hpp>
 #include <numbers>
+#include <source_location>
 #include <spdlog/spdlog.h>
+#include <stdexcept>
 #include <unordered_map>
 
 namespace Game::Sys
@@ -128,7 +133,6 @@ void ActionSystem::on_player_action( const Events::PlayerActionEvent &event )
   else if ( event.action == Events::PlayerActionEvent::GameActions::DIG )
   {
     // Check for collisions with diggable obstacles
-
     check_player_dig_obstacle_collision();
     check_player_dig_plant_collision();
     check_player_smash_pot();
@@ -563,6 +567,7 @@ void ActionSystem::check_player_dig_plant_collision()
           auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
           auto player_pos = Utils::Player::get_position( reg() ).position;
           drop_inventory_item( player_pos, inventory_entt );
+          Utils::Player::apply_action_from_world_item<Cmp::CarryAction>( reg(), plant_entt );
           pickup_world_item( reg(), plant_entt );
         }
         else if ( inventory_slot.m_item.sprite_type == "sprite.item.axe" )
@@ -573,6 +578,7 @@ void ActionSystem::check_player_dig_plant_collision()
           auto planttwigs_particle_uuid = Cmp::UUID::generate();
           Factory::Particle::add_planttwigs_ps( reg(), "graveyard.plant.twigs.particle", 10, 2.f, 50.f, 14.f, planttwigs_particle_uuid,
                                                 plant_mb_cmp.getCenter(), plant_mb_cmp.position.y );
+          Utils::Player::apply_action_from_world_item<Cmp::DestroyAction>( reg(), plant_entt );
           Factory::Plant::remove_plant_mb( reg(), plant_entt, m_npc_navmesh.lock(), m_player_navmesh.lock() );
         }
       }
@@ -604,6 +610,7 @@ void ActionSystem::drop_inventory_item( sf::Vector2f pos, entt::entity inventory
     // on_player_action_event) can hand it back via the normal pickup_world_item path instead of
     // having to re-derive an item id from the multiblock's sprite.
     reg().emplace_or_replace<Cmp::WorldItem>( mb_entt, inventory_slot_cmp->m_item );
+    Utils::Player::apply_action_from_world_item<Cmp::BuryAction>( reg(), mb_entt );
 
     // rebuild the m_player_navmesh here
     if ( auto player_navmesh = m_player_navmesh.lock() )

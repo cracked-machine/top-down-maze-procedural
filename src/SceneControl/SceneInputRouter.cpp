@@ -437,7 +437,7 @@ bool SceneInputRouter::try_handle_debug_key( sf::Keyboard::Scancode scancode )
   else if ( scancode == Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
   else if ( scancode == Scancode::Numpad2 )
   {
-    Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ 10 }, {}, {}, {}, {}, {} } );
+    Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ 10 }, {}, {}, {}, {}, {}, {} } );
   }
   else if ( scancode == Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
   else if ( scancode == Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }

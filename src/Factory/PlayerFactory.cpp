@@ -7,9 +7,9 @@
 #include <Components/Direction.hpp>
 #include <Components/Inventory/Explosive.hpp>
 #include <Components/Inventory/FlashUIHealth.hpp>
-#include <Components/Inventory/WearLevel.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
+#include <Components/Inventory/WearLevel.hpp>
 #include <Components/LastDirection.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Particle/SpriteBase.hpp>
@@ -24,8 +24,8 @@
 #include <Components/Player/LastGraveyardPosition.hpp>
 #include <Components/Player/LevelDepth.hpp>
 #include <Components/Player/Mortality.hpp>
-#include <Components/Player/Wealth.hpp>
 #include <Components/Player/TorchRadius.hpp>
+#include <Components/Player/Wealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpawnArea.hpp>
@@ -69,7 +69,7 @@ void create_player( entt::registry &reg )
   reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
   reg.emplace_or_replace<Cmp::Player::BlastRadius>( entity, blast_radius.get_value() );
   reg.emplace_or_replace<Cmp::PlayerStats>( entity, Cmp::Stats::Health{ 100 }, Cmp::Stats::Fear{ 0 }, Cmp::Stats::Despair{ 0 },
-                                            Cmp::Stats::Infamy{ 0 }, Cmp::Stats::Toxicity{ 0 } );
+                                            Cmp::Stats::Infamy{ 0 }, Cmp::Stats::Toxicity{ 0 }, Cmp::Stats::Luck{ 50 } );
 
   reg.emplace_or_replace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
   reg.emplace_or_replace<Cmp::LastDirection>( entity, sf::Vector2f{ 0, 0 } );

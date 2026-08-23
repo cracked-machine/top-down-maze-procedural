@@ -46,6 +46,7 @@ int BaseStore::fear( const nlohmann::json &item ) { return item.at( "fear" ).get
 int BaseStore::despair( const nlohmann::json &item ) { return item.at( "despair" ).get<int>(); }
 int BaseStore::infamy( const nlohmann::json &item ) { return item.at( "infamy" ).get<int>(); }
 int BaseStore::toxicity( const nlohmann::json &item ) { return item.at( "toxicity" ).get<int>(); }
+int BaseStore::luck( const nlohmann::json &item ) { return item.at( "luck" ).get<int>(); }
 float BaseStore::tick( const nlohmann::json &item ) { return item.at( "tick" ).get<float>(); }
 
 Cmp::Stats::Disease BaseStore::disease( const nlohmann::json &item )

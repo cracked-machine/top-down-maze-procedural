@@ -7,8 +7,7 @@ namespace Stats
 {
 
 //! @brief Type of disease that an action can inflict on the player.
-enum class DiseaseType
-{
+enum class DiseaseType {
   //! @brief No disease is applied.
   NONE,
   //! @brief Rabies infection.
@@ -54,6 +53,13 @@ struct Toxicity
   int value{ 0 };
 };
 
+//! @brief Strongly-typed luck delta, used to disambiguate BaseAction/derived-action constructor arguments.
+struct Luck
+{
+  //! @brief The change applied to the luck stat.
+  int value{ 0 };
+};
+
 //! @brief Strongly-typed tick interval, used to disambiguate BaseAction/derived-action constructor arguments.
 struct Tick
 {
@@ -88,15 +94,17 @@ public:
   //! @param despair Change applied to the despair stat.
   //! @param infamy Change applied to the infamy stat.
   //! @param toxicity Change applied to the toxicity stat.
+  //! @param luck Change applied to the luck stat.
   //! @param tick How often (seconds) the action re-applies, or 0 for a one-shot.
   //! @param disease Disease affliction applied alongside the stat changes, if any.
-  BaseAction( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Toxicity toxicity, Stats::Tick tick,
-              Stats::Disease disease = {} )
+  BaseAction( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Toxicity toxicity, Stats::Luck luck,
+              Stats::Tick tick, Stats::Disease disease = {} )
       : m_health( health.value ),
         m_fear( fear.value ),
         m_despair( despair.value ),
         m_infamy( infamy.value ),
         m_toxicity( toxicity.value ),
+        m_luck( luck.value ),
         m_disease( disease ),
         m_tick( tick.value )
   {
@@ -119,6 +127,9 @@ public:
   //! @brief Get the toxicity delta.
   //! @return int The change applied to the toxicity stat.
   [[nodiscard]] int toxicity() const { return m_toxicity; }
+  //! @brief Get the luck delta.
+  //! @return int The change applied to the toxicity stat.
+  [[nodiscard]] int luck() const { return m_luck; }
   //! @brief Get the re-apply interval.
   //! @return float How often (seconds) the action re-applies, or 0 for a one-shot.
   [[nodiscard]] float interval() const { return m_tick; }
@@ -136,6 +147,8 @@ public:
     m_fear += rhs.m_fear;
     m_despair += rhs.m_despair;
     m_infamy += rhs.m_infamy;
+    m_toxicity += rhs.m_toxicity;
+    m_luck += rhs.m_luck;
     m_tick += rhs.m_tick;
     return *this;
   }
@@ -151,6 +164,8 @@ private:
   int m_infamy{ 0 };
   //! @brief The change applied to the toxicity stat.
   int m_toxicity{ 0 };
+  //! @brief The change applied to the luck stat.
+  int m_luck{ 0 };
   //! @brief The disease affliction applied alongside the stat changes, if any.
   Stats::Disease m_disease{};
   //! @brief How often (seconds) the action re-applies, or 0 for a one-shot.

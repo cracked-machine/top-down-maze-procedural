@@ -62,6 +62,11 @@ public:
   //! @return The toxicity value.
   int toxicity( const nlohmann::json &item );
 
+  //! @brief Extract the "luck" field from a JSON action entry.
+  //! @param item
+  //! @return The toxicity value.
+  int luck( const nlohmann::json &item );
+
   //! @brief Extract the "tick" field from a JSON action entry.
   //! @param item
   //! @return The tick value.

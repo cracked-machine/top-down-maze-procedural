@@ -17,13 +17,14 @@ public:
   //! @param infamy Initial infamy value, clamped to [0, 100].
   //! @param toxicity Initial toxicity value, clamped to [0, 100].
   //! @param disease Initial disease affliction, if any.
-  PlayerStats( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Toxicity toxicity,
+  PlayerStats( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Toxicity toxicity, Stats::Luck luck,
                Stats::Disease disease = {} )
       : m_health( std::clamp( health.value, 0, 100 ) ),
         m_fear( std::clamp( fear.value, 0, 100 ) ),
         m_despair( std::clamp( despair.value, 0, 100 ) ),
         m_infamy( std::clamp( infamy.value, 0, 100 ) ),
         m_toxicity( std::clamp( toxicity.value, 0, 100 ) ),
+        m_luck( std::clamp( luck.value, 0, 100 ) ),
         m_disease( disease )
   {
   }
@@ -45,6 +46,9 @@ public:
   //! @brief Get the player's current toxicity.
   //! @return int Toxicity value, in [0, 100].
   [[nodiscard]] int toxicity() const { return m_toxicity; }
+  //! @brief Get the player's current luck.
+  //! @return int Luck value, in [0, 100].
+  [[nodiscard]] int luck() const { return m_luck; }
   //! @brief Get the player's current disease affliction.
   //! @return Stats::Disease The disease type and its tick interval.
   [[nodiscard]] Stats::Disease disease() const { return m_disease; }
@@ -61,6 +65,7 @@ public:
     m_despair = std::clamp( m_despair + action.despair(), 0, 100 );
     m_infamy = std::clamp( m_infamy + action.infamy(), 0, 100 );
     m_toxicity = std::clamp( m_toxicity + action.toxicity(), 0, 100 );
+    m_luck = std::clamp( m_luck + action.luck(), 0, 100 );
     if ( m_disease.type != Stats::DiseaseType::NONE ) { m_disease = action.disease(); }
   }
 
@@ -75,6 +80,8 @@ private:
   int m_infamy{ 0 };
   //! @brief The player's current toxicity, in [0, 100].
   int m_toxicity{ 0 };
+  //! @brief The player's current luck, in [0, 100].
+  int m_luck{ 50 };
   //! @brief The player's current disease affliction, if any.
   Stats::Disease m_disease{};
 };
