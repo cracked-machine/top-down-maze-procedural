@@ -12,6 +12,7 @@
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/Inventory/WearLevel.hpp>
+#include <Components/Inventory/WorldItem.hpp>
 #include <Components/LastDirection.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/Moveable.hpp>
@@ -124,7 +125,7 @@ void ActionSystem::on_player_action( const Events::PlayerActionEvent &event )
       if ( inventory_view.size() > 0 ) { break; }                                  // don't pickup another if we already have one
 
       // ok pick it up
-      SPDLOG_INFO( "GameActions::DROP_CARRYITEM calling 'pickup_world_item' with entt id {} ", static_cast<uint32_t>( carryitem_entt ) );
+      SPDLOG_DEBUG( "GameActions::DROP_CARRYITEM calling 'pickup_world_item' with entt id {} ", static_cast<uint32_t>( carryitem_entt ) );
       pickup_world_item( reg(), carryitem_entt );
     }
     m_inventory_cooldown_timer.restart();
@@ -523,9 +524,7 @@ void ActionSystem::check_player_dig_obstacle_collision()
 void ActionSystem::check_player_dig_plant_collision()
 {
   auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
-  if ( inventory_slot_type != "sprite.item.shovel" and inventory_slot_type != "sprite.item.axe" ) { return; }
-
-  if ( Utils::Player::get_inventory_wear_level( reg() ) <= 0 ) { return; }
+  // if ( inventory_slot_type != "sprite.item.shovel" and inventory_slot_type != "sprite.item.axe" and inventory_slot_type != "" ) { return; }
 
   // abort if still in cooldown
   if ( is_digging_on_cooldown() ) { return; }
@@ -535,7 +534,6 @@ void ActionSystem::check_player_dig_plant_collision()
 
   auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
 
-  // Iterate through all entities with Position and Obstacle components
   auto position_view = reg().view<Cmp::PlantMultiBlock, Cmp::UUID>( entt::exclude<Cmp::SelectedPosition> );
   for ( auto [plant_entt, plant_mb_cmp, plant_uuid_cmp] : position_view.each() )
   {
@@ -556,33 +554,47 @@ void ActionSystem::check_player_dig_plant_collision()
       float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
       Utils::Player::reduce_inventory_wear_level( reg(), reduction_amount );
 
-      // select the final smash sound
-      m_sound_bank.get_effect( "chopping_final" ).play();
       auto inventory_wear_view = reg().view<Cmp::PlayerInventorySlot>();
-      for ( auto [inventory_entt, inventory_slot] : inventory_wear_view.each() )
+      if ( inventory_wear_view->empty() )
       {
-        if ( inventory_slot.m_item.sprite_type == "sprite.item.shovel" )
-        {
-          auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
-          auto player_pos = Utils::Player::get_position( reg() ).position;
-          drop_inventory_item( player_pos, inventory_entt );
-          Utils::Player::apply_action_from_world_item<Cmp::SpawnAction>( reg(), plant_entt );
-          pickup_world_item( reg(), plant_entt );
-        }
-        else if ( inventory_slot.m_item.sprite_type == "sprite.item.axe" )
-        {
-          auto plantleaves_particle_uuid = Cmp::UUID::generate();
-          Factory::Particle::add_plantleaves_ps( reg(), "graveyard.plant.leaves.particle", 50, 2.f, 50.f, 14.f, plantleaves_particle_uuid,
-                                                 plant_mb_cmp.getCenter(), plant_mb_cmp.position.y );
-          auto planttwigs_particle_uuid = Cmp::UUID::generate();
-          Factory::Particle::add_planttwigs_ps( reg(), "graveyard.plant.twigs.particle", 10, 2.f, 50.f, 14.f, planttwigs_particle_uuid,
-                                                plant_mb_cmp.getCenter(), plant_mb_cmp.position.y );
-          Utils::Player::apply_action_from_world_item<Cmp::DestroyAction>( reg(), plant_entt );
-          Factory::Plant::remove_plant_mb( reg(), plant_entt, m_npc_navmesh.lock(), m_player_navmesh.lock() );
-        }
+        auto *plant_item = reg().try_get<Cmp::WorldItem>( plant_entt );
+        if ( not plant_item ) continue;
+        auto plantleaves_particle_uuid = Cmp::UUID::generate();
+        Factory::Particle::add_plantleaves_ps( reg(), "graveyard.plant.leaves.particle", 50, 2.f, 50.f, 14.f, plantleaves_particle_uuid,
+                                               plant_mb_cmp.getCenter(), plant_mb_cmp.position.y );
+        Factory::Player::add_inventory( reg(), plant_item->item_type + ".drop" );
+        Utils::Player::apply_action_from_inventory_item<Cmp::SpawnAction>( reg() );
+        m_sound_bank.get_effect( "chopping_final" ).play();
       }
+      else
+      {
+        if ( Utils::Player::get_inventory_wear_level( reg() ) <= 0 ) { return; }
+        m_sound_bank.get_effect( "chopping_final" ).play();
+        for ( auto [inventory_entt, inventory_slot] : inventory_wear_view.each() )
+        {
+          if ( inventory_slot.m_item.sprite_type == "sprite.item.shovel" )
+          {
+            auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
+            auto player_pos = Utils::Player::get_position( reg() ).position;
+            drop_inventory_item( player_pos, inventory_entt );
+            Utils::Player::apply_action_from_world_item<Cmp::SpawnAction>( reg(), plant_entt );
+            pickup_world_item( reg(), plant_entt );
+          }
+          else if ( inventory_slot.m_item.sprite_type == "sprite.item.axe" )
+          {
+            auto plantleaves_particle_uuid = Cmp::UUID::generate();
+            Factory::Particle::add_plantleaves_ps( reg(), "graveyard.plant.leaves.particle", 50, 2.f, 50.f, 14.f, plantleaves_particle_uuid,
+                                                   plant_mb_cmp.getCenter(), plant_mb_cmp.position.y );
+            auto planttwigs_particle_uuid = Cmp::UUID::generate();
+            Factory::Particle::add_planttwigs_ps( reg(), "graveyard.plant.twigs.particle", 10, 2.f, 50.f, 14.f, planttwigs_particle_uuid,
+                                                  plant_mb_cmp.getCenter(), plant_mb_cmp.position.y );
+            Utils::Player::apply_action_from_world_item<Cmp::DestroyAction>( reg(), plant_entt );
+            Factory::Plant::remove_plant_mb( reg(), plant_entt, m_npc_navmesh.lock(), m_player_navmesh.lock() );
+          }
+        }
 
-      get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG, plant_entt ) );
+        get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG, plant_entt ) );
+      }
     }
   }
 }
@@ -600,47 +612,51 @@ void ActionSystem::drop_inventory_item( sf::Vector2f pos, entt::entity inventory
   // if player inventory is a plant item then replant it in the ground - snap to nearest grid to prevent collision issues
   if ( inventory_slot_cmp->m_item.sprite_type.contains( "plant" ) )
   {
-    // multiblocks are top-left anchored, so offset the y-axis so that plant base is at players feet
-    auto [mb_entt, segment_entt_list] = Factory::Multiblock::add_multiblock_with_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>(
-        reg(), Utils::snap_to_grid( { pos.x, pos.y - Constants::kGridSizePxF.y } ),
-        m_sprite_factory.get_spritesheet_by_type( inventory_slot_cmp->m_item.sprite_type ) );
-
-    // Preserve the item this plant was grown from, so digging it back up (see the DIG handler in
-    // on_player_action_event) can hand it back via the normal pickup_world_item path instead of
-    // having to re-derive an item id from the multiblock's sprite.
-    reg().emplace_or_replace<Cmp::WorldItem>( mb_entt, inventory_slot_cmp->m_item );
-
-    // rebuild the m_player_navmesh here
-    if ( auto player_navmesh = m_player_navmesh.lock() )
+    // for plant drops fall through to the rest of the function that creates normal world items
+    if ( not inventory_slot_cmp->m_item.sprite_type.contains( "drop" ) )
     {
-      player_navmesh->clear();
-      for ( auto [entt, nopath_cmp, pos_cmp] : reg().view<Cmp::Player::NoPath, Cmp::Position>().each() )
-      {
-        player_navmesh->insert( entt, pos_cmp );
-      }
-    }
+      // multiblocks are top-left anchored, so offset the y-axis so that plant base is at players feet
+      auto [mb_entt, segment_entt_list] = Factory::Multiblock::add_multiblock_with_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>(
+          reg(), Utils::snap_to_grid( { pos.x, pos.y - Constants::kGridSizePxF.y } ),
+          m_sprite_factory.get_spritesheet_by_type( inventory_slot_cmp->m_item.sprite_type ) );
 
-    // The NPC navmesh is built once at scene setup, so evict the tiles the new plant
-    // now blocks. Keep the player entity - PlayerSystem::update re-inserts it every
-    // frame and NPCs need it to path towards the player.
-    if ( auto npc_navmesh = m_npc_navmesh.lock() )
-    {
-      for ( auto seg_entt : segment_entt_list )
+      // Preserve the item this plant was grown from, so digging it back up (see the DIG handler in
+      // on_player_action_event) can hand it back via the normal pickup_world_item path instead of
+      // having to re-derive an item id from the multiblock's sprite.
+      reg().emplace_or_replace<Cmp::WorldItem>( mb_entt, inventory_slot_cmp->m_item );
+
+      // rebuild the m_player_navmesh here
+      if ( auto player_navmesh = m_player_navmesh.lock() )
       {
-        if ( not reg().any_of<Cmp::Npc::NoPathFinding>( seg_entt ) ) continue;
-        auto seg_pos_cmp = reg().get<Cmp::Position>( seg_entt );
-        for ( auto blocked_entt : npc_navmesh->at( seg_pos_cmp ) )
+        player_navmesh->clear();
+        for ( auto [entt, nopath_cmp, pos_cmp] : reg().view<Cmp::Player::NoPath, Cmp::Position>().each() )
         {
-          if ( reg().any_of<Cmp::Player::Character>( blocked_entt ) ) continue;
-          npc_navmesh->remove( blocked_entt, seg_pos_cmp );
+          player_navmesh->insert( entt, pos_cmp );
         }
       }
-    }
 
-    // clear player inevntory
-    reg().destroy( inventory_slot_entt );
-    m_sound_bank.get_effect( "chopping_final" ).play();
-    return;
+      // The NPC navmesh is built once at scene setup, so evict the tiles the new plant
+      // now blocks. Keep the player entity - PlayerSystem::update re-inserts it every
+      // frame and NPCs need it to path towards the player.
+      if ( auto npc_navmesh = m_npc_navmesh.lock() )
+      {
+        for ( auto seg_entt : segment_entt_list )
+        {
+          if ( not reg().any_of<Cmp::Npc::NoPathFinding>( seg_entt ) ) continue;
+          auto seg_pos_cmp = reg().get<Cmp::Position>( seg_entt );
+          for ( auto blocked_entt : npc_navmesh->at( seg_pos_cmp ) )
+          {
+            if ( reg().any_of<Cmp::Player::Character>( blocked_entt ) ) continue;
+            npc_navmesh->remove( blocked_entt, seg_pos_cmp );
+          }
+        }
+      }
+
+      // clear player inevntory
+      reg().destroy( inventory_slot_entt );
+      m_sound_bank.get_effect( "chopping_final" ).play();
+      return;
+    }
   }
 
   // otherwise just drop it as a world item

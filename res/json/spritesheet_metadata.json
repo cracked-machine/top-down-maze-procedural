@@ -179,6 +179,48 @@
         }
       }
     },
+    "sprite.graveyard.plant1.drop": {
+      "spritesheet": {
+        "displayname": "sprite.graveyard.plant1.drop",
+        "zorder": [0],
+        "texture_path": "res/textures/plants_loot.png",
+        "sprite_indices": [0],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "x": 1,
+          "y": 1
+        }
+      }
+    },
+    "sprite.graveyard.plant2.drop": {
+      "spritesheet": {
+        "displayname": "sprite.graveyard.plant2.drop",
+        "zorder": [0],
+        "texture_path": "res/textures/plants_loot.png",
+        "sprite_indices": [1],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "x": 1,
+          "y": 1
+        }
+      }
+    },
+    "sprite.graveyard.plant3.drop": {
+      "spritesheet": {
+        "displayname": "sprite.graveyard.plant3.drop",
+        "zorder": [0],
+        "texture_path": "res/textures/plants_loot.png",
+        "sprite_indices": [3],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "x": 1,
+          "y": 1
+        }
+      }
+    },
     "sprite.graveyard.hazard.sinkhole": {
       "spritesheet": {
         "displayname": "sprite.graveyard.hazard.sinkhole",

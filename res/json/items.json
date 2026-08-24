@@ -208,6 +208,138 @@
       { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }}
     ]
   },
+  "item.plant1.drop": {
+    "sprite": "sprite.graveyard.plant1.drop",
+    "actions": [
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
+      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": -10, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "proximity_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }}
+    ]
+  },
+  "item.plant2.drop": {
+    "sprite": "sprite.graveyard.plant1.drop",
+    "actions": [
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
+      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": -10, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "proximity_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }}
+    ]
+  },
+  "item.plant3.drop": {
+    "sprite": "sprite.graveyard.plant1.drop",
+    "actions": [
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
+      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": -10, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "proximity_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }}
+    ]
+  },
+  "item.plant4.drop": {
+    "sprite": "sprite.graveyard.plant1.drop",
+    "actions": [
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
+      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": -10, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "proximity_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }}
+    ]
+  },
+  "item.plant5.drop": {
+    "sprite": "sprite.graveyard.plant1.drop",
+    "actions": [
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
+      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": -10, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "proximity_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }}
+    ]
+  },
+  "item.plant6.drop": {
+    "sprite": "sprite.graveyard.plant1.drop",
+    "actions": [
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
+      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": -10, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "proximity_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }}
+    ]
+  },
+  "item.plant7.drop": {
+    "sprite": "sprite.graveyard.plant1.drop",
+    "actions": [
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
+      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": -10, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "proximity_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }}
+    ]
+  },
+  "item.plant8.drop": {
+    "sprite": "sprite.graveyard.plant1.drop",
+    "actions": [
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
+      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": -10, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "proximity_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }}
+    ]
+  },
+  "item.plant9.drop": {
+    "sprite": "sprite.graveyard.plant1.drop",
+    "actions": [
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
+      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": -10, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "proximity_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }}
+    ]
+  },
+  "item.plant10.drop": {
+    "sprite": "sprite.graveyard.plant1.drop",
+    "actions": [
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
+      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": -10, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "proximity_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }}
+    ]
+  },
+  "item.plant11.drop": {
+    "sprite": "sprite.graveyard.plant1.drop",
+    "actions": [
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
+      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": -10, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "proximity_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }}
+    ]
+  },
+  "item.plant12.drop": {
+    "sprite": "sprite.graveyard.plant1.drop",
+    "actions": [
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 1, "disease": { "type": "none", "tick": 0 }, "tick": 10 }},
+      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": -10, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "spawn_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "proximity_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "toxicity": 0, "luck": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }}
+    ]
+  },
   "item.relic1": {
     "sprite": "sprite.item.relic1",
     "actions": [
