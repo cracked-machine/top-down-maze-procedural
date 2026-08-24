@@ -117,7 +117,7 @@ void ActionSystem::on_player_action( const Events::PlayerActionEvent &event )
     }
 
     // pickup inventory if there is something at this position
-    auto world_carryitem_view = reg().view<Cmp::WorldItem, Cmp::Position>();
+    auto world_carryitem_view = reg().view<Cmp::WorldItem, Cmp::Position>( entt::exclude<Cmp::PlantMultiBlock> );
     for ( auto [carryitem_entt, carryitem_cmp, pos_cmp] : world_carryitem_view.each() )
     {
       if ( not player_pos.findIntersection( pos_cmp ) ) continue;                  // is there something to pick up?
