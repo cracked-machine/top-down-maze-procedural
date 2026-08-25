@@ -43,6 +43,7 @@
 #include <Components/ZOrderValue.hpp>
 #include <Events/CryptRoomEvent.hpp>
 #include <Events/DropInventoryEvent.hpp>
+#include <Events/PassageEvent.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Factory/LootFactory.hpp>
@@ -55,7 +56,6 @@
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Systems/CryptSystem.hpp>
-#include <Systems/Events/PassageEvent.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>

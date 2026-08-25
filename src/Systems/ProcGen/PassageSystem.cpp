@@ -15,15 +15,14 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/SpawnArea.hpp>
-
 #include <Components/UUID.hpp>
+#include <Events/PassageEvent.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <Systems/BaseSystem.hpp>
-#include <Systems/Events/PassageEvent.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/ProcGen/PassageSystem.hpp>
 #include <Utils/Constants.hpp>
@@ -144,15 +143,15 @@ void PassageSystem::connect_start_and_open_rooms_passages( entt::entity start_ro
   auto north_quad = sf::FloatRect( { 0.f, 0.f }, { map_size_pixel.x, start_room_cmp->position.y } );
 
   std::vector<std::pair<Cmp::Crypt::CryptPassageDirection, sf::FloatRect>> quadrants = { { Cmp::Crypt::CryptPassageDirection::WEST, west_quad },
-                                                                                  { Cmp::Crypt::CryptPassageDirection::EAST, east_quad },
-                                                                                  { Cmp::Crypt::CryptPassageDirection::NORTH, north_quad } };
+                                                                                         { Cmp::Crypt::CryptPassageDirection::EAST, east_quad },
+                                                                                         { Cmp::Crypt::CryptPassageDirection::NORTH, north_quad } };
 
   for ( auto &[direction, qaudrant] : quadrants )
   {
     auto distances = find_room_distances<Cmp::Crypt::RoomOpen>( start_room_cmp->m_connectors[direction], qaudrant, { start_room_entt } );
     auto passage_blocks = find_passages<Cmp::Crypt::RoomOpen>( start_room_cmp->m_connectors[direction], distances, ProcGen::WalkingType::DRUNK,
-                                                             map_size_pixel, ProcGen::OnePassagePerTargetRoom::YES,
-                                                             ProcGen::AllowDuplicatePassages::NO );
+                                                               map_size_pixel, ProcGen::OnePassagePerTargetRoom::YES,
+                                                               ProcGen::AllowDuplicatePassages::NO );
     m_uncached_passage_list.insert( m_uncached_passage_list.begin(), passage_blocks.begin(), passage_blocks.end() );
   }
 
@@ -186,16 +185,16 @@ void PassageSystem::connect_occupied_and_open_room_passages()
                                      { current_room_right_pos_x, map_size_pixel.y - ( current_room_bottom_pos_y ) } );
 
     std::vector<std::pair<Cmp::Crypt::CryptPassageDirection, sf::FloatRect>> quadrants = { { Cmp::Crypt::CryptPassageDirection::WEST, west_quad },
-                                                                                    { Cmp::Crypt::CryptPassageDirection::EAST, east_quad },
-                                                                                    { Cmp::Crypt::CryptPassageDirection::NORTH, north_quad },
-                                                                                    { Cmp::Crypt::CryptPassageDirection::SOUTH, south_quad } };
+                                                                                           { Cmp::Crypt::CryptPassageDirection::EAST, east_quad },
+                                                                                           { Cmp::Crypt::CryptPassageDirection::NORTH, north_quad },
+                                                                                           { Cmp::Crypt::CryptPassageDirection::SOUTH, south_quad } };
 
     for ( auto &[direction, qaudrant] : quadrants )
     {
       auto distances = find_room_distances<Cmp::Crypt::RoomOpen>( occupied_room_cmp.m_connectors[direction], qaudrant, { open_room_entt } );
       auto passage_blocks = find_passages<Cmp::Crypt::RoomOpen>( occupied_room_cmp.m_connectors[direction], distances, ProcGen::WalkingType::DRUNK,
-                                                               map_size_pixel, ProcGen::OnePassagePerTargetRoom::YES,
-                                                               ProcGen::AllowDuplicatePassages::NO );
+                                                                 map_size_pixel, ProcGen::OnePassagePerTargetRoom::YES,
+                                                                 ProcGen::AllowDuplicatePassages::NO );
       m_uncached_passage_list.insert( m_uncached_passage_list.begin(), passage_blocks.begin(), passage_blocks.end() );
     }
     create_uncached_passages();
@@ -229,7 +228,7 @@ void PassageSystem::connect_occupied_and_end_room_passages( entt::registry &reg,
     m_passage_algos.increment_passage_id();
 
     std::vector<Cmp::Crypt::PassageBlock> passage_blocks = m_passage_algos.create_drunken_walk( reg, current_passage_door, *crypt_end_room_cmp,
-                                                                                              map_size_pixel, { open_room_entt, end_room_entt } );
+                                                                                                map_size_pixel, { open_room_entt, end_room_entt } );
 
     m_uncached_passage_list.insert( m_uncached_passage_list.begin(), passage_blocks.begin(), passage_blocks.end() );
   }
@@ -271,7 +270,7 @@ void PassageSystem::cache_all_room_connections()
   }
 
   std::vector<Cmp::Crypt::CryptPassageDirection> directions = { Cmp::Crypt::CryptPassageDirection::WEST, Cmp::Crypt::CryptPassageDirection::EAST,
-                                                         Cmp::Crypt::CryptPassageDirection::NORTH, Cmp::Crypt::CryptPassageDirection::SOUTH };
+                                                                Cmp::Crypt::CryptPassageDirection::NORTH, Cmp::Crypt::CryptPassageDirection::SOUTH };
 
   // Shared helper: cache passage blocks and advance the passage ID.
   auto cache_blocks = [&]( const std::vector<Cmp::Crypt::PassageBlock> &passage_blocks )
@@ -377,8 +376,8 @@ void PassageSystem::cache_all_room_connections()
       {
         auto dist = build_reachable_distances( isolated_cmp->m_connectors[direction], isolated_entt );
         auto passage_blocks = find_passages<Cmp::Crypt::RoomClosed>( isolated_cmp->m_connectors[direction], dist, ProcGen::WalkingType::DRUNK,
-                                                                   map_size_pixel, ProcGen::OnePassagePerTargetRoom::NO,
-                                                                   ProcGen::AllowDuplicatePassages::NO );
+                                                                     map_size_pixel, ProcGen::OnePassagePerTargetRoom::NO,
+                                                                     ProcGen::AllowDuplicatePassages::NO );
         if ( not passage_blocks.empty() )
         {
           cache_blocks( passage_blocks );
@@ -390,8 +389,8 @@ void PassageSystem::cache_all_room_connections()
         // Dog-leg has no such constraint and creates a deterministic L-shaped path.
         dist = build_reachable_distances( isolated_cmp->m_connectors[direction], isolated_entt );
         passage_blocks = find_passages<Cmp::Crypt::RoomClosed>( isolated_cmp->m_connectors[direction], dist, ProcGen::WalkingType::DOGLEG,
-                                                              map_size_pixel, ProcGen::OnePassagePerTargetRoom::NO,
-                                                              ProcGen::AllowDuplicatePassages::NO );
+                                                                map_size_pixel, ProcGen::OnePassagePerTargetRoom::NO,
+                                                                ProcGen::AllowDuplicatePassages::NO );
         if ( not passage_blocks.empty() )
         {
           cache_blocks( passage_blocks );
@@ -454,8 +453,8 @@ void PassageSystem::connect_end_room_to_nearest_closed_room()
   {
     auto distances = find_room_distances<Cmp::Crypt::RoomClosed>( end_room_cmp.m_connectors[direction], world_area, { end_room_entt } );
     auto passage_blocks = find_passages<Cmp::Crypt::RoomClosed>( end_room_cmp.m_connectors[direction], distances, ProcGen::WalkingType::DRUNK,
-                                                               map_size_pixel, ProcGen::OnePassagePerTargetRoom::YES,
-                                                               ProcGen::AllowDuplicatePassages::NO );
+                                                                 map_size_pixel, ProcGen::OnePassagePerTargetRoom::YES,
+                                                                 ProcGen::AllowDuplicatePassages::NO );
     if ( not passage_blocks.empty() ) m_passage_algos.increment_passage_id();
 
     for ( auto &passage_block_cmp : passage_blocks )
@@ -520,15 +519,15 @@ ProcGen::MidPointDistanceQueue PassageSystem::find_room_distances( Cmp::Crypt::P
   return pqueue;
 }
 template ProcGen::MidPointDistanceQueue PassageSystem::find_room_distances<Cmp::Crypt::RoomOpen>( Cmp::Crypt::PassageDoor &, const sf::FloatRect &,
-                                                                                                std::set<entt::entity> );
-template ProcGen::MidPointDistanceQueue PassageSystem::find_room_distances<Cmp::Crypt::RoomClosed>( Cmp::Crypt::PassageDoor &, const sf::FloatRect &,
                                                                                                   std::set<entt::entity> );
+template ProcGen::MidPointDistanceQueue PassageSystem::find_room_distances<Cmp::Crypt::RoomClosed>( Cmp::Crypt::PassageDoor &, const sf::FloatRect &,
+                                                                                                    std::set<entt::entity> );
 
 template <typename ROOMTYPE>
 std::vector<Cmp::Crypt::PassageBlock> PassageSystem::find_passages( Cmp::Crypt::PassageDoor &start_passage_door,
-                                                                  ProcGen::MidPointDistanceQueue &dist_pqueue, ProcGen::WalkingType walktype,
-                                                                  sf::Vector2f map_size_pixel, ProcGen::OnePassagePerTargetRoom passage_limit,
-                                                                  ProcGen::AllowDuplicatePassages duplicates_policy )
+                                                                    ProcGen::MidPointDistanceQueue &dist_pqueue, ProcGen::WalkingType walktype,
+                                                                    sf::Vector2f map_size_pixel, ProcGen::OnePassagePerTargetRoom passage_limit,
+                                                                    ProcGen::AllowDuplicatePassages duplicates_policy )
 {
   std::vector<Cmp::Crypt::PassageBlock> final_passage_list;
 
@@ -566,14 +565,13 @@ std::vector<Cmp::Crypt::PassageBlock> PassageSystem::find_passages( Cmp::Crypt::
   return final_passage_list;
 }
 
-template std::vector<Cmp::Crypt::PassageBlock> PassageSystem::find_passages<Cmp::Crypt::RoomOpen>( Cmp::Crypt::PassageDoor &,
-                                                                                               ProcGen::MidPointDistanceQueue &, ProcGen::WalkingType,
-                                                                                               sf::Vector2f, ProcGen::OnePassagePerTargetRoom,
-                                                                                               ProcGen::AllowDuplicatePassages );
+template std::vector<Cmp::Crypt::PassageBlock>
+PassageSystem::find_passages<Cmp::Crypt::RoomOpen>( Cmp::Crypt::PassageDoor &, ProcGen::MidPointDistanceQueue &, ProcGen::WalkingType, sf::Vector2f,
+                                                    ProcGen::OnePassagePerTargetRoom, ProcGen::AllowDuplicatePassages );
 
 template std::vector<Cmp::Crypt::PassageBlock>
 PassageSystem::find_passages<Cmp::Crypt::RoomClosed>( Cmp::Crypt::PassageDoor &, ProcGen::MidPointDistanceQueue &, ProcGen::WalkingType, sf::Vector2f,
-                                                    ProcGen::OnePassagePerTargetRoom, ProcGen::AllowDuplicatePassages );
+                                                      ProcGen::OnePassagePerTargetRoom, ProcGen::AllowDuplicatePassages );
 
 /// PRIVATE FUNCTIONS
 
