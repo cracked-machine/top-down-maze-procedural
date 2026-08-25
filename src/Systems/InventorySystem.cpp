@@ -34,7 +34,8 @@
 namespace Game::Sys
 {
 
-InventorySystem::InventorySystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+InventorySystem::InventorySystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                                  Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in
@@ -85,7 +86,13 @@ void InventorySystem::on_player_action( const Events::PlayerActionEvent &event )
   SPDLOG_DEBUG( "inventory_view: {} ", inventory_view.size() );
 }
 
-void InventorySystem::on_drop_inventory_event( Events::DropInventoryEvent ev ) { drop_inventory_item( ev.drop_pos, ev.inventory_slot_entt ); }
+void InventorySystem::on_drop_inventory_event( [[maybe_unused]] Events::DropInventoryEvent ev )
+{
+  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
+  if ( inventory_entt == entt::null ) return;
+  auto player_pos = Utils::Player::get_position( reg() ).position;
+  drop_inventory_item( player_pos, inventory_entt );
+}
 
 void InventorySystem::on_pickup_world_item_event( Events::PickupWorldItemEvent ev ) { pickup_world_item( reg(), ev.world_item_entt ); }
 

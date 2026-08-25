@@ -4,13 +4,9 @@
 namespace Game::Events
 {
 
-//! @brief Requests that the item held in a player inventory slot be dropped into the world.
+//! @brief Requests that the item held in a player inventory slot be dropped into the world at the player position.
 struct DropInventoryEvent
 {
-  //! @brief The inventory slot entity whose item should be dropped.
-  entt::entity inventory_slot_entt;
-  //! @brief World position at which to drop the item.
-  sf::Vector2f drop_pos;
 };
 
 } // namespace Game::Events

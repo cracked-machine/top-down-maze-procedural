@@ -42,7 +42,6 @@
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/CryptRoomEvent.hpp>
-#include <Events/DropInventoryEvent.hpp>
 #include <Events/PassageEvent.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/CryptFactory.hpp>

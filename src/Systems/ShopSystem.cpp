@@ -99,9 +99,7 @@ void ShopSystem::buy_shop_item( uint8_t item_idx )
       if ( player_wealth.wealth < static_cast<int32_t>( price ) ) { break; }
       player_wealth.wealth -= price;
 
-      auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
-      auto player_pos = Utils::Player::get_position( reg() ).position;
-      get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
+      get_systems_event_queue().trigger( Events::DropInventoryEvent() );
 
       // add new carryitem into player inventory
       Factory::Player::add_inventory( reg(), item );

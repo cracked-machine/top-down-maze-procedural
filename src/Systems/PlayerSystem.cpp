@@ -59,12 +59,10 @@
 #include <Components/Stats/ProjectileAction.hpp>
 #include <Components/Stats/ProximityAction.hpp>
 #include <Components/Stats/SpawnAction.hpp>
-
 #include <Components/UUID.hpp>
 #include <Components/Wall.hpp>
 #include <Components/Wormhole/Jump.hpp>
 #include <Components/ZOrderValue.hpp>
-#include <Events/DropInventoryEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/LootFactory.hpp>

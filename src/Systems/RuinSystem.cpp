@@ -84,9 +84,7 @@ void RuinSystem::check_entrance_collision()
     if ( not player_hitbox.findIntersection( door_pos_cmp ) ) continue;
     m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER );
 
-    auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
-    auto player_pos = Utils::Player::get_position( reg() ).position;
-    get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
+    get_systems_event_queue().trigger( Events::DropInventoryEvent() );
 
     Factory::Player::remove_player_last_graveyard_pos( reg() );
     Cmp::Position last_known_pos(

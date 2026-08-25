@@ -527,9 +527,8 @@ void ActionSystem::check_player_dig_plant_collision()
         {
           if ( inventory_slot.m_item.sprite_type == "sprite.item.shovel" )
           {
-            auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
-            auto player_pos = Utils::Player::get_position( reg() ).position;
-            get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
+
+            get_systems_event_queue().trigger( Events::DropInventoryEvent() );
             Utils::Player::apply_action_from_world_item<Cmp::SpawnAction>( reg(), plant_entt );
             get_systems_event_queue().trigger( Events::PickupWorldItemEvent( plant_entt ) );
           }
