@@ -19,8 +19,8 @@ struct PlayerActionEvent
     DIG,
     //! @brief Perform a melee (axe) attack.
     ATTACK,
-    //! @brief Drop the currently carried inventory item, or pick one up if standing over one.
-    DROP_INVENTORY,
+    //! @brief Swap the inventory with the nearest world item (excludes plants)
+    SWAP_INVENTORY,
     //! @brief Select a moveable obstacle.
     SELECT_POSITION,
     //! @brief Deselect the currently selected moveable obstacle.

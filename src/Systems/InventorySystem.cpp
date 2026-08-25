@@ -14,6 +14,7 @@
 #include <Components/Player/NoPath.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
+#include <Components/Stats/SpawnAction.hpp>
 #include <Components/UUID.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/DropInventoryEvent.hpp>
@@ -48,7 +49,7 @@ InventorySystem::InventorySystem( entt::registry &reg, sf::RenderWindow &window,
 
 void InventorySystem::on_player_action( const Events::PlayerActionEvent &event )
 {
-  if ( event.action != Events::PlayerActionEvent::GameActions::DROP_INVENTORY ) return;
+  if ( event.action != Events::PlayerActionEvent::GameActions::SWAP_INVENTORY ) return;
 
   // if player is standing next to a Cmp::Crypt::Chest let them open it without dropping the inventory item
   for ( auto [chest_entt, chest_cmp, chest_pos_cmp] : reg().view<Cmp::Crypt::Chest, Cmp::Position>().each() )
@@ -71,16 +72,17 @@ void InventorySystem::on_player_action( const Events::PlayerActionEvent &event )
   }
 
   // pickup inventory if there is something at this position
-  auto world_carryitem_view = reg().view<Cmp::WorldItem, Cmp::Position>( entt::exclude<Cmp::PlantMultiBlock> );
-  for ( auto [carryitem_entt, carryitem_cmp, pos_cmp] : world_carryitem_view.each() )
+  auto world_item_view = reg().view<Cmp::WorldItem, Cmp::Position>( entt::exclude<Cmp::PlantMultiBlock> );
+  for ( auto [world_item_entt, world_item_cmp, world_item_pos_cmp] : world_item_view.each() )
   {
-    if ( not player_pos.findIntersection( pos_cmp ) ) continue;                  // is there something to pick up?
-    if ( carryitem_cmp.sprite_type == existing_player_inventory_type ) continue; // dont pick up the one we just dropped
-    if ( inventory_view.size() > 0 ) { break; }                                  // don't pickup another if we already have one
+    if ( not player_pos.findIntersection( world_item_pos_cmp ) ) continue;        // is there something to pick up?
+    if ( world_item_cmp.sprite_type == existing_player_inventory_type ) continue; // dont pick up the one we just dropped
+    if ( inventory_view.size() > 0 ) { break; }                                   // don't pickup another if we already have one
 
     // ok pick it up
-    SPDLOG_DEBUG( "GameActions::DROP_CARRYITEM calling 'pickup_world_item' with entt id {} ", static_cast<uint32_t>( carryitem_entt ) );
-    pickup_world_item( reg(), carryitem_entt );
+    SPDLOG_DEBUG( "GameActions::SWAP_INVENTORY calling 'pickup_world_item' with entt id {} ", static_cast<uint32_t>( carryitem_entt ) );
+    Utils::Player::apply_action_from_world_item<Cmp::SpawnAction>( reg(), world_item_entt );
+    pickup_world_item( reg(), world_item_entt );
   }
   m_inventory_cooldown_timer.restart();
   SPDLOG_DEBUG( "inventory_view: {} ", inventory_view.size() );
