@@ -59,12 +59,9 @@ void AltarSystem::on_player_action( Events::PlayerActionEvent ev )
 {
   if ( ev.action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
 
-  auto altar_view = reg().view<Cmp::Altar::MultiBlock>();
-  auto player_hitbox = Cmp::RectBounds::scaled( Utils::Player::get_position( reg() ).position, Constants::kGridSizePxF, 1.5f );
-
-  for ( auto [altar_entity, altar_cmp] : altar_view.each() )
+  for ( auto [altar_entity, altar_cmp] : reg().view<Cmp::Altar::MultiBlock>().each() )
   {
-    if ( not player_hitbox.findIntersection( altar_cmp ) ) continue;
+    if ( not Utils::Player::is_player_near( reg(), altar_cmp ) ) continue;
 
     SPDLOG_DEBUG( "Player collided with Altar at ({}, {})", altar_cmp.position.x, altar_cmp.position.y );
     check_player_altar_activation( altar_entity, altar_cmp );
