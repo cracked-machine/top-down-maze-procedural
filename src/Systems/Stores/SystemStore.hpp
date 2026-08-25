@@ -32,6 +32,7 @@ class FootstepSystem;
 class GraveSystem;
 class GrimoireSystem;
 class HealingSpringSystem;
+class InventorySystem;
 class ItemStore;
 class ItemSystem;
 class NpcStore;
@@ -90,6 +91,8 @@ public:
     GrimoireSystem,
     //! @brief Key for HealingSpringSystem.
     HealingSpringSystem,
+    //! @brief Key for InventorySystem.
+    InventorySystem,
     //! @brief Key for ItemStore.
     ItemStore,
     //! @brief Key for ItemSystem.
@@ -214,6 +217,7 @@ template<> struct Store::SystemTraits<Store::Type::FootstepSystem>         { usi
 template<> struct Store::SystemTraits<Store::Type::GraveSystem>            { using type = GraveSystem; };
 template<> struct Store::SystemTraits<Store::Type::GrimoireSystem>         { using type = GrimoireSystem; };
 template<> struct Store::SystemTraits<Store::Type::HealingSpringSystem>    { using type = HealingSpringSystem; };
+template<> struct Store::SystemTraits<Store::Type::InventorySystem>        { using type = InventorySystem; };
 template<> struct Store::SystemTraits<Store::Type::ItemStore>              { using type = ItemStore; };
 template<> struct Store::SystemTraits<Store::Type::ItemSystem>             { using type = ItemSystem; };
 template<> struct Store::SystemTraits<Store::Type::NpcStore>               { using type = NpcStore; };

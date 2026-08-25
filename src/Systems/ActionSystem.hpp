@@ -1,17 +1,8 @@
 #ifndef SRC_SYSTEMS_ACTIONSYSTEM_HPP__
 #define SRC_SYSTEMS_ACTIONSYSTEM_HPP__
 
-#include <Components/Persistent/EffectsVolume.hpp>
-#include <Events/DropInventoryEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
-#include <PathFinding/SpatialHashGrid.hpp>
 #include <Systems/BaseSystem.hpp>
-
-#include <SFML/Audio/AudioResource.hpp>
-#include <SFML/Audio/Sound.hpp>
-#include <SFML/Audio/SoundBuffer.hpp>
-#include <SFML/System/Clock.hpp>
-#include <filesystem>
 
 namespace Game::PathFinding
 {
@@ -59,10 +50,6 @@ private:
   //! @param event
   void on_player_action( const Events::PlayerActionEvent &event );
 
-  //! @brief Single drop, no pickup
-  //! @param ev
-  void on_drop_inventory_event( Game::Events::DropInventoryEvent ev );
-
   //! @brief Uses Cmp::SelectedPosition to mark the targetted Cmp::Obstacle then applies digging damage until the obstacle is destroyed.
   void check_player_dig_obstacle_collision();
 
@@ -74,19 +61,6 @@ private:
 
   //! @brief If player is carry suitable weapon did the action event occur in NPC vicinity?
   void check_player_axe_npc_kill();
-
-  //! @brief Remove the CarryItem from player inventory and place it into the world
-  //! @param reg the ECS registry
-  //! @param pos the postion to place the item
-  //! @param sprite the spritesheet object
-  //! @param inventory_slot_cmp_entt the player inventory slot entt
-  //! @return entt::entity
-  void drop_inventory_item( sf::Vector2f pos, entt::entity inventory_slot_entt );
-
-  //! @brief Add the world item to the player's inventory and destroy the world entity.
-  //! @param reg
-  //! @param world_item_entt
-  void pickup_world_item( entt::registry &reg, entt::entity world_item_entt );
 
   //! @brief Uses Cmp::SelectedPosition to mark the targetted Cmp::Obstacle/Cmp::Moveable entity.
   void select_moveable_obstacle();
@@ -105,9 +79,6 @@ private:
 
   //! @brief All grid positions that block player movement
   PathFinding::SpatialHashGridWeakPtr m_player_navmesh;
-
-  //! @brief Prevent player from spamming the drop inventory action.
-  sf::Clock m_inventory_cooldown_timer;
 };
 } // namespace Game::Sys
 

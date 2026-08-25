@@ -11,6 +11,7 @@
 #include <Systems/GraveSystem.hpp>
 #include <Systems/GrimoireSystem.hpp>
 #include <Systems/HealingSpringSystem.hpp>
+#include <Systems/InventorySystem.hpp>
 #include <Systems/ItemSystem.hpp>
 #include <Systems/LootSystem.hpp>
 #include <Systems/ParticleSystem.hpp>
@@ -58,6 +59,7 @@ Store::Store( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, 
   emplace<Type::GraveSystem>( m_initial_reg, window, sprite_factory, sound_bank );
   emplace<Type::GrimoireSystem>( m_initial_reg, window, sprite_factory, sound_bank );
   emplace<Type::HealingSpringSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher );
+  emplace<Type::InventorySystem>( m_initial_reg, window, sprite_factory, sound_bank );
   emplace<Type::ItemStore>( m_initial_reg, window, sprite_factory, sound_bank );
   emplace<Type::ItemSystem>( m_initial_reg, window, sprite_factory, sound_bank );
   emplace<Type::NpcStore>( m_initial_reg, window, sprite_factory, sound_bank );

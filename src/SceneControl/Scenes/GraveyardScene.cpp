@@ -54,6 +54,7 @@
 #include <Systems/GraveSystem.hpp>
 #include <Systems/GrimoireSystem.hpp>
 #include <Systems/HealingSpringSystem.hpp>
+#include <Systems/InventorySystem.hpp>
 #include <Systems/LootSystem.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -326,6 +327,7 @@ void GraveyardScene::reinit_navmesh()
   m_sys.find<Sys::Store::Type::WispSystem>().init( m_open_navmesh );
   m_sys.find<Sys::Store::Type::BombSystem>().init( m_generic_npc_navmesh, m_player_navmesh, m_ghost_navmesh );
   m_sys.find<Sys::Store::Type::ActionSystem>().init( m_generic_npc_navmesh, m_player_navmesh, m_ghost_navmesh );
+  m_sys.find<Sys::Store::Type::InventorySystem>().init( m_generic_npc_navmesh, m_player_navmesh );
   m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_generic_npc_navmesh, m_player_navmesh, m_open_navmesh );
   m_sys.find<Sys::Store::Type::WormholeSystem>().init( m_generic_npc_navmesh );
   m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_generic_npc_navmesh );
