@@ -86,8 +86,8 @@ void BombSystem::on_resume()
 
 void BombSystem::on_bomb_event( const Events::PlayerActionEvent &event )
 {
-  if ( event.action == Events::PlayerActionEvent::GameActions::DROP_BOMB ) { arm_player_bomb(); }
-  else if ( event.action == Events::PlayerActionEvent::GameActions::GRAVE_BOMB ) { arm_grave_bomb(); }
+  if ( event.action == Events::PlayerActionEvent::GameActions::PLACE_BOMB ) { arm_player_bomb(); }
+  else if ( event.action == Events::PlayerActionEvent::GameActions::TRIGGER_BOMB ) { arm_grave_bomb(); }
 }
 
 void BombSystem::arm_grave_bomb()

@@ -180,7 +180,7 @@ void GraveSystem::trigger_grave_consequence( entt::entity grave_entity )
     }
     case GraveConsequence::BOMB_TRAP: {
       SPDLOG_DEBUG( "Grave activated bomb trap." );
-      get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::GRAVE_BOMB ) );
+      get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::TRIGGER_BOMB ) );
       break;
     }
     case GraveConsequence::RELIC: {

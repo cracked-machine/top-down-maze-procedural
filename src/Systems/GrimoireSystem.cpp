@@ -23,7 +23,7 @@ void GrimoireSystem::update( sf::Time dt )
 
 void GrimoireSystem::on_player_action( Events::PlayerActionEvent ev )
 {
-  if ( ev.action != Events::PlayerActionEvent::GameActions::GRIMOIRE ) return;
+  if ( ev.action != Events::PlayerActionEvent::GameActions::TOGGLE_GRIMOIRE ) return;
   static float overlay_debounce_threshold = 1.f;
   if ( overlay_debounce.asSeconds() >= overlay_debounce_threshold )
   {

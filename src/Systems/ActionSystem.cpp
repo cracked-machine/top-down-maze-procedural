@@ -94,7 +94,7 @@ void ActionSystem::update( [[maybe_unused]] sf::Time dt )
 
 void ActionSystem::on_player_action( const Events::PlayerActionEvent &event )
 {
-  if ( event.action == Events::PlayerActionEvent::GameActions::DROP_CARRYITEM )
+  if ( event.action == Events::PlayerActionEvent::GameActions::DROP_INVENTORY )
   {
     // if player is standing next to a Cmp::Crypt::Chest let them open it without dropping the inventory item
     for ( auto [chest_entt, chest_cmp, chest_pos_cmp] : reg().view<Cmp::Crypt::Chest, Cmp::Position>().each() )
@@ -143,8 +143,8 @@ void ActionSystem::on_player_action( const Events::PlayerActionEvent &event )
     // axe attack?!
     check_player_axe_npc_kill();
   }
-  else if ( event.action == Events::PlayerActionEvent::GameActions::SELECT ) { select_moveable_obstacle(); }
-  else if ( event.action == Events::PlayerActionEvent::GameActions::DESELECT ) { reset_all_selected_positions(); }
+  else if ( event.action == Events::PlayerActionEvent::GameActions::SELECT_POSITION ) { select_moveable_obstacle(); }
+  else if ( event.action == Events::PlayerActionEvent::GameActions::DESELECT_POSITION ) { reset_all_selected_positions(); }
 }
 
 void ActionSystem::on_drop_inventory_event( Game::Events::DropInventoryEvent ev ) { drop_inventory_item( ev.drop_pos, ev.inventory_slot_entt ); }

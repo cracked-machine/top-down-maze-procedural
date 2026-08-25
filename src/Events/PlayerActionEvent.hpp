@@ -8,12 +8,11 @@ namespace Game::Events
 struct PlayerActionEvent
 {
   //! @brief The kind of action the player has performed.
-  enum class GameActions
-  {
-    //! @brief Arm/drop a bomb at the player's position.
-    DROP_BOMB,
-    //! @brief Arm a bomb placed on a grave.
-    GRAVE_BOMB,
+  enum class GameActions {
+    //! @brief Player placed a bomb at their location.
+    PLACE_BOMB,
+    //! @brief Player triggered a grave bomb trap at their location.
+    TRIGGER_BOMB,
     //! @brief Generic interact action, e.g. altars, exits, healing springs, crypt objectives and chests.
     ACTIVATE,
     //! @brief Dig at diggable obstacles, plants, or graves near the player.
@@ -21,13 +20,13 @@ struct PlayerActionEvent
     //! @brief Perform a melee (axe) attack.
     ATTACK,
     //! @brief Drop the currently carried inventory item, or pick one up if standing over one.
-    DROP_CARRYITEM,
+    DROP_INVENTORY,
     //! @brief Select a moveable obstacle.
-    SELECT,
+    SELECT_POSITION,
     //! @brief Deselect the currently selected moveable obstacle.
-    DESELECT,
+    DESELECT_POSITION,
     //! @brief Toggle the grimoire overlay open/closed.
-    GRIMOIRE,
+    TOGGLE_GRIMOIRE,
     //! @brief Begin drawing/nocking the bow.
     DRAW_BOW,
     //! @brief Release the drawn bow, firing an arrow.
