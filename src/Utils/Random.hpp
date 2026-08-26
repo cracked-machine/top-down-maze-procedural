@@ -49,6 +49,13 @@ struct ExcludePack
 //! @return std::pair<entt::entity, Cmp::Position> A pair containing the randomly selected entity
 //! and its position component
 //! @note The function assumes there is at least one entity matching the filter criteria.
+//! @note Exclude is only checked against the candidate entity's own components. A grid position
+//! can be shared by more than one entity (e.g. a floor tile and a previously-placed reserved
+//! entity standing on it), and this function does not know about or check those co-located
+//! entities. If that cross-entity exclusion matters, the caller is responsible for tracking it
+//! externally - e.g. maintaining a PathFinding::SpatialHashGrid of reserved positions, checking
+//! `grid->at(candidate_position).empty()` after calling this function, and inserting into the
+//! grid once a position is committed to. See Factory::Loot::gen_loot_containers for the pattern.
 //! @note Uses SPDLOG_DEBUG to log the number of matching positions found.
 //! @throws std::runtime_error if no entities match the filter criteria.
 //! @throws std::out_of_range if the randomly generated index is out of bounds (should not normally happen).

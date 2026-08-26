@@ -24,8 +24,7 @@ class RuinSceneLowerFloor : public Scene<Events::ProcessRuinSceneLowerInputEvent
 {
 public:
   //! @brief How the player is entering the lower floor, used by on_enter() to decide the spawn position/state
-  enum class EntryMode
-  {
+  enum class EntryMode {
     //! @brief Entering via the graveyard door; spawn at the scene's persisted start position
     FROM_DOOR,
     //! @brief Descending from RuinSceneUpperFloor; snap to grid and clear the damage cooldown
@@ -85,8 +84,8 @@ private:
 
   //! @brief How the player is currently entering the scene; set via set_entry_mode() before the scene is switched to
   EntryMode m_entry_mode;
-  //! @brief Navmesh reserved for entities (cobwebs, obstacles) placed during procedural generation
-  PathFinding::SpatialHashGridSharedPtr m_reserved_navmash;
+  //! @brief spatial map reserved for entities (cobwebs, obstacles) placed during procedural generation
+  PathFinding::SpatialHashGridSharedPtr m_reserved_sm;
 };
 
 } // namespace Game::Scene

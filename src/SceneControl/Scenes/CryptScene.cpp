@@ -80,7 +80,8 @@ void CryptScene::on_init()
   auto player_start_area = m_scene_data->get_spawn_area_bounds();
   auto &random_level_sys = m_sys.find<Sys::Store::Type::LevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.build_scene_from_data( *m_scene_data );
+  m_reserved_sm = Factory::Pathfinding::create_reserved_navmesh( m_reg );
+  random_level_sys.build_scene_from_data( *m_scene_data, m_reserved_sm );
   m_sys.find<Sys::Store::Type::PassageSystem>().init_scene_data( m_scene_data );
 
   // intialise the game area

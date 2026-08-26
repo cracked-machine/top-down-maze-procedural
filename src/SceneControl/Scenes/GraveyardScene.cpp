@@ -137,11 +137,11 @@ void GraveyardScene::on_init()
 
   // create the level contents
   auto &level_gen = m_sys.find<Sys::Store::Type::LevelGenerator>();
+  m_reserved_navmash = Factory::Pathfinding::create_reserved_navmesh( m_reg );
   level_gen.reset();
-  level_gen.build_scene_from_data( *m_scene_data );
+  level_gen.build_scene_from_data( *m_scene_data, m_reserved_navmash );
   m_sys.find<Sys::Store::Type::ExitSystem>().create_exit();
   level_gen.gen_graveyard_exterior_multiblocks();
-  m_reserved_navmash = Factory::Pathfinding::create_reserved_navmesh( m_reg );
   Factory::Loot::gen_loot_containers( m_reg, m_sprite_factory, map_size_grid, m_reserved_navmash );
   Factory::Npc::gen_npc_containers( m_reg, m_sprite_factory, map_size_grid, m_reserved_navmash );
   level_gen.gen_random_plants( map_size_grid, m_reserved_navmash );

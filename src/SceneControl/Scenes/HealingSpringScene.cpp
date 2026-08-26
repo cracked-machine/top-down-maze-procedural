@@ -63,7 +63,8 @@ void HealingSpringScene::on_init()
   auto player_start_area = Cmp::RectBounds::scaled( player_start_position, Constants::kGridSizePxF, 1.f, Cmp::RectBounds::ScaleAxis::XY );
   auto &random_level_sys = m_sys.find<Sys::Store::Type::LevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.build_scene_from_data( *m_scene_data );
+  m_reserved_sm = Factory::Pathfinding::create_reserved_navmesh( m_reg );
+  random_level_sys.build_scene_from_data( *m_scene_data, m_reserved_sm );
 
   Sprites::Containers::VertexFloor floortiles;
   floortiles.create( random_level_sys.get_void_sm(), m_scene_data );

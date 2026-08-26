@@ -19,7 +19,8 @@ void create_player( entt::registry &registry );
 //! @param entity
 //! @param sfactory Used to pick a random spawn-area sprite index.
 //! @param zorder
-void add_spawn_area( entt::registry &registry, entt::entity entity, Sprites::SpriteFactory &sfactory, float zorder );
+//! @return entt::entity
+entt::entity add_spawn_area( entt::registry &registry, entt::entity entity, Sprites::SpriteFactory &sfactory, float zorder );
 
 //! @brief Create the blood splat entity played when the player dies.
 //! @param registry

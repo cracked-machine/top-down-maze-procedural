@@ -19,12 +19,13 @@ namespace Game::Factory::Wall
 //! @param pos
 //! @param ms
 //! @param sprite_index
-void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, const Sprites::SpriteSheet &ms, std::size_t sprite_index );
+//! @return entt::entity
+entt::entity add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, const Sprites::SpriteSheet &ms, std::size_t sprite_index );
 
 //! @brief Create a bare reserved-position entity, without any sprite or wall component.
 //! @param reg
 //! @param pos
-void add_reservedposition( entt::registry &reg, const sf::Vector2f &pos );
+entt::entity add_reservedposition( entt::registry &reg, const sf::Vector2f &pos );
 
 //! @brief Mark every existing world position entity overlapping `rect` as reserved and blocking player movement.
 //! @param reg

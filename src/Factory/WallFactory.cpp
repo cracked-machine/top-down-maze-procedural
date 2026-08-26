@@ -17,7 +17,7 @@
 namespace Game::Factory::Wall
 {
 
-void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, const Sprites::SpriteSheet &ms, std::size_t sprite_index )
+entt::entity add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, const Sprites::SpriteSheet &ms, std::size_t sprite_index )
 {
   auto entity = reg.create();
   reg.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSizePxF );
@@ -34,13 +34,15 @@ void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, const Sprite
   if ( ms.get_zorder( sprite_index ) != 0 ) { zorder_cmp.setZOrder( ms.get_zorder( sprite_index ) ); }
   else { zorder_cmp.setZOrder( pos.y + ms.get_sprite_size().y ); }
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder_cmp );
+  return entity;
 }
 
-void add_reservedposition( entt::registry &reg, const sf::Vector2f &pos )
+entt::entity add_reservedposition( entt::registry &reg, const sf::Vector2f &pos )
 {
   auto entity = reg.create();
   reg.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSizePxF );
   reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
+  return entity;
 }
 
 void add_solid_player( entt::registry &reg, sf::FloatRect rect )

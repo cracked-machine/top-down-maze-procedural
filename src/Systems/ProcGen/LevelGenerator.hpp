@@ -41,7 +41,7 @@ public:
 
   //! @brief Generate game area using data from the SceneData object.
   //! @param scene_data The deserialized scene data to build the game area from
-  void build_scene_from_data( const Scene::SceneData &scene_data );
+  void build_scene_from_data( const Scene::SceneData &scene_data, const PathFinding::SpatialHashGridSharedPtr &reserved_sm );
 
   //! @brief Create obstacle components without sprites for initial proc gen
   //! @param init_chance Probability (0-1) that any given eligible position becomes an obstacle

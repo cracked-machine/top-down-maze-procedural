@@ -83,7 +83,8 @@ void RuinSceneUpperFloor::on_init()
   auto player_start_area = Cmp::RectBounds::scaled( player_start_pos, gridsize, 1.f, Cmp::RectBounds::ScaleAxis::XY );
   auto &random_level_sys = m_sys.find<Store::Type::LevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.build_scene_from_data( *m_scene_data );
+  m_reserved_sm = Factory::Pathfinding::create_reserved_navmesh( m_reg );
+  random_level_sys.build_scene_from_data( *m_scene_data, m_reserved_sm );
 
   // add access hitbox just below horizontal centerpoint
   sf::Vector2f flooraccess_position( map_size_pixel.x - ( 3 * gridsize.x ), map_size_pixel.y - ( 3 * gridsize.y ) );

@@ -95,7 +95,7 @@ void create_player( entt::registry &reg )
   add_inventory( reg, "item.pickaxe" );
 }
 
-void add_spawn_area( entt::registry &reg, entt::entity entity, Sprites::SpriteFactory &sfactory, float zorder )
+entt::entity add_spawn_area( entt::registry &reg, entt::entity entity, Sprites::SpriteFactory &sfactory, float zorder )
 {
   // We need to reserve these positions for the player start area, dont add NpcNoPathFinding.
   // We want NPCs to pathfind player within spawn. We block NPCs from entering spawn directly in NpcSystem::update_pathfinding.
@@ -111,6 +111,7 @@ void add_spawn_area( entt::registry &reg, entt::entity entity, Sprites::SpriteFa
   // clang-format on
 
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
+  return entity;
 }
 
 void create_player_death_anim( entt::registry &reg, Cmp::Position player_pos_cmp, const Sprites::SpriteSheet &sprite )
