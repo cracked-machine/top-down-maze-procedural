@@ -14,6 +14,7 @@
 #include <Components/Player/NoPath.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
+#include <Components/Stats/ConsumeAction.hpp>
 #include <Components/Stats/SpawnAction.hpp>
 #include <Components/UUID.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -22,6 +23,7 @@
 #include <Events/PlayerActionEvent.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/PlantFactory.hpp>
+#include <Factory/PlayerFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Systems/InventorySystem.hpp>
 #include <Systems/ParticleSystem.hpp>
@@ -49,8 +51,22 @@ InventorySystem::InventorySystem( entt::registry &reg, sf::RenderWindow &window,
 
 void InventorySystem::on_player_action( const Events::PlayerActionEvent &event )
 {
-  if ( event.action != Events::PlayerActionEvent::GameActions::SWAP_INVENTORY ) return;
+  if ( event.action == Events::PlayerActionEvent::GameActions::SWAP_INVENTORY ) { swap_inventory(); }
+  else if ( event.action == Events::PlayerActionEvent::GameActions::CONSUME_INVENTORY ) { consume_inventory(); }
+}
 
+void InventorySystem::on_drop_inventory_event( [[maybe_unused]] Events::DropInventoryEvent ev )
+{
+  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
+  if ( inventory_entt == entt::null ) return;
+  auto player_pos = Utils::Player::get_position( reg() ).position;
+  drop_inventory_item( player_pos, inventory_entt );
+}
+
+void InventorySystem::on_pickup_world_item_event( Events::PickupWorldItemEvent ev ) { pickup_world_item( reg(), ev.world_item_entt ); }
+
+void InventorySystem::swap_inventory()
+{
   // if player is standing next to a Cmp::Crypt::Chest let them open it without dropping the inventory item
   for ( auto [chest_entt, chest_cmp, chest_pos_cmp] : reg().view<Cmp::Crypt::Chest, Cmp::Position>().each() )
   {
@@ -87,16 +103,6 @@ void InventorySystem::on_player_action( const Events::PlayerActionEvent &event )
   m_inventory_cooldown_timer.restart();
   SPDLOG_DEBUG( "inventory_view: {} ", inventory_view.size() );
 }
-
-void InventorySystem::on_drop_inventory_event( [[maybe_unused]] Events::DropInventoryEvent ev )
-{
-  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
-  if ( inventory_entt == entt::null ) return;
-  auto player_pos = Utils::Player::get_position( reg() ).position;
-  drop_inventory_item( player_pos, inventory_entt );
-}
-
-void InventorySystem::on_pickup_world_item_event( Events::PickupWorldItemEvent ev ) { pickup_world_item( reg(), ev.world_item_entt ); }
 
 void InventorySystem::drop_inventory_item( sf::Vector2f pos, entt::entity inventory_slot_entt )
 {
@@ -253,6 +259,18 @@ void InventorySystem::pickup_world_item( entt::registry &reg, entt::entity world
   if ( reg.valid( world_item_entt ) ) reg.destroy( world_item_entt );
 
   if ( inventory_entity != entt::null ) { m_sound_bank.get_effect( "get_loot" ).play(); }
+}
+
+void InventorySystem::consume_inventory()
+{
+
+  auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg() );
+  if ( inventory_type.contains( ".drop" ) )
+  {
+    m_sound_bank.get_effect( "eating" ).play();
+    Utils::Player::apply_action_from_inventory_item<Cmp::ConsumeAction>( reg() );
+    Factory::Player::destroy_inventory( reg(), inventory_type );
+  }
 }
 
 } // namespace Game::Sys

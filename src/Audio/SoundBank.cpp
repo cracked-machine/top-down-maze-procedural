@@ -41,6 +41,7 @@ void SoundBank::init()
   sounds.emplace( "chopping_final", EffectsData{ "res/audio/chopping_final.mp3" } );
   sounds.emplace( "axe_whip", EffectsData{ "res/audio/axe_whip.wav" } );
   sounds.emplace( "skele_death", EffectsData{ "res/audio/skele_death.wav" } );
+  sounds.emplace( "eating", EffectsData{ "res/audio/eating.mp3" } );
 
   sounds.emplace( "draw_bow", EffectsData{ "res/audio/draw_bow.mp3" } );
   sounds.emplace( "release_bow", EffectsData{ "res/audio/release_bow.mp3" } );
