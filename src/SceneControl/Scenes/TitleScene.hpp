@@ -29,10 +29,13 @@ public:
 
   //! @brief Reloads persistent state and adds the title screen shader
   void on_init() override;
+
   //! @brief Reloads persistent state, applies persisted music/effects volume, and starts looping title music
   void on_enter() override;
+
   //! @brief Logs scene exit; no cleanup is currently required
   void on_exit() override;
+
   //! @brief Get the name of the scene
   //! @return std::string "TitleScene"
   std::string get_name() const override { return "TitleScene"; }
@@ -49,6 +52,7 @@ protected:
 private:
   //! @brief Shared sound bank used to play/stop title-screen audio
   Audio::SoundBank &m_sound_bank;
+
   //! @brief Store of game systems the scene drives each update
   Sys::Store &m_sys;
 };

@@ -69,17 +69,20 @@ private:
 
   //! @brief Shared sound bank used to play/stop shop-related audio
   Audio::SoundBank &m_sound_bank;
+
   //! @brief Store of game systems the scene drives each update
   Sys::Store &m_sys;
+
   //! @brief Factory used to create sprites for entities spawned in this scene
   Sprites::SpriteFactory &m_sprite_factory;
+
   //! @brief Vertex-based floor tile mesh for the shop level
   Sprites::Containers::VertexFloor m_floormap;
 
   //! @brief Whether the shop inventory overlay is currently open
   bool m_overlay_open{ false };
 
-  //! @brief spatial map reserved for entities placed during procedural generation
+  //! @brief spatial map for reserving positions during procedural generation
   PathFinding::SpatialHashGridSharedPtr m_reserved_sm;
 };
 

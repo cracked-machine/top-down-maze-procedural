@@ -351,7 +351,7 @@ void LevelGenerator::add_lowerfloor_cobwebs( int num_cobwebs, sf::FloatRect scen
   }
 }
 
-void LevelGenerator::gen_graveyard_exterior_multiblocks()
+void LevelGenerator::gen_graveyard_exterior_multiblocks( const PathFinding::SpatialHashGridSharedPtr &reserved_sm )
 {
   auto grave_num_multiplier = Sys::PersistSystem::get<Cmp::Persist::GraveNumMultiplier>( reg() );
   auto max_num_altars = Sys::PersistSystem::get<Cmp::Persist::MaxNumAltars>( reg() );
@@ -385,7 +385,9 @@ void LevelGenerator::gen_graveyard_exterior_multiblocks()
       const auto &spritesheet = m_sprite_factory.get_spritesheet_by_type( sprite_metatype );
       if ( auto pos = find_spawn_pos( spritesheet ) )
       {
-        Factory::Multiblock::add_multiblock_with_segments<Cmp::Grave::MultiBlock, Cmp::Grave::Segment>( reg(), pos->position, spritesheet, index );
+        auto [mb_entt, _] = Factory::Multiblock::add_multiblock_with_segments<Cmp::Grave::MultiBlock, Cmp::Grave::Segment>( reg(), pos->position,
+                                                                                                                            spritesheet, index );
+        reserved_sm->insert( mb_entt, pos.value() );
       }
     }
   }
@@ -396,7 +398,9 @@ void LevelGenerator::gen_graveyard_exterior_multiblocks()
   {
     if ( auto pos = find_spawn_pos( altar_spritesheet ) )
     {
-      Factory::Multiblock::add_multiblock_with_segments<Cmp::Altar::MultiBlock, Cmp::Altar::Segment>( reg(), pos->position, altar_spritesheet );
+      auto [mb_entt, _] = Factory::Multiblock::add_multiblock_with_segments<Cmp::Altar::MultiBlock, Cmp::Altar::Segment>( reg(), pos->position,
+                                                                                                                          altar_spritesheet );
+      reserved_sm->insert( mb_entt, pos.value() );
     }
   }
 
@@ -406,8 +410,9 @@ void LevelGenerator::gen_graveyard_exterior_multiblocks()
   {
     if ( auto pos = find_spawn_pos( crypt_spritesheet ) )
     {
-      Factory::Multiblock::add_multiblock_with_segments<Cmp::Crypt::BuildingMultiBlock, Cmp::Crypt::BuildingSegment>( reg(), pos->position,
-                                                                                                                      crypt_spritesheet );
+      auto [mb_entt, _] = Factory::Multiblock::add_multiblock_with_segments<Cmp::Crypt::BuildingMultiBlock, Cmp::Crypt::BuildingSegment>(
+          reg(), pos->position, crypt_spritesheet );
+      reserved_sm->insert( mb_entt, pos.value() );
       SPDLOG_INFO( "Added {} to {},{}", crypt_spritesheet.get_sprite_type(), pos->position.x, pos->position.y );
     }
   }
@@ -417,8 +422,9 @@ void LevelGenerator::gen_graveyard_exterior_multiblocks()
   {
     if ( auto pos = find_spawn_pos( healingspring_spritesheet ) )
     {
-      Factory::Multiblock::add_multiblock_with_segments<Cmp::HealingSpringBuildingMultiBlock, Cmp::HealingSpringBuildingSegment>(
+      auto [mb_entt, _] = Factory::Multiblock::add_multiblock_with_segments<Cmp::HealingSpringBuildingMultiBlock, Cmp::HealingSpringBuildingSegment>(
           reg(), pos->position, healingspring_spritesheet );
+      reserved_sm->insert( mb_entt, pos.value() );
       SPDLOG_INFO( "Added {} to {},{}", healingspring_spritesheet.get_sprite_type(), pos->position.x, pos->position.y );
     }
   }
@@ -428,8 +434,9 @@ void LevelGenerator::gen_graveyard_exterior_multiblocks()
   {
     if ( auto pos = find_spawn_pos( ruin_spritesheet ) )
     {
-      Factory::Multiblock::add_multiblock_with_segments<Cmp::Ruin::BuildingMultiBlock, Cmp::Ruin::BuildingSegment>( reg(), pos->position,
-                                                                                                                    ruin_spritesheet );
+      auto [mb_entt, _] = Factory::Multiblock::add_multiblock_with_segments<Cmp::Ruin::BuildingMultiBlock, Cmp::Ruin::BuildingSegment>(
+          reg(), pos->position, ruin_spritesheet );
+      reserved_sm->insert( mb_entt, pos.value() );
       SPDLOG_INFO( "Added {} to {},{}", ruin_spritesheet.get_sprite_type(), pos->position.x, pos->position.y );
     }
   }
@@ -545,30 +552,48 @@ std::vector<entt::entity> LevelGenerator::gen_random_plants( sf::Vector2u map_gr
     std::vector<std::string> plant_item_type_list{ "item.plant1", "item.plant2", "item.plant3", "item.plant4",  "item.plant5",  "item.plant6",
                                                    "item.plant7", "item.plant8", "item.plant9", "item.plant10", "item.plant11", "item.plant12" };
     auto chosen_plant_item_type = plant_item_type_list.at( Cmp::RandomInt( 0, static_cast<int>( plant_item_type_list.size() - 1 ) ).gen() );
-    auto world_pos_entt = Utils::get_world_pos_entt( reg(), random_pos );
-    if ( world_pos_entt != entt::null )
+    const auto &plant_ss = m_sprite_factory.get_spritesheet_by_type( "sprite." + chosen_plant_item_type );
+
+    // Plants can span more than one grid row (e.g. 1x2), so every cell in the footprint - not
+    // just the origin - must be a real, unreserved world tile. Otherwise a plant can overlap a
+    // reserved tile it doesn't share an entity with, e.g. the player spawn.
+    auto plant_grid_size = plant_ss.get_grid_size();
+    bool footprint_clear = true;
+    for ( int gy = 0; gy < plant_grid_size.y && footprint_clear; ++gy )
     {
-      if ( reserved_navmesh->at( random_pos ).empty() )
+      for ( int gx = 0; gx < plant_grid_size.x; ++gx )
       {
-        // now create the plant at a new entt
-        auto [mb_entt, _] = Factory::Multiblock::add_multiblock_with_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>(
-            reg(), random_pos.position, m_sprite_factory.get_spritesheet_by_type( "sprite." + chosen_plant_item_type ) );
-
-        // Add the worlditem now so we don't have to look it up later when digging up the plant
-        reg().emplace_or_replace<Cmp::WorldItem>( mb_entt, Sys::ItemStore::instance().get_item( chosen_plant_item_type ) );
-
-        assigned_entts.push_back( random_entity );
-
-        // Protect every cell covered by this plant: segment entities carry the UUID and
-        // are at each tile position. Insert them so subsequent placement calls see them
-        // as reserved via the O(1) navmesh check.
-        auto *mb_uuid = reg().try_get<Cmp::UUID>( mb_entt );
-        if ( mb_uuid )
+        Cmp::Position cell_pos( random_pos.position + sf::Vector2f{ static_cast<float>( gx ) * Constants::kGridSizePxF.x,
+                                                                    static_cast<float>( gy ) * Constants::kGridSizePxF.y },
+                                Constants::kGridSizePxF );
+        if ( Utils::get_world_pos_entt( reg(), cell_pos ) == entt::null || not reserved_navmesh->at( cell_pos ).empty() )
         {
-          for ( auto [seg_entt, seg_cmp, seg_pos, seg_uuid] : reg().view<Cmp::PlantSegment, Cmp::Position, Cmp::UUID>().each() )
-          {
-            if ( seg_uuid == *mb_uuid ) reserved_navmesh->insert( seg_entt, seg_pos );
-          }
+          footprint_clear = false;
+          break;
+        }
+      }
+    }
+
+    if ( footprint_clear )
+    {
+      // now create the plant at a new entt
+      auto [mb_entt, _] = Factory::Multiblock::add_multiblock_with_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>( reg(), random_pos.position,
+                                                                                                                      plant_ss );
+
+      // Add the worlditem now so we don't have to look it up later when digging up the plant
+      reg().emplace_or_replace<Cmp::WorldItem>( mb_entt, Sys::ItemStore::instance().get_item( chosen_plant_item_type ) );
+
+      assigned_entts.push_back( random_entity );
+
+      // Protect every cell covered by this plant: segment entities carry the UUID and
+      // are at each tile position. Insert them so subsequent placement calls see them
+      // as reserved via the O(1) navmesh check.
+      auto *mb_uuid = reg().try_get<Cmp::UUID>( mb_entt );
+      if ( mb_uuid )
+      {
+        for ( auto [seg_entt, seg_cmp, seg_pos, seg_uuid] : reg().view<Cmp::PlantSegment, Cmp::Position, Cmp::UUID>().each() )
+        {
+          if ( seg_uuid == *mb_uuid ) reserved_navmesh->insert( seg_entt, seg_pos );
         }
       }
     }

@@ -38,14 +38,17 @@ public:
   //! @brief Procedurally generates the graveyard level (obstacles, plants, hazards, NPCs, loot, navmeshes,
   //! floor tiles) and initializes persistent state
   void on_init() override;
+
   //! @brief Restores the player to their last graveyard position (or start position on first spawn),
   //! starts graveyard music, and resets the scene-exit cooldown
   void on_enter() override;
+
   //! @brief Clears the registry, stops graveyard music/footstep audio, and clears floor tiles
   void on_exit() override;
+
   //! @brief Get the name of the scene
   //! @return std::string "GraveyardScene"
-  std::string get_name() const override { return "GraveyardScene"; }
+  [[nodiscard]] std::string get_name() const override { return "GraveyardScene"; }
 
   //! @brief Get the registry object owned by the scene
   //! @return entt::registry&
@@ -60,13 +63,16 @@ protected:
 private:
   //! @brief Shared sound bank used to play/stop graveyard-related audio
   Audio::SoundBank &m_sound_bank;
+
   //! @brief Store of game systems the scene drives each update
   Sys::Store &m_sys;
+
   //! @brief Factory used to create sprites for entities spawned in this scene
   Sprites::SpriteFactory &m_sprite_factory;
 
   //! @brief Clock measuring elapsed time since the scene was last entered, used to gate exit collision checks
   sf::Clock m_scene_exit_cooldown{};
+
   //! @brief Minimum time after entering the scene before exit collisions (e.g. crypt entrance) are checked
   sf::Time m_scene_exit_cooldown_time{ sf::seconds( 2 ) };
 
@@ -75,8 +81,8 @@ private:
   //! @brief Re-wires the freshly (re)created navmeshes into the systems that depend on them
   void reinit_navmesh();
 
-  //! @brief Navmesh reserved for entities (loot, NPCs, plants) placed during procedural generation
-  PathFinding::SpatialHashGridSharedPtr m_reserved_navmash;
+  //! @brief spatial map for reserving positions during procedural generation
+  PathFinding::SpatialHashGridSharedPtr m_reserved_sm;
 };
 
 } // namespace Game::Scene

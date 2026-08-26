@@ -29,10 +29,13 @@ public:
 
   //! @brief Logs scene initialization; no world entities are created for this scene
   void on_init() override;
+
   //! @brief Reloads persistent state and stops the "bubbling_lava" sound effect
   void on_enter() override;
+
   //! @brief Clears the registry and stops footstep audio
   void on_exit() override;
+
   //! @brief Get the name of the scene
   //! @return std::string "GameOverScene"
   std::string get_name() const override { return "GameOverScene"; }

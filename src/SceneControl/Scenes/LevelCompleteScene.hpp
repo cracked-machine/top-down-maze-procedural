@@ -30,13 +30,16 @@ public:
 
   //! @brief No-op: no world entities need to be created for this scene
   void on_init() override;
+
   //! @brief Reloads persistent state and switches from graveyard music to title music
   void on_enter() override;
+
   //! @brief Clears the registry and stops footstep audio
   void on_exit() override;
+
   //! @brief Get the name of the scene
   //! @return std::string "LevelCompleteScene"
-  std::string get_name() const override { return "LevelCompleteScene"; }
+  [[nodiscard]] std::string get_name() const override { return "LevelCompleteScene"; }
 
   //! @brief Get the registry object owned by the scene
   //! @return entt::registry&
@@ -51,8 +54,10 @@ protected:
 private:
   //! @brief Shared sound bank used to play/stop audio for this scene
   Audio::SoundBank &m_sound_bank;
+
   //! @brief Store of game systems the scene drives each update
   Sys::Store &m_sys;
+
   //! @brief Accumulates elapsed time between cadaver-to-wealth score conversion ticks
   sf::Time m_scorecheck_accumulator;
 };

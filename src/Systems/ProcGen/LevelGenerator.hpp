@@ -69,7 +69,7 @@ public:
   void add_lowerfloor_cobwebs( int num_cobwebs, sf::FloatRect scene_dimensions );
 
   //! @brief create multiblock sprites (i.e. graves, altars, crypts) for the graveyard scene.
-  void gen_graveyard_exterior_multiblocks();
+  void gen_graveyard_exterior_multiblocks( const PathFinding::SpatialHashGridSharedPtr &reserved_sm );
 
   //! @brief Find a valid spawn location for a large obstacle given a seed.
   //! @param ms Sprite sheet of the object being placed, used to size its collision hitbox

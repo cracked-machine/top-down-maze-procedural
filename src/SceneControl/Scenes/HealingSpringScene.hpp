@@ -36,11 +36,14 @@ public:
 
   //! @brief Builds the healing spring level (level geometry, floor tiles, navmeshes) and initializes persistent state
   void on_init() override;
+
   //! @brief Restores player position on first entry, starts healing spring music, locks player movement
   //! until loaded, and force-expires the player's damage cooldown
   void on_enter() override;
+
   //! @brief Stops healing spring music and footstep audio, clears the registry, and delays for a forced loading screen
   void on_exit() override;
+
   //! @brief Get the name of the scene
   //! @return std::string "HealingSpringScene"
   [[nodiscard]] std::string get_name() const override { return "HealingSpringScene"; }
@@ -61,12 +64,14 @@ private:
 
   //! @brief Shared sound bank used to play/stop healing-spring-related audio
   Audio::SoundBank &m_sound_bank;
+
   //! @brief Store of game systems the scene drives each update
   Sys::Store &m_sys;
+
   //! @brief Factory used to create sprites for entities spawned in this scene
   Sprites::SpriteFactory &m_sprite_factory;
 
-  //! @brief spatial map reserved for entities placed during procedural generation
+  //! @brief spatial map for reserving positions during procedural generation
   PathFinding::SpatialHashGridSharedPtr m_reserved_sm;
 };
 

@@ -38,10 +38,13 @@ public:
 
   //! @brief Builds the crypt level (rooms, navmeshes, floor tiles, candle flame particles) and initializes persistent state
   void on_init() override;
+
   //! @brief Restores player position and starts the crypt shuffle timer on first entry, and locks player movement until the scene has loaded
   void on_enter() override;
+
   //! @brief Destroys the crypt shuffle timer, stops footstep audio, removes the player's extra life, and delays for a forced loading screen
   void on_exit() override;
+
   //! @brief Get the name of the scene
   //! @return std::string "CryptScene"
   std::string get_name() const override { return "CryptScene"; }
@@ -62,12 +65,14 @@ private:
 
   //! @brief Shared sound bank used to play/stop crypt-related audio
   Audio::SoundBank &m_sound_bank;
+
   //! @brief Store of game systems the scene drives each update
   Sys::Store &m_sys;
+
   //! @brief Factory used to create sprites for entities spawned in this scene
   Sprites::SpriteFactory &m_sprite_factory;
 
-  //! @brief spatial map reserved for entities placed during procedural generation
+  //! @brief spatial map for reserving positions during procedural generation
   PathFinding::SpatialHashGridSharedPtr m_reserved_sm;
 };
 

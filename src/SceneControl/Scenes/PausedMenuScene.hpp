@@ -30,13 +30,16 @@ public:
 
   //! @brief Logs scene initialization; no world entities are created for this scene
   void on_init() override;
+
   //! @brief Reloads persistent state and triggers Events::PauseClocksEvent to freeze gameplay clocks
   void on_enter() override;
+
   //! @brief Saves persistent state (volume settings changed via UI) and triggers Events::ResumeClocksEvent
   void on_exit() override;
+
   //! @brief Get the name of the scene
   //! @return std::string "PausedMenuScene"
-  std::string get_name() const override { return "PausedMenuScene"; }
+  [[nodiscard]] std::string get_name() const override { return "PausedMenuScene"; }
 
   //! @brief Get the registry object owned by the scene
   //! @return entt::registry&
@@ -50,6 +53,7 @@ protected:
 private:
   //! @brief Shared sound bank used to update music/effects volume while paused
   Audio::SoundBank &m_sound_bank;
+
   //! @brief Store of game systems the scene drives each update
   Sys::Store &m_sys;
 };

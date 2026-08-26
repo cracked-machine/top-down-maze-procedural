@@ -27,13 +27,16 @@ public:
 
   //! @brief Logs scene initialization; no world entities are created for this scene
   void on_init() override;
+
   //! @brief Reloads persistent state so the current settings are shown
   void on_enter() override;
+
   //! @brief Saves persistent state so any changed settings are kept
   void on_exit() override;
+
   //! @brief Get the name of the scene
   //! @return std::string "SettingsMenuScene"
-  std::string get_name() const override { return "SettingsMenuScene"; }
+  [[nodiscard]] std::string get_name() const override { return "SettingsMenuScene"; }
 
   //! @brief Get the registry object owned by the scene
   //! @return entt::registry&

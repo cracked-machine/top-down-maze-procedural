@@ -48,11 +48,14 @@ public:
   //! @brief Procedurally generates the ruin lower floor (obstacles, cobwebs, rune markers, navmeshes, floor tiles)
   //! and initializes persistent state
   void on_init() override;
+
   //! @brief Positions the player according to m_entry_mode, starts ruin ambience/music, locks player
   //! movement until loaded, and re-wires navmeshes
   void on_enter() override;
+
   //! @brief Stops ruin ambience/music, clears the registry, and delays for a forced loading screen
   void on_exit() override;
+
   //! @brief Get the name of the scene
   //! @return std::string "RuinSceneLowerFloor"
   [[nodiscard]] std::string get_name() const override { return "RuinSceneLowerFloor"; }
@@ -77,14 +80,17 @@ private:
 
   //! @brief Shared sound bank used to play/stop ruin-related audio
   Audio::SoundBank &m_sound_bank;
+
   //! @brief Store of game systems the scene drives each update
   Sys::Store &m_sys;
+
   //! @brief Factory used to create sprites for entities spawned in this scene
   Sprites::SpriteFactory &m_sprite_factory;
 
   //! @brief How the player is currently entering the scene; set via set_entry_mode() before the scene is switched to
   EntryMode m_entry_mode;
-  //! @brief spatial map reserved for entities (cobwebs, obstacles) placed during procedural generation
+
+  //! @brief spatial map for reserving positions during procedural generation
   PathFinding::SpatialHashGridSharedPtr m_reserved_sm;
 };
 

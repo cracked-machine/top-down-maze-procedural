@@ -33,10 +33,13 @@ public:
   //! @brief Procedurally generates the ruin upper floor (hexagram puzzle, floor access hitbox, navmeshes,
   //! floor tiles) and initializes persistent state
   void on_init() override;
+
   //! @brief Starts ruin ambience/music, snaps the player to grid on first spawn, and resets the floor-access cooldown
   void on_enter() override;
+
   //! @brief Stops ruin ambience/music and clears the registry
   void on_exit() override;
+
   //! @brief Get the name of the scene
   //! @return std::string "RuinSceneUpperFloor"
   [[nodiscard]] std::string get_name() const override { return "RuinSceneUpperFloor"; }
@@ -57,12 +60,14 @@ private:
 
   //! @brief Shared sound bank used to play/stop ruin-related audio
   Audio::SoundBank &m_sound_bank;
+
   //! @brief Store of game systems the scene drives each update
   Sys::Store &m_sys;
+
   //! @brief Factory used to create sprites for entities spawned in this scene
   Sprites::SpriteFactory &m_sprite_factory;
 
-  //! @brief spatial map reserved for entities (cobwebs, obstacles) placed during procedural generation
+  //! @brief spatial map for reserving positions during procedural generation
   PathFinding::SpatialHashGridSharedPtr m_reserved_sm;
 };
 
