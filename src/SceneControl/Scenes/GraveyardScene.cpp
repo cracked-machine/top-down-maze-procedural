@@ -306,6 +306,7 @@ void GraveyardScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::ExitSystem>().update_exit_zorder();
   m_sys.find<Sys::Store::Type::ExitSystem>().check_exit_collision();
   m_sys.find<Sys::Store::Type::ArrowSystem>().update( dt );
+  m_sys.find<Sys::Store::Type::InventorySystem>().update( dt );
 
   for ( auto [ob_entt, ob_cmp, pos_cmp] : m_reg.view<Cmp::Obstacle, Cmp::Position>().each() )
   {

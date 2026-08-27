@@ -11,6 +11,7 @@
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Player/Character.hpp>
+#include <Components/Player/EatingTimer.hpp>
 #include <Components/Player/NoPath.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
@@ -25,6 +26,7 @@
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
+#include <SFML/Audio/SoundChannel.hpp>
 #include <Systems/InventorySystem.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Utils/Constants.hpp>
@@ -49,10 +51,15 @@ InventorySystem::InventorySystem( entt::registry &reg, sf::RenderWindow &window,
   SPDLOG_DEBUG( "InventorySystem initialized" );
 }
 
+void InventorySystem::update( sf::Time dt )
+{
+  auto player_entt = Utils::Player::get_entity( reg() );
+  if ( reg().any_of<Cmp::Player::EatingTimer>( player_entt ) ) { consume_inventory( dt ); }
+}
+
 void InventorySystem::on_player_action( const Events::PlayerActionEvent &event )
 {
   if ( event.action == Events::PlayerActionEvent::GameActions::SWAP_INVENTORY ) { swap_inventory(); }
-  else if ( event.action == Events::PlayerActionEvent::GameActions::CONSUME_INVENTORY ) { consume_inventory(); }
 }
 
 void InventorySystem::on_drop_inventory_event( [[maybe_unused]] Events::DropInventoryEvent ev )
@@ -261,14 +268,24 @@ void InventorySystem::pickup_world_item( entt::registry &reg, entt::entity world
   if ( inventory_entity != entt::null ) { m_sound_bank.get_effect( "get_loot" ).play(); }
 }
 
-void InventorySystem::consume_inventory()
+void InventorySystem::consume_inventory( sf::Time dt )
 {
+  auto player_entt = Utils::Player::get_entity( reg() );
+  auto &eating_timer = reg().get<Cmp::Player::EatingTimer>( player_entt );
+  static sf::Time eating_max_threshold = sf::milliseconds( 3000 );
 
-  auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg() );
-  if ( inventory_type.contains( ".drop" ) )
+  if ( eating_timer < eating_max_threshold )
   {
-    m_sound_bank.get_effect( "eating" ).play();
+    // stll eating
+    if ( m_sound_bank.get_effect( "eating" ).getStatus() != sf::Sound::Status::Playing ) { m_sound_bank.get_effect( "eating" ).play(); }
+    eating_timer += dt;
+  }
+  else
+  {
+    // all done
+    reg().remove<Cmp::Player::EatingTimer>( player_entt );
     Utils::Player::apply_action_from_inventory_item<Cmp::ConsumeAction>( reg() );
+    auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg() );
     Factory::Player::destroy_inventory( reg(), inventory_type );
   }
 }

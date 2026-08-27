@@ -7,6 +7,7 @@
 #include <Components/Player/BlastRadius.hpp>
 #include <Components/Player/CadaverCount.hpp>
 #include <Components/Player/Character.hpp>
+#include <Components/Player/EatingTimer.hpp>
 #include <Components/Player/KeysCount.hpp>
 #include <Components/Player/Mortality.hpp>
 #include <Components/Player/Wealth.hpp>
@@ -18,7 +19,6 @@
 #include <Components/SceneSettings/ShowNavmesh.hpp>
 #include <Components/SceneSettings/ShowPathFinding.hpp>
 #include <Components/Stats/BaseAction.hpp>
-
 #include <Events/BuyShopItemEvent.hpp>
 #include <Events/CryptRoomEvent.hpp>
 #include <Events/DropInventoryEvent.hpp>
@@ -174,7 +174,13 @@ void SceneInputRouter::graveyard_scene_state_handler()
   }
   if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::F ) )
   {
-    get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::CONSUME_INVENTORY ) );
+    // start eating if inventory item id edible and not already eating
+    auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg() );
+    if ( inventory_type.contains( ".drop" ) )
+    {
+      auto player_entt = Utils::Player::get_entity( reg() );
+      if ( not reg().any_of<Cmp::Player::EatingTimer>( player_entt ) ) { reg().emplace_or_replace<Cmp::Player::EatingTimer>( player_entt ); }
+    }
   }
   if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::E ) )
   {

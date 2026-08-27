@@ -34,6 +34,10 @@ public:
     m_player_navmesh = player_navmesh;
   }
 
+  //! @brief Per-frame update function
+  //! @param dt
+  void update( sf::Time dt );
+
   //! @brief event handlers for pausing system clocks
   void on_pause() override {}
   //! @brief event handlers for resuming system clocks
@@ -66,7 +70,7 @@ private:
   void pickup_world_item( entt::registry &reg, entt::entity world_item_entt );
 
   //! @brief Eat the inventory item if its a ".drop" item.
-  void consume_inventory();
+  void consume_inventory( sf::Time dt );
 
   //! @brief All grid positions that block NPC pathfinding
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
