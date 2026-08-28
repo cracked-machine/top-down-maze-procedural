@@ -160,7 +160,7 @@ target_include_directories(${TARGET} SYSTEM PRIVATE
     $<$<STREQUAL:${TARGET_TRIPLET},x86_64-w64-mingw32>:/usr/x86_64-w64-mingw32/include/GL/>
 )
 
-target_compile_options(${TARGET} PRIVATE 
+target_compile_options(${TARGET} PRIVATE
     $<$<COMPILE_LANGUAGE:CXX>:
         -std=c++2c
         -Werror                         # treat warnings as errors

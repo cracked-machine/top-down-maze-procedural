@@ -24,7 +24,7 @@ include(FetchContent)
 set(SFML_USE_SYSTEM_DEPS OFF CACHE BOOL "Use system dependencies" FORCE)
 FetchContent_Declare(SFML
     GIT_REPOSITORY https://github.com/SFML/SFML.git
-    GIT_TAG 016bea9491ccafc3529019fe1d403885a8b3a6ae    # v3.0.1
+    GIT_TAG 8835b6b955c96fa1ad1278a8dae6f05c4143effc    # v3.1.0
     GIT_SHALLOW ON EXCLUDE_FROM_ALL SYSTEM)     
 
 FetchContent_Declare(SPDLog
@@ -71,9 +71,12 @@ FetchContent_MakeAvailable(
 # 1. spdlog-src/include/spdlog/logger.h:317:10: error: 
 # variable 'args' might be clobbered by 'longjmp' or 'vfork' 
 target_compile_options(spdlog INTERFACE -Wno-clobbered)
-# 2. flac-src/src/share/win_utf8_io/win_utf8_io.c:132:29: warning: 
-# "cast between incompatible function types from 'FARPROC' to int" 
+# 2. flac-src/src/share/win_utf8_io/win_utf8_io.c:132:29: warning:
+# "cast between incompatible function types from 'FARPROC' to int"
 target_compile_options(FLAC PRIVATE -Wno-cast-function-type)
+# 3. imgui-sfml-src/imgui-SFML.cpp: warning:
+# 'sf::Touch::isDown'/'sf::Touch::getPosition' is deprecated (SFML 3 event API)
+target_compile_options(ImGui-SFML PRIVATE -Wno-deprecated-declarations)
 
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)

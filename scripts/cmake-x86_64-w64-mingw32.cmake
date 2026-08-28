@@ -24,8 +24,9 @@ set(CMAKE_SYSTEM_INCLUDE_PATH /usr/${TARGET_TRIPLET}/include)
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld -ldbghelp -fno-lto -Wl,-Map=${CMAKE_BINARY_DIR}/TheShadesBelow.map")
 
 # Use install() to copy MinGW runtime DLLs
-file(COPY 
+file(COPY
     "/usr/lib/gcc/x86_64-w64-mingw32/14-win32/libstdc++-6.dll"
     "/usr/lib/gcc/x86_64-w64-mingw32/14-win32/libgcc_s_seh-1.dll"
+    "/usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll"
     DESTINATION ${CMAKE_BINARY_DIR}/bin
 )
