@@ -9,6 +9,7 @@
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/Inventory/WearLevel.hpp>
 #include <Components/Inventory/WorldItem.hpp>
+#include <Components/LastDirection.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Player/Character.hpp>
 #include <Components/Player/EatingTimer.hpp>
@@ -23,12 +24,14 @@
 #include <Events/PickupWorldItemEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Factory/MultiblockFactory.hpp>
+#include <Factory/ParticleFactory.hpp>
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <SFML/Audio/SoundChannel.hpp>
 #include <Systems/InventorySystem.hpp>
 #include <Systems/ParticleSystem.hpp>
+#include <Utils/Cardinal.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
@@ -53,6 +56,8 @@ InventorySystem::InventorySystem( entt::registry &reg, sf::RenderWindow &window,
 
 void InventorySystem::update( sf::Time dt )
 {
+  Factory::Particle::delete_expired_particle_sprites( reg(), "player.eating.particle" );
+
   auto player_entt = Utils::Player::get_entity( reg() );
   if ( reg().any_of<Cmp::Player::EatingTimer>( player_entt ) ) { consume_inventory( dt ); }
 }
@@ -279,6 +284,36 @@ void InventorySystem::consume_inventory( sf::Time dt )
     // stll eating
     if ( m_sound_bank.get_effect( "eating" ).getStatus() != sf::Sound::Status::Playing ) { m_sound_bank.get_effect( "eating" ).play(); }
     eating_timer += dt;
+
+    auto uuid = Cmp::UUID::generate();
+    auto player_pos = Utils::Player::get_position( reg() ).getCenter();
+    auto adj_player_pos = sf::Vector2f( player_pos.x, player_pos.y + 3 );
+    auto player_zorder_pos = Utils::Player::get_position( reg() ).position.y;
+    constexpr auto kParticleCount = 1;
+    constexpr auto kLifetimeSeconds = 1.f;
+    constexpr auto kSpeed = 25.f;
+    constexpr auto kSize = 5.f;
+    auto last_direction = Utils::Player::get_last_direction( reg() );
+    if ( last_direction == Utils::Cardinal( Utils::Cardinal::North ).vector() )
+    {
+      Factory::Particle::add_eatingcrumbs_ps( reg(), "player.eating.particle", kParticleCount, kLifetimeSeconds, kSpeed, kSize, uuid, adj_player_pos,
+                                              last_direction, player_zorder_pos - 1.f );
+    }
+    else if ( last_direction == Utils::Cardinal( Utils::Cardinal::East ).vector() )
+    {
+      Factory::Particle::add_eatingcrumbs_ps( reg(), "player.eating.particle", kParticleCount, kLifetimeSeconds, kSpeed, kSize, uuid,
+                                              { adj_player_pos.x + 2, adj_player_pos.y }, last_direction, player_zorder_pos + 1.f );
+    }
+    else if ( last_direction == Utils::Cardinal( Utils::Cardinal::West ).vector() )
+    {
+      Factory::Particle::add_eatingcrumbs_ps( reg(), "player.eating.particle", kParticleCount, kLifetimeSeconds, kSpeed, kSize, uuid,
+                                              { adj_player_pos.x - 2, adj_player_pos.y }, last_direction, player_zorder_pos + 1.f );
+    }
+    else if ( last_direction == Utils::Cardinal( Utils::Cardinal::South ).vector() )
+    {
+      Factory::Particle::add_eatingcrumbs_ps( reg(), "player.eating.particle", kParticleCount, kLifetimeSeconds, kSpeed, kSize, uuid, adj_player_pos,
+                                              last_direction, player_zorder_pos + 1.f );
+    }
   }
   else
   {

@@ -88,6 +88,20 @@ void add_wormhole_ps( entt::registry &reg, const std::string &tag, float lifetim
 void add_obstacledig_ps( entt::registry &reg, const std::string &tag, int particle_count, float lifetime_seconds, float speed, float size,
                          Cmp::UUID &uuid_cmp, sf::Vector2f pos, float zorder );
 
+//! @brief Spawn the debris particle effect for an player eating.
+//! @param reg
+//! @param tag Identifier used to find/filter this particle sprite later.
+//! @param particle_count Number of particles in the sprite.
+//! @param lifetime_seconds Maximum particle lifetime, in seconds.
+//! @param speed Particle speed (fixed, not randomised).
+//! @param size Per-particle dot size.
+//! @param uuid_cmp UUID assigned to the created entity, so it can be tracked/updated later (e.g. via update_position()).
+//! @param pos World position of the emitter (jittered slightly per call).
+//! @param facing_direction Direction the player is currently facing; the crumbs are launched around this angle with a small spread.
+//! @param zorder Draw order relative to other entities.
+void add_eatingcrumbs_ps( entt::registry &reg, const std::string &tag, int particle_count, float lifetime_seconds, float speed, float size,
+                          Cmp::UUID &uuid_cmp, sf::Vector2f pos, sf::Vector2f facing_direction, float zorder );
+
 //! @brief Spawn the leaf debris particle effect for a plant destroyed by the axe.
 //! @param reg
 //! @param tag Identifier used to find/filter this particle sprite later.

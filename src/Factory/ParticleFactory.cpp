@@ -1,5 +1,6 @@
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Particle/CryptAltarParticleSprite.hpp>
+#include <Components/Particle/EatingCrumbsParticleSprite.hpp>
 #include <Components/Particle/ObstacleDigParticleSprite.hpp>
 #include <Components/Particle/PlantLeavesParticleSprite.hpp>
 #include <Components/Particle/PlantTwigsParticleSprite.hpp>
@@ -151,6 +152,30 @@ void add_obstacledig_ps( entt::registry &reg, const std::string &tag, int partic
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
   reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
   SPDLOG_DEBUG( "Created obstacle ParticleSprite {}", static_cast<uint32_t>( entt ) );
+}
+
+void add_eatingcrumbs_ps( entt::registry &reg, const std::string &tag, int particle_count, float lifetime_seconds, float speed, float size,
+                          Cmp::UUID &uuid_cmp, sf::Vector2f pos, sf::Vector2f facing_direction, float zorder )
+{
+  auto ps = Cmp::Particle::EatingCrumbsParticleSprite( particle_count );
+  ps.set_tag( tag );
+  ps.set_generations( 1 );
+  ps.set_particle_size_range( std::uniform_real_distribution<float>( size, size ) );
+  ps.set_emitter_position( pos );
+  ps.set_lifetime_ms( std::uniform_int_distribution<int>( 0, sf::seconds( lifetime_seconds ).asMilliseconds() ) );
+  ps.set_speed( std::uniform_real_distribution<float>( speed, speed ) );
+
+  // scatter the crumbs in the direction the player is facing, with a spread rather than a full 360-degree burst
+  const float base_angle_degrees = Utils::Maths::angle( facing_direction ).value_or( sf::Angle::Zero ).asDegrees();
+  constexpr float kSpreadDegrees = 90.f;
+  ps.set_angle( std::uniform_real_distribution<float>( base_angle_degrees - kSpreadDegrees, base_angle_degrees + kSpreadDegrees ) );
+
+  auto entt = reg.create();
+  reg.emplace_or_replace<Sys::ParticleSpriteOwner>( entt,
+                                                    Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::EatingCrumbsParticleSprite>( ps ) ) );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
+  reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
+  SPDLOG_DEBUG( "Created EatingCrumbsParticleSprite {}", static_cast<uint32_t>( entt ) );
 }
 
 void add_plantleaves_ps( entt::registry &reg, const std::string &tag, int particle_count, float lifetime_seconds, float speed, float size,

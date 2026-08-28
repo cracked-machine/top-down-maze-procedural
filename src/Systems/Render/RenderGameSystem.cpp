@@ -212,6 +212,15 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
     }
 
     render_overlay_sys.end_debug_overlay();
+    for ( auto [ps_owner_entt, ps_owner_cmp] : reg().view<Sys::ParticleSpriteOwner>().each() )
+    {
+      auto emitter_pos = ps_owner_cmp.sprite->get_emitter_position();
+      auto dot = sf::CircleShape( 1 );
+      dot.setPosition( emitter_pos );
+      dot.setFillColor( sf::Color::Cyan );
+      dot.setOutlineColor( sf::Color::Cyan );
+      draw_world( dot );
+    }
     m_debug_update_timer.restart();
   }
 
