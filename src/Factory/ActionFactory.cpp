@@ -1,0 +1,46 @@
+#include <Components/Grave/PlantMultiBlock.hpp>
+#include <Components/Plant/BurningTimeAccumulator.hpp>
+#include <Components/Player/EatingTimeAccumulator.hpp>
+#include <Components/Position.hpp>
+#include <Components/UUID.hpp>
+#include <Factory/ActionFactory.hpp>
+#include <Utils/Player.hpp>
+
+namespace Game::Factory::Action
+{
+
+void try_eat_inventory( entt::registry &reg )
+{
+  // start eating if inventory item id edible and not already eating
+  auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg );
+  if ( inventory_type.contains( ".drop" ) )
+  {
+    auto player_entt = Utils::Player::get_entity( reg );
+    if ( not reg.any_of<Cmp::Player::EatingTimeAccumulator>( player_entt ) )
+    {
+      reg.emplace_or_replace<Cmp::Player::EatingTimeAccumulator>( player_entt );
+    }
+  }
+}
+
+void try_burn_worlditem( entt::registry &reg )
+{
+
+  // start eating if inventory item id edible and not already eating
+  auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg );
+  if ( inventory_type.contains( "candle" ) )
+  {
+    for ( auto [plant_entt, plant_cmp] : reg.view<Cmp::PlantMultiBlock>().each() )
+    {
+      if ( not Utils::Player::is_player_near( reg, plant_cmp ) ) continue;
+      if ( not Utils::Player::get_projected_position( reg ).findIntersection( plant_cmp ) ) continue;
+
+      if ( not reg.any_of<Cmp::Plant::BurningTimeAccumulator>( plant_entt ) )
+      {
+        reg.emplace_or_replace<Cmp::Plant::BurningTimeAccumulator>( plant_entt );
+      }
+    }
+  }
+}
+
+} // namespace Game::Factory::Action

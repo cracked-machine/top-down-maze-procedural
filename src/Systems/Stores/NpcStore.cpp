@@ -1,4 +1,5 @@
 
+#include <Components/Stats/BurnAction.hpp>
 #include <Components/Stats/CarryAction.hpp>
 #include <Components/Stats/CollisionAction.hpp>
 #include <Components/Stats/ConsumeAction.hpp>
@@ -42,7 +43,14 @@ void NpcStore::init_store()
     {
       for ( const auto &[action_key, action_value] : action_entry.items() )
       {
-        if ( action_key == "carry_action" )
+        if ( action_key == "burn_action" )
+        {
+          npc.actions.emplace( typeid( Cmp::BurnAction ),
+                               Cmp::BurnAction( { health( action_value ) }, { fear( action_value ) }, { despair( action_value ) },
+                                                { infamy( action_value ) }, { toxicity( action_value ) }, { luck( action_value ) },
+                                                { tick( action_value ) }, disease( action_value ) ) );
+        }
+        else if ( action_key == "carry_action" )
         {
           npc.actions.emplace( typeid( Cmp::CarryAction ),
                                Cmp::CarryAction( { health( action_value ) }, { fear( action_value ) }, { despair( action_value ) },

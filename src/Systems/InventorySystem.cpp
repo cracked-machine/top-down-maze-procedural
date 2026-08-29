@@ -12,7 +12,7 @@
 #include <Components/LastDirection.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Player/Character.hpp>
-#include <Components/Player/EatingTimer.hpp>
+#include <Components/Player/EatingTimeAccumulator.hpp>
 #include <Components/Player/NoPath.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
@@ -59,7 +59,7 @@ void InventorySystem::update( sf::Time dt )
   Factory::Particle::delete_expired_particle_sprites( reg(), "player.eating.particle" );
 
   auto player_entt = Utils::Player::get_entity( reg() );
-  if ( reg().any_of<Cmp::Player::EatingTimer>( player_entt ) ) { consume_inventory( dt ); }
+  if ( reg().any_of<Cmp::Player::EatingTimeAccumulator>( player_entt ) ) { consume_inventory( dt ); }
 }
 
 void InventorySystem::on_player_action( const Events::PlayerActionEvent &event )
@@ -276,14 +276,14 @@ void InventorySystem::pickup_world_item( entt::registry &reg, entt::entity world
 void InventorySystem::consume_inventory( sf::Time dt )
 {
   auto player_entt = Utils::Player::get_entity( reg() );
-  auto &eating_timer = reg().get<Cmp::Player::EatingTimer>( player_entt );
-  static sf::Time eating_max_threshold = sf::milliseconds( 3000 );
+  auto &eating_time = reg().get<Cmp::Player::EatingTimeAccumulator>( player_entt );
+  static sf::Time eating_timeout = sf::milliseconds( 3000 );
 
-  if ( eating_timer < eating_max_threshold )
+  if ( eating_time < eating_timeout )
   {
     // stll eating
     if ( m_sound_bank.get_effect( "eating" ).getStatus() != sf::Sound::Status::Playing ) { m_sound_bank.get_effect( "eating" ).play(); }
-    eating_timer += dt;
+    eating_time += dt;
 
     auto uuid = Cmp::UUID::generate();
     auto player_pos = Utils::Player::get_position( reg() ).getCenter();
@@ -318,7 +318,8 @@ void InventorySystem::consume_inventory( sf::Time dt )
   else
   {
     // all done
-    reg().remove<Cmp::Player::EatingTimer>( player_entt );
+    m_sound_bank.get_effect( "eating" ).stop();
+    reg().remove<Cmp::Player::EatingTimeAccumulator>( player_entt );
     Utils::Player::apply_action_from_inventory_item<Cmp::ConsumeAction>( reg() );
     auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg() );
     Factory::Player::destroy_inventory( reg(), inventory_type );

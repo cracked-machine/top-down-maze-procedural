@@ -19,6 +19,7 @@
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
+#include <Components/Plant/BurningTimeAccumulator.hpp>
 #include <Components/Player/Character.hpp>
 #include <Components/Player/DiggingCooldown.hpp>
 #include <Components/Random.hpp>
@@ -41,6 +42,7 @@
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Systems/ActionSystem.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -58,7 +60,6 @@
 #include <SFML/System/Time.hpp>
 #include <numbers>
 #include <spdlog/spdlog.h>
-#include <stdexcept>
 #include <unordered_map>
 
 namespace Game::Sys
@@ -80,6 +81,8 @@ void ActionSystem::update( [[maybe_unused]] sf::Time dt )
   Factory::Particle::delete_expired_particle_sprites( reg(), "graveyard.plant.leaves.particle" );
   Factory::Particle::delete_expired_particle_sprites( reg(), "graveyard.plant.twigs.particle" );
 
+  update_burning_worlditems( dt );
+
   // abort if still in cooldown
   if ( is_digging_on_cooldown() ) { return; }
 }
@@ -100,192 +103,6 @@ void ActionSystem::on_player_action( const Events::PlayerActionEvent &event )
   }
   else if ( event.action == Events::PlayerActionEvent::GameActions::SELECT_POSITION ) { select_moveable_obstacle(); }
   else if ( event.action == Events::PlayerActionEvent::GameActions::DESELECT_POSITION ) { reset_all_selected_positions(); }
-}
-
-bool ActionSystem::is_digging_on_cooldown()
-{
-  auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( reg() ).get_value();
-  auto *player_dig_cooldown = reg().try_get<Cmp::Player::DiggingCooldown>( Utils::Player::get_entity( reg() ) );
-  return ( player_dig_cooldown != nullptr ) and player_dig_cooldown->getElapsedTime() < sf::seconds( digging_cooldown_amount );
-}
-
-void ActionSystem::check_player_smash_pot()
-{
-
-  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
-  if ( not inventory_slot_type.contains( "pickaxe" ) and not inventory_slot_type.contains( "axe" ) and not inventory_slot_type.contains( "shovel" ) )
-  {
-    return;
-  }
-
-  if ( Utils::Player::get_inventory_wear_level( reg() ) <= 0 ) { return; }
-
-  // abort if still in cooldown
-  if ( is_digging_on_cooldown() ) { return; }
-
-  auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
-  auto loot_container_view = reg().view<Cmp::LootContainer, Cmp::Position, Cmp::AnimData>();
-  for ( auto [loot_entity, loot_container, loot_container_pos, loot_container_anim] : loot_container_view.each() )
-  {
-    if ( mouse_position_bounds.findIntersection( loot_container_pos ) )
-    {
-      SPDLOG_INFO( "Found lootable entity at position: [{}, {}]!", loot_container_pos.position.x, loot_container_pos.position.y );
-
-      // check player is near obstacle that was mouse-selected
-      if ( not Utils::Player::is_player_near( reg(), loot_container_pos ) ) continue;
-
-      // check player is facing the obstacle
-      if ( not Utils::Player::get_projected_position( reg() ).findIntersection( loot_container_pos ) ) continue;
-
-      reg().emplace_or_replace<Cmp::Player::DiggingCooldown>( Utils::Player::get_entity( reg() ) );
-      loot_container.hp -= Utils::Maths::to_percent( 100.f, Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( reg() ).get_value() );
-
-      float weapon_dmg_delta = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
-      Utils::Player::reduce_inventory_wear_level( reg(), weapon_dmg_delta );
-
-      if ( loot_container.hp > 0 )
-      {
-        loot_container_anim.m_enabled = true;
-
-        if ( m_sound_bank.get_effect( "hit_pot" ).getStatus() == sf::Sound::Status::Stopped ) m_sound_bank.get_effect( "hit_pot" ).play();
-      }
-      else
-      {
-        const std::string selected_type = Sys::ItemStore::instance().get_random_item_from_list(
-            Utils::Player::get_player_stats( reg() ).luck(), { "item.cursetablet", "item.seeingstone", "item.bomb" } );
-
-        get_systems_event_queue().trigger( Events::CreateItemEvent( Utils::Player::get_position( reg() ), selected_type, "drop_loot" ) );
-
-        m_sound_bank.get_effect( "break_pot" ).play();
-        auto inventory_wear_view = reg().view<Cmp::PlayerInventorySlot, Cmp::Inventory::WearLevel>();
-        for ( auto [weapons_entity, inventory_slot, wear_level] : inventory_wear_view.each() )
-        {
-          // Decrease weapons level based on damage dealt
-          wear_level.m_level -= Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
-        }
-        Factory::Loot::destroy_loot_container( reg(), loot_entity );
-      }
-    }
-  }
-}
-
-void ActionSystem::check_player_axe_npc_kill()
-{
-  PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock();
-  if ( not pathfinding_navmesh ) return;
-
-  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
-  if ( inventory_slot_type != "sprite.item.axe" ) { return; }
-
-  if ( Utils::Player::get_inventory_wear_level( reg() ) <= 0 ) { return; }
-
-  // Remove any existing SelectedPosition from NPCs only — this runs every frame the attack button is
-  // held with no cooldown of its own, so clearing the whole registry's SelectedPosition here would
-  // also wipe unrelated selections (e.g. the obstacle currently being dug) set by other systems
-  auto selected_position_view = reg().view<Cmp::SelectedPosition, Cmp::Npc::NPC>();
-  for ( auto [existing_sel_entity, sel_cmp, npc_cmp] : selected_position_view.each() )
-  {
-    reg().remove<Cmp::SelectedPosition>( existing_sel_entity );
-  }
-
-  // Iterate through all entities with Position and Obstacle components
-  auto position_view = reg().view<Cmp::Position, Cmp::Npc::NPC, Cmp::AnimData>( entt::exclude<Cmp::SelectedPosition> );
-  SPDLOG_DEBUG( "position_view size: {}", position_view.size_hint() );
-  for ( auto [npc_entity, npc_pos_cmp, npc_cmp, anim_cmp] : position_view.each() )
-  {
-    if ( anim_cmp.m_sprite_type.contains( "sprite.ghost" ) ) continue;
-    auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
-    if ( mouse_position_bounds.findIntersection( npc_pos_cmp ) )
-    {
-      SPDLOG_DEBUG( "Found NPC entity at position: [{}, {}]!", npc_pos_cmp.position.x, npc_pos_cmp.position.y );
-
-      // TODO: check player is facing the obstacle
-      // Check player proximity to the entity
-      bool player_nearby = false;
-      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : reg().view<Cmp::Player::Character, Cmp::Position>().each() )
-      {
-        auto player_hitbox = Cmp::RectBounds::scaled( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
-        if ( player_hitbox.findIntersection( npc_pos_cmp ) )
-        {
-          player_nearby = true;
-          break;
-        }
-      }
-
-      // skip this iteration of the loop if player too far away
-      if ( not player_nearby ) { continue; }
-
-      // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
-      // Add a new SelectedPosition component to the entity
-      reg().emplace_or_replace<Cmp::SelectedPosition>( npc_entity, npc_pos_cmp.position );
-
-      float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
-      Utils::Player::reduce_inventory_wear_level( reg(), reduction_amount );
-
-      // select the final smash sound
-      m_sound_bank.get_effect( "axe_whip" ).play();
-      m_sound_bank.get_effect( "rattling_bones" ).play();
-
-      auto skelebones_particle_uuid = Cmp::UUID::generate();
-      Factory::Particle::add_skelebones_ps( reg(), "graveyard.skele.bones.particle", 50, 2.f, 50.f, 14.f, skelebones_particle_uuid,
-                                            npc_pos_cmp.getCenter(), npc_pos_cmp.position.y );
-      // drop loot - 1 in 3 chance
-      auto [sprite_type, sprite_index] = m_sprite_factory.get_random_type_and_texture_index(
-          std::vector<std::string>{ "sprite.graveyard.loot.health", "sprite.graveyard.loot.blast", "sprite.graveyard.loot.repair" } );
-
-      Cmp::RandomInt do_drop( 0, 2 );
-      if ( do_drop.gen() == 0 )
-      {
-        auto dropped_loot_entt = Factory::Loot::create_loot_drop(
-            reg(), Cmp::AnimData( Cmp::AnimData::Config{ .sprite_type = sprite_type, .enabled = false } ),
-            Cmp::RectBounds::scaled( npc_pos_cmp.position, npc_pos_cmp.size, 2.f ).getBounds(), Factory::IncludePack<>{},
-            Factory::ExcludePack<Cmp::Player::Character, Cmp::ReservedPosition, Cmp::Obstacle>{},
-            Factory::ExcludePack<Cmp::Player::Character, Cmp::ReservedPosition, Cmp::Obstacle>{} );
-
-        if ( dropped_loot_entt != entt::null )
-        {
-          auto player_pos = Utils::Player::get_position( reg() );
-          SPDLOG_INFO( "Player position was at {},{} when loot was dropped", player_pos.position.x, player_pos.position.y );
-          m_sound_bank.get_effect( "drop_loot" ).play();
-        }
-      }
-
-      // now destroy the NPC
-      if ( reg().valid( npc_entity ) )
-      {
-        pathfinding_navmesh->remove( npc_entity, npc_pos_cmp );
-        Factory::Npc::destroy_npc( reg(), npc_entity );
-      }
-
-      SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", npc_pos_cmp.position.x, npc_pos_cmp.position.y );
-    }
-  }
-}
-
-void ActionSystem::select_moveable_obstacle()
-{
-  // project one grid position in the direction that the player is currently facing to find the obstacle selection
-  auto selected_position = Utils::Player::get_projected_position( reg() );
-
-  auto position_view = reg().view<Cmp::Position, Cmp::Obstacle, Cmp::Moveable>( entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
-  for ( auto [obst_entity, obst_pos_cmp, obst_cmp, move_cmp] : position_view.each() )
-  {
-    if ( selected_position.findIntersection( obst_pos_cmp ) )
-    {
-      SPDLOG_INFO( "Found moveable entity at position: [{}, {}]!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
-      reg().emplace_or_replace<Cmp::SelectedPosition>( obst_entity, obst_pos_cmp.position );
-    }
-  }
-}
-
-void ActionSystem::reset_all_selected_positions()
-{
-  auto selected_position_view = reg().view<Cmp::SelectedPosition>();
-  for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
-  {
-    reg().remove<Cmp::SelectedPosition>( existing_sel_entity );
-    SPDLOG_DEBUG( "Removing previous Cmp::SelectedPosition {},{} from entity {}", sel_cmp.x, sel_cmp.y, static_cast<int>( existing_sel_entity ) );
-  }
 }
 
 void ActionSystem::check_player_dig_obstacle_collision()
@@ -546,6 +363,249 @@ void ActionSystem::check_player_dig_plant_collision()
 
         get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG, plant_entt ) );
       }
+    }
+  }
+}
+
+void ActionSystem::check_player_smash_pot()
+{
+
+  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
+  if ( not inventory_slot_type.contains( "pickaxe" ) and not inventory_slot_type.contains( "axe" ) and not inventory_slot_type.contains( "shovel" ) )
+  {
+    return;
+  }
+
+  if ( Utils::Player::get_inventory_wear_level( reg() ) <= 0 ) { return; }
+
+  // abort if still in cooldown
+  if ( is_digging_on_cooldown() ) { return; }
+
+  auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
+  auto loot_container_view = reg().view<Cmp::LootContainer, Cmp::Position, Cmp::AnimData>();
+  for ( auto [loot_entity, loot_container, loot_container_pos, loot_container_anim] : loot_container_view.each() )
+  {
+    if ( mouse_position_bounds.findIntersection( loot_container_pos ) )
+    {
+      SPDLOG_INFO( "Found lootable entity at position: [{}, {}]!", loot_container_pos.position.x, loot_container_pos.position.y );
+
+      // check player is near obstacle that was mouse-selected
+      if ( not Utils::Player::is_player_near( reg(), loot_container_pos ) ) continue;
+
+      // check player is facing the obstacle
+      if ( not Utils::Player::get_projected_position( reg() ).findIntersection( loot_container_pos ) ) continue;
+
+      reg().emplace_or_replace<Cmp::Player::DiggingCooldown>( Utils::Player::get_entity( reg() ) );
+      loot_container.hp -= Utils::Maths::to_percent( 100.f, Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( reg() ).get_value() );
+
+      float weapon_dmg_delta = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
+      Utils::Player::reduce_inventory_wear_level( reg(), weapon_dmg_delta );
+
+      if ( loot_container.hp > 0 )
+      {
+        loot_container_anim.m_enabled = true;
+
+        if ( m_sound_bank.get_effect( "hit_pot" ).getStatus() == sf::Sound::Status::Stopped ) m_sound_bank.get_effect( "hit_pot" ).play();
+      }
+      else
+      {
+        const std::string selected_type = Sys::ItemStore::instance().get_random_item_from_list(
+            Utils::Player::get_player_stats( reg() ).luck(), { "item.cursetablet", "item.seeingstone", "item.bomb" } );
+
+        get_systems_event_queue().trigger( Events::CreateItemEvent( Utils::Player::get_position( reg() ), selected_type, "drop_loot" ) );
+
+        m_sound_bank.get_effect( "break_pot" ).play();
+        auto inventory_wear_view = reg().view<Cmp::PlayerInventorySlot, Cmp::Inventory::WearLevel>();
+        for ( auto [weapons_entity, inventory_slot, wear_level] : inventory_wear_view.each() )
+        {
+          // Decrease weapons level based on damage dealt
+          wear_level.m_level -= Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
+        }
+        Factory::Loot::destroy_loot_container( reg(), loot_entity );
+      }
+    }
+  }
+}
+
+void ActionSystem::check_player_axe_npc_kill()
+{
+  PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock();
+  if ( not pathfinding_navmesh ) return;
+
+  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
+  if ( inventory_slot_type != "sprite.item.axe" ) { return; }
+
+  if ( Utils::Player::get_inventory_wear_level( reg() ) <= 0 ) { return; }
+
+  // Remove any existing SelectedPosition from NPCs only — this runs every frame the attack button is
+  // held with no cooldown of its own, so clearing the whole registry's SelectedPosition here would
+  // also wipe unrelated selections (e.g. the obstacle currently being dug) set by other systems
+  auto selected_position_view = reg().view<Cmp::SelectedPosition, Cmp::Npc::NPC>();
+  for ( auto [existing_sel_entity, sel_cmp, npc_cmp] : selected_position_view.each() )
+  {
+    reg().remove<Cmp::SelectedPosition>( existing_sel_entity );
+  }
+
+  // Iterate through all entities with Position and Obstacle components
+  auto position_view = reg().view<Cmp::Position, Cmp::Npc::NPC, Cmp::AnimData>( entt::exclude<Cmp::SelectedPosition> );
+  SPDLOG_DEBUG( "position_view size: {}", position_view.size_hint() );
+  for ( auto [npc_entity, npc_pos_cmp, npc_cmp, anim_cmp] : position_view.each() )
+  {
+    if ( anim_cmp.m_sprite_type.contains( "sprite.ghost" ) ) continue;
+    auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
+    if ( mouse_position_bounds.findIntersection( npc_pos_cmp ) )
+    {
+      SPDLOG_DEBUG( "Found NPC entity at position: [{}, {}]!", npc_pos_cmp.position.x, npc_pos_cmp.position.y );
+
+      // TODO: check player is facing the obstacle
+      // Check player proximity to the entity
+      bool player_nearby = false;
+      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : reg().view<Cmp::Player::Character, Cmp::Position>().each() )
+      {
+        auto player_hitbox = Cmp::RectBounds::scaled( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
+        if ( player_hitbox.findIntersection( npc_pos_cmp ) )
+        {
+          player_nearby = true;
+          break;
+        }
+      }
+
+      // skip this iteration of the loop if player too far away
+      if ( not player_nearby ) { continue; }
+
+      // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
+      // Add a new SelectedPosition component to the entity
+      reg().emplace_or_replace<Cmp::SelectedPosition>( npc_entity, npc_pos_cmp.position );
+
+      float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
+      Utils::Player::reduce_inventory_wear_level( reg(), reduction_amount );
+
+      // select the final smash sound
+      m_sound_bank.get_effect( "axe_whip" ).play();
+      m_sound_bank.get_effect( "rattling_bones" ).play();
+
+      auto skelebones_particle_uuid = Cmp::UUID::generate();
+      Factory::Particle::add_skelebones_ps( reg(), "graveyard.skele.bones.particle", 50, 2.f, 50.f, 14.f, skelebones_particle_uuid,
+                                            npc_pos_cmp.getCenter(), npc_pos_cmp.position.y );
+      // drop loot - 1 in 3 chance
+      auto [sprite_type, sprite_index] = m_sprite_factory.get_random_type_and_texture_index(
+          std::vector<std::string>{ "sprite.graveyard.loot.health", "sprite.graveyard.loot.blast", "sprite.graveyard.loot.repair" } );
+
+      Cmp::RandomInt do_drop( 0, 2 );
+      if ( do_drop.gen() == 0 )
+      {
+        auto dropped_loot_entt = Factory::Loot::create_loot_drop(
+            reg(), Cmp::AnimData( Cmp::AnimData::Config{ .sprite_type = sprite_type, .enabled = false } ),
+            Cmp::RectBounds::scaled( npc_pos_cmp.position, npc_pos_cmp.size, 2.f ).getBounds(), Factory::IncludePack<>{},
+            Factory::ExcludePack<Cmp::Player::Character, Cmp::ReservedPosition, Cmp::Obstacle>{},
+            Factory::ExcludePack<Cmp::Player::Character, Cmp::ReservedPosition, Cmp::Obstacle>{} );
+
+        if ( dropped_loot_entt != entt::null )
+        {
+          auto player_pos = Utils::Player::get_position( reg() );
+          SPDLOG_INFO( "Player position was at {},{} when loot was dropped", player_pos.position.x, player_pos.position.y );
+          m_sound_bank.get_effect( "drop_loot" ).play();
+        }
+      }
+
+      // now destroy the NPC
+      if ( reg().valid( npc_entity ) )
+      {
+        pathfinding_navmesh->remove( npc_entity, npc_pos_cmp );
+        Factory::Npc::destroy_npc( reg(), npc_entity );
+      }
+
+      SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", npc_pos_cmp.position.x, npc_pos_cmp.position.y );
+    }
+  }
+}
+
+void ActionSystem::select_moveable_obstacle()
+{
+  // project one grid position in the direction that the player is currently facing to find the obstacle selection
+  auto selected_position = Utils::Player::get_projected_position( reg() );
+
+  auto position_view = reg().view<Cmp::Position, Cmp::Obstacle, Cmp::Moveable>( entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
+  for ( auto [obst_entity, obst_pos_cmp, obst_cmp, move_cmp] : position_view.each() )
+  {
+    if ( selected_position.findIntersection( obst_pos_cmp ) )
+    {
+      SPDLOG_INFO( "Found moveable entity at position: [{}, {}]!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
+      reg().emplace_or_replace<Cmp::SelectedPosition>( obst_entity, obst_pos_cmp.position );
+    }
+  }
+}
+
+void ActionSystem::reset_all_selected_positions()
+{
+  auto selected_position_view = reg().view<Cmp::SelectedPosition>();
+  for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
+  {
+    reg().remove<Cmp::SelectedPosition>( existing_sel_entity );
+    SPDLOG_DEBUG( "Removing previous Cmp::SelectedPosition {},{} from entity {}", sel_cmp.x, sel_cmp.y, static_cast<int>( existing_sel_entity ) );
+  }
+}
+
+bool ActionSystem::is_digging_on_cooldown()
+{
+  auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( reg() ).get_value();
+  auto *player_dig_cooldown = reg().try_get<Cmp::Player::DiggingCooldown>( Utils::Player::get_entity( reg() ) );
+  return ( player_dig_cooldown != nullptr ) and player_dig_cooldown->getElapsedTime() < sf::seconds( digging_cooldown_amount );
+}
+
+void ActionSystem::update_burning_worlditems( sf::Time dt )
+{
+
+  for ( auto [plant_entt, plant_cmp, plant_uuid] : reg().view<Cmp::PlantMultiBlock, Cmp::UUID>().each() )
+  {
+    auto *burning_time = reg().try_get<Cmp::Plant::BurningTimeAccumulator>( plant_entt );
+    if ( not burning_time ) continue;
+
+    const sf::Vector2f emitter_pos( plant_cmp.getCenter().x, plant_cmp.position.y + plant_cmp.size.y - 4.f );
+
+    static sf::Time burning_timeout = sf::milliseconds( 9000 );
+    if ( *burning_time < burning_timeout )
+    {
+      // stll burning
+      if ( m_sound_bank.get_effect( "burning" ).getStatus() != sf::Sound::Status::Playing ) { m_sound_bank.get_effect( "burning" ).play(); }
+      m_sound_bank.get_effect( "burning" ).setLooping( false );
+
+      // don't create a duplicate particle sprite if this plant already has a flame
+      bool already_has_flame = false;
+      for ( auto [ps_owner_entt, ps_owner_cmp, ps_owner_uuid] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+      {
+        if ( ps_owner_uuid == plant_uuid )
+        {
+          already_has_flame = true;
+          break;
+        }
+      }
+      if ( not already_has_flame )
+      {
+        constexpr auto ps_scale = 0.5f;
+        constexpr auto particle_size = 5.f;
+        constexpr auto particle_speed = 60.f;
+        constexpr auto particle_lifetime = 2.f;
+        constexpr auto particle_count = 600;
+
+        Factory::Particle::add_flame( reg(), "graveyard.plant.burning.particle", plant_uuid, emitter_pos,
+                                      plant_cmp.position.y + Constants::kGridSizePxF.y, ps_scale, particle_size, particle_speed, particle_lifetime,
+                                      particle_count );
+      }
+      *burning_time += dt;
+    }
+    else
+    {
+      // all done
+      m_sound_bank.get_effect( "burning" ).stop();
+      reg().remove<Cmp::Plant::BurningTimeAccumulator>( plant_entt );
+      for ( auto [ps_owner_entt, ps_owner_cmp, ps_owner_uuid] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+      {
+        if ( ps_owner_uuid == plant_uuid ) reg().destroy( ps_owner_entt );
+      }
+      auto burnt_uuid = Cmp::UUID::generate();
+      Factory::Particle::add_smoke( reg(), "graveyard.burnt.plant.particle", burnt_uuid, emitter_pos, plant_cmp.position.y );
+      Factory::Plant::remove_plant_mb( reg(), plant_entt, m_npc_navmesh.lock(), m_player_navmesh.lock() );
     }
   }
 }

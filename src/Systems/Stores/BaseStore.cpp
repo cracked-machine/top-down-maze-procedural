@@ -1,6 +1,7 @@
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/Random.hpp>
 #include <Components/Stats/BaseAction.hpp>
+#include <Components/Stats/BurnAction.hpp>
 #include <Components/Stats/CarryAction.hpp>
 #include <Components/Stats/ConsumeAction.hpp>
 #include <Components/Stats/DestroyAction.hpp>

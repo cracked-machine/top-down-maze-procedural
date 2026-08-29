@@ -92,6 +92,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/ShopScene.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/SceneData.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/RegistryTransfer.cpp
+    ${CMAKE_SOURCE_DIR}/src/Factory/ActionFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/SpriteFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/PlayerFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/NpcFactory.cpp

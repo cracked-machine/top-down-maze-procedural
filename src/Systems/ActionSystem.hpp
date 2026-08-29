@@ -71,6 +71,10 @@ private:
   //! @brief True if the player's last dig action is still within its cooldown window
   bool is_digging_on_cooldown();
 
+  //! @brief
+  //! @param dt
+  void update_burning_worlditems( sf::Time dt );
+
   //! @brief all grid positions that block NPC pathfinding
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
 

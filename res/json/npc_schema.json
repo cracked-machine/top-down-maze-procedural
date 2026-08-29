@@ -27,6 +27,7 @@
           "minItems": 8,
           "maxItems": 8,
           "allOf": [
+            { "contains": { "required": ["burn_action"] } },
             { "contains": { "required": ["carry_action"] } },
             { "contains": { "required": ["consume_action"] } },
             { "contains": { "required": ["destroy_action"] } },
@@ -40,6 +41,10 @@
             "type": "object",
             "maxProperties": 1,
             "properties": {
+              "burn_action": {
+                "description": "Applied repeatedly, at its own tick interval, while the item is burning.",
+                "allOf": [{ "$ref": "#/definitions/burn_effect" }]
+              },
               "carry_action": {
                 "description": "Defined for schema uniformity with items.json; not currently applied to NPCs.",
                 "allOf": [{ "$ref": "#/definitions/action_effect" }]

@@ -7,7 +7,7 @@
 #include <Components/Player/BlastRadius.hpp>
 #include <Components/Player/CadaverCount.hpp>
 #include <Components/Player/Character.hpp>
-#include <Components/Player/EatingTimer.hpp>
+#include <Components/Player/EatingTimeAccumulator.hpp>
 #include <Components/Player/KeysCount.hpp>
 #include <Components/Player/Mortality.hpp>
 #include <Components/Player/Wealth.hpp>
@@ -28,6 +28,7 @@
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Events/SaveSettingsEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
+#include <Factory/ActionFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <SceneControl/Events/ProcessCryptSceneInputEvent.hpp>
@@ -172,16 +173,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
   {
     get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::TOGGLE_GRIMOIRE ) );
   }
-  if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::F ) )
-  {
-    // start eating if inventory item id edible and not already eating
-    auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg() );
-    if ( inventory_type.contains( ".drop" ) )
-    {
-      auto player_entt = Utils::Player::get_entity( reg() );
-      if ( not reg().any_of<Cmp::Player::EatingTimer>( player_entt ) ) { reg().emplace_or_replace<Cmp::Player::EatingTimer>( player_entt ); }
-    }
-  }
+  if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::F ) ) { Factory::Action::try_eat_inventory( reg() ); }
   if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::E ) )
   {
     get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::ACTIVATE ) );
@@ -190,6 +182,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
   if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
   {
     // get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DRAW_BOW ) );
+    Factory::Action::try_burn_worlditem( reg() );
     get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::ATTACK ) );
     get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG ) );
   }

@@ -264,17 +264,21 @@ void add_flame_for_player_inventory_slot( entt::registry &reg )
   }
 }
 
-void add_flame( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp, sf::Vector2f initial_pos, float zorder, float scale )
+void add_flame( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp, sf::Vector2f initial_pos, float zorder, float scale, float psize,
+                float pspeed, float plifetime, size_t pcount )
 {
 
-  auto ps = Cmp::Particle::Flame( 100 );
+  auto ps = Cmp::Particle::Flame( pcount );
   ps.set_tag( tag );
   ps.set_emitter_position( initial_pos );
-  ps.set_lifetime_ms( std::uniform_int_distribution<int>( 0, sf::seconds( 0.5 ).asMilliseconds() ) );
-  ps.set_speed( 40.f );
+  ps.set_lifetime_ms( std::uniform_int_distribution<int>( 0, sf::seconds( plifetime ).asMilliseconds() ) );
+  // spread speed per-particle rather than a single fixed value: particles that emit together would
+  // otherwise rise in perfect lock-step, reading as a rigid band travelling up the flame
+  ps.set_speed( std::uniform_real_distribution<float>( pspeed * 0.7f, pspeed * 1.3f ) );
   ps.set_phase( std::uniform_real_distribution( 0.f, 2.f * std::numbers::pi_v<float> ) );
   ps.set_freq( std::uniform_real_distribution( 0.3f, 0.8f ) );
   ps.set_scale( scale );
+  ps.set_particle_size_range( std::uniform_real_distribution<float>( psize, psize ) );
 
   auto entt = reg.create();
   reg.emplace_or_replace<Sys::ParticleSpriteOwner>( entt, Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::Flame>( ps ) ) );

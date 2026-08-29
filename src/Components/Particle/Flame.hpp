@@ -38,6 +38,12 @@ public:
   //! @param dt Time elapsed since the last frame.
   void simulate( sf::Time dt ) override;
 
+  //! @brief Draws each particle as a fan of triangles sized by its own `m_size` (see add_flame()'s `psize` param),
+  //! rather than the base class's fixed dot size.
+  //! @param target Render target to draw to.
+  //! @param states Render states (transform/blend mode) to draw with.
+  void draw( sf::RenderTarget &target, sf::RenderStates states ) const override;
+
   //! @brief Vertical pixel offset applied when positioning the flame sprite above its emitter.
   static const float kVerticalOffset;
 
