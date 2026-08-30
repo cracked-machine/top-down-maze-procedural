@@ -5,7 +5,7 @@
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
-#include <Components/Particle/SpriteBase.hpp>
+#include <Components/Particle/Flame.hpp>
 #include <Components/Persistent/CryptShuffleTimeout.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/Character.hpp>
@@ -18,7 +18,6 @@
 #include <Components/SceneSettings/ShowDebugStats.hpp>
 #include <Components/SceneSettings/ShowNavmesh.hpp>
 #include <Components/SceneSettings/ShowPathFinding.hpp>
-
 #include <Events/CryptRoomEvent.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Factory/ParticleFactory.hpp>

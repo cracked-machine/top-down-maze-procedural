@@ -8,7 +8,7 @@
 #include <Components/Player/Character.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/Stats/ProjectileAction.hpp>
-
+#include <Components/UUID.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ParticleFactory.hpp>
@@ -17,6 +17,7 @@
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Stores/NpcStore.hpp>
+#include <Systems/Threats/WormholeSystem.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>

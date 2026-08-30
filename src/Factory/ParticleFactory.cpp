@@ -1,6 +1,7 @@
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Particle/CryptAltarParticleSprite.hpp>
 #include <Components/Particle/EatingCrumbsParticleSprite.hpp>
+#include <Components/Particle/Flame.hpp>
 #include <Components/Particle/ObstacleDigParticleSprite.hpp>
 #include <Components/Particle/PlantLeavesParticleSprite.hpp>
 #include <Components/Particle/PlantTwigsParticleSprite.hpp>
@@ -8,6 +9,7 @@
 #include <Components/Particle/RuneParticleSprite.hpp>
 #include <Components/Particle/ShockWave.hpp>
 #include <Components/Particle/SkeleBonesParticleSprite.hpp>
+#include <Components/Particle/Smoke.hpp>
 #include <Components/Particle/SpriteTest.hpp>
 #include <Components/Particle/WatchmanGunfireParticleSprite.hpp>
 #include <Components/Particle/WormholeParticleSprite.hpp>

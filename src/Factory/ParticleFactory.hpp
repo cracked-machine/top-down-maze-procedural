@@ -1,15 +1,14 @@
 #ifndef SRC_FACTORY_PARTICLEFACTORY_HPP__
 #define SRC_FACTORY_PARTICLEFACTORY_HPP__
 
-#include <Components/Particle/Flame.hpp>
-#include <Components/Particle/ShockWave.hpp>
-#include <Components/Particle/Smoke.hpp>
-#include <Components/Particle/SpriteTest.hpp>
-#include <Components/ZOrderValue.hpp>
 #include <Systems/Stores/SystemStore.hpp>
 
 #include <SFML/System/Vector2.hpp>
 #include <entt/entity/fwd.hpp>
+
+// clang-format off
+namespace Game::Cmp { class UUID; class ZOrderValue; }
+// clang-format on
 
 namespace Game::Factory::Particle
 {

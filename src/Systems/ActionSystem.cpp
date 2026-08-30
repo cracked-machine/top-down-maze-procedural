@@ -45,11 +45,13 @@
 #include <SFML/System/Vector2.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Systems/ActionSystem.hpp>
+#include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Stores/ItemStore.hpp>
 #include <Systems/Threats/LightningSystem.hpp>
+#include <Systems/Threats/WormholeSystem.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Optimizations.hpp>
