@@ -129,14 +129,17 @@ void AshPileParticleSprite::simulate( sf::Time dt )
       // keep looking until we find an empty pyramid index
       if ( not p.m_emitted_particle )
       {
-        placed_one = true;
         p.do_emit();
+        // do_emit() no-ops instead of emitting once the sprite has been stop()'d, so m_emitted_particle
+        // never gets set: without this check we'd re-find and re-place this same particle forever.
+        if ( not p.m_particle_active ) break;
+        placed_one = true;
         place_particle( p );
         break;
       }
     }
 
-    if ( not placed_one ) break; // every particle already emitted; stop looping
+    if ( not placed_one ) break; // every particle already emitted, or the sprite has been stopped
   }
 }
 

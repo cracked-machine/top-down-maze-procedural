@@ -557,6 +557,9 @@ bool ActionSystem::is_digging_on_cooldown()
 
 void ActionSystem::update_burning_worlditems( sf::Time dt )
 {
+  static const std::string kAshPileTag = "graveyard.plant.burning.ash";
+  static const std::string kPlantFireTag = "graveyard.plant.burning.particle";
+  static const std::string kPlantSmokeTag = "graveyard.plant.smoke.particle";
 
   for ( auto [plant_entt, plant_cmp, plant_uuid] : reg().view<Cmp::PlantMultiBlock, Cmp::UUID>().each() )
   {
@@ -588,9 +591,8 @@ void ActionSystem::update_burning_worlditems( sf::Time dt )
         constexpr auto particle_speed = 60.f;
         constexpr auto particle_lifetime = 2.f;
         constexpr auto particle_count = 600;
-        Factory::Particle::add_flame( reg(), "graveyard.plant.burning.particle", plant_uuid, flame_emitter_pos,
-                                      plant_cmp.position.y + Constants::kGridSizePxF.y, ps_scale, particle_size, particle_speed, particle_lifetime,
-                                      particle_count );
+        Factory::Particle::add_flame( reg(), kPlantFireTag, plant_uuid, flame_emitter_pos, plant_cmp.position.y + Constants::kGridSizePxF.y, ps_scale,
+                                      particle_size, particle_speed, particle_lifetime, particle_count );
 
         const sf::Vector2f ash_emitter_pos( plant_cmp.position.x, plant_cmp.getCenter().y + 8 );
         constexpr auto ash_scale = 1.f;
@@ -598,10 +600,12 @@ void ActionSystem::update_burning_worlditems( sf::Time dt )
         constexpr auto ash_particle_speed = 20.f;
         constexpr auto ash_particle_count = 1000;
 
-        // give the ash pile its own UUID so that it lives beyond the plant mb lifetime
-        auto ash_uuid = Cmp::UUID::generate();
-        Factory::Particle::add_ashpile( reg(), "graveyard.plant.burning.ash", ash_uuid, ash_emitter_pos, plant_cmp.position.y + 1, ash_scale,
-                                        ash_particle_size, ash_particle_speed, ash_particle_count );
+        // Tag with plant_uuid, same as the flame, so both are found via the loops below. Unlike the
+        // flame, the ash pile is meant to outlive the plant (it's a permanent mark on the ground), so
+        // the "all done" branch below stops it rather than destroying it, distinguishing it from the
+        // flame by tag rather than by giving it a separate identity.
+        Factory::Particle::add_ashpile( reg(), kAshPileTag, plant_uuid, ash_emitter_pos, plant_cmp.position.y + 1, ash_scale, ash_particle_size,
+                                        ash_particle_speed, ash_particle_count );
       }
       *burning_time += dt;
     }
@@ -612,11 +616,16 @@ void ActionSystem::update_burning_worlditems( sf::Time dt )
       reg().remove<Cmp::Plant::BurningTimeAccumulator>( plant_entt );
       for ( auto [ps_owner_entt, ps_owner_cmp, ps_owner_uuid] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
       {
-        if ( ps_owner_uuid == plant_uuid ) reg().destroy( ps_owner_entt );
+        if ( ps_owner_uuid != plant_uuid ) continue;
+
+        // the ash pile outlives the plant by design (it's a permanent mark on the ground), so stop it
+        // instead of destroying it along with the plant's other particle sprites
+        if ( ps_owner_cmp.sprite->get_tag() == kAshPileTag ) { ps_owner_cmp.sprite->stop(); }
+        else { reg().destroy( ps_owner_entt ); }
       }
       const sf::Vector2f emitter_pos( plant_cmp.getCenter().x, plant_cmp.position.y + ( plant_cmp.size.y - 7 ) );
       auto burnt_uuid = Cmp::UUID::generate();
-      Factory::Particle::add_smoke( reg(), "graveyard.burnt.plant.particle", burnt_uuid, emitter_pos, plant_cmp.position.y );
+      Factory::Particle::add_smoke( reg(), kPlantSmokeTag, burnt_uuid, emitter_pos, plant_cmp.position.y );
       Factory::Plant::remove_plant_mb( reg(), plant_entt, m_npc_navmesh.lock(), m_player_navmesh.lock() );
     }
   }
