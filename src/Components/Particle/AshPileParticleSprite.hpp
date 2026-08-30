@@ -50,9 +50,24 @@ public:
   void simulate( sf::Time dt ) override;
 
 private:
-  static constexpr int kPyramidHeight = 8;
-  static constexpr int kPyramidWidth = 16;
-  static constexpr int kPyramidHalfWidth = kPyramidWidth / 2;
+  //! @brief Number of true entries in `column`.
+  static size_t filled_count( const std::vector<bool> &column );
+
+  //! @brief Claims a landing slot for `particle` in the pile, walking outward from its starting centre
+  //! column to whichever reachable column currently holds the fewest particles, then colours it.
+  void place_particle( detail::AshPileParticle &particle );
+
+  //! @brief Minimum interval between successive particle placements.
+  static constexpr sf::Time kEmitDelayTimeout = sf::seconds( 0.1f );
+
+  //! @brief The height of the ashpile apex
+  static constexpr int kApexHeight = 8;
+
+  //! @brief The width of the ashpile base
+  static constexpr int kBaseWidth = 16;
+
+  //! @brief Half width of the ashpile base
+  static constexpr int kBaseHalfWidth = kBaseWidth / 2;
 
   //! @brief Total number of slots across all columns' ragged heights (1,2,...,8,8,...,2,1), i.e. the
   //!        pyramid's actual triangular capacity — smaller than kPyramidHeight * kPyramidWidth, which
@@ -60,20 +75,18 @@ private:
   static constexpr int kMaxPopulation = []
   {
     int total = 0;
-    for ( int c = 0; c < kPyramidHeight; ++c )
+    for ( int c = 0; c < kApexHeight; ++c )
       total += ( c + 1 );
-    for ( int c = 0; c < kPyramidHeight; ++c )
-      total += ( kPyramidHeight - c );
+    for ( int c = 0; c < kApexHeight; ++c )
+      total += ( kApexHeight - c );
     return total;
   }();
 
+  //! @brief Prevent all particles from emitting at once
   sf::Time m_emit_delay_accumulator = sf::Time::Zero;
 
-  //! @brief number of pyramid particles currently added to the sprite
-  int m_pyramid_population = 0;
-
-  //! @brief Particle cols for the pyramid
-  std::array<std::vector<bool>, kPyramidWidth> m_pyramid{};
+  //! @brief Particle columns for the pyramid
+  std::array<std::vector<bool>, kBaseWidth> m_columns{};
 };
 
 } // namespace Game::Cmp::Particle
