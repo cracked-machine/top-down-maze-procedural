@@ -212,15 +212,40 @@ public:
   //! @brief Replaces the default translation function with a world -> screen translation function
   //! @param window
   //! @param world_view
+  //! @note Deliberately reimplements RenderTarget::mapCoordsToPixel() rather than calling it: that
+  //        function returns a Vector2i, rounding each particle's position to the nearest whole window
+  //        pixel independently. That's invisible for sparse, moving particles (e.g. Flame), but breaks
+  //        tightly packed static layouts (e.g. AshPileParticleSprite's pyramid, where particles sit
+  //        exact whole-world-unit offsets apart) whenever the camera zoom isn't an integer multiple of
+  //        window pixels per world unit — neighbouring particles' spacing becomes uneven once rounded
+  //        independently. Keeping the transform in float space preserves relative spacing exactly.
   void set_view_transform( const sf::RenderWindow &window, const sf::View &world_view ) override
   {
     m_world_to_screen = [&window, world_view]( sf::Vector2f world_pos ) -> sf::Vector2f
-    { return sf::Vector2f( window.mapCoordsToPixel( world_pos, world_view ) ); };
+    {
+      const sf::Vector2f normalized = world_view.getTransform().transformPoint( world_pos );
+      const sf::FloatRect viewport( window.getViewport( world_view ) );
+      return ( normalized.componentWiseMul( { 1.f, -1.f } ) + sf::Vector2f( 1.f, 1.f ) )
+                 .componentWiseDiv( { 2.f, 2.f } )
+                 .componentWiseMul( viewport.size ) +
+             viewport.position;
+    };
+
+    // draw() builds each particle's dot from p.m_size, a size expressed in world units. Position
+    // already gets magnified by the camera zoom above, via m_world_to_screen — but a raw, unscaled
+    // m_size would stay pinned at its designed-zoom pixel footprint while the gaps between particles
+    // (their positions) grow with zoom, so a tightly packed static layout (e.g. AshPileParticleSprite's
+    // pyramid) visibly pulls apart into a coarse, "world resolution" pattern of dots the further in the
+    // camera zooms. Scale it by the same window-pixels-per-world-unit ratio so dot size keeps pace with
+    // spacing. Assumes a non-rotated, uniformly scaled view, true for this game's top-down camera.
+    const sf::Vector2f viewport_size( window.getViewport( world_view ).size );
+    m_world_to_screen_scale = viewport_size.x / world_view.getSize().x;
   }
 
   void reset_view_transform() override
   {
     m_world_to_screen = []( sf::Vector2f p ) { return p; };
+    m_world_to_screen_scale = 1.f;
   }
 
   //! @brief Disables the particles for this ParticleSprite (they will continue simulating until their lifetimes expire)
@@ -331,30 +356,34 @@ public:
     verts.reserve( m_particles_list.size() );
     SPDLOG_DEBUG( "Drawing {} particles", m_particles.size() );
 
-    constexpr float kSize = 2.f;
     constexpr int kSides = 4;
     for ( const auto &p : m_particles_list )
     {
 
       // map world -> screen
       const auto pos = m_world_to_screen( p.m_vertex.position );
+      // p.m_size is a world-unit size; scale it by the same camera zoom applied to pos above (see
+      // set_view_transform()) so dot size keeps pace with the growing/shrinking gaps between particles.
+      const float size = p.m_size * m_world_to_screen_scale;
 
       const auto colour = p.m_vertex.color;
 
       // unit circle divided into wedges
       constexpr float kAngleStep = 2.f * std::numbers::pi_v<float> / static_cast<float>( kSides );
+      // offset for edge-orientated rather than vertex-orientated
+      constexpr float kAngleOffset = kAngleStep / 2.f;
 
       for ( int i = 0; i < kSides; ++i )
       {
         // the two outside facing (polar) angles for the current wedge
-        const float a0 = kAngleStep * static_cast<float>( i );
-        const float a1 = kAngleStep * static_cast<float>( i + 1 );
+        const float a0 = kAngleOffset + ( kAngleStep * static_cast<float>( i ) );
+        const float a1 = kAngleOffset + ( kAngleStep * static_cast<float>( i + 1 ) );
 
         // the centre position is always the middle of the polygon
         verts.push_back( { pos, colour } );
         // get the vertex positions by converting the polar coords to cartesian coords (euler's formula).
-        verts.push_back( { pos + sf::Vector2f( kSize, sf::radians( a0 ) ), colour } );
-        verts.push_back( { pos + sf::Vector2f( kSize, sf::radians( a1 ) ), colour } );
+        verts.push_back( { pos + sf::Vector2f( size, sf::radians( a0 ) ), colour } );
+        verts.push_back( { pos + sf::Vector2f( size, sf::radians( a1 ) ), colour } );
       }
     }
 
@@ -503,6 +532,10 @@ public:
 protected:
   //! @brief Default translation function is a noop. See set_view_transform()
   std::function<sf::Vector2f( sf::Vector2f )> m_world_to_screen = []( sf::Vector2f p ) { return p; };
+  //! @brief Window-pixels-per-world-unit ratio computed alongside m_world_to_screen (see
+  //!        set_view_transform()); scales each particle's world-unit m_size in draw() so dot size keeps
+  //!        pace with the camera zoom already applied to particle position. 1.f (no scaling) by default.
+  float m_world_to_screen_scale{ 1.f };
 
   //! @brief Disables IParticleSprite::simulate() if false
   bool m_sprite_active{ true };

@@ -157,11 +157,6 @@ void GraveyardScene::on_init()
 
   level_gen.decorate_graveyard_exterior_obstacles();
 
-  // auto max_iterations = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenMaxIterations>( m_reg );
-  // auto &dla_sys = m_sys.find<Sys::Store::Type::DiffusionLtdAggrSystem>();
-  // dla_sys.iterate( sf::FloatRect( { 0.f, 0.f }, map_size_pixel ), max_iterations.get_value(), level_gen.get_obstacle_sm(),
-  //                  Sys::ProcGen::DLASystem::SpawnShape::Ellipse );
-
   // create navmeshes for pathfinding
   m_generic_npc_navmesh = Factory::Pathfinding::create_npc_navmesh( m_reg );
   m_ghost_navmesh = Factory::Pathfinding::create_ghost_navmesh( m_reg );
@@ -184,15 +179,6 @@ void GraveyardScene::on_init()
 
   m_sys.find<Sys::Store::Type::CorruptionHazardSystem>().init_hazard_field();
   m_sys.find<Sys::Store::Type::WormholeSystem>().spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
-
-  // auto &particle_system = m_sys.find<Sys::Store::Type::ParticleSystem>();
-  // Factory::Particle::add_test( m_reg, particle_system, "GraveyardParticleTest" );
-  // Factory::Particle::add_flame( m_reg, particle_system, "player.candle", Utils::Player::get_position( m_reg ).getCenter() );
-  // Factory::Particle::add_flame( m_reg, particle_system, "player.candle", sf::Vector2f{ 900.0, 900.0 } );
-  // Factory::Particle::add_smoke( m_reg, particle_system, "GraveyardParticleTest" );
-  // Factory::Particle::add_shockwave( m_reg, particle_system, "GraveyardParticleTest" );
-  // auto uuid = Cmp::UUID::generate();
-  // Factory::Particle::add_shockwave( m_reg, "GraveyardParticleTest", uuid, Utils::Player::get_position( m_reg ).getCenter(), 50000 );
 
   // add flame particle sprites for any candle items in the new game world. Use the Candle item UUID to initialise the ParticleSprite.
   for ( auto [candle_entt, candle_cmp, candle_pos, uuid_cmp] : m_reg.view<Cmp::WorldItem, Cmp::Position, Cmp::UUID>().each() )

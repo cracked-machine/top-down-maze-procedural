@@ -36,6 +36,11 @@ public:
   //! @param dt Time elapsed since the last frame.
   void simulate( sf::Time dt ) override;
 
+  //! @brief Draw world particles in screen view without scaling (high res particles)
+  //! @param target
+  //! @param states
+  void draw( sf::RenderTarget &target, sf::RenderStates states ) const override;
+
   //! @brief Single wave time shared across all particles (currently unused by simulate(), which tracks per-particle wave time instead).
   float m_wave_time{ 0.f };
   //! @brief Tracks total time elapsed since this sprite started simulating.

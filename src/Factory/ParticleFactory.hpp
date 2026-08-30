@@ -1,8 +1,6 @@
 #ifndef SRC_FACTORY_PARTICLEFACTORY_HPP__
 #define SRC_FACTORY_PARTICLEFACTORY_HPP__
 
-#include <Systems/Stores/SystemStore.hpp>
-
 #include <SFML/System/Vector2.hpp>
 #include <entt/entity/fwd.hpp>
 
@@ -12,12 +10,6 @@ namespace Game::Cmp { class UUID; class ZOrderValue; }
 
 namespace Game::Factory::Particle
 {
-
-//! @brief Spawn a generic test particle sprite, for debugging/prototyping particle effects.
-//! @param reg
-//! @param psys Particle system to register the sprite with directly, bypassing the entt component path used by the other add_* functions.
-//! @param tag Identifier used to find/filter this particle sprite later (see delete_expired_particle_sprites(), update_position()).
-void add_test( entt::registry &reg, Sys::ParticleSystem &psys, const std::string &tag );
 
 //! @brief Spawn the particle effect for an activated crypt altar.
 //! @param reg
@@ -164,6 +156,27 @@ void add_flame_for_player_inventory_slot( entt::registry &reg );
 //! @param pos World position of the emitter.
 //! @param zorder Draw order relative to other entities.
 void add_smoke( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp, sf::Vector2f pos, float zorder );
+
+//! @brief Spawn a small pyramid-shaped pile of ash. Particles fall from the apex, staggered over
+//! `buildup_seconds` so the pile fills in gradually rather than dropping all at once, and settle
+//! permanently inside a triangular cross-section (see AshPileParticleSprite::kFallDistance/kBaseWidth),
+//! centred on `emitter_pos`'s x position.
+//! @param reg
+//! @param tag Identifier used to find/filter this particle sprite later.
+//! @param uuid_cmp UUID assigned to the created entity, so it can be tracked/updated later (e.g. via
+//! update_position()). Give this its own UUID rather than reusing another effect's (e.g. a burning
+//! plant's), otherwise cleanup code that destroys particle sprites by UUID will delete this pile too.
+//! @param emitter_pos World position the ash pile settles around (the pyramid's base); the apex/emitter
+//! is placed AshPileParticleSprite::kFallDistance (8px) above this.
+//! @param zorder Draw order relative to other entities.
+//! @param scale Multiplies the fall/settle trajectory, scaling the overall size of the pyramid.
+//! @param psize Per-particle dot size.
+//! @param speed Particle fall speed (px/s).
+//! @param pcount Number of particles in the sprite.
+//! @param buildup_seconds Time window over which particles' fall start times are randomly spread, so
+//! the pile builds up over time instead of every particle falling in the same frame.
+void add_ashpile( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp, sf::Vector2f emitter_pos, float zorder, float scale,
+                  float psize = 3.f, float speed = 20.f, float buildup_seconds = 4.f );
 
 //! @brief Spawn a shockwave particle effect radiating outward from `pos`.
 //! @param reg

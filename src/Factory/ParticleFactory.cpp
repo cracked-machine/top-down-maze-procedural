@@ -1,4 +1,5 @@
 #include <Components/Inventory/PlayerInventorySlot.hpp>
+#include <Components/Particle/AshPileParticleSprite.hpp>
 #include <Components/Particle/CryptAltarParticleSprite.hpp>
 #include <Components/Particle/EatingCrumbsParticleSprite.hpp>
 #include <Components/Particle/Flame.hpp>
@@ -27,17 +28,6 @@
 
 namespace Game::Factory::Particle
 {
-
-void add_test( entt::registry &reg, Sys::ParticleSystem &psys, const std::string &tag )
-{
-  auto psprite = Cmp::Particle::SpriteTest( 1000 );
-  psprite.set_tag( tag );
-  psprite.set_emitter_position( Utils::Player::get_position( reg ).getCenter() );
-  psprite.set_lifetime_ms( std::uniform_int_distribution<int>( 0, sf::seconds( 3 ).asMilliseconds() ) );
-  psprite.set_speed( std::uniform_real_distribution<float>( 1.f, 100.f ) );
-  psprite.set_angle( std::uniform_real_distribution<float>( 1.f, 360.f ) );
-  psys.add( std::make_pair( psprite, Cmp::ZOrderValue( 10000.f ) ) );
-}
 
 void add_crypt_altar_ps( entt::registry &reg, const std::string &tag, float lifetime_seconds, float speed, Cmp::UUID &uuid_cmp, sf::Vector2f pos,
                          float zorder )
@@ -305,6 +295,30 @@ void add_smoke( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
   reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
   SPDLOG_DEBUG( "Created smoke ParticleSprite {}", static_cast<uint32_t>( entt ) );
+}
+
+void add_ashpile( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp, sf::Vector2f emitter_pos, float zorder, float scale, float psize,
+                  float speed, float buildup_seconds )
+{
+  auto ps = Cmp::Particle::AshPileParticleSprite();
+  ps.set_tag( tag );
+  // the ash settles around emitter_pos (the pyramid's base); the apex — this sprite's emitter — sits
+  // above it by the fall distance
+  ps.set_emitter_position( emitter_pos );
+
+  // Seed the particle
+  ps.set_lifetime_ms( sf::seconds( 1'000'000.f ) );
+  ps.set_speed( speed );
+  // spreads each particle's fall start time across buildup_seconds, so the pile fills in gradually
+  ps.set_phase( std::uniform_real_distribution<float>( 0.f, buildup_seconds ) );
+  ps.set_scale( scale );
+  ps.set_particle_size_range( std::uniform_real_distribution<float>( psize, psize ) );
+
+  auto entt = reg.create();
+  reg.emplace_or_replace<Sys::ParticleSpriteOwner>( entt, Sys::ParticleSpriteOwner( std::make_unique<Cmp::Particle::AshPileParticleSprite>( ps ) ) );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
+  reg.emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
+  SPDLOG_DEBUG( "Created ashpile ParticleSprite {}", static_cast<uint32_t>( entt ) );
 }
 
 void add_shockwave( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp, sf::Vector2f pos, float zorder )

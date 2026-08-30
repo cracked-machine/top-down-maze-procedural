@@ -563,8 +563,6 @@ void ActionSystem::update_burning_worlditems( sf::Time dt )
     auto *burning_time = reg().try_get<Cmp::Plant::BurningTimeAccumulator>( plant_entt );
     if ( not burning_time ) continue;
 
-    const sf::Vector2f emitter_pos( plant_cmp.getCenter().x, plant_cmp.position.y + plant_cmp.size.y - 4.f );
-
     static sf::Time burning_timeout = sf::milliseconds( 9000 );
     if ( *burning_time < burning_timeout )
     {
@@ -584,15 +582,26 @@ void ActionSystem::update_burning_worlditems( sf::Time dt )
       }
       if ( not already_has_flame )
       {
+        const sf::Vector2f flame_emitter_pos( plant_cmp.getCenter().x, plant_cmp.position.y + plant_cmp.size.y - 4.f );
         constexpr auto ps_scale = 0.5f;
-        constexpr auto particle_size = 5.f;
+        constexpr auto particle_size = 3.f;
         constexpr auto particle_speed = 60.f;
         constexpr auto particle_lifetime = 2.f;
         constexpr auto particle_count = 600;
-
-        Factory::Particle::add_flame( reg(), "graveyard.plant.burning.particle", plant_uuid, emitter_pos,
+        Factory::Particle::add_flame( reg(), "graveyard.plant.burning.particle", plant_uuid, flame_emitter_pos,
                                       plant_cmp.position.y + Constants::kGridSizePxF.y, ps_scale, particle_size, particle_speed, particle_lifetime,
                                       particle_count );
+
+        const sf::Vector2f ash_emitter_pos( plant_cmp.position.x, plant_cmp.getCenter().y + 8 );
+        constexpr auto ash_scale = 1.f;
+        constexpr auto ash_particle_size = 1.f;
+        constexpr auto ash_particle_speed = 20.f;
+        constexpr auto ash_particle_count = 1000;
+
+        // give the ash pile its own UUID so that it lives beyond the plant mb lifetime
+        auto ash_uuid = Cmp::UUID::generate();
+        Factory::Particle::add_ashpile( reg(), "graveyard.plant.burning.ash", ash_uuid, ash_emitter_pos, plant_cmp.position.y + 1, ash_scale,
+                                        ash_particle_size, ash_particle_speed, ash_particle_count );
       }
       *burning_time += dt;
     }
@@ -605,6 +614,7 @@ void ActionSystem::update_burning_worlditems( sf::Time dt )
       {
         if ( ps_owner_uuid == plant_uuid ) reg().destroy( ps_owner_entt );
       }
+      const sf::Vector2f emitter_pos( plant_cmp.getCenter().x, plant_cmp.position.y + ( plant_cmp.size.y - 7 ) );
       auto burnt_uuid = Cmp::UUID::generate();
       Factory::Particle::add_smoke( reg(), "graveyard.burnt.plant.particle", burnt_uuid, emitter_pos, plant_cmp.position.y );
       Factory::Plant::remove_plant_mb( reg(), plant_entt, m_npc_navmesh.lock(), m_player_navmesh.lock() );
