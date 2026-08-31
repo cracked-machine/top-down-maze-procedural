@@ -15,8 +15,8 @@
         "actions": {
           "type": "array",
           "description": "List of actions available for this item",
-          "minItems": 6,
-          "maxItems": 6,
+          "minItems": 7,
+          "maxItems": 7,
           "allOf": [
             { "contains": { "required": ["burn_action"] } },
             { "contains": { "required": ["carry_action"] } },
@@ -32,7 +32,7 @@
             "properties": {
               "burn_action": {
                 "description": "Applied repeatedly, at its own tick interval, while the item is burning.",
-                "allOf": [{ "$ref": "#/definitions/burn_effect" }]
+                "allOf": [{ "$ref": "#/definitions/action_effect" }]
               },
               "carry_action": {
                 "description": "Applied repeatedly, at its own tick interval, while the item is held in the player's inventory (e.g. a carried candle accumulating darkness fear over time).",
