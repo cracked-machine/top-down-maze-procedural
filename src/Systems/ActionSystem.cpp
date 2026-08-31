@@ -18,6 +18,7 @@
 #include <Components/ObstacleCap.hpp>
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
+#include <Components/Persistent/PlantBurnDuration.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <Components/Plant/BurningTimeAccumulator.hpp>
 #include <Components/Player/Character.hpp>
@@ -566,7 +567,7 @@ void ActionSystem::update_burning_worlditems( sf::Time dt )
     auto *burning_time = reg().try_get<Cmp::Plant::BurningTimeAccumulator>( plant_entt );
     if ( not burning_time ) continue;
 
-    static sf::Time burning_timeout = sf::milliseconds( 9000 );
+    auto burning_timeout = sf::seconds( Sys::PersistSystem::get<Cmp::Persist::PlantBurnDuration>( reg() ).get_value() );
     if ( *burning_time < burning_timeout )
     {
       // stll burning

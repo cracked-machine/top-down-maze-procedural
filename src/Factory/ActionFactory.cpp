@@ -11,7 +11,6 @@ namespace Game::Factory::Action
 
 void try_eat_inventory( entt::registry &reg )
 {
-  // start eating if inventory item id edible and not already eating
   auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg );
   if ( inventory_type.contains( ".drop" ) )
   {
@@ -25,8 +24,6 @@ void try_eat_inventory( entt::registry &reg )
 
 void try_burn_worlditem( entt::registry &reg )
 {
-
-  // start eating if inventory item id edible and not already eating
   auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg );
   if ( inventory_type.contains( "candle" ) )
   {

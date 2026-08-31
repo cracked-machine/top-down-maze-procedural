@@ -48,6 +48,7 @@
 #include <Components/Persistent/NpcWatchmanSweepAmplitude.hpp>
 #include <Components/Persistent/NpcWatchmanSweepSpeed.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
+#include <Components/Persistent/PlantBurnDuration.hpp>
 #include <Components/Persistent/PlayerAnimFramerate.hpp>
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerFootstepAddDelay.hpp>
@@ -234,6 +235,7 @@ void RenderMenuSystem::render_settings_widgets( sf::Time dt, sf::FloatRect title
     Sys::PersistSystem::get<Cmp::Persist::RuinMaxCobwebs>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::RuinMaxSpiders>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::CryptShuffleTimeout>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::PlantBurnDuration>( reg() ).render_widget();
 
     // Loot Settings
     ImGui::SeparatorText( "Loot Settings" );

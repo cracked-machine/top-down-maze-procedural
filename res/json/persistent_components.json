@@ -380,6 +380,14 @@
     "detail": "Player Damage Cooldown",
     "format": "%.1f seconds"
   },
+  "PlantBurnDuration": {
+    "type": "float",
+    "value": 9.0,
+    "min_value": 1.0,
+    "max_value": 30.0,
+    "detail": "Plant Burn Duration",
+    "format": "%.1f seconds"
+  },
   "PlayerAnimFramerate": {
     "type": "float",
     "value": 0.1,

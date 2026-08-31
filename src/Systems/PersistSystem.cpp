@@ -48,6 +48,7 @@
 #include <Components/Persistent/NpcWatchmanSweepAmplitude.hpp>
 #include <Components/Persistent/NpcWatchmanSweepSpeed.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
+#include <Components/Persistent/PlantBurnDuration.hpp>
 #include <Components/Persistent/PlayerAnimFramerate.hpp>
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerFootstepAddDelay.hpp>
@@ -153,6 +154,7 @@ void PersistSystem::initialize_type_registry()
   register_type.operator()<NpcWatchmanSweepAmplitude>("NpcWatchmanSweepAmplitude");
   register_type.operator()<NpcWatchmanIdleDirectionChangeInterval>("NpcWatchmanIdleDirectionChangeInterval");
   register_type.operator()<PcDamageDelay>("PcDamageDelay");
+  register_type.operator()<PlantBurnDuration>("PlantBurnDuration");
   register_type.operator()<PlayerAnimFramerate>("PlayerAnimFramerate");
   register_type.operator()<PlayerDiagonalLerpSpeedModifier>("PlayerDiagonalLerpSpeedModifier");
   register_type.operator()<PlayerFootstepAddDelay>("PlayerFootstepAddDelay");
