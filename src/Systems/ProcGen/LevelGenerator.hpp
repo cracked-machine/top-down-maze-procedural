@@ -8,6 +8,9 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Window.hpp>
 
+#include <cstddef>
+#include <functional>
+
 // clang-format off
 namespace Game::Cmp { class Position; class RectBounds; }
 namespace sf { class RenderWindow; }
@@ -106,6 +109,26 @@ public:
   void on_resume() override {}
 
 private:
+  //! @brief Roll `init_chance` for `entity`/`pos_cmp` and, if it succeeds, register it as an obstacle in
+  //!        both `m_obstacle_sm` and `reserved_sm`.
+  //! @param pass_navmesh_to_factory Whether Factory::Obstacle::add_obstacle() should itself check `reserved_sm`
+  //!        (graveyard case) or whether the caller has already guaranteed the position is free (ruin case).
+  void try_place_obstacle( entt::entity entity, const Cmp::Position &pos_cmp, float init_chance,
+                           const PathFinding::SpatialHashGridSharedPtr &reserved_sm, bool pass_navmesh_to_factory );
+
+  //! @brief Shared obstacle-decoration pass: sprites the obstacle entity and its paired "cap" entity, tagging
+  //!        both with a shared UUID.
+  //! @param pick_index Returns the sprite-sheet frame index to use for the obstacle and its cap.
+  //! @param cap_y_offset Added to the obstacle's y-position when computing the cap's z-order.
+  //! @param moveable Whether to tag the obstacle entity with Cmp::Moveable.
+  void decorate_obstacles( const Sprites::SpriteSheet &ss_main, const Sprites::SpriteSheet &ss_cap,
+                           const std::function<std::size_t()> &pick_index, float cap_y_offset, bool moveable );
+
+  //! @brief Spawn `count` multiblocks of the given type at random valid positions found via find_spawn_location().
+  template <typename MULTIBLOCK, typename MBSEGMENT>
+  void spawn_multiblocks( std::size_t count, const Sprites::SpriteSheet &ss, const PathFinding::SpatialHashGridSharedPtr &reserved_sm,
+                          bool log = false );
+
   //! @brief Spatial map for finding obstacles during level gen / cell automata algorithm
   PathFinding::SpatialHashGridUniquePtr m_obstacle_sm;
   //! @brief Spatial map for marking void areas that are not part of the game area.
