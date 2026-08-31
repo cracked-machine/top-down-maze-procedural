@@ -44,6 +44,12 @@ public:
 
   //! @brief The action and its effects that can be applied to the player
   std::unordered_map<std::type_index, ActionTimePair> actions;
+
+  template <typename ActionT>
+  BaseAction get_action()
+  {
+    return actions.at( std::type_index( typeid( ActionT ) ) ).action;
+  }
 };
 
 } // namespace Game::Cmp

@@ -26,6 +26,7 @@
 #include <Components/Random.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SelectedPosition.hpp>
+#include <Components/Stats/BurnAction.hpp>
 #include <Components/Stats/CarryAction.hpp>
 #include <Components/Stats/DestroyAction.hpp>
 #include <Components/Stats/SpawnAction.hpp>
@@ -572,6 +573,27 @@ void ActionSystem::update_burning_worlditems( sf::Time dt )
     auto burning_timeout = sf::seconds( Sys::PersistSystem::get<Cmp::Persist::PlantBurnDuration>( reg() ).get_value() );
     if ( *burning_time < burning_timeout )
     {
+      // update player stats with burn_action: apply once if interval == 0, otherwise every `interval`
+      // seconds. BurningTimeAccumulator resets to zero at the start of each burn, so a one-shot fires
+      // only on that very first frame, and a repeating tick fires whenever this frame's dt carries the
+      // accumulator across a new multiple of interval.
+      auto *plant_item = reg().try_get<Cmp::WorldItem>( plant_entt );
+      if ( plant_item and Utils::Player::is_player_near( reg(), plant_cmp ) )
+      {
+        auto burn_action = plant_item->get_action<Cmp::BurnAction>();
+        auto interval = burn_action.interval();
+        bool should_apply_burn_action;
+        if ( interval <= 0.f ) { should_apply_burn_action = ( *burning_time == sf::Time::Zero ); }
+        else
+        {
+          auto elapsed_before = burning_time->asSeconds();
+          auto elapsed_after = elapsed_before + dt.asSeconds();
+          should_apply_burn_action = static_cast<int>( elapsed_before / interval ) != static_cast<int>( elapsed_after / interval );
+        }
+
+        if ( should_apply_burn_action ) { Utils::Player::apply_action_from_world_item<Cmp::BurnAction>( reg(), plant_entt ); }
+      }
+
       // stll burning
       if ( m_sound_bank.get_effect( "burning" ).getStatus() != sf::Sound::Status::Playing ) { m_sound_bank.get_effect( "burning" ).play(); }
       m_sound_bank.get_effect( "burning" ).setLooping( false );

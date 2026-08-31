@@ -22,6 +22,7 @@
 #include <Components/RectBounds.hpp>
 #include <Components/SpawnArea.hpp>
 #include <Components/Stats/BaseAction.hpp>
+#include <Components/Stats/BurnAction.hpp>
 #include <Components/Stats/CarryAction.hpp>
 #include <Components/Stats/CollisionAction.hpp>
 #include <Components/Stats/ConsumeAction.hpp>
@@ -335,6 +336,7 @@ void apply_action_from_world_item( entt::registry &reg, entt::entity world_item_
 
 // Explicit instantiations for every Cmp::BaseAction subclass (see src/Components/Stats) - keeps the
 // template body out of Player.hpp while still allowing all known action kinds to be applied.
+template void apply_action_from_world_item<Cmp::BurnAction>( entt::registry &, entt::entity, const std::source_location & );
 template void apply_action_from_world_item<Cmp::CarryAction>( entt::registry &, entt::entity, const std::source_location & );
 template void apply_action_from_world_item<Cmp::CollisionAction>( entt::registry &, entt::entity, const std::source_location & );
 template void apply_action_from_world_item<Cmp::ConsumeAction>( entt::registry &, entt::entity, const std::source_location & );
@@ -362,6 +364,7 @@ void apply_action_from_inventory_item( entt::registry &reg )
 
 // Explicit instantiations for every Cmp::BaseAction subclass (see src/Components/Stats) - keeps the
 // template body out of Player.hpp while still allowing all known action kinds to be applied.
+template void apply_action_from_inventory_item<Cmp::BurnAction>( entt::registry & );
 template void apply_action_from_inventory_item<Cmp::CarryAction>( entt::registry & );
 template void apply_action_from_inventory_item<Cmp::CollisionAction>( entt::registry & );
 template void apply_action_from_inventory_item<Cmp::ConsumeAction>( entt::registry & );
@@ -380,6 +383,7 @@ void apply_action_from_item_store( entt::registry &reg, const std::string &item_
 
 // Explicit instantiations for every Cmp::BaseAction subclass (see src/Components/Stats) - keeps the
 // template body out of Player.hpp while still allowing all known action kinds to be applied.
+template void apply_action_from_item_store<Cmp::BurnAction>( entt::registry &, const std::string & );
 template void apply_action_from_item_store<Cmp::CarryAction>( entt::registry &, const std::string & );
 template void apply_action_from_item_store<Cmp::CollisionAction>( entt::registry &, const std::string & );
 template void apply_action_from_item_store<Cmp::ConsumeAction>( entt::registry &, const std::string & );
@@ -398,6 +402,7 @@ Cmp::BaseAction get_action_from_item_store( const std::string &item_type )
 
 // Explicit instantiations for every Cmp::BaseAction subclass (see src/Components/Stats) - keeps the
 // template body out of Player.hpp while still allowing all known action kinds to be applied.
+template Cmp::BaseAction get_action_from_item_store<Cmp::BurnAction>( const std::string & );
 template Cmp::BaseAction get_action_from_item_store<Cmp::CarryAction>( const std::string & );
 template Cmp::BaseAction get_action_from_item_store<Cmp::CollisionAction>( const std::string & );
 template Cmp::BaseAction get_action_from_item_store<Cmp::ConsumeAction>( const std::string & );
@@ -416,6 +421,7 @@ void apply_action_from_npc_store( entt::registry &reg, const std::string &npc_ty
 
 // Explicit instantiations for every Cmp::BaseAction subclass (see src/Components/Stats) - keeps the
 // template body out of Player.hpp while still allowing all known action kinds to be applied.
+template void apply_action_from_npc_store<Cmp::BurnAction>( entt::registry &, const std::string & );
 template void apply_action_from_npc_store<Cmp::CarryAction>( entt::registry &, const std::string & );
 template void apply_action_from_npc_store<Cmp::CollisionAction>( entt::registry &, const std::string & );
 template void apply_action_from_npc_store<Cmp::ConsumeAction>( entt::registry &, const std::string & );
