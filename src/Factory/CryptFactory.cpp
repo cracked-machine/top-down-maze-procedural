@@ -82,7 +82,7 @@ entt::entity create_crypt_chest( entt::registry &reg, sf::Vector2f pos, Sprites:
         .enabled = false, 
         .anim_type = Cmp::AnimType::ONESHOTHOLD 
   });
-  //clang-format on
+  // clang-format on
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
   reg.emplace_or_replace<Cmp::Player::NoPath>( entt );
   return entt;
@@ -132,14 +132,13 @@ void create_crypt_lava_pit( entt::registry &reg, const Cmp::Crypt::RoomOpen &roo
           .sprite_type = "sprite.crypt.lava", 
           .enabled = true, 
     });
-    //clang-format on
+    // clang-format on
     if ( pathfinding_navmesh ) { pathfinding_navmesh->remove( pos_entt, pos_cmp ); }
     // reg.emplace<Cmp::ZOrderValue>( lava_cell_entt, pos_cmp.size.y );
   }
 }
 
-void destroy_crypt_lava_pit( entt::registry &reg, entt::entity entt,
-                             std::shared_ptr<Game::PathFinding::SpatialHashGrid> pathfinding_navmesh )
+void destroy_crypt_lava_pit( entt::registry &reg, entt::entity entt, std::shared_ptr<Game::PathFinding::SpatialHashGrid> pathfinding_navmesh )
 {
   auto *lava_pit_cmp = reg.try_get<Cmp::Crypt::RoomLavaPit>( entt );
   if ( lava_pit_cmp )
@@ -170,7 +169,7 @@ void add_spike_trap( entt::registry &reg, const entt::entity entt, const int pas
         .enabled = false,
         .anim_type =   Cmp::AnimType::ONESHOTRESET
   });
-  //clang-format on
+  // clang-format on
   reg.emplace_or_replace<Cmp::ZOrderValue>( spike_entt, position.y - 16.f ); // always behind player
   reg.emplace_or_replace<Cmp::Crypt::PassageSpikeTrap>( spike_entt, position, passage_id );
 }
@@ -178,13 +177,13 @@ void add_spike_trap( entt::registry &reg, const entt::entity entt, const int pas
 void create_crypt_shuffle_timer( entt::registry &reg, float threshold )
 {
   auto entt = reg.create();
-  reg.emplace_or_replace<Cmp::Crypt::ShuffleTimer>(entt, sf::seconds(threshold));
+  reg.emplace_or_replace<Cmp::Crypt::ShuffleTimer>( entt, sf::seconds( threshold ) );
 }
 
 void destroy_crypt_shuffle_timer( entt::registry &reg )
 {
-  auto timer_view  = reg.view<Cmp::Crypt::ShuffleTimer>();
-  if( not timer_view.empty() ) reg.destroy( timer_view.front());
+  auto timer_view = reg.view<Cmp::Crypt::ShuffleTimer>();
+  if ( not timer_view.empty() ) reg.destroy( timer_view.front() );
 }
 
 } // namespace Game::Factory::Crypt

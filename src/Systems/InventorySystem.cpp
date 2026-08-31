@@ -184,7 +184,7 @@ void InventorySystem::drop_inventory_item( sf::Vector2f pos, entt::entity invent
         .sprite_type =  inventory_slot_cmp->m_item.sprite_type,
         .enabled = false
   });
-  //clang-format on
+  // clang-format on
   reg().emplace_or_replace<Cmp::ZOrderValue>( world_item_entt, pos.y - 1.f );
   reg().emplace_or_replace<Cmp::WorldItem>( world_item_entt, inventory_slot_cmp->m_item );
   reg().emplace_or_replace<Cmp::Npc::NoPathFinding>( world_item_entt );
@@ -209,7 +209,7 @@ void InventorySystem::drop_inventory_item( sf::Vector2f pos, entt::entity invent
       {
         ps_owner.sprite->set_view_type( Cmp::Particle::ViewType::WORLD );
         ps_owner.sprite->set_scale( Cmp::Particle::kWorldScalePreset );
-        reg().emplace_or_replace<Cmp::ZOrderValue>( ps_entt, Utils::Player::get_position(reg()).y() - 1);
+        reg().emplace_or_replace<Cmp::ZOrderValue>( ps_entt, Utils::Player::get_position( reg() ).y() - 1 );
       }
     }
     reg().emplace_or_replace<Cmp::UUID>( world_item_entt, uuid_cmp->data );
@@ -217,7 +217,10 @@ void InventorySystem::drop_inventory_item( sf::Vector2f pos, entt::entity invent
 
   // now destroy the inventory slot
   reg().destroy( inventory_slot_entt );
-  if ( world_item_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
+  if ( world_item_entt != entt::null )
+  {
+    // m_sound_bank.get_effect( "drop_relic" ).play();
+  }
 }
 
 void InventorySystem::pickup_world_item( entt::registry &reg, entt::entity world_item_entt )
@@ -226,8 +229,10 @@ void InventorySystem::pickup_world_item( entt::registry &reg, entt::entity world
   auto *anim_data_cmp = reg.try_get<Cmp::AnimData>( world_item_entt );
   if ( not anim_data_cmp ) return;
 
-  auto *world_item_cmp = reg.try_get<Cmp::WorldItem>(world_item_entt);
-  if (not world_item_cmp) throw std::runtime_error("InventorySystem::pickup_world_item - Unable to get world item component from " + std::to_string(static_cast<uint32_t>(world_item_entt)));
+  auto *world_item_cmp = reg.try_get<Cmp::WorldItem>( world_item_entt );
+  if ( not world_item_cmp )
+    throw std::runtime_error( "InventorySystem::pickup_world_item - Unable to get world item component from " +
+                              std::to_string( static_cast<uint32_t>( world_item_entt ) ) );
 
   // create the basic inventory slot entt
   auto inventory_entity = reg.create();

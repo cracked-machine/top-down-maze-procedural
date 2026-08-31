@@ -342,7 +342,7 @@ void ActionSystem::check_player_dig_plant_collision()
       else
       {
         if ( Utils::Player::get_inventory_wear_level( reg() ) <= 0 ) { return; }
-        m_sound_bank.get_effect( "chopping_final" ).play();
+
         for ( auto [inventory_entt, inventory_slot] : inventory_wear_view.each() )
         {
           if ( inventory_slot.m_item.sprite_type == "sprite.item.shovel" )
@@ -350,6 +350,7 @@ void ActionSystem::check_player_dig_plant_collision()
             get_systems_event_queue().trigger( Events::DropInventoryEvent() );
             Utils::Player::apply_action_from_world_item<Cmp::SpawnAction>( reg(), plant_entt );
             get_systems_event_queue().trigger( Events::PickupWorldItemEvent( plant_entt ) );
+            m_sound_bank.get_effect( "digging_earth" ).play();
           }
           else if ( inventory_slot.m_item.sprite_type == "sprite.item.axe" )
           {
@@ -361,6 +362,7 @@ void ActionSystem::check_player_dig_plant_collision()
                                                   plant_mb_cmp.getCenter(), plant_mb_cmp.position.y );
             Utils::Player::apply_action_from_world_item<Cmp::DestroyAction>( reg(), plant_entt );
             Factory::Plant::remove_plant_mb( reg(), plant_entt, m_npc_navmesh.lock(), m_player_navmesh.lock() );
+            m_sound_bank.get_effect( "chopping_final" ).play();
           }
         }
 

@@ -2,8 +2,8 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Inventory/Explosive.hpp>
-#include <Components/Inventory/WearLevel.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
+#include <Components/Inventory/WearLevel.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
@@ -102,7 +102,7 @@ void ItemSystem::create_explosive( Cmp::Position pos, const std::string &item, f
   reg().emplace_or_replace<Cmp::AnimData>( world_carry_item_entt, Cmp::AnimData::Config{  
         .sprite_type =  Sys::ItemStore::instance().get_item( item ).sprite_type
   });
-  //clang-format on
+  // clang-format on
   reg().emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
   reg().emplace_or_replace<Cmp::WorldItem>( world_carry_item_entt, Sys::ItemStore::instance().get_item( item ) );
   reg().emplace_or_replace<Cmp::Npc::NoPathFinding>( world_carry_item_entt );
