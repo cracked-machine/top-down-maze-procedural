@@ -209,10 +209,11 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data, 
                                                                                                                                         ms );
       reserved_sm->insert( mb_entt, Cmp::Position( pos, Constants::kGridSizePxF ) );
     }
+    else if ( ms_type.contains( "item.plant" ) ) { gen_plant( ms_type, pos, reserved_sm ); }
     else if ( ms_type.contains( "item." ) )
     {
-      auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg() );
       // prevent infinite respawns in the RuinSceneUpperFloor
+      auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg() );
       if ( inventory_type == "item.witchesjar" ) continue;
 
       // make sure we mark the *world* entt as reserved
@@ -226,17 +227,17 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data, 
   }
 }
 
-void LevelGenerator::add_graveyard_exterior_obstacles( float init_chance, PathFinding::SpatialHashGridSharedPtr reserved_navmesh )
+void LevelGenerator::add_graveyard_exterior_obstacles( float init_chance, const PathFinding::SpatialHashGridSharedPtr &reserved_sm )
 {
   auto position_view = reg().view<Cmp::Position>( entt::exclude<Cmp::Player::Character, Cmp::ReservedPosition> );
   for ( auto [entity, pos_cmp] : position_view.each() )
   {
     if ( Cmp::RandomFloat{ 0.f, 1.f }.gen() < init_chance )
     {
-      if ( Factory::Obstacle::add_obstacle( reg(), entity, reserved_navmesh ) )
+      if ( Factory::Obstacle::add_obstacle( reg(), entity, reserved_sm ) )
       {
         m_obstacle_sm->insert( entity, pos_cmp );
-        reserved_navmesh->insert( entity, pos_cmp );
+        reserved_sm->insert( entity, pos_cmp );
       }
     }
   }
@@ -266,18 +267,18 @@ void LevelGenerator::decorate_graveyard_exterior_obstacles()
   }
 }
 
-void LevelGenerator::add_ruin_interior_obstacles( float init_chance, PathFinding::SpatialHashGridSharedPtr reserved_navmesh )
+void LevelGenerator::add_ruin_interior_obstacles( float init_chance, const PathFinding::SpatialHashGridSharedPtr &reserved_sm )
 {
   auto position_view = reg().view<Cmp::Position>( entt::exclude<Cmp::Player::Character, Cmp::ReservedPosition, Cmp::Exit> );
   for ( auto [entity, pos_cmp] : position_view.each() )
   {
-    if ( reserved_navmesh->at( pos_cmp ).empty() )
+    if ( reserved_sm->at( pos_cmp ).empty() )
     {
       if ( Cmp::RandomFloat{ 0.f, 1.f }.gen() < init_chance )
       {
         Factory::Obstacle::add_obstacle( reg(), entity );
         m_obstacle_sm->insert( entity, pos_cmp );
-        reserved_navmesh->insert( entity, pos_cmp );
+        reserved_sm->insert( entity, pos_cmp );
       }
     }
   }
@@ -538,7 +539,54 @@ std::pair<entt::entity, Cmp::Position> LevelGenerator::find_spawn_location( cons
   return { entt::null, Cmp::Position{ { 0.f, 0.f }, { 0.f, 0.f } } };
 }
 
-std::vector<entt::entity> LevelGenerator::gen_random_plants( sf::Vector2u map_grid_size, PathFinding::SpatialHashGridSharedPtr reserved_navmesh )
+bool LevelGenerator::gen_plant( const std::string &plant_type, sf::Vector2f pos, const PathFinding::SpatialHashGridSharedPtr &reserved_sm )
+{
+  const auto &plant_ss = m_sprite_factory.get_spritesheet_by_type( "sprite." + plant_type );
+
+  // Plants can span more than one grid row (e.g. 1x2), so every cell in the footprint - not
+  // just the origin - must be a real, unreserved world tile. Otherwise a plant can overlap a
+  // reserved tile it doesn't share an entity with, e.g. the player spawn.
+  auto plant_grid_size = plant_ss.get_grid_size();
+  bool footprint_clear = true;
+  for ( int gy = 0; gy < plant_grid_size.y && footprint_clear; ++gy )
+  {
+    for ( int gx = 0; gx < plant_grid_size.x; ++gx )
+    {
+      sf::Vector2f pos_offset( static_cast<float>( gx ) * Constants::kGridSizePxF.x, static_cast<float>( gy ) * Constants::kGridSizePxF.y );
+      Cmp::Position cell_pos( pos + pos_offset, Constants::kGridSizePxF );
+      if ( Utils::get_world_pos_entt( reg(), cell_pos ) == entt::null || not reserved_sm->at( cell_pos ).empty() )
+      {
+        footprint_clear = false;
+        break;
+      }
+    }
+  }
+
+  if ( footprint_clear )
+  {
+    // now create the plant at a new entt
+    auto [mb_entt, _] = Factory::Multiblock::add_multiblock_with_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>( reg(), pos, plant_ss );
+
+    // Add the worlditem now so we don't have to look it up later when digging up the plant
+    reg().emplace_or_replace<Cmp::WorldItem>( mb_entt, Sys::ItemStore::instance().get_item( plant_type ) );
+
+    // Protect every cell covered by this plant: segment entities carry the UUID and
+    // are at each tile position. Insert them so subsequent placement calls see them
+    // as reserved via the O(1) navmesh check.
+    auto *mb_uuid = reg().try_get<Cmp::UUID>( mb_entt );
+    if ( mb_uuid )
+    {
+      for ( auto [seg_entt, seg_cmp, seg_pos, seg_uuid] : reg().view<Cmp::PlantSegment, Cmp::Position, Cmp::UUID>().each() )
+      {
+        if ( seg_uuid == *mb_uuid ) reserved_sm->insert( seg_entt, seg_pos );
+      }
+    }
+    return true;
+  }
+  return false;
+}
+
+std::vector<entt::entity> LevelGenerator::gen_random_plants( sf::Vector2u map_grid_size, const PathFinding::SpatialHashGridSharedPtr &reserved_sm )
 {
   std::vector<entt::entity> assigned_entts;
 
@@ -552,51 +600,7 @@ std::vector<entt::entity> LevelGenerator::gen_random_plants( sf::Vector2u map_gr
     std::vector<std::string> plant_item_type_list{ "item.plant1", "item.plant2", "item.plant3", "item.plant4",  "item.plant5",  "item.plant6",
                                                    "item.plant7", "item.plant8", "item.plant9", "item.plant10", "item.plant11", "item.plant12" };
     auto chosen_plant_item_type = plant_item_type_list.at( Cmp::RandomInt( 0, static_cast<int>( plant_item_type_list.size() - 1 ) ).gen() );
-    const auto &plant_ss = m_sprite_factory.get_spritesheet_by_type( "sprite." + chosen_plant_item_type );
-
-    // Plants can span more than one grid row (e.g. 1x2), so every cell in the footprint - not
-    // just the origin - must be a real, unreserved world tile. Otherwise a plant can overlap a
-    // reserved tile it doesn't share an entity with, e.g. the player spawn.
-    auto plant_grid_size = plant_ss.get_grid_size();
-    bool footprint_clear = true;
-    for ( int gy = 0; gy < plant_grid_size.y && footprint_clear; ++gy )
-    {
-      for ( int gx = 0; gx < plant_grid_size.x; ++gx )
-      {
-        Cmp::Position cell_pos( random_pos.position + sf::Vector2f{ static_cast<float>( gx ) * Constants::kGridSizePxF.x,
-                                                                    static_cast<float>( gy ) * Constants::kGridSizePxF.y },
-                                Constants::kGridSizePxF );
-        if ( Utils::get_world_pos_entt( reg(), cell_pos ) == entt::null || not reserved_navmesh->at( cell_pos ).empty() )
-        {
-          footprint_clear = false;
-          break;
-        }
-      }
-    }
-
-    if ( footprint_clear )
-    {
-      // now create the plant at a new entt
-      auto [mb_entt, _] = Factory::Multiblock::add_multiblock_with_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>( reg(), random_pos.position,
-                                                                                                                      plant_ss );
-
-      // Add the worlditem now so we don't have to look it up later when digging up the plant
-      reg().emplace_or_replace<Cmp::WorldItem>( mb_entt, Sys::ItemStore::instance().get_item( chosen_plant_item_type ) );
-
-      assigned_entts.push_back( random_entity );
-
-      // Protect every cell covered by this plant: segment entities carry the UUID and
-      // are at each tile position. Insert them so subsequent placement calls see them
-      // as reserved via the O(1) navmesh check.
-      auto *mb_uuid = reg().try_get<Cmp::UUID>( mb_entt );
-      if ( mb_uuid )
-      {
-        for ( auto [seg_entt, seg_cmp, seg_pos, seg_uuid] : reg().view<Cmp::PlantSegment, Cmp::Position, Cmp::UUID>().each() )
-        {
-          if ( seg_uuid == *mb_uuid ) reserved_navmesh->insert( seg_entt, seg_pos );
-        }
-      }
-    }
+    if ( gen_plant( chosen_plant_item_type, random_pos.position, reserved_sm ) ) { assigned_entts.push_back( random_entity ); }
   }
   return assigned_entts;
 }

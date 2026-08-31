@@ -45,16 +45,16 @@ public:
 
   //! @brief Create obstacle components without sprites for initial proc gen
   //! @param init_chance Probability (0-1) that any given eligible position becomes an obstacle
-  //! @param reserved_navmesh Positions excluded from obstacle placement
-  void add_graveyard_exterior_obstacles( float init_chance, PathFinding::SpatialHashGridSharedPtr reserved_navmesh );
+  //! @param reserved_sm Positions excluded from obstacle placement
+  void add_graveyard_exterior_obstacles( float init_chance, const PathFinding::SpatialHashGridSharedPtr &reserved_sm );
 
   //! @brief create "sprite.graveyard.wall.int.main" and "sprite.graveyard.wall.int.cap" sprites for the graveyard obstacles.
   void decorate_graveyard_exterior_obstacles();
 
   //! @brief Create obstacle components without sprites for initial proc gen
   //! @param init_chance Probability (0-1) that any given eligible position becomes an obstacle
-  //! @param reserved_navmesh Positions excluded from obstacle placement
-  void add_ruin_interior_obstacles( float init_chance, PathFinding::SpatialHashGridSharedPtr reserved_navmesh );
+  //! @param reserved_sm Positions excluded from obstacle placement
+  void add_ruin_interior_obstacles( float init_chance, const PathFinding::SpatialHashGridSharedPtr &reserved_sm );
 
   //! @brief Create "sprite.crypt.wall.int" sprites for the graveyard obstacles.
   void decorate_ruin_interior_obstacles();
@@ -79,9 +79,11 @@ public:
 
   //! @brief Generate a number of plant world items in the new game area.
   //! @param map_grid_size Size of the game area, in grid cells
-  //! @param reserved_navmesh Positions excluded from plant placement
+  //! @param reserved_sm Positions excluded from plant placement
   //! @return std::vector<entt::entity>
-  std::vector<entt::entity> gen_random_plants( sf::Vector2u map_grid_size, PathFinding::SpatialHashGridSharedPtr reserved_navmesh );
+  std::vector<entt::entity> gen_random_plants( sf::Vector2u map_grid_size, const PathFinding::SpatialHashGridSharedPtr &reserved_sm );
+
+  bool gen_plant( const std::string &plant_type, sf::Vector2f pos, const PathFinding::SpatialHashGridSharedPtr &reserved_sm );
 
   //! @brief Call this to make sure the level data is reset before regenerating a new scene
   void reset();

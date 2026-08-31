@@ -1,7 +1,7 @@
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AnimData.hpp>
-#include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
+#include <Components/Npc/Npc.hpp>
 #include <Components/Npc/ShadowHand.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Player/NoPath.hpp>
@@ -26,7 +26,7 @@
 namespace Game::Factory::Ruin
 {
 
-void create_bookcase( entt::registry &reg, sf::Vector2f spawn_position, const Sprites::SpriteSheet &bookcase_ms, int sprite_index )
+void create_bookcase( entt::registry &reg, sf::Vector2f spawn_position, const Sprites::SpriteSheet &bookcase_ms, size_t sprite_idx )
 {
   // We must modify the **existing** Cmp::Position-owning entity so that we don't have
   // new entity with Cmp::Npc::NoPathFinding and existing entity without. This screws up path finding
@@ -39,7 +39,7 @@ void create_bookcase( entt::registry &reg, sf::Vector2f spawn_position, const Sp
       // clang-format off
       reg.emplace_or_replace<Cmp::AnimData>( existing_entt, Cmp::AnimData::Config{ 
             .sprite_type = bookcase_ms.get_sprite_type(), 
-            .frame_index_offset = static_cast<size_t>(sprite_index),
+            .frame_index_offset = sprite_idx,
             .enabled = true
       });
       // clang-format on
@@ -53,14 +53,14 @@ void create_bookcase( entt::registry &reg, sf::Vector2f spawn_position, const Sp
 }
 
 void create_cobweb( entt::registry &reg, entt::entity selected_entt, sf::Vector2f spawn_position, const Sprites::SpriteSheet &cobweb_ms,
-                    int sprite_index )
+                    size_t sprite_idx )
 {
   // auto cobweb_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( selected_entt, spawn_position, cobweb_ms.get_sprite_size() );
   // clang-format off
   reg.emplace_or_replace<Cmp::AnimData>( selected_entt, Cmp::AnimData::Config{ 
         .sprite_type = cobweb_ms.get_sprite_type(), 
-        .frame_index_offset = static_cast<size_t>(sprite_index),
+        .frame_index_offset = sprite_idx,
         .enabled = true
   });
   // clang-format on
@@ -69,7 +69,7 @@ void create_cobweb( entt::registry &reg, entt::entity selected_entt, sf::Vector2
   reg.emplace_or_replace<Cmp::Ruin::Cobweb>( selected_entt, 100 );
 }
 
-void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, const Sprites::SpriteSheet &hand_ms, int sprite_index )
+void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, const Sprites::SpriteSheet &hand_ms, size_t sprite_idx )
 {
   bool exists = not reg.view<Cmp::Npc::ShadowHand>().empty();
 
@@ -84,7 +84,7 @@ void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, con
     // clang-format off
     reg.emplace_or_replace<Cmp::AnimData>( shadowhand_entt, Cmp::AnimData::Config{ 
           .sprite_type = hand_ms.get_sprite_type(), 
-          .frame_index_offset = static_cast<size_t>(sprite_index),
+          .frame_index_offset = sprite_idx,
           .enabled = true
     });
     // clang-format on
