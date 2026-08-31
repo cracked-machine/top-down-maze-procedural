@@ -150,31 +150,28 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data, 
   // Multiblock layer
   using MultiblockFactoryFn = std::function<entt::entity( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet & )>;
   static const std::unordered_map<std::string, MultiblockFactoryFn> kMultiblockFactories{
-      { "sprite.graveyard.healingspring",
-       []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
-       { return Factory::Multiblock::add_multiblock_with_segments<Cmp::HealingSpringMultiBlock, Cmp::HealingSpringSegment>( r, p, ss ).first; } },
+      { "sprite.graveyard.healingspring", []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
+        { return Factory::Multiblock::add_multiblock_with_segments<Cmp::HealingSpringMultiBlock, Cmp::HealingSpringSegment>( r, p, ss ).first; } },
       { "sprite.crypt.objective.closed",
-       []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
-       { return Factory::Multiblock::add_multiblock_with_segments<Cmp::Crypt::ObjectiveMultiBlock, Cmp::Crypt::ObjectiveSegment>( r, p, ss ).first; } },
-      { "sprite.crypt.altar.inactive",
-       []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
-       { return Factory::Multiblock::add_multiblock_with_segments<Cmp::Altar::MultiBlock, Cmp::Altar::Segment>( r, p, ss ).first; } },
-      { "sprite.ruin.stairs.up",
-       []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
-       { return Factory::Multiblock::add_multiblock_with_segments<Cmp::Ruin::StairsLowerMultiBlock, Cmp::Ruin::StairsSegment>( r, p, ss ).first; } },
-      { "sprite.ruin.stairs.down",
-       []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
-       { return Factory::Multiblock::add_multiblock_with_segments<Cmp::Ruin::StairsUpperMultiBlock, Cmp::Ruin::StairsSegment>( r, p, ss ).first; } },
+        []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
+        {
+          return Factory::Multiblock::add_multiblock_with_segments<Cmp::Crypt::ObjectiveMultiBlock, Cmp::Crypt::ObjectiveSegment>( r, p, ss ).first;
+        } },
+      { "sprite.crypt.altar.inactive", []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
+        { return Factory::Multiblock::add_multiblock_with_segments<Cmp::Altar::MultiBlock, Cmp::Altar::Segment>( r, p, ss ).first; } },
+      { "sprite.ruin.stairs.up", []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
+        { return Factory::Multiblock::add_multiblock_with_segments<Cmp::Ruin::StairsLowerMultiBlock, Cmp::Ruin::StairsSegment>( r, p, ss ).first; } },
+      { "sprite.ruin.stairs.down", []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
+        { return Factory::Multiblock::add_multiblock_with_segments<Cmp::Ruin::StairsUpperMultiBlock, Cmp::Ruin::StairsSegment>( r, p, ss ).first; } },
       { "sprite.ruin.stairs.balustrade",
-       []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss ) {
-         return Factory::Multiblock::add_multiblock_with_segments<Cmp::Ruin::StairsBalustradeMultiBlock, Cmp::Ruin::StairsSegment>( r, p, ss ).first;
-       } },
-      { "sprite.ruin.stairs.gate",
-       []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
-       { return Factory::Multiblock::add_multiblock_with_segments<Cmp::Ruin::StairsGateMultiBlock, Cmp::Ruin::GateSegment>( r, p, ss ).first; } },
-      { "sprite.ruin.hex",
-       []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
-       { return Factory::Multiblock::add_multiblock_with_segments<Cmp::Ruin::HexagramMultiBlock, Cmp::Ruin::HexagramSegment>( r, p, ss ).first; } },
+        []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
+        {
+          return Factory::Multiblock::add_multiblock_with_segments<Cmp::Ruin::StairsBalustradeMultiBlock, Cmp::Ruin::StairsSegment>( r, p, ss ).first;
+        } },
+      { "sprite.ruin.stairs.gate", []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
+        { return Factory::Multiblock::add_multiblock_with_segments<Cmp::Ruin::StairsGateMultiBlock, Cmp::Ruin::GateSegment>( r, p, ss ).first; } },
+      { "sprite.ruin.hex", []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
+        { return Factory::Multiblock::add_multiblock_with_segments<Cmp::Ruin::HexagramMultiBlock, Cmp::Ruin::HexagramSegment>( r, p, ss ).first; } },
   };
 
   for ( const auto &[ms_type, pos] : scene_data.multiblock_objectlayer() )
@@ -203,8 +200,8 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data, 
     else if ( ms_type.contains( "item." ) )
     {
       // prevent infinite respawns in the RuinSceneUpperFloor
-      auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg() );
-      if ( inventory_type == "item.witchesjar" ) continue;
+      auto [_, inventory_type, _] = Utils::Player::get_inventory( reg() );
+      if ( inventory_type == "item.witchesjar" and ms.get_sprite_type().contains( "witchesjar" ) ) continue;
 
       // make sure we mark the *world* entt as reserved
       auto world_pos_entt = Utils::get_world_pos_entt( reg(), Cmp::Position( pos, ms.get_sprite_size() ) );
@@ -275,8 +272,7 @@ void LevelGenerator::decorate_graveyard_exterior_obstacles()
   const Sprites::SpriteSheet &ss_cap = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.wall.int.cap" );
 
   decorate_obstacles(
-      ss_main, ss_cap,
-      [this]() { return m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.wall.int.main" } ).second; },
+      ss_main, ss_cap, [this]() { return m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.wall.int.main" } ).second; },
       /*cap_y_offset=*/1.f, /*moveable=*/false );
 }
 
@@ -285,10 +281,7 @@ void LevelGenerator::add_ruin_interior_obstacles( float init_chance, const PathF
   auto position_view = reg().view<Cmp::Position>( entt::exclude<Cmp::Player::Character, Cmp::ReservedPosition, Cmp::Exit> );
   for ( auto [entity, pos_cmp] : position_view.each() )
   {
-    if ( reserved_sm->at( pos_cmp ).empty() )
-    {
-      try_place_obstacle( entity, pos_cmp, init_chance, reserved_sm, /*pass_navmesh_to_factory=*/false );
-    }
+    if ( reserved_sm->at( pos_cmp ).empty() ) { try_place_obstacle( entity, pos_cmp, init_chance, reserved_sm, /*pass_navmesh_to_factory=*/false ); }
   }
 }
 
@@ -419,10 +412,7 @@ void LevelGenerator::spawn_multiblocks( std::size_t count, const Sprites::Sprite
 
     auto [mb_entt, _] = Factory::Multiblock::add_multiblock_with_segments<MULTIBLOCK, MBSEGMENT>( reg(), random_origin_position.position, ss );
     reserved_sm->insert( mb_entt, random_origin_position );
-    if ( log )
-    {
-      SPDLOG_INFO( "Added {} to {},{}", ss.get_sprite_type(), random_origin_position.position.x, random_origin_position.position.y );
-    }
+    if ( log ) { SPDLOG_INFO( "Added {} to {},{}", ss.get_sprite_type(), random_origin_position.position.x, random_origin_position.position.y ); }
   }
 }
 
@@ -445,11 +435,11 @@ std::pair<entt::entity, Cmp::Position> LevelGenerator::find_spawn_location( cons
     {
       using Utils::Collision::check_cmp;
       return not( check_cmp<Cmp::Wall>( reg(), new_lo_hitbox ) || check_cmp<Cmp::Grave::Segment>( reg(), new_lo_hitbox ) ||
-                 check_cmp<Cmp::Altar::Segment>( reg(), new_lo_hitbox ) || check_cmp<Cmp::Crypt::BuildingSegment>( reg(), new_lo_hitbox ) ||
-                 check_cmp<Cmp::HealingSpringBuildingSegment>( reg(), new_lo_hitbox ) ||
-                 check_cmp<Cmp::Ruin::BuildingSegment>( reg(), new_lo_hitbox ) ||
-                 check_cmp<Cmp::Crypt::ObjectiveSegment>( reg(), new_lo_hitbox ) || check_cmp<Cmp::ReservedPosition>( reg(), new_lo_hitbox ) ||
-                 check_cmp<Cmp::SpawnArea>( reg(), new_lo_hitbox ) || check_cmp<Cmp::Player::Character>( reg(), new_lo_hitbox ) );
+                  check_cmp<Cmp::Altar::Segment>( reg(), new_lo_hitbox ) || check_cmp<Cmp::Crypt::BuildingSegment>( reg(), new_lo_hitbox ) ||
+                  check_cmp<Cmp::HealingSpringBuildingSegment>( reg(), new_lo_hitbox ) ||
+                  check_cmp<Cmp::Ruin::BuildingSegment>( reg(), new_lo_hitbox ) || check_cmp<Cmp::Crypt::ObjectiveSegment>( reg(), new_lo_hitbox ) ||
+                  check_cmp<Cmp::ReservedPosition>( reg(), new_lo_hitbox ) || check_cmp<Cmp::SpawnArea>( reg(), new_lo_hitbox ) ||
+                  check_cmp<Cmp::Player::Character>( reg(), new_lo_hitbox ) );
     };
 
     if ( is_valid() )
@@ -524,9 +514,9 @@ std::vector<entt::entity> LevelGenerator::gen_random_plants( sf::Vector2u map_gr
 
   auto num_plants = map_grid_size.x * map_grid_size.y / 200;
 
-  static const std::vector<std::string> plant_item_type_list{ "item.plant1", "item.plant2", "item.plant3",  "item.plant4",  "item.plant5",
-                                                               "item.plant6", "item.plant7", "item.plant8",  "item.plant9",  "item.plant10",
-                                                               "item.plant11", "item.plant12" };
+  static const std::vector<std::string> plant_item_type_list{ "item.plant1", "item.plant2",  "item.plant3",  "item.plant4",
+                                                              "item.plant5", "item.plant6",  "item.plant7",  "item.plant8",
+                                                              "item.plant9", "item.plant10", "item.plant11", "item.plant12" };
 
   for ( std::size_t i = 0; i < num_plants; ++i )
   {

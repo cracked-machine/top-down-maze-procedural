@@ -11,7 +11,7 @@ namespace Game::Factory::Action
 
 void try_eat_inventory( entt::registry &reg )
 {
-  auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg );
+  auto [_, inventory_type, _] = Utils::Player::get_inventory( reg );
   if ( inventory_type.contains( ".drop" ) )
   {
     auto player_entt = Utils::Player::get_entity( reg );
@@ -24,7 +24,7 @@ void try_eat_inventory( entt::registry &reg )
 
 void try_burn_worlditem( entt::registry &reg )
 {
-  auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg );
+  auto [_, inventory_type, _] = Utils::Player::get_inventory( reg );
   if ( inventory_type.contains( "candle" ) )
   {
     for ( auto [plant_entt, plant_cmp] : reg.view<Cmp::PlantMultiBlock>().each() )

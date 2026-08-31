@@ -181,7 +181,7 @@
     },
     "sprite.graveyard.plant1.drop": {
       "spritesheet": {
-        "displayname": "sprite.graveyard.plant1.drop",
+        "displayname": "plant1 berry",
         "zorder": [0],
         "texture_path": "res/textures/plants_loot.png",
         "sprite_indices": [0],
@@ -195,7 +195,7 @@
     },
     "sprite.graveyard.plant2.drop": {
       "spritesheet": {
-        "displayname": "sprite.graveyard.plant2.drop",
+        "displayname": "plant2 berry",
         "zorder": [0],
         "texture_path": "res/textures/plants_loot.png",
         "sprite_indices": [1],
@@ -209,7 +209,7 @@
     },
     "sprite.graveyard.plant3.drop": {
       "spritesheet": {
-        "displayname": "sprite.graveyard.plant3.drop",
+        "displayname": "plant3 berry",
         "zorder": [0],
         "texture_path": "res/textures/plants_loot.png",
         "sprite_indices": [3],

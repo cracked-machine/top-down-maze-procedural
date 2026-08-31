@@ -204,19 +204,21 @@ void remove_lerp_cmp( entt::registry &reg )
   }
 }
 
-std::pair<entt::entity, Sprites::SpriteMetaType> get_inventory_type( entt::registry &reg )
+std::tuple<entt::entity, std::string, Sprites::SpriteMetaType> get_inventory( entt::registry &reg )
 {
   auto inv_view = reg.view<Cmp::PlayerInventorySlot>();
-  Sprites::SpriteMetaType found_type;
+  Sprites::SpriteMetaType found_sprite_type;
+  std::string found_inv_type;
   entt::entity found_entt = entt::null;
   // this assumes there is only one slot in the inventory, so warn if there is a bug somewhere
-  if ( inv_view.size() > 1 ) SPDLOG_WARN( "Found multiple slots in signle slot inventory" );
+  if ( inv_view.size() > 1 ) throw std::runtime_error( "Found multiple slots in single slot inventory" );
   for ( auto [inv_entt, inv_cmp] : inv_view.each() )
   {
-    found_type = inv_cmp.m_item.sprite_type;
+    found_inv_type = inv_cmp.m_item.item_type;
+    found_sprite_type = inv_cmp.m_item.sprite_type;
     found_entt = inv_entt;
   }
-  return { found_entt, found_type };
+  return { found_entt, found_inv_type, found_sprite_type };
 }
 
 float get_inventory_wear_level( entt::registry &reg )

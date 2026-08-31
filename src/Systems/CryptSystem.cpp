@@ -248,7 +248,7 @@ void CryptSystem::check_entrance_collision()
     if ( not player_pos.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
     m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_CRYPT );
 
-    auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
+    auto [_, inventory_slot_type, _] = Utils::Player::get_inventory( reg() );
 
     Factory::Player::remove_player_last_graveyard_pos( reg() );
     Cmp::Position last_known_pos(
@@ -288,8 +288,8 @@ void CryptSystem::unlock_crypt_door()
   auto player_pos_cmp = Utils::Player::get_position( reg() );
   auto cryptdoor_view = reg().view<Cmp::Crypt::Entrance, Cmp::Position>();
 
-  auto [inv_entt, inv_type] = Utils::Player::get_inventory_type( reg() );
-  if ( inv_type != "sprite.item.cryptkey" ) return;
+  auto [_, inventory_type, _] = Utils::Player::get_inventory( reg() );
+  if ( inventory_type != "item.cryptkey" ) return;
 
   for ( auto [door_entity, cryptdoor_cmp, door_pos_cmp] : cryptdoor_view.each() )
   {
@@ -407,13 +407,10 @@ void CryptSystem::check_lever_activation()
       lever_cmp.setEnabled( true );
       m_enabled_levers++;
 
-      // update the sprite
-      Sprites::SpriteMetaType lever_sprite_type = "sprite.crypt.switch";
-      unsigned int enabled_lever_sprite_idx = 1;
       // clang-format off
       reg().emplace_or_replace<Cmp::AnimData>( lever_entt, Cmp::AnimData::Config{ 
-            .sprite_type = lever_sprite_type, 
-            .frame_index_offset = static_cast<size_t>(enabled_lever_sprite_idx),
+            .sprite_type = "sprite.crypt.switch", 
+            .frame_index_offset = 1,
             .enabled = true
       });
       // clang-format on

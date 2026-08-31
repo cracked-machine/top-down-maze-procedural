@@ -2,9 +2,9 @@
 #include <Components/AbsoluteOffset.hpp>
 #include <Components/AbsoluteRenderOffset.hpp>
 #include <Components/AbsoluteRotation.hpp>
-#include <Components/Npc/Npc.hpp>
 #include <Components/Npc/Container.hpp>
 #include <Components/Npc/Ghost.hpp>
+#include <Components/Npc/Npc.hpp>
 #include <Components/Random.hpp>
 #include <Components/Weapons/Arrow.hpp>
 #include <Components/Weapons/InFlight.hpp>
@@ -28,11 +28,13 @@ ArrowSystem::ArrowSystem( entt::registry &reg, sf::RenderWindow &window, Sprites
 
 void ArrowSystem::on_player_action_event( Game::Events::PlayerActionEvent ev )
 {
+  auto [_, inventory_type, _] = Utils::Player::get_inventory( reg() );
+  if ( inventory_type != "item.bow" ) { return; }
+
   if ( ev.action == Game::Events::PlayerActionEvent::GameActions::DRAW_BOW )
   {
     // draw the bow
-    auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
-    if ( inventory_slot_type != "sprite.item.bow" ) { return; }
+
     if ( m_sound_bank.get_effect( "draw_bow" ).getStatus() != sf::Sound::Status::Playing ) m_sound_bank.get_effect( "draw_bow" ).play();
     m_bow_drawing = true;
     m_bow_draw_clock.restart();
@@ -40,9 +42,6 @@ void ArrowSystem::on_player_action_event( Game::Events::PlayerActionEvent ev )
   else if ( ev.action == Game::Events::PlayerActionEvent::GameActions::RELEASE_BOW )
   {
     // release an arrow; how far it flies depends on how long the bow was held drawn
-    auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
-    if ( inventory_slot_type != "sprite.item.bow" ) { return; }
-
     m_sound_bank.get_effect( "release_bow" ).play();
 
     static const float kMinChargeFraction = 0.25f;

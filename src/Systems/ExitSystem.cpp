@@ -48,10 +48,7 @@ ExitSystem::ExitSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::
 
 void ExitSystem::create_exit()
 {
-  if ( not reg().view<Cmp::Exit>().empty() )
-  {
-    throw std::runtime_error( "create_exit() called but an exit already exists in this scene" );
-  }
+  if ( not reg().view<Cmp::Exit>().empty() ) { throw std::runtime_error( "create_exit() called but an exit already exists in this scene" ); }
 
   entt::entity selected_entity = entt::null;
   Cmp::Position selected_pos_cmp( { 0, 0 }, { 0, 0 } );
@@ -94,14 +91,14 @@ void ExitSystem::create_exit()
 
 void ExitSystem::on_player_action( Events::PlayerActionEvent ev )
 {
-  auto [_, inventory_ms] = Utils::Player::get_inventory_type( reg() );
-  if ( ev.action == Events::PlayerActionEvent::GameActions::ACTIVATE && inventory_ms == "sprite.item.exitkey" ) { unlock_exit(); }
+  auto [_, inventory_type, _] = Utils::Player::get_inventory( reg() );
+  if ( ev.action == Events::PlayerActionEvent::GameActions::ACTIVATE && inventory_type == "item.exitkey" ) { unlock_exit(); }
 }
 
 void ExitSystem::unlock_exit()
 {
-  auto [inv_entt, inv_type] = Utils::Player::get_inventory_type( reg() );
-  if ( not inv_type.contains( "exitkey" ) ) return;
+  auto [_, inventory_type, _] = Utils::Player::get_inventory( reg() );
+  if ( not inventory_type.contains( "exitkey" ) ) return;
 
   auto player_pos = Utils::Player::get_position( reg() );
   auto player_hitbox = Cmp::RectBounds::scaled( player_pos, 5.f );

@@ -42,8 +42,8 @@ void NightStaticShader::update( entt::registry &reg )
   }
 
   // flame particle sprites are paused when candle is in inventory so we need to add the radius explicitly
-  auto [item_entt, item_type] = Utils::Player::get_inventory_type( reg );
-  if ( item_type.contains( "candle" ) ) { torch_positions.push_back( Utils::Player::get_position( reg ).getCenter() ); }
+  auto [_, inventory_type, _] = Utils::Player::get_inventory( reg );
+  if ( inventory_type.contains( "candle" ) ) { torch_positions.push_back( Utils::Player::get_position( reg ).getCenter() ); }
 
   for ( auto [npc_entt, npc_wisp_cmp, npc_pos_cmp] : reg.view<Cmp::Npc::Wisp, Cmp::Position>().each() )
   {

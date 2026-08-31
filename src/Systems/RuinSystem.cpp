@@ -318,7 +318,7 @@ void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
         ++col;
         continue;
       }
-      bookshelf_row_candidate.push_back( { bc_left_coord, "sprite.ruin.bookcase.left" } );
+      bookshelf_row_candidate.emplace_back( bc_left_coord, "sprite.ruin.bookcase.left" );
 
       // bookcase middle pieces - advance N times from the left edge section coord
       Cmp::RectBounds bc_mid_coord = bc_left_coord;
@@ -334,7 +334,7 @@ void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
           valid_candidate = false;
           break;
         }
-        bookshelf_row_candidate.push_back( { bc_mid_coord, "sprite.ruin.bookcase.mid" } );
+        bookshelf_row_candidate.emplace_back( bc_mid_coord, "sprite.ruin.bookcase.mid" );
       }
 
       if ( not valid_candidate )
@@ -351,7 +351,7 @@ void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
         ++col;
         continue;
       }
-      bookshelf_row_candidate.push_back( { bc_right_coord, "sprite.ruin.bookcase.right" } );
+      bookshelf_row_candidate.emplace_back( bc_right_coord, "sprite.ruin.bookcase.right" );
 
       // add the line of bookshelf sprites
       SPDLOG_DEBUG( "bookcase candidate of length: {}", bookshelf_row_candidate.size() );
@@ -435,8 +435,8 @@ bool RuinSystem::check_activate_player_curse( sf::Vector2f scene_dimensions )
   auto npc_shadowhand_cmp = Sys::NpcStore::instance().get_item( "npc.shadowhand" );
   const auto &hand_ms = m_sprite_factory.get_spritesheet_by_type( npc_shadowhand_cmp.sprite_type_list.front() );
 
-  auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( m_reg );
-  if ( not player_curse.active && inventory_type == "sprite.item.witchesjar" )
+  auto [_, inventory_type, _] = Utils::Player::get_inventory( m_reg );
+  if ( not player_curse.active && inventory_type == "item.witchesjar" )
   {
     if ( not m_curse_activation_future.valid() )
     {

@@ -76,7 +76,7 @@ void GraveSystem::update()
 
 bool GraveSystem::has_digging_tool_equipped()
 {
-  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
+  auto [_, inventory_slot_type, _] = Utils::Player::get_inventory( reg() );
   if ( not inventory_slot_type.contains( "pickaxe" ) and not inventory_slot_type.contains( "axe" ) and not inventory_slot_type.contains( "shovel" ) )
   {
     return false;

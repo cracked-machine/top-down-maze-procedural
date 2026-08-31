@@ -100,7 +100,7 @@ void HealingSpringSystem::check_exit_collision()
 void HealingSpringSystem::check_inventory_deposit()
 {
 
-  auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg() );
+  auto [_, inventory_type, _] = Utils::Player::get_inventory( reg() );
   if ( not inventory_type.contains( "item.cursetablet" ) ) return;
 
   auto &wealth = Utils::Player::get_wealth( m_reg );

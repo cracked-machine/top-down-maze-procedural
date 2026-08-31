@@ -90,7 +90,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
   auto *altar_uuid_cmp = reg().try_get<Cmp::UUID>( altar_entity );
   if ( not altar_uuid_cmp ) throw std::runtime_error( "Altar does not have UUID" );
 
-  auto [sacrifice_entt, sacrifice_type] = Utils::Player::get_inventory_type( reg() );
+  auto [_, sacrifice_type, _] = Utils::Player::get_inventory( reg() );
   enum class SacrificeAnimType { RELIC, KEY, JEWELS, WITCHESJAR };
 
   //! @brief Common actions following an altar sacrifice
@@ -164,7 +164,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
   // We still need to satisfy the relic sacrifice threshold to get an exitkey drop
   if ( altar_cmp.get_sacrifice_count() < altar_cmp.get_exitkey_drop_threshold() )
   {
-    if ( sacrifice_type.contains( "sprite.item.relic" ) )
+    if ( sacrifice_type.contains( "item.relic" ) )
     {
       uint8_t sacrifice_count = altar_cmp.get_sacrifice_count();
       reg().patch<Cmp::Altar::MultiBlock>( altar_entity,
@@ -178,7 +178,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
   // We still need to satisfy the exitkey sacrifice threshold to get an cryptkey drop
   else if ( altar_cmp.get_sacrifice_count() < altar_cmp.get_cryptkey_drop_threshold() )
   {
-    if ( sacrifice_type.contains( "sprite.item.exitkey" ) )
+    if ( sacrifice_type.contains( "item.exitkey" ) )
     {
       switch ( altar_cmp.get_sacrifice_count() )
       {
@@ -207,7 +207,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
   {
     if ( not altar_cmp.is_exitkey_lockout() )
     {
-      if ( sacrifice_type.contains( "sprite.item.relic" ) )
+      if ( sacrifice_type.contains( "item.relic" ) )
       {
         get_systems_event_queue().trigger( Events::CreateItemEvent( Utils::Player::get_position( reg() ), "item.exitkey", "drop_loot" ) );
 
@@ -215,7 +215,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
         auto flash_entt = reg().create();
         reg().emplace_or_replace<Cmp::FlashUIInventory>( flash_entt );
       }
-      SPDLOG_INFO( "Dropped sprite.item.exitkey" );
+
       altar_cmp.set_exitkey_lockout();
     }
   }
@@ -224,14 +224,13 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
   {
     if ( not altar_cmp.is_cryptkey_lockout() )
     {
-      if ( sacrifice_type.contains( "sprite.item.exitkey" ) )
+      if ( sacrifice_type.contains( "item.exitkey" ) )
       {
         get_systems_event_queue().trigger( Events::CreateItemEvent( Utils::Player::get_position( reg() ), "item.cryptkey", "drop_loot" ) );
         // signal UI to flash
         auto flash_entt = reg().create();
         reg().emplace_or_replace<Cmp::FlashUIInventory>( flash_entt );
       }
-      SPDLOG_INFO( "Dropped sprite.item.cryptkey" );
       altar_cmp.set_cryptkey_lockout();
     }
   }

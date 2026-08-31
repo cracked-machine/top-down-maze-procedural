@@ -423,15 +423,13 @@ void RenderGameSystem::render_arrow_compass()
 {
   auto player_view = reg().view<Cmp::Player::Character, Cmp::Position>();
 
-  auto [found_entt, found_carryitem_type] = Utils::Player::get_inventory_type( reg() );
+  auto [_, inventory_type, _] = Utils::Player::get_inventory( reg() );
 
-  if ( not found_carryitem_type.contains( "exitkey" ) and not found_carryitem_type.contains( "cryptkey" ) and
-       not found_carryitem_type.contains( "relic" ) )
-    return;
+  if ( not inventory_type.contains( "exitkey" ) and not inventory_type.contains( "cryptkey" ) and not inventory_type.contains( "relic" ) ) return;
 
   // if holding an exitkey then target the exit pos
   Cmp::Position arrow_target( { 0.f, 0.f }, { 0.f, 0.f } );
-  if ( found_carryitem_type.contains( "exitkey" ) )
+  if ( inventory_type.contains( "exitkey" ) )
   {
     auto exit_view = reg().view<Cmp::Exit, Cmp::Position>();
     for ( auto [exit_entity, exit_cmp, exit_pos_cmp] : exit_view.each() )
@@ -441,7 +439,7 @@ void RenderGameSystem::render_arrow_compass()
   }
 
   // if holding a cryptkey then target the nearest inactive crypt
-  if ( found_carryitem_type.contains( "cryptkey" ) )
+  if ( inventory_type.contains( "cryptkey" ) )
   {
     auto nearest = find_nearest_target(
         reg().view<Cmp::Crypt::Entrance, Cmp::Position>(), Utils::Player::get_position( reg() ).position,
@@ -455,7 +453,7 @@ void RenderGameSystem::render_arrow_compass()
   }
 
   // if holding a relic then target the nearest inactive altar
-  if ( found_carryitem_type.contains( "relic" ) )
+  if ( inventory_type.contains( "relic" ) )
   {
     auto nearest = find_nearest_target( reg().view<Cmp::Altar::MultiBlock>(), Utils::Player::get_position( reg() ).position,
                                         []( entt::entity, const Cmp::Altar::MultiBlock &altar_cmp ) -> std::optional<Cmp::Position>

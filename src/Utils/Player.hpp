@@ -140,9 +140,9 @@ void remove_lerp_cmp( entt::registry &reg );
 
 //! @brief Get the entity and sprite type currently held in the player's (single-slot) inventory.
 //! @param reg reference to the entt registry
-//! @return std::pair<entt::entity, Sprites::SpriteMetaType> The inventory slot entity and its item's sprite type;
-//! entt::null and a default-constructed sprite type if the inventory is empty.
-std::pair<entt::entity, Sprites::SpriteMetaType> get_inventory_type( entt::registry &reg );
+//! @return std::tuple<entt::entity, std::string, Sprites::SpriteMetaType> The inventory slot entity, its item type and its sprite type;
+//! entt::null and empty strings for the types if the inventory is empty.
+std::tuple<entt::entity, std::string, Sprites::SpriteMetaType> get_inventory( entt::registry &reg );
 
 //! @brief Get the wear level of the item in the player's inventory slot.
 //! @param reg reference to the entt registry

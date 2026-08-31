@@ -110,7 +110,6 @@ void ActionSystem::on_player_action( const Events::PlayerActionEvent &event )
 
 void ActionSystem::check_player_dig_obstacle_collision()
 {
-  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
 
   if ( Utils::Player::get_inventory_wear_level( reg() ) <= 0 ) { return; }
 
@@ -184,8 +183,9 @@ void ActionSystem::check_player_dig_obstacle_collision()
 
       // calculate new alpha value and apply to the current obstacle and any obstacle with matching UUID (cap sprite obstacles)
       auto damage_per_hit = Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( reg() ).get_value();
-      if ( inventory_slot_type.contains( "pickaxe" ) ) { damage_per_hit = damage_per_hit / 2; }
-      else if ( inventory_slot_type.contains( "shovel" ) or inventory_slot_type.contains( "axe" ) ) { damage_per_hit = damage_per_hit / 5; }
+      auto [_, inventory_type, _] = Utils::Player::get_inventory( reg() );
+      if ( inventory_type.contains( "pickaxe" ) ) { damage_per_hit = damage_per_hit / 2; }
+      else if ( inventory_type.contains( "shovel" ) or inventory_type.contains( "axe" ) ) { damage_per_hit = damage_per_hit / 5; }
       obstacle_cmp.damage += damage_per_hit;
 
       float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
@@ -296,8 +296,6 @@ void ActionSystem::check_player_dig_obstacle_collision()
 
 void ActionSystem::check_player_dig_plant_collision()
 {
-  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
-  // if ( inventory_slot_type != "sprite.item.shovel" and inventory_slot_type != "sprite.item.axe" and inventory_slot_type != "" ) { return; }
 
   // abort if still in cooldown
   if ( is_digging_on_cooldown() ) { return; }
@@ -342,7 +340,7 @@ void ActionSystem::check_player_dig_plant_collision()
       else
       {
         if ( Utils::Player::get_inventory_wear_level( reg() ) <= 0 ) { return; }
-        auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg() );
+        auto [_, inventory_type, _] = Utils::Player::get_inventory( reg() );
 
         // Prevent digging/chopping a plant on fire
         auto *burning_accum = reg().try_get<Cmp::Plant::BurningTimeAccumulator>( plant_entt );
@@ -377,7 +375,7 @@ void ActionSystem::check_player_dig_plant_collision()
 void ActionSystem::check_player_smash_pot()
 {
 
-  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
+  auto [_, inventory_slot_type, _] = Utils::Player::get_inventory( reg() );
   if ( not inventory_slot_type.contains( "pickaxe" ) and not inventory_slot_type.contains( "axe" ) and not inventory_slot_type.contains( "shovel" ) )
   {
     return;
@@ -439,8 +437,8 @@ void ActionSystem::check_player_axe_npc_kill()
   PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock();
   if ( not pathfinding_navmesh ) return;
 
-  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
-  if ( inventory_slot_type != "sprite.item.axe" ) { return; }
+  auto [_, inventory_slot_type, _] = Utils::Player::get_inventory( reg() );
+  if ( inventory_slot_type != "item.axe" ) { return; }
 
   if ( Utils::Player::get_inventory_wear_level( reg() ) <= 0 ) { return; }
 

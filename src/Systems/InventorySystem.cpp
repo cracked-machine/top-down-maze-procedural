@@ -69,7 +69,7 @@ void InventorySystem::on_player_action( const Events::PlayerActionEvent &event )
 
 void InventorySystem::on_drop_inventory_event( [[maybe_unused]] Events::DropInventoryEvent ev )
 {
-  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
+  auto [inventory_entt, _, _] = Utils::Player::get_inventory( reg() );
   if ( inventory_entt == entt::null ) return;
   auto player_pos = Utils::Player::get_position( reg() ).position;
   drop_inventory_item( player_pos, inventory_entt );
@@ -326,7 +326,7 @@ void InventorySystem::consume_inventory( sf::Time dt )
     m_sound_bank.get_effect( "eating" ).stop();
     reg().remove<Cmp::Player::EatingTimeAccumulator>( player_entt );
     Utils::Player::apply_action_from_inventory_item<Cmp::ConsumeAction>( reg() );
-    auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg() );
+    auto [_, inventory_type, _] = Utils::Player::get_inventory( reg() );
     Factory::Player::destroy_inventory( reg(), inventory_type );
   }
 }

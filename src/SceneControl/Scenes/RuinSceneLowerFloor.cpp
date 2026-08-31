@@ -139,8 +139,8 @@ void RuinSceneLowerFloor::on_enter()
 
   m_sound_bank.get_music( "graveyard_music" ).stop();
 
-  auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( m_reg );
-  if ( inventory_type != "sprite.item.witchesjar" )
+  auto [_, inventory_type, _] = Utils::Player::get_inventory( m_reg );
+  if ( inventory_type != "item.witchesjar" )
   {
     if ( m_sound_bank.get_music( "ruin_creaking_rope" ).getStatus() != sf::Sound::Status::Playing )
     {

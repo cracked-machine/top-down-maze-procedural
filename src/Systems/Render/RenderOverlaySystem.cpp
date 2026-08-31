@@ -240,9 +240,9 @@ void RenderOverlaySystem::render_ui_labels( sf::Time dt )
     else if ( ui_label.name == "wealth_label" ) { text_str = " =   " + std::to_string( Utils::Player::get_wealth( reg() ).wealth ); }
     else if ( ui_label.name == "inventory_label" )
     {
-      auto [entt, type] = Utils::Player::get_inventory_type( reg() );
-      if ( type == "" ) { text_str = ""; }
-      else { text_str = m_sprite_factory.get_spritesheet_by_type( type ).get_display_name(); }
+      auto [_, _, inventory_sprite_type] = Utils::Player::get_inventory( reg() );
+      if ( inventory_sprite_type == "" ) { text_str = ""; }
+      else { text_str = m_sprite_factory.get_spritesheet_by_type( inventory_sprite_type ).get_display_name(); }
     }
 
     sf::Text text( m_font, "", ui_label.font_size );

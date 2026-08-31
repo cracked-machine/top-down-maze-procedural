@@ -123,8 +123,8 @@ void BombSystem::arm_player_bomb()
   for ( auto [destructable_entity, destructable_cmp, destructable_pos_cmp] : destructable_view.each() )
   {
 
-    auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg() );
-    if ( inventory_type != "sprite.item.bomb" ) return;
+    auto [_, inventory_type, _] = Utils::Player::get_inventory( reg() );
+    if ( inventory_type != "item.bomb" ) return;
 
     // make a copy and reduce/center the player hitbox to avoid arming a neighbouring location
     auto player_hitbox = sf::FloatRect( player_pos );
@@ -272,42 +272,41 @@ void BombSystem::update()
 
     // detonate nearby carryitems - cruel but fair
     auto carryitem_view = reg().view<Cmp::WorldItem, Cmp::Position>();
-    for ( auto [carryitem_entt, carryitem_cmp, carryitem_pos_cmp] : carryitem_view.each() )
+    for ( auto [item_entt, item_cmp, item_pos_cmp] : carryitem_view.each() )
     {
-      if ( carryitem_entt == armed_entt ) continue;
-      if ( not carryitem_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
-      if ( carryitem_cmp.sprite_type == "sprite.item.pickaxe" or carryitem_cmp.sprite_type == "sprite.item.axe" or
-           carryitem_cmp.sprite_type == "sprite.item.shovel" )
+      if ( item_entt == armed_entt ) continue;
+      if ( not item_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
+      if ( item_cmp.item_type == "item.pickaxe" or item_cmp.item_type == "item.axe" or item_cmp.item_type == "item.shovel" )
       {
         Utils::Player::reduce_inventory_wear_level( reg(), Sys::PersistSystem::get<Cmp::Persist::BombDamage>( reg() ).get_value() );
       }
-      else if ( carryitem_cmp.sprite_type == "sprite.item.bomb" )
+      else if ( item_cmp.item_type == "item.bomb" )
       {
         // process other explosives lying around - chain reaction!
-        auto *explosive_cmp = reg().try_get<Cmp::Explosive>( carryitem_entt );
+        auto *explosive_cmp = reg().try_get<Cmp::Explosive>( item_entt );
         if ( not explosive_cmp ) continue;
         SPDLOG_DEBUG( "Found explosive component {}", static_cast<int>( carryitem_entt ) );
 
         // Skip if this carryitem was already armed (already processed or being processed)
-        if ( explosive_cmp->armed and armed_pos_cmp.findIntersection( carryitem_pos_cmp ) )
+        if ( explosive_cmp->armed and armed_pos_cmp.findIntersection( item_pos_cmp ) )
         {
-          if ( reg().valid( carryitem_entt ) ) { reg().destroy( carryitem_entt ); }
+          if ( reg().valid( item_entt ) ) { reg().destroy( item_entt ); }
         }
         SPDLOG_DEBUG( "Explosive candidate not already armed {}", static_cast<int>( carryitem_entt ) );
 
         // Check if this bomb is within the blast radius of THIS explosion (not just any armed position)
-        if ( not armed_pos_cmp.findIntersection( carryitem_pos_cmp ) ) continue;
+        if ( not armed_pos_cmp.findIntersection( item_pos_cmp ) ) continue;
         SPDLOG_DEBUG( "Found explosive candidate {}", static_cast<int>( carryitem_entt ) );
 
         // IMMEDIATELY mark as armed to prevent other recursive calls from processing it
         explosive_cmp->armed = true;
-        Factory::Bomb::create_armed( reg(), carryitem_entt, Cmp::Armed::EpiCenter::YES, 0, carryitem_pos_cmp.position.y - 64 );
-        arm_entt( carryitem_entt );
-        SPDLOG_INFO( "Chain reaction triggered for bomb entity {} ", static_cast<int>( carryitem_entt ) );
+        Factory::Bomb::create_armed( reg(), item_entt, Cmp::Armed::EpiCenter::YES, 0, item_pos_cmp.position.y - 64 );
+        arm_entt( item_entt );
+        SPDLOG_INFO( "Chain reaction triggered for bomb entity {} ", static_cast<int>( item_entt ) );
       }
       else
       {
-        if ( reg().valid( carryitem_entt ) ) { reg().destroy( carryitem_entt ); }
+        if ( reg().valid( item_entt ) ) { reg().destroy( item_entt ); }
       }
     }
 
