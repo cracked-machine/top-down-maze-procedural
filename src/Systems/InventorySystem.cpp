@@ -221,10 +221,7 @@ void InventorySystem::drop_inventory_item( sf::Vector2f pos, entt::entity invent
 
   // now destroy the inventory slot
   reg().destroy( inventory_slot_entt );
-  if ( world_item_entt != entt::null )
-  {
-    // m_sound_bank.get_effect( "drop_relic" ).play();
-  }
+  if ( world_item_entt != entt::null ) { m_sound_bank.get_effect( "drop_inventory" ).play(); }
 }
 
 void InventorySystem::pickup_world_item( entt::registry &reg, entt::entity world_item_entt )
@@ -279,7 +276,7 @@ void InventorySystem::pickup_world_item( entt::registry &reg, entt::entity world
   Factory::Plant::remove_plant_mb( reg, world_item_entt, m_npc_navmesh.lock(), m_player_navmesh.lock() );
   if ( reg.valid( world_item_entt ) ) reg.destroy( world_item_entt );
 
-  if ( inventory_entity != entt::null ) { m_sound_bank.get_effect( "get_loot" ).play(); }
+  if ( inventory_entity != entt::null ) { m_sound_bank.get_effect( "equip_inventory" ).play(); }
 }
 
 void InventorySystem::consume_inventory( sf::Time dt )
