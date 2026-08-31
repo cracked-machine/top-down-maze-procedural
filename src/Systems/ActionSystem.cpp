@@ -342,31 +342,33 @@ void ActionSystem::check_player_dig_plant_collision()
       else
       {
         if ( Utils::Player::get_inventory_wear_level( reg() ) <= 0 ) { return; }
+        auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg() );
 
-        for ( auto [inventory_entt, inventory_slot] : inventory_wear_view.each() )
+        // Prevent digging/chopping a plant on fire
+        auto *burning_accum = reg().try_get<Cmp::Plant::BurningTimeAccumulator>( plant_entt );
+        if ( burning_accum ) continue;
+
+        if ( inventory_type.contains( "item.shovel" ) )
         {
-          if ( inventory_slot.m_item.sprite_type == "sprite.item.shovel" )
-          {
-            get_systems_event_queue().trigger( Events::DropInventoryEvent() );
-            Utils::Player::apply_action_from_world_item<Cmp::SpawnAction>( reg(), plant_entt );
-            get_systems_event_queue().trigger( Events::PickupWorldItemEvent( plant_entt ) );
-            m_sound_bank.get_effect( "digging_earth" ).play();
-          }
-          else if ( inventory_slot.m_item.sprite_type == "sprite.item.axe" )
-          {
-            auto plantleaves_particle_uuid = Cmp::UUID::generate();
-            Factory::Particle::add_plantleaves_ps( reg(), "graveyard.plant.leaves.particle", 50, 2.f, 50.f, 14.f, plantleaves_particle_uuid,
-                                                   plant_mb_cmp.getCenter(), plant_mb_cmp.position.y );
-            auto planttwigs_particle_uuid = Cmp::UUID::generate();
-            Factory::Particle::add_planttwigs_ps( reg(), "graveyard.plant.twigs.particle", 10, 2.f, 50.f, 14.f, planttwigs_particle_uuid,
-                                                  plant_mb_cmp.getCenter(), plant_mb_cmp.position.y );
-            Utils::Player::apply_action_from_world_item<Cmp::DestroyAction>( reg(), plant_entt );
-            Factory::Plant::remove_plant_mb( reg(), plant_entt, m_npc_navmesh.lock(), m_player_navmesh.lock() );
-            m_sound_bank.get_effect( "chopping_final" ).play();
-          }
+          // dig up the plant
+          get_systems_event_queue().trigger( Events::DropInventoryEvent() );
+          Utils::Player::apply_action_from_world_item<Cmp::SpawnAction>( reg(), plant_entt );
+          get_systems_event_queue().trigger( Events::PickupWorldItemEvent( plant_entt ) );
+          m_sound_bank.get_effect( "digging_earth" ).play();
         }
-
-        get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG, plant_entt ) );
+        else if ( inventory_type.contains( "item.axe" ) )
+        {
+          // destroy the plant
+          auto plantleaves_particle_uuid = Cmp::UUID::generate();
+          Factory::Particle::add_plantleaves_ps( reg(), "graveyard.plant.leaves.particle", 50, 2.f, 50.f, 14.f, plantleaves_particle_uuid,
+                                                 plant_mb_cmp.getCenter(), plant_mb_cmp.position.y );
+          auto planttwigs_particle_uuid = Cmp::UUID::generate();
+          Factory::Particle::add_planttwigs_ps( reg(), "graveyard.plant.twigs.particle", 10, 2.f, 50.f, 14.f, planttwigs_particle_uuid,
+                                                plant_mb_cmp.getCenter(), plant_mb_cmp.position.y );
+          Utils::Player::apply_action_from_world_item<Cmp::DestroyAction>( reg(), plant_entt );
+          Factory::Plant::remove_plant_mb( reg(), plant_entt, m_npc_navmesh.lock(), m_player_navmesh.lock() );
+          m_sound_bank.get_effect( "chopping_final" ).play();
+        }
       }
     }
   }
