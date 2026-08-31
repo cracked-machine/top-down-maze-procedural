@@ -129,13 +129,17 @@ void InventorySystem::drop_inventory_item( sf::Vector2f pos, entt::entity invent
   // if player inventory is a plant item then replant it in the ground - snap to nearest grid to prevent collision issues
   if ( inventory_slot_cmp->m_item.sprite_type.contains( "plant" ) )
   {
+    // multiblocks are top-left anchored, so offset the y-axis so that plant base is at players feet
+    auto plant_pos = Utils::snap_to_grid( { pos.x, pos.y - Constants::kGridSizePxF.y } );
+
+    // don't allow plants to be dropped at all in the player spawn area
+    if ( Utils::Player::is_in_spawn( reg(), Cmp::Position{ plant_pos, Constants::kGridSizePxF } ) ) return;
+
     // for plant drops fall through to the rest of the function that creates normal world items
     if ( not inventory_slot_cmp->m_item.sprite_type.contains( "drop" ) )
     {
-      // multiblocks are top-left anchored, so offset the y-axis so that plant base is at players feet
       auto [mb_entt, segment_entt_list] = Factory::Multiblock::add_multiblock_with_segments<Cmp::PlantMultiBlock, Cmp::PlantSegment>(
-          reg(), Utils::snap_to_grid( { pos.x, pos.y - Constants::kGridSizePxF.y } ),
-          m_sprite_factory.get_spritesheet_by_type( inventory_slot_cmp->m_item.sprite_type ) );
+          reg(), plant_pos, m_sprite_factory.get_spritesheet_by_type( inventory_slot_cmp->m_item.sprite_type ) );
 
       // Preserve the item this plant was grown from, so digging it back up (see the DIG handler in
       // on_player_action_event) can hand it back via the normal pickup_world_item path instead of
