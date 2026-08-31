@@ -329,7 +329,7 @@ void CryptSystem::unlock_crypt_door()
 
     // unlock the crypt door
     SPDLOG_DEBUG( "Player unlocked a crypt door at ({}, {})", door_pos_cmp.position.x, door_pos_cmp.position.y );
-    Factory::Player::destroy_inventory( reg(), "sprite.item.cryptkey" );
+    Factory::Player::destroy_inventory( reg(), "item.cryptkey" );
 
     // player_key_count->decrement_count( 1 );
     m_sound_bank.get_effect( "crypt_open" ).play();

@@ -142,7 +142,7 @@ void BombSystem::arm_player_bomb()
       auto realigned_epicenter_pos = Utils::snap_to_grid( destructable_pos_cmp );
       reg().emplace<Cmp::Position>( armed_epicenter_entity, realigned_epicenter_pos.position, realigned_epicenter_pos.size );
       place_concentric_bomb_pattern( armed_epicenter_entity, reg().get<Cmp::Player::BlastRadius>( player_entt ).value );
-      Factory::Player::destroy_inventory( reg(), "sprite.item.bomb" );
+      Factory::Player::destroy_inventory( reg(), "item.bomb" );
       Utils::Player::get_global_bomb_flash_clk( reg() ).restart();
     }
   }
@@ -150,7 +150,7 @@ void BombSystem::arm_player_bomb()
 
 void BombSystem::place_concentric_bomb_pattern( const entt::entity &epicenter_entity, const int blast_radius, int depth )
 {
-  constexpr int kZOrderOffset = 64;
+  constexpr float kZOrderOffset = 64.f;
 
   SPDLOG_DEBUG( "Recursive call {}", depth );
   constexpr int kMaxRecursionDepth = 10;

@@ -119,7 +119,7 @@ void ExitSystem::unlock_exit()
     }
 
     if ( m_sound_bank.get_effect( "secret" ).getStatus() == sf::Sound::Status::Stopped ) m_sound_bank.get_effect( "secret" ).play();
-    Factory::Player::destroy_inventory( reg(), "sprite.item.exitkey" );
+    Factory::Player::destroy_inventory( reg(), "item.exitkey" );
   }
 }
 

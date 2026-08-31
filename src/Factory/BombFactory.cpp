@@ -18,7 +18,7 @@
 namespace Game::Factory::Bomb
 {
 
-entt::entity create_armed( entt::registry &reg, entt::entity entity, Cmp::Armed::EpiCenter epi_center, int sequence, int zorder )
+entt::entity create_armed( entt::registry &reg, entt::entity entity, Cmp::Armed::EpiCenter epi_center, int sequence, float zorder )
 {
 
   // get persistent settings

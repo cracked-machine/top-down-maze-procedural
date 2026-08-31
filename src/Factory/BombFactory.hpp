@@ -16,7 +16,7 @@ namespace Game::Factory::Bomb
 //! @param sequence Chain position, used to stagger the fuse and warning delays across linked armed entities.
 //! @param zorder Z-order applied when `epi_center` is EpiCenter::YES.
 //! @return `entity`, unchanged.
-entt::entity create_armed( entt::registry &registry, entt::entity entity, Cmp::Armed::EpiCenter epi_center, int sequence, int zorder );
+entt::entity create_armed( entt::registry &registry, entt::entity entity, Cmp::Armed::EpiCenter epi_center, int sequence, float zorder );
 
 //! @brief Remove the Armed/AnimData/ZOrderValue/NoPathFinding components added by create_armed().
 //! @param reg

@@ -28,10 +28,10 @@ entt::entity add_spawn_area( entt::registry &registry, entt::entity entity, Spri
 //! @param sprite
 void create_player_death_anim( entt::registry &registry, Cmp::Position player_pos_cmp, const Sprites::SpriteSheet &sprite );
 
-//! @brief Destroy all player inventory slots matching a type. See "sprite.item.xxxx" in res/json/sprite_metadata.json
+//! @brief Destroy all player inventory slots matching a type. See "item.xxxx" in res/json/items.json
 //! @param reg the ECS registry
 //! @param type the type to destroy
-void destroy_inventory( entt::registry &reg, const Sprites::SpriteMetaType &type );
+void destroy_inventory( entt::registry &reg, const std::string &type );
 
 //! @brief Create a new player inventory slot entity for `item`, attaching any item-specific components
 //! (wear level for axe/shovel, seeing stone target for scrying balls, etc).

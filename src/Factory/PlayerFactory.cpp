@@ -163,7 +163,7 @@ void destroy_inventory( entt::registry &reg, const Sprites::SpriteMetaType &type
   auto inventory_view = reg.view<Cmp::PlayerInventorySlot>();
   for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
   {
-    if ( inventory_cmp.m_item.sprite_type == type ) reg.destroy( inventory_entt );
+    if ( inventory_cmp.m_item.item_type == type ) reg.destroy( inventory_entt );
   }
 }
 
