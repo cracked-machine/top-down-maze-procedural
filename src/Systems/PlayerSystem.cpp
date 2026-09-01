@@ -35,6 +35,7 @@
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Persistent/PostPullMovementDelay.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
+#include <Components/Plant/BurningTimeAccumulator.hpp>
 #include <Components/Player/Character.hpp>
 #include <Components/Player/Mortality.hpp>
 #include <Components/Player/MovementSuppressCooldown.hpp>
@@ -580,14 +581,28 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
         }
       }
 
-      // healing spring
+      // apply candle item modifiers to the player when standing inside flame of burning plant
+      auto burning_plant_view = reg().view<Cmp::PlantMultiBlock, Cmp::Plant::BurningTimeAccumulator, Cmp::UUID>();
+      for ( auto [plant_entt, plant_cmp, plant_burn_cmp, plant_uuid_cmp] : burning_plant_view.each() )
+      {
+        if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), plant_cmp ) ) continue;
+        for ( auto [particle_entt, particle_cmp, particle_uuid_cmp] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+        {
+          if ( plant_uuid_cmp != particle_uuid_cmp ) continue;
 
+          float player_distance = Utils::Maths::getEuclideanDistance( particle_cmp.sprite->get_emitter_position(),
+                                                                      Utils::Player::get_position( reg() ).position );
+          if ( player_distance > torch_radius.value ) continue;
+          net_modifier += candle_carry_action;
+        }
+      }
+
+      // healing spring
       Cmp::BaseAction fountain_effects( { +5 }, { -5 }, { -5 }, { -5 }, { -5 }, {}, {} );
       for ( auto [fountain_entt, fountain_mb_cmp, fountain_uuid_cmp] : reg().view<Cmp::HealingSpringMultiBlock, Cmp::UUID>().each() )
       {
 
         if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), fountain_mb_cmp ) ) continue;
-
         if ( Utils::Player::is_player_near( reg(), fountain_mb_cmp ) )
         {
           reg().emplace_or_replace<Cmp::HealingSpring::ActiveHealing>( fountain_entt );

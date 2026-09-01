@@ -33,8 +33,9 @@ void NightStaticShader::update( entt::registry &reg )
   // add the radius for each flame particle sprite so the shader can render a circle of light
   for ( auto [candle_entt, particle_cmp] : reg.view<Sys::ParticleSpriteOwner>().each() )
   {
-    if ( not particle_cmp.sprite->get_tag().contains( "candle" ) and not particle_cmp.sprite->get_tag().contains( "crypt.altar.particles" ) and
-         not particle_cmp.sprite->get_tag().contains( "ruin.rune.particles" ) )
+    auto ps_tag = particle_cmp.sprite->get_tag();
+    if ( not ps_tag.contains( "candle" ) and not ps_tag.contains( "crypt.altar.particles" ) and not ps_tag.contains( "ruin.rune.particles" ) and
+         not ps_tag.contains( "burning" ) )
       continue;
     if ( particle_cmp.sprite->get_view_type() != Cmp::Particle::ViewType::WORLD )
       continue; // skip UI-space particles (e.g. candle shown in inventory icon)
