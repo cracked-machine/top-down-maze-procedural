@@ -115,6 +115,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Factory/ParticleFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/PathfindingFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Utils/Utils.cpp
+    ${CMAKE_SOURCE_DIR}/src/Utils/ImGuiTheme.cpp
     ${CMAKE_SOURCE_DIR}/src/Utils/Maths.cpp
     ${CMAKE_SOURCE_DIR}/src/Utils/Player.cpp
     ${CMAKE_SOURCE_DIR}/src/Utils/Npc.cpp

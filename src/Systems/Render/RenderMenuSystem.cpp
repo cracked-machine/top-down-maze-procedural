@@ -76,6 +76,7 @@
 #include <Systems/Render/RenderMenuSystem.hpp>
 #include <Systems/ShaderSystem.hpp>
 #include <Systems/Threats/BombSystem.hpp>
+#include <Utils/ImGuiTheme.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
 
@@ -314,6 +315,9 @@ void RenderMenuSystem::render_settings_widgets( sf::Time dt, sf::FloatRect title
     m_window.create( sf::VideoMode( display_resolution ), "Your Game Title", sf::State::Fullscreen );
     m_window.setVerticalSyncEnabled( true );
     if ( not ImGui::SFML::Init( m_window ) ) { SPDLOG_ERROR( "Failed to reinitialize ImGui-SFML after display resolution change" ); }
+    // ImGui::SFML::Init creates a brand new ImGuiContext, so the theme applied at startup
+    // (Engine.cpp) doesn't carry over - it has to be re-applied here.
+    Game::Utils::apply_imgui_theme();
 
     auto shader_view = reg().view<ShaderSpriteOwner>();
     for ( auto [entt, shader] : shader_view.each() )

@@ -16,6 +16,7 @@
 #include <Systems/Stores/SystemStore.hpp>
 #include <Systems/Threats/HazardFieldSystem.hpp>
 #include <Systems/Threats/HazardFieldSystemImpl.hpp>
+#include <Utils/ImGuiTheme.hpp>
 #include <Utils/Utils.hpp>
 #include <imgui-SFML.h>
 
@@ -50,6 +51,7 @@ Engine::Engine()
   // m_window->setFramerateLimit( 144 );
 
   // Set ImGui style
+  Utils::apply_imgui_theme();
   ImGuiIO &io = ImGui::GetIO();
   io.FontGlobalScale = 1.5f;
   io.IniFilename = "res/imgui.ini";
