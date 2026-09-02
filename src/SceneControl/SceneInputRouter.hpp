@@ -120,7 +120,7 @@ private:
 
   //! @brief Enqueue a SceneManagerEvent of the given type on m_scenemanager_event_dispatcher.
   //! @param ev The scene manager event type to enqueue
-  void enqueue( Events::SceneManagerEvent::Type ev );
+  void enqueue( Events::SceneManagerEvent::Type type );
 
   //! @brief Enable or disable every ParticleSpriteOwner's particle sprite (debug/cheat key).
   //! @param enable true to restart the particle sprites, false to stop them

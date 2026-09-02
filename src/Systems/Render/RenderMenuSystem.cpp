@@ -127,7 +127,7 @@ void RenderMenuSystem::render_title()
   // main render end
 }
 
-void RenderMenuSystem::render_settings( sf::Time globalDeltaTime )
+void RenderMenuSystem::render_settings( sf::Time dt )
 {
   m_window.clear();
   sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
@@ -149,7 +149,7 @@ void RenderMenuSystem::render_settings( sf::Time globalDeltaTime )
   m_window.draw( exit_text );
 
   // ImGUI should be rendered before window.display() or SFML wipes the display buffer prematurely
-  render_settings_widgets( globalDeltaTime, title_text.getLocalBounds() );
+  render_settings_widgets( dt, title_text.getLocalBounds() );
 
   m_window.display();
 }
