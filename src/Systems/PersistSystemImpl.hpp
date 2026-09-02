@@ -13,16 +13,18 @@ namespace Game::Sys
 
 //! @copydoc PersistSystem::add(entt::registry&)
 template <typename T>
-void PersistSystem::add( entt::registry &reg )
+T &PersistSystem::add( entt::registry &reg )
 {
   if ( not reg.ctx().contains<T>() ) { reg.ctx().emplace<T>(); }
+  return reg.ctx().get<T>();
 }
 
 //! @copydoc PersistSystem::add(entt::registry&,Args&&...)
 template <typename T, typename... Args>
-void PersistSystem::add( entt::registry &reg, Args &&...args )
+T &PersistSystem::add( entt::registry &reg, Args &&...args )
 {
   if ( not reg.ctx().contains<T>() ) { reg.ctx().emplace<T>( std::forward<Args>( args )... ); }
+  return reg.ctx().get<T>();
 }
 
 //! @copydoc PersistSystem::get(entt::registry&)
@@ -37,22 +39,19 @@ T &PersistSystem::get( entt::registry &reg )
   return reg.ctx().get<T>();
 }
 
-//! @copydoc PersistSystem::register_types(const std::string&)
+//! @copydoc PersistSystem::add_component()
 template <typename T>
-void PersistSystem::register_types( const std::string &name )
+void PersistSystem::add_component()
 {
-  // Register loader
-  m_component_loaders[name] = [this]( const nlohmann::json &j )
+  const std::string name = T{}.class_name();
+  m_components[name].initialise = [this, name]( const nlohmann::json &json )
   {
-    auto &cmp = Sys::PersistSystem::get<T>( reg() );
-    cmp.deserialize( j );
+    auto &cmp = Sys::PersistSystem::add<T>( reg() );
+    cmp.deserialize( json );
+
+    m_components[name].deserialiser = [this]( const nlohmann::json &j ) { Sys::PersistSystem::get<T>( reg() ).deserialize( j ); };
+    m_components[name].serialiser = [this]() -> nlohmann::json { return Sys::PersistSystem::get<T>( reg() ).serialize(); };
   };
-
-  // Register serializer
-  m_component_serializers[name] = [this]() -> nlohmann::json { return Sys::PersistSystem::get<T>( reg() ).serialize(); };
-
-  // Only add to widget list if T inherits from IBasePersistent
-  if constexpr ( std::is_base_of_v<Cmp::Persist::IBasePersistent, T> ) { m_registered_components.push_back( &Sys::PersistSystem::get<T>( reg() ) ); }
 }
 
 } // namespace Game::Sys

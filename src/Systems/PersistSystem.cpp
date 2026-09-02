@@ -79,6 +79,7 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
+#include <stdexcept>
 
 namespace Game::Sys
 {
@@ -91,116 +92,100 @@ PersistSystem::PersistSystem( entt::registry &reg, sf::RenderWindow &window, Spr
   SPDLOG_DEBUG( "PersistSystem initialized" );
 }
 
-void PersistSystem::initialize_type_registry()
+/* static */ std::optional<nlohmann::json> PersistSystem::load_json_file( const std::string &path )
 {
-  using namespace Cmp::Persist;
-
-  //! @brief Helper function for SerDe and for initializing the component in the registry.
-  auto register_type = [this]<typename T>( const char *name )
+  std::ifstream inputFile( path );
+  if ( not inputFile.is_open() )
   {
-    m_type_registry[name] = [this, name]( const nlohmann::json &json )
-    {
-      Sys::PersistSystem::add<T>( reg() );
-      Sys::PersistSystem::get<T>( reg() ).deserialize( json );
-      register_types<T>( name );
-    };
-  };
+    SPDLOG_ERROR( "Failed to open {}", path );
+    return std::nullopt;
+  }
 
-  // clang-format off
-  register_type.operator()<ArmedBlinkFreq>("ArmedBlinkFreq");
-  register_type.operator()<ArmedBlockColourFill>("ArmedBlockColourFill");
-  register_type.operator()<ArmedBlockColourBorder>("ArmedBlockColourBorder");
-  register_type.operator()<ArmedOffDelay>("ArmedOffDelay");
-  register_type.operator()<ArmedOnDelay>("ArmedOnDelay");
-  register_type.operator()<BlastRadius>("BlastRadius");
-  register_type.operator()<BombBonus>("BombBonus");
-  register_type.operator()<BombDamage>("BombDamage");
-  register_type.operator()<CameraSmoothSpeed>("CameraSmoothSpeed");
-  register_type.operator()<CorruptionDamage>("CorruptionDamage");
-  register_type.operator()<CryptShuffleTimeout>("CryptShuffleTimeout");
-  register_type.operator()<CryptNpcSpawnCount>("CryptNpcSpawnCount");
-  register_type.operator()<DiggingCooldownThreshold>("DiggingCooldownThreshold");
-  register_type.operator()<DiggingDamagePerHit>("DiggingDamagePerHit");
-  register_type.operator()<DisplayResolution>("DisplayResolution");
-  register_type.operator()<EffectsVolume>("EffectsVolume");
-  register_type.operator()<ExitKeyRequirement>("ExitKeyRequirement");
-  register_type.operator()<FuseDelay>("FuseDelay");
-  register_type.operator()<GraveNumMultiplier>("GraveNumMultiplier");
-  register_type.operator()<GraveyardProcGenInitChance>("GraveyardProcGenInitChance");
-  register_type.operator()<GraveyardProcGenMaxIterations>("GraveyardProcGenMaxIterations");
-  register_type.operator()<GraveyardProcGenBirthThreshold>("GraveyardProcGenBirthThreshold");
-  register_type.operator()<GraveyardProcGenSurvivalThreshold>("GraveyardProcGenSurvivalThreshold");
-  register_type.operator()<HazardPushbackResist>("HazardPushbackResist");
-  register_type.operator()<HealthBonus>("HealthBonus");
-  register_type.operator()<LightningDamage>("LightningDamage");
-  register_type.operator()<MaxNumAltars>("MaxNumAltars");
-  register_type.operator()<MaxNumCrypts>("MaxNumCrypts");
-  register_type.operator()<MusicVolume>("MusicVolume");
-  register_type.operator()<NpcActivateScale>("NpcActivateScale");
-  register_type.operator()<NpcDeathAnimFramerate>("NpcDeathAnimFramerate");
-  register_type.operator()<NpcPushBack>("NpcPushBack");
-  register_type.operator()<NpcShockwaveFreq>("NpcShockwaveFreq");
-  register_type.operator()<NpcShockwaveMaxRadius>("NpcShockwaveMaxRadius");
-  register_type.operator()<NpcShockwaveResolution>("NpcShockwaveResolution");
-  register_type.operator()<NpcShockwaveSpeed>("NpcShockwaveSpeed");
-  register_type.operator()<NpcWatchmanSpawnMax>("NpcWatchmanSpawnMax");
-  register_type.operator()<NpcWatchmanSpawnCooldown>("NpcWatchmanSpawnCooldown");
-  register_type.operator()<NpcWatchmanGunFireRate>("NpcWatchmanGunFireRate");
-  register_type.operator()<NpcWatchmanGunReloadRate>("NpcWatchmanGunReloadRate");
-  register_type.operator()<NpcWatchmanSpawnInfamy>("NpcWatchmanSpawnInfamy");
-  register_type.operator()<NpcWatchmanConeHalfAngle>("NpcWatchmanConeHalfAngle");
-  register_type.operator()<NpcWatchmanConeLength>("NpcWatchmanConeLength");
-  register_type.operator()<NpcWatchmanSweepSpeed>("NpcWatchmanSweepSpeed");
-  register_type.operator()<NpcWatchmanSweepAmplitude>("NpcWatchmanSweepAmplitude");
-  register_type.operator()<NpcWatchmanIdleDirectionChangeInterval>("NpcWatchmanIdleDirectionChangeInterval");
-  register_type.operator()<PcDamageDelay>("PcDamageDelay");
-  register_type.operator()<PlantBurnDuration>("PlantBurnDuration");
-  register_type.operator()<PlayerAnimFramerate>("PlayerAnimFramerate");
-  register_type.operator()<PlayerDiagonalLerpSpeedModifier>("PlayerDiagonalLerpSpeedModifier");
-  register_type.operator()<PlayerFootstepAddDelay>("PlayerFootstepAddDelay");
-  register_type.operator()<PlayerFootstepFadeDelay>("PlayerFootstepFadeDelay");
-  register_type.operator()<PlayerLerpInterruptThreshold>("PlayerLerpInterruptThreshold");
-  register_type.operator()<PlayerMovementSpeed>("PlayerMovementSpeed");
-  register_type.operator()<PlayerShortcutLerpSpeedModifier>("PlayerShortcutLerpSpeedModifier");
-  register_type.operator()<PlayerStartPosition>("PlayerStartPosition");
-  register_type.operator()<PostPullMovementDelay>("PostPullMovementDelay");
-  register_type.operator()<RuinMaxCobwebs>("RuinMaxCobwebs");
-  register_type.operator()<RuinMaxSpiders>("RuinMaxSpiders");
-  register_type.operator()<RuinProcGenInitChance>("RuinProcGenInitChance");
-  register_type.operator()<RuinProcGenMaxIterations>("RuinProcGenMaxIterations");
-  register_type.operator()<RuinProcGenBirthThreshold>("RuinProcGenBirthThreshold");
-  register_type.operator()<RuinProcGenSurvivalThreshold>("RuinProcGenSurvivalThreshold");
-  register_type.operator()<ShopMaxItems>("ShopMaxItems");
-  register_type.operator()<ShopMinPrice>("ShopMinPrice");
-  register_type.operator()<ShopMaxPrice>("ShopMaxPrice");
-  register_type.operator()<PlayerStartPosition>("PlayerStartPosition");
-  register_type.operator()<WeaponDegradePerHit>("WeaponDegradePerHit");
-  register_type.operator()<WormholeAnimFramerate>("WormholeAnimFramerate");
-  // clang-format on
+  nlohmann::json data;
+  inputFile >> data;
+  return data;
 }
 
 void PersistSystem::initialize_component_registry()
 {
-
-  // First, set up the type registry (maps type names to factory functions)
-  initialize_type_registry();
-
   // Load component definitions from JSON
-  std::ifstream inputFile( "res/json/persistent_components.json" );
-  if ( !inputFile.is_open() )
-  {
-    SPDLOG_ERROR( "Failed to open persistent_components.json" );
-    return;
-  }
+  const auto definitions = load_json_file( kPersistFilePath );
+  if ( not definitions ) { return; }
 
-  nlohmann::json definitions;
-  inputFile >> definitions;
-  inputFile.close();
+  // Register the serialize/deserialize functions for every persistent component type.
+  add_component<Cmp::Persist::ArmedBlinkFreq>();
+  add_component<Cmp::Persist::ArmedBlockColourFill>();
+  add_component<Cmp::Persist::ArmedBlockColourBorder>();
+  add_component<Cmp::Persist::ArmedOffDelay>();
+  add_component<Cmp::Persist::ArmedOnDelay>();
+  add_component<Cmp::Persist::BlastRadius>();
+  add_component<Cmp::Persist::BombBonus>();
+  add_component<Cmp::Persist::BombDamage>();
+  add_component<Cmp::Persist::CameraSmoothSpeed>();
+  add_component<Cmp::Persist::CorruptionDamage>();
+  add_component<Cmp::Persist::CryptShuffleTimeout>();
+  add_component<Cmp::Persist::CryptNpcSpawnCount>();
+  add_component<Cmp::Persist::DiggingCooldownThreshold>();
+  add_component<Cmp::Persist::DiggingDamagePerHit>();
+  add_component<Cmp::Persist::DisplayResolution>();
+  add_component<Cmp::Persist::EffectsVolume>();
+  add_component<Cmp::Persist::ExitKeyRequirement>();
+  add_component<Cmp::Persist::FuseDelay>();
+  add_component<Cmp::Persist::GraveNumMultiplier>();
+  add_component<Cmp::Persist::GraveyardProcGenInitChance>();
+  add_component<Cmp::Persist::GraveyardProcGenMaxIterations>();
+  add_component<Cmp::Persist::GraveyardProcGenBirthThreshold>();
+  add_component<Cmp::Persist::GraveyardProcGenSurvivalThreshold>();
+  add_component<Cmp::Persist::HazardPushbackResist>();
+  add_component<Cmp::Persist::HealthBonus>();
+  add_component<Cmp::Persist::LightningDamage>();
+  add_component<Cmp::Persist::MaxNumAltars>();
+  add_component<Cmp::Persist::MaxNumCrypts>();
+  add_component<Cmp::Persist::MusicVolume>();
+  add_component<Cmp::Persist::NpcActivateScale>();
+  add_component<Cmp::Persist::NpcDeathAnimFramerate>();
+  add_component<Cmp::Persist::NpcPushBack>();
+  add_component<Cmp::Persist::NpcShockwaveFreq>();
+  add_component<Cmp::Persist::NpcShockwaveMaxRadius>();
+  add_component<Cmp::Persist::NpcShockwaveResolution>();
+  add_component<Cmp::Persist::NpcShockwaveSpeed>();
+  add_component<Cmp::Persist::NpcWatchmanSpawnMax>();
+  add_component<Cmp::Persist::NpcWatchmanSpawnCooldown>();
+  add_component<Cmp::Persist::NpcWatchmanGunFireRate>();
+  add_component<Cmp::Persist::NpcWatchmanGunReloadRate>();
+  add_component<Cmp::Persist::NpcWatchmanSpawnInfamy>();
+  add_component<Cmp::Persist::NpcWatchmanConeHalfAngle>();
+  add_component<Cmp::Persist::NpcWatchmanConeLength>();
+  add_component<Cmp::Persist::NpcWatchmanSweepSpeed>();
+  add_component<Cmp::Persist::NpcWatchmanSweepAmplitude>();
+  add_component<Cmp::Persist::NpcWatchmanIdleDirectionChangeInterval>();
+  add_component<Cmp::Persist::PcDamageDelay>();
+  add_component<Cmp::Persist::PlantBurnDuration>();
+  add_component<Cmp::Persist::PlayerAnimFramerate>();
+  add_component<Cmp::Persist::PlayerDiagonalLerpSpeedModifier>();
+  add_component<Cmp::Persist::PlayerFootstepAddDelay>();
+  add_component<Cmp::Persist::PlayerFootstepFadeDelay>();
+  add_component<Cmp::Persist::PlayerLerpInterruptThreshold>();
+  add_component<Cmp::Persist::PlayerMovementSpeed>();
+  add_component<Cmp::Persist::PlayerShortcutLerpSpeedModifier>();
+  add_component<Cmp::Persist::PlayerStartPosition>();
+  add_component<Cmp::Persist::PostPullMovementDelay>();
+  add_component<Cmp::Persist::RuinMaxCobwebs>();
+  add_component<Cmp::Persist::RuinMaxSpiders>();
+  add_component<Cmp::Persist::RuinProcGenInitChance>();
+  add_component<Cmp::Persist::RuinProcGenMaxIterations>();
+  add_component<Cmp::Persist::RuinProcGenBirthThreshold>();
+  add_component<Cmp::Persist::RuinProcGenSurvivalThreshold>();
+  add_component<Cmp::Persist::ShopMaxItems>();
+  add_component<Cmp::Persist::ShopMinPrice>();
+  add_component<Cmp::Persist::ShopMaxPrice>();
+  add_component<Cmp::Persist::WeaponDegradePerHit>();
+  add_component<Cmp::Persist::WormholeAnimFramerate>();
 
-  // Register each component from the JSON file
-  for ( const auto &[name, config] : definitions.items() )
+  // Add serdes functions to each component
+  for ( const auto &[name, config] : definitions->items() )
   {
-    if ( m_type_registry.contains( name ) ) { m_type_registry.at( name )( config ); }
+    if ( m_components.contains( name ) ) { m_components.at( name ).initialise( config ); }
     else { SPDLOG_WARN( "Unknown component type in definitions: {}", name ); }
   }
 
@@ -213,18 +198,30 @@ void PersistSystem::initialize_component_registry()
 void PersistSystem::load_state()
 {
   SPDLOG_DEBUG( "Loading persistent state..." );
-  nlohmann::json jsonData;
-  std::ifstream inputFile( "res/json/persistent_components.json" );
-  if ( inputFile.is_open() )
-  {
-    inputFile >> jsonData;
-    inputFile.close();
-  }
+  const auto jsonData = load_json_file( kPersistFilePath );
+  if ( not jsonData ) { return; }
 
-  for ( const auto &[key, value] : jsonData.items() )
+  for ( const auto &[key, value] : jsonData->items() )
   {
-    if ( m_component_loaders.contains( key ) ) { m_component_loaders.at( key )( value ); }
-    else { SPDLOG_WARN( "Unknown component: {}", key ); }
+    if ( not m_components.contains( key ) )
+    {
+      SPDLOG_WARN( "Unknown component: {}", key );
+      continue;
+    }
+
+    try
+    {
+      const auto &ops = m_components.at( key );
+      if ( not ops.deserialiser )
+      {
+        throw std::runtime_error( "Persistent component " + key + " has not been initialised (no matching entry was present in " +
+                                  std::string( kPersistFilePath ) + " at startup)" );
+      }
+      ops.deserialiser( value );
+    } catch ( const std::exception &e )
+    {
+      SPDLOG_WARN( "Failed to load component {}: {}", key, e.what() );
+    }
   }
 }
 
@@ -233,20 +230,25 @@ void PersistSystem::save_state()
   SPDLOG_DEBUG( "Saving persistent state..." );
   nlohmann::json jsonData;
 
-  // Use the serializers registered during initializeComponentRegistry
-  for ( const auto &[key, serializer] : m_component_serializers )
+  // Use the component instances registered during initialize_component_registry()
+  for ( const auto &[key, ops] : m_components )
   {
     try
     {
-      auto result = serializer();
-      if ( !result.is_null() ) { jsonData[key] = result; }
+      if ( not ops.serialiser )
+      {
+        throw std::runtime_error( "Persistent component " + key + " has not been initialised (no matching entry was present in " +
+                                  std::string( kPersistFilePath ) + " at startup)" );
+      }
+      auto result = ops.serialiser();
+      if ( not result.is_null() ) { jsonData[key] = result; }
     } catch ( const std::exception &e )
     {
       SPDLOG_WARN( "Failed to serialize component {}: {}", key, e.what() );
     }
   }
 
-  std::ofstream outputFile( "res/json/persistent_components.json" );
+  std::ofstream outputFile( kPersistFilePath );
   if ( outputFile.is_open() )
   {
     outputFile << jsonData.dump( 4 );
