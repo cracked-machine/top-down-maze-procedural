@@ -281,14 +281,14 @@ void PlayerSystem::move_obstacle( const sf::FloatRect &target_position )
 
           if ( any_obstacle_on_rune )
           {
-            Factory::Particle::add_rune_ps( m_reg, "ruin.rune.particles", 1.f, 10.f, rune_uuid_cmp,
+            Factory::Particle::add_rune_ps( m_reg, "ruin.rune.particle.active", 1.f, 10.f, rune_uuid_cmp,
                                             { rune_pos_cmp.position.x + 8.f, rune_pos_cmp.position.y }, 5000 );
           }
           else
           {
             for ( auto [ps_entt, ps_cmp, ps_uuid_cmp] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
             {
-              if ( ps_cmp.sprite->get_tag() == "ruin.rune.particles" and ps_uuid_cmp == rune_uuid_cmp ) reg().destroy( ps_entt );
+              if ( ps_cmp.sprite->get_tag() == "ruin.rune.particle.active" and ps_uuid_cmp == rune_uuid_cmp ) reg().destroy( ps_entt );
             }
           }
           // shift the rune on the y-axis to adjust for the front-facing perspective
@@ -696,14 +696,14 @@ void PlayerSystem::create_healing_particles()
     for ( auto [ps_entt, ps_cmp, ps_uuid_cmp] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
     {
       if ( ps_uuid_cmp != fountain_uuid_cmp ) continue;
-      if ( ps_cmp.sprite->get_tag() == "player.healing.particles" ) player_healing_ps_owner_list.push_back( ps_entt );
+      if ( ps_cmp.sprite->get_tag() == "player.healing.particle.active" ) player_healing_ps_owner_list.push_back( ps_entt );
     }
     if ( Utils::Player::is_player_near( reg(), fountain_mb_cmp ) )
     {
       if ( player_healing_ps_owner_list.empty() )
       {
         auto player_pos = Utils::Player::get_position( reg() );
-        Factory::Particle::add_player_healing_ps( reg(), "player.healing.particles", 0.3F, 10.f, fountain_uuid_cmp, player_pos.getCenter(),
+        Factory::Particle::add_player_healing_ps( reg(), "player.healing.particle.active", 0.3F, 10.f, fountain_uuid_cmp, player_pos.getCenter(),
                                                   player_pos.y() - 1 );
       }
       Factory::Particle::update_position( reg(), fountain_uuid_cmp, Utils::Player::get_position( reg() ).getCenter() );

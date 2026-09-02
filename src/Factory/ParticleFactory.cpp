@@ -238,8 +238,8 @@ void add_flame_for_player_inventory_slot( entt::registry &reg )
   for ( auto [inventory_entt, inventory_cmp, inventory_uuid_cmp] : reg.view<Cmp::PlayerInventorySlot, Cmp::UUID>().each() )
   {
     SPDLOG_DEBUG( "add_flame_for_player_inventory_slot: candidate slot sprite_type={}", inventory_cmp.m_item.sprite_type );
-    if ( not inventory_cmp.m_item.sprite_type.contains( "candle" ) ) continue;
-    Factory::Particle::add_flame( reg, "particle.candle", inventory_uuid_cmp, Utils::Player::get_position( reg ).getCenter(), 50000,
+    if ( inventory_cmp.m_item.item_type != "item.candle" ) continue;
+    Factory::Particle::add_flame( reg, "ui.candle.particle.flame", inventory_uuid_cmp, Utils::Player::get_position( reg ).getCenter(), 50000,
                                   Cmp::Particle::kUiScalePreset );
     SPDLOG_DEBUG( "add_flame_for_player_inventory_slot: created flame for candle uuid {}", inventory_uuid_cmp.str() );
 

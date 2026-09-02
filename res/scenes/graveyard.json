@@ -1884,6 +1884,19 @@
                  "width":0,
                  "x":800,
                  "y":816
+                }, 
+                {
+                 "height":0,
+                 "id":276,
+                 "name":"item.plant1",
+                 "opacity":1,
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":720,
+                 "y":816
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -1892,7 +1905,7 @@
          "y":0
         }],
  "nextlayerid":11,
- "nextobjectid":275,
+ "nextobjectid":277,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.1",

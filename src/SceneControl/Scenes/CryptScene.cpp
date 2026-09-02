@@ -103,11 +103,11 @@ void CryptScene::on_init()
   m_reg.emplace<Sprites::Containers::VertexFloor>( floor_entity, floortiles );
   m_reg.emplace<Cmp::ZOrderValue>( floor_entity, -16.f );
 
-  for ( auto [candle_entt, candle_cmp, candle_pos, uuid_cmp] : m_reg.view<Cmp::WorldItem, Cmp::Position, Cmp::UUID>().each() )
+  for ( auto [worlditem_entt, worlditem_cmp, worlditem_pos_cmp, worlditem_uuid_cmp] : m_reg.view<Cmp::WorldItem, Cmp::Position, Cmp::UUID>().each() )
   {
-    if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
-    Factory::Particle::add_flame( m_reg, "particle.candle", uuid_cmp,
-                                  { candle_pos.getCenter().x, candle_pos.getCenter().y - Cmp::Particle::Flame::kVerticalOffset },
+    if ( worlditem_cmp.item_type != "item.candle" ) continue;
+    Factory::Particle::add_flame( m_reg, "crypt.candle.particle.flame", worlditem_uuid_cmp,
+                                  { worlditem_pos_cmp.getCenter().x, worlditem_pos_cmp.getCenter().y - Cmp::Particle::Flame::kVerticalOffset },
                                   Utils::Player::get_position( m_reg ).y() - 1, Cmp::Particle::kWorldScalePreset );
   }
 }

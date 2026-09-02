@@ -13,7 +13,7 @@ namespace Game::Factory::Particle
 
 //! @brief Spawn the particle effect for an activated crypt altar.
 //! @param reg
-//! @param tag Identifier used to find/filter this particle sprite later.
+//! @param tag <location>.<item>.particle.<sprite>
 //! @param lifetime_seconds Maximum particle lifetime, in seconds.
 //! @param speed Maximum particle speed.
 //! @param uuid_cmp UUID assigned to the created entity, so it can be tracked/updated later (e.g. via update_position()).
@@ -24,7 +24,7 @@ void add_crypt_altar_ps( entt::registry &reg, const std::string &tag, float life
 
 //! @brief Spawn the particle effect that plays when the player is healed.
 //! @param reg
-//! @param tag Identifier used to find/filter this particle sprite later.
+//! @param tag <location>.<item>.particle.<sprite>
 //! @param lifetime_seconds Maximum particle lifetime, in seconds.
 //! @param speed Maximum particle speed.
 //! @param uuid_cmp UUID assigned to the created entity, so it can be tracked/updated later (e.g. via update_position()).
@@ -35,7 +35,7 @@ void add_player_healing_ps( entt::registry &reg, const std::string &tag, float l
 
 //! @brief Spawn a gunfire particle burst from a watchman, aimed at the player's current position with a small random spread.
 //! @param reg
-//! @param tag Identifier used to find/filter this particle sprite later.
+//! @param tag <location>.<item>.particle.<sprite>
 //! @param lifetime_seconds Particle lifetime, in seconds (fixed, not randomised).
 //! @param speed Particle speed (fixed, not randomised).
 //! @param uuid_cmp UUID assigned to the created entity, so it can be tracked/updated later (e.g. via update_position()).
@@ -46,7 +46,7 @@ void add_watchman_gunfire_ps( entt::registry &reg, const std::string &tag, float
 
 //! @brief Spawn a rune particle effect.
 //! @param reg
-//! @param tag Identifier used to find/filter this particle sprite later.
+//! @param tag <location>.<item>.particle.<sprite>
 //! @param lifetime_seconds Maximum particle lifetime, in seconds.
 //! @param speed Maximum particle speed.
 //! @param uuid_cmp UUID assigned to the created entity, so it can be tracked/updated later (e.g. via update_position()).
@@ -57,7 +57,7 @@ void add_rune_ps( entt::registry &reg, const std::string &tag, float lifetime_se
 
 //! @brief Spawn a wormhole particle effect.
 //! @param reg
-//! @param tag Identifier used to find/filter this particle sprite later.
+//! @param tag <location>.<item>.particle.<sprite>
 //! @param lifetime_seconds Maximum particle lifetime, in seconds.
 //! @param speed Maximum particle speed.
 //! @param uuid_cmp UUID assigned to the created entity, so it can be tracked/updated later (e.g. via update_position()).
@@ -68,7 +68,7 @@ void add_wormhole_ps( entt::registry &reg, const std::string &tag, float lifetim
 
 //! @brief Spawn the debris particle effect for an obstacle being dug up.
 //! @param reg
-//! @param tag Identifier used to find/filter this particle sprite later.
+//! @param tag <location>.<item>.particle.<sprite>
 //! @param particle_count Number of particles in the sprite.
 //! @param lifetime_seconds Maximum particle lifetime, in seconds.
 //! @param speed Particle speed (fixed, not randomised).
@@ -81,7 +81,7 @@ void add_obstacledig_ps( entt::registry &reg, const std::string &tag, int partic
 
 //! @brief Spawn the debris particle effect for an player eating.
 //! @param reg
-//! @param tag Identifier used to find/filter this particle sprite later.
+//! @param tag <location>.<item>.particle.<sprite>
 //! @param particle_count Number of particles in the sprite.
 //! @param lifetime_seconds Maximum particle lifetime, in seconds.
 //! @param speed Particle speed (fixed, not randomised).
@@ -95,7 +95,7 @@ void add_eatingcrumbs_ps( entt::registry &reg, const std::string &tag, int parti
 
 //! @brief Spawn the leaf debris particle effect for a plant destroyed by the axe.
 //! @param reg
-//! @param tag Identifier used to find/filter this particle sprite later.
+//! @param tag <location>.<item>.particle.<sprite>
 //! @param particle_count Number of particles in the sprite.
 //! @param lifetime_seconds Maximum particle lifetime, in seconds.
 //! @param speed Particle speed (fixed, not randomised).
@@ -108,7 +108,7 @@ void add_plantleaves_ps( entt::registry &reg, const std::string &tag, int partic
 
 //! @brief Spawn the twig debris particle effect for a plant destroyed by the axe.
 //! @param reg
-//! @param tag Identifier used to find/filter this particle sprite later.
+//! @param tag <location>.<item>.particle.<sprite>
 //! @param particle_count Number of particles in the sprite.
 //! @param lifetime_seconds Maximum particle lifetime, in seconds.
 //! @param speed Particle speed (fixed, not randomised).
@@ -121,7 +121,7 @@ void add_planttwigs_ps( entt::registry &reg, const std::string &tag, int particl
 
 //! @brief Spawn the bone debris particle effect for a skeleton killed by the axe.
 //! @param reg
-//! @param tag Identifier used to find/filter this particle sprite later.
+//! @param tag <location>.<item>.particle.<sprite>
 //! @param particle_count Number of particles in the sprite.
 //! @param lifetime_seconds Maximum particle lifetime, in seconds.
 //! @param speed Particle speed (fixed, not randomised).
@@ -134,7 +134,7 @@ void add_skelebones_ps( entt::registry &reg, const std::string &tag, int particl
 
 //! @brief Spawn a flame particle sprite (candle/altar fire).
 //! @param reg
-//! @param tag Identifier used to find/filter this particle sprite later.
+//! @param tag <location>.<item>.particle.<sprite>
 //! @param uuid_cmp UUID assigned to the created entity, so it can be tracked/updated later (e.g. via update_position()).
 //! @param initial_pos Initial position of the emitter. Note this is changed per-frame by ParticleSystem::update()
 //! @param zorder Draw order relative to other entities.
@@ -151,7 +151,7 @@ void add_flame_for_player_inventory_slot( entt::registry &reg );
 
 //! @brief Spawn a smoke particle effect.
 //! @param reg
-//! @param tag Identifier used to find/filter this particle sprite later.
+//! @param tag <location>.<item>.particle.<sprite>
 //! @param uuid_cmp UUID assigned to the created entity, so it can be tracked/updated later (e.g. via update_position()).
 //! @param pos World position of the emitter.
 //! @param zorder Draw order relative to other entities.
@@ -162,7 +162,7 @@ void add_smoke( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp
 //! permanently inside a triangular cross-section (see AshPileParticleSprite::kFallDistance/kBaseWidth),
 //! centred on `emitter_pos`'s x position.
 //! @param reg
-//! @param tag Identifier used to find/filter this particle sprite later.
+//! @param tag <location>.<item>.particle.<sprite>
 //! @param uuid_cmp UUID assigned to the created entity, so it can be tracked/updated later (e.g. via
 //! update_position()). Give this its own UUID rather than reusing another effect's (e.g. a burning
 //! plant's), otherwise cleanup code that destroys particle sprites by UUID will delete this pile too.
@@ -180,7 +180,7 @@ void add_ashpile( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_c
 
 //! @brief Spawn a shockwave particle effect radiating outward from `pos`.
 //! @param reg
-//! @param tag Identifier used to find/filter this particle sprite later.
+//! @param tag <location>.<item>.particle.<sprite>
 //! @param uuid_cmp UUID assigned to the created entity, so it can be tracked/updated later (e.g. via update_position()).
 //! @param pos World position of the emitter.
 //! @param zorder Draw order relative to other entities.

@@ -137,7 +137,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
 
       // player gains extra life protection
       anim_cmp->m_sprite_type = "sprite.crypt.altar.active";
-      Factory::Particle::add_crypt_altar_ps( m_reg, "crypt.altar.particles", 0.5, 25.f, *altar_uuid_cmp,
+      Factory::Particle::add_crypt_altar_ps( m_reg, "crypt.altar.particle.active", 0.5, 25.f, *altar_uuid_cmp,
                                              { altar_cmp.position.x + 8.f, altar_cmp.position.y + 24.f }, 5000 );
       Factory::Player::destroy_inventory( reg(), sacrifice_type );
       auto flash_entt = reg().create();
@@ -170,7 +170,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
       reg().patch<Cmp::Altar::MultiBlock>( altar_entity,
                                            [&]( Cmp::Altar::MultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( sacrifice_count + 1 ); } );
       sf::Vector2f flame_ps_pos = altar_cmp.position + altar_cmp.flame_offsets[sacrifice_count];
-      Factory::Particle::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, flame_ps_pos, 5000, Cmp::Particle::kWorldScalePreset );
+      Factory::Particle::add_flame( m_reg, "graveyard.altar.particle.flame", *altar_uuid_cmp, flame_ps_pos, 5000, Cmp::Particle::kWorldScalePreset );
       SPDLOG_DEBUG( "Altar activated to state {}.", sacrifice_count + 1 );
       common_activation( SacrificeAnimType::RELIC );
     }

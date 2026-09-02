@@ -562,7 +562,7 @@ bool ActionSystem::is_digging_on_cooldown()
 void ActionSystem::update_burning_worlditems( sf::Time dt )
 {
   static const std::string kAshPileTag = "particle.plant.ash";
-  static const std::string kPlantFireTag = "particle.plant.burning";
+  static const std::string kPlantFireTag = "graveyard.plant.particle.flame";
   static const std::string kPlantSmokeTag = "particle.plant.smoke";
 
   for ( auto [plant_entt, plant_cmp, plant_uuid] : reg().view<Cmp::PlantMultiBlock, Cmp::UUID>().each() )

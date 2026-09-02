@@ -235,7 +235,7 @@ void WatchmanSystem::spawn_watchman()
 void WatchmanSystem::fire_gun( Cmp::Position &npc_pos_cmp, Cmp::UUID &npc_uuid_cmp )
 {
   if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), npc_pos_cmp ) ) return;
-  Factory::Particle::add_watchman_gunfire_ps( m_reg, "watchman.gunfire.particles", 5.0, 100.f, npc_uuid_cmp, npc_pos_cmp.getCenter(), 50000 );
+  Factory::Particle::add_watchman_gunfire_ps( m_reg, "watchman.gun.particle.shot", 5.0, 100.f, npc_uuid_cmp, npc_pos_cmp.getCenter(), 50000 );
   if ( m_sound_bank.get_effect( "shotgun_fire" ).getStatus() != sf::Sound::Status::Playing ) m_sound_bank.get_effect( "shotgun_fire" ).play();
 }
 
@@ -261,7 +261,7 @@ void WatchmanSystem::check_gunfire_player_collision()
       continue;
 
     bool hit = false;
-    for ( auto &gunfire_sprite : Sys::ParticleSystem::find( reg(), "watchman.gunfire.particles" ) )
+    for ( auto &gunfire_sprite : Sys::ParticleSystem::find( reg(), "watchman.gun.particle.shot" ) )
     {
       if ( gunfire_sprite.get().check_particle_collision( player_pos_cmp ) ) hit = true;
     }
@@ -293,7 +293,7 @@ void WatchmanSystem::check_gunfire_npc_collision()
   for ( auto [npc_entt, npc_cmp, skeleton_cmp, npc_pos_cmp] : reg().view<Cmp::Npc::NPC, Cmp::Npc::Skeleton, Cmp::Position>().each() )
   {
     bool hit = false;
-    for ( auto &gunfire_sprite : Sys::ParticleSystem::find( reg(), "watchman.gunfire.particles" ) )
+    for ( auto &gunfire_sprite : Sys::ParticleSystem::find( reg(), "watchman.gun.particle.shot" ) )
     {
       if ( gunfire_sprite.get().check_particle_collision( npc_pos_cmp ) ) hit = true;
     }
