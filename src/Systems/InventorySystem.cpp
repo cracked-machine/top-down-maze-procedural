@@ -56,7 +56,7 @@ InventorySystem::InventorySystem( entt::registry &reg, sf::RenderWindow &window,
 
 void InventorySystem::update( sf::Time dt )
 {
-  Factory::Particle::delete_expired_particle_sprites( reg(), "player.eating.particle" );
+  Factory::Particle::delete_expired_particle_sprites( reg(), "player.drop.particle.eating" );
 
   auto player_entt = Utils::Player::get_entity( reg() );
   if ( reg().any_of<Cmp::Player::EatingTimeAccumulator>( player_entt ) ) { consume_inventory( dt ); }
@@ -302,23 +302,23 @@ void InventorySystem::consume_inventory( sf::Time dt )
     auto last_direction = Utils::Player::get_last_direction( reg() );
     if ( last_direction == Utils::Cardinal( Utils::Cardinal::North ).vector() )
     {
-      Factory::Particle::add_eatingcrumbs_ps( reg(), "player.eating.particle", kParticleCount, kLifetimeSeconds, kSpeed, kSize, uuid, adj_player_pos,
-                                              last_direction, player_zorder_pos - 1.f );
+      Factory::Particle::add_eatingcrumbs_ps( reg(), "player.drop.particle.eating", kParticleCount, kLifetimeSeconds, kSpeed, kSize, uuid,
+                                              adj_player_pos, last_direction, player_zorder_pos - 1.f );
     }
     else if ( last_direction == Utils::Cardinal( Utils::Cardinal::East ).vector() )
     {
-      Factory::Particle::add_eatingcrumbs_ps( reg(), "player.eating.particle", kParticleCount, kLifetimeSeconds, kSpeed, kSize, uuid,
+      Factory::Particle::add_eatingcrumbs_ps( reg(), "player.drop.particle.eating", kParticleCount, kLifetimeSeconds, kSpeed, kSize, uuid,
                                               { adj_player_pos.x + 2, adj_player_pos.y }, last_direction, player_zorder_pos + 1.f );
     }
     else if ( last_direction == Utils::Cardinal( Utils::Cardinal::West ).vector() )
     {
-      Factory::Particle::add_eatingcrumbs_ps( reg(), "player.eating.particle", kParticleCount, kLifetimeSeconds, kSpeed, kSize, uuid,
+      Factory::Particle::add_eatingcrumbs_ps( reg(), "player.drop.particle.eating", kParticleCount, kLifetimeSeconds, kSpeed, kSize, uuid,
                                               { adj_player_pos.x - 2, adj_player_pos.y }, last_direction, player_zorder_pos + 1.f );
     }
     else if ( last_direction == Utils::Cardinal( Utils::Cardinal::South ).vector() )
     {
-      Factory::Particle::add_eatingcrumbs_ps( reg(), "player.eating.particle", kParticleCount, kLifetimeSeconds, kSpeed, kSize, uuid, adj_player_pos,
-                                              last_direction, player_zorder_pos + 1.f );
+      Factory::Particle::add_eatingcrumbs_ps( reg(), "player.drop.particle.eating", kParticleCount, kLifetimeSeconds, kSpeed, kSize, uuid,
+                                              adj_player_pos, last_direction, player_zorder_pos + 1.f );
     }
   }
   else

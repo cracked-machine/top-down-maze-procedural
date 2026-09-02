@@ -116,7 +116,7 @@ void PlayerSystem::update( sf::Time dt )
   // cache position so we can update player in spatial grid after changes.
   auto old_player_pos = Utils::Player::get_position( reg() );
 
-  Factory::Particle::delete_expired_particle_sprites( reg(), "graveyard.skele.bones.particle" );
+  Factory::Particle::delete_expired_particle_sprites( reg(), "graveyard.skele.particle.bones" );
 
   fade_player_on_wormhole_jump();
   blink_player();

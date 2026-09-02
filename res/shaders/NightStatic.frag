@@ -23,16 +23,12 @@ uniform float fear;
 const int MAX_TORCH_COUNT = 40;
 uniform int torch_count;
 uniform vec2 torch_world_pos[MAX_TORCH_COUNT];
+// per-torch light color, RGB normalized (0..1) not 8bit RGB; alpha scales how strongly the color tints the pixel
+uniform vec4 torch_color[MAX_TORCH_COUNT];
 
 const float M_PI = 3.1415926535897932384626433832795;
 const float M_2PI = 6.28318;
 
-// Note these should be normalized not 8bit RGB.
-const vec3 WARM_YELLOW = vec3( 1.0, 0.92, 0.6 );
-const vec3 COOL_WHITE = vec3( 0.8, 0.85, 1.0 );
-const vec3 WARM_ORANGE = vec3( 1.0, 0.6, 0.2 );
-const vec3 EERIE_BLUE = vec3( 0.1, 0.15, 1.0 );
-const vec3 TORCH_COLOR = WARM_ORANGE;
 const vec3 NIGHT_COLOR = vec3( 0.1, 0.1, 0.44 );
 
 const float TORCH_ALPHA = 0.25;
@@ -61,6 +57,8 @@ const float NIGHT_STATIC_CONTRAST_EXP_K = 3.5;
 uniform int npc_count;
 uniform vec2 npc_positions[MAX_TORCH_COUNT];
 uniform vec2 npc_directions[MAX_TORCH_COUNT];
+// per-cone light color, same format as torch_color
+uniform vec4 npc_color[MAX_TORCH_COUNT];
 uniform float npc_torch_length; // shared reach for all Watchman cones, world units
 uniform float npc_torch_angle;  // shared half-angle for all Watchman cones, radians
 
@@ -98,10 +96,12 @@ float player_torch_pixel( vec2 frag_coord, int torch_idx )
   return clamp( 1.0 - ( dist_to_player / flickered_radius ), 0.0, 1.0 );
 }
 
-float npc_light_pixel( vec2 frag_coord )
+// Returns the strongest cone contribution at frag_coord, and writes that cone's color to light_color.
+float npc_light_pixel( vec2 frag_coord, out vec4 light_color )
 {
   // NPC cones: apex at NPC, spreads outward in facing direction
   float in_npc_light = 0.0;
+  light_color = vec4( 0.0 );
   for ( int i = 0; i < npc_count; i++ )
   {
     vec2 to_pixel = frag_coord - npc_positions[i];
@@ -115,7 +115,12 @@ float npc_light_pixel( vec2 frag_coord )
       // Fade toward edges of cone and toward tip
       float angular_fade = smoothstep( cos( npc_torch_angle ), cos( npc_torch_angle * 0.5 ), cos_angle );
       float dist_fade = smoothstep( npc_torch_length, npc_torch_length * 0.2, dist );
-      in_npc_light = max( in_npc_light, angular_fade * dist_fade );
+      float contribution = angular_fade * dist_fade;
+      if ( contribution > in_npc_light )
+      {
+        in_npc_light = contribution;
+        light_color = npc_color[i];
+      }
     }
   }
   return in_npc_light;
@@ -138,13 +143,26 @@ void main()
   vec4 sampled_color = texture2D( texture, frag_coord );
 
   // ── Torch / lighting ────────────────────────────────────────────────────────
-  // Accumulate the strongest light contribution from all torches
+  // Accumulate the strongest light contribution from all torches, and track that light's color
+  // (the color of whichever torch/cone contributes the most at this pixel).
   float frag_coord_light_amount = 0.0;
+  vec4 frag_light_color = vec4( 0.0 );
   for ( int i = 0; i < torch_count; i++ )
   {
-    frag_coord_light_amount = max( frag_coord_light_amount, player_torch_pixel( frag_coord, i ) );
+    float torch_light_amount = player_torch_pixel( frag_coord, i );
+    if ( torch_light_amount > frag_coord_light_amount )
+    {
+      frag_coord_light_amount = torch_light_amount;
+      frag_light_color = torch_color[i];
+    }
   }
-  frag_coord_light_amount = max( frag_coord_light_amount, npc_light_pixel( frag_coord ) );
+  vec4 npc_light_color;
+  float npc_light_amount = npc_light_pixel( frag_coord, npc_light_color );
+  if ( npc_light_amount > frag_coord_light_amount )
+  {
+    frag_coord_light_amount = npc_light_amount;
+    frag_light_color = npc_light_color;
+  }
   // ── Static effect ────────────────────────────────────────────────────────────
 
   sampled_color.rgb = mix( sampled_color.rgb * NIGHT_COLOR, sampled_color.rgb, frag_coord_light_amount );
@@ -167,8 +185,9 @@ void main()
   sampled_color.g *= noise_factor;
   sampled_color.b *= noise_factor;
 
-  // Apply the colors for inside/outside the torch radius
-  sampled_color.rgb = mix( sampled_color.rgb * NIGHT_COLOR, sampled_color.rgb + TORCH_COLOR, frag_coord_light_amount );
+  // Apply the colors for inside/outside the torch radius. Alpha scales how strongly the light's
+  // color tints the pixel (1.0 == fully applied, matching the old fixed TORCH_COLOR behaviour).
+  sampled_color.rgb = mix( sampled_color.rgb * NIGHT_COLOR, sampled_color.rgb + frag_light_color.rgb * frag_light_color.a, frag_coord_light_amount );
 
   // ── Output ───────────────────────────────────────────────────────────────────
   // Logarithmic ease-out from 0 at fear=0 to 1 at fear=1: rises quickly at first, then tapers off

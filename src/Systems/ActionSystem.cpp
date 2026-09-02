@@ -81,9 +81,9 @@ ActionSystem::ActionSystem( entt::registry &reg, sf::RenderWindow &window, Sprit
 void ActionSystem::update( [[maybe_unused]] sf::Time dt )
 {
   // destroy particle sprite entities once all their particles have expired
-  Factory::Particle::delete_expired_particle_sprites( reg(), "graveyard.obstacle.dig.particle" );
-  Factory::Particle::delete_expired_particle_sprites( reg(), "graveyard.plant.leaves.particle" );
-  Factory::Particle::delete_expired_particle_sprites( reg(), "graveyard.plant.twigs.particle" );
+  Factory::Particle::delete_expired_particle_sprites( reg(), "graveyard.obstacle.particle.dig" );
+  Factory::Particle::delete_expired_particle_sprites( reg(), "graveyard.plant.particle.leaves" );
+  Factory::Particle::delete_expired_particle_sprites( reg(), "graveyard.plant.particle.twigs" );
 
   update_burning_worlditems( dt );
 
@@ -214,7 +214,7 @@ void ActionSystem::check_player_dig_obstacle_collision()
           player_navmesh->insert( obstacle_entt, obstacle_pos_cmp );
 
         auto dig_particle_uuid = Cmp::UUID::generate();
-        Factory::Particle::add_obstacledig_ps( reg(), "graveyard.obstacle.dig.particle", 50, 2.f, 50.f, 14.f, dig_particle_uuid,
+        Factory::Particle::add_obstacledig_ps( reg(), "graveyard.obstacle.particle.dig", 50, 2.f, 50.f, 14.f, dig_particle_uuid,
                                                obstacle_pos_cmp.position, obstacle_pos_cmp.y() );
       }
       else
@@ -228,7 +228,7 @@ void ActionSystem::check_player_dig_obstacle_collision()
         {
 
           auto dig_particle_uuid = Cmp::UUID::generate();
-          Factory::Particle::add_obstacledig_ps( reg(), "graveyard.obstacle.dig.particle", 5, 2.f, 50.f, 7.f, dig_particle_uuid,
+          Factory::Particle::add_obstacledig_ps( reg(), "graveyard.obstacle.particle.dig", 5, 2.f, 50.f, 7.f, dig_particle_uuid,
                                                  obstacle_pos_cmp.position, obstacle_pos_cmp.y() );
 
           sf::Vector2f crack_start_pos( obstacle_pos_cmp.getCenter().x, obstacle_pos_cmp.getCenter().y - 12.f ); // offset for obstacle cap
@@ -332,7 +332,7 @@ void ActionSystem::check_player_dig_plant_collision()
         auto *plant_item = reg().try_get<Cmp::WorldItem>( plant_entt );
         if ( not plant_item ) continue;
         auto plantleaves_particle_uuid = Cmp::UUID::generate();
-        Factory::Particle::add_plantleaves_ps( reg(), "graveyard.plant.leaves.particle", 50, 2.f, 50.f, 14.f, plantleaves_particle_uuid,
+        Factory::Particle::add_plantleaves_ps( reg(), "graveyard.plant.particle.leaves", 50, 2.f, 50.f, 14.f, plantleaves_particle_uuid,
                                                plant_mb_cmp.getCenter(), plant_mb_cmp.position.y );
         Factory::Player::add_inventory( reg(), plant_item->item_type + ".drop" );
         Utils::Player::apply_action_from_inventory_item<Cmp::SpawnAction>( reg() );
@@ -359,10 +359,10 @@ void ActionSystem::check_player_dig_plant_collision()
         {
           // destroy the plant
           auto plantleaves_particle_uuid = Cmp::UUID::generate();
-          Factory::Particle::add_plantleaves_ps( reg(), "graveyard.plant.leaves.particle", 50, 2.f, 50.f, 14.f, plantleaves_particle_uuid,
+          Factory::Particle::add_plantleaves_ps( reg(), "graveyard.plant.particle.leaves", 50, 2.f, 50.f, 14.f, plantleaves_particle_uuid,
                                                  plant_mb_cmp.getCenter(), plant_mb_cmp.position.y );
           auto planttwigs_particle_uuid = Cmp::UUID::generate();
-          Factory::Particle::add_planttwigs_ps( reg(), "graveyard.plant.twigs.particle", 10, 2.f, 50.f, 14.f, planttwigs_particle_uuid,
+          Factory::Particle::add_planttwigs_ps( reg(), "graveyard.plant.particle.twigs", 10, 2.f, 50.f, 14.f, planttwigs_particle_uuid,
                                                 plant_mb_cmp.getCenter(), plant_mb_cmp.position.y );
           Utils::Player::apply_action_from_world_item<Cmp::DestroyAction>( reg(), plant_entt );
           Factory::Plant::remove_plant_mb( reg(), plant_entt, m_npc_navmesh.lock(), m_player_navmesh.lock() );
@@ -491,7 +491,7 @@ void ActionSystem::check_player_axe_npc_kill()
       m_sound_bank.get_effect( "rattling_bones" ).play();
 
       auto skelebones_particle_uuid = Cmp::UUID::generate();
-      Factory::Particle::add_skelebones_ps( reg(), "graveyard.skele.bones.particle", 50, 2.f, 50.f, 14.f, skelebones_particle_uuid,
+      Factory::Particle::add_skelebones_ps( reg(), "graveyard.skele.particle.bones", 50, 2.f, 50.f, 14.f, skelebones_particle_uuid,
                                             npc_pos_cmp.getCenter(), npc_pos_cmp.position.y );
       // drop loot - 1 in 3 chance
       auto [sprite_type, sprite_index] = m_sprite_factory.get_random_type_and_texture_index(
@@ -561,9 +561,9 @@ bool ActionSystem::is_digging_on_cooldown()
 
 void ActionSystem::update_burning_worlditems( sf::Time dt )
 {
-  static const std::string kAshPileTag = "particle.plant.ash";
+  static const std::string kAshPileTag = "graveyard.plant.particle.ash";
   static const std::string kPlantFireTag = "graveyard.plant.particle.flame";
-  static const std::string kPlantSmokeTag = "particle.plant.smoke";
+  static const std::string kPlantSmokeTag = "graveyard.plant.particle.smoke";
 
   for ( auto [plant_entt, plant_cmp, plant_uuid] : reg().view<Cmp::PlantMultiBlock, Cmp::UUID>().each() )
   {

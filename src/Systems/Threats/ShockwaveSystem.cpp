@@ -194,7 +194,7 @@ void ShockwaveSystem::update( sf::Time dt )
       auto created_shockwave = Factory::Npc::create_shockwave( reg(), npc_entt );
       if ( created_shockwave )
       {
-        Factory::Particle::add_shockwave( reg(), "particle.shockwave.priest", npc_uuid_cmp, npc_pos_cmp.getCenter(), 50000 );
+        Factory::Particle::add_shockwave( reg(), "crypt.priest.particle.shockwave", npc_uuid_cmp, npc_pos_cmp.getCenter(), 50000 );
         m_sound_bank.get_effect( "emit_shockwave_low" ).play();
         m_sound_bank.get_effect( "emit_shockwave_high" ).play();
       }
