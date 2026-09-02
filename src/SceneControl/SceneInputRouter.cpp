@@ -97,6 +97,11 @@ void SceneInputRouter::settings_scene_state_handler()
   using namespace sf::Keyboard;
   while ( const std::optional event = m_window.pollEvent() )
   {
+    // Only scenes that actually pump an ImGui frame (via ImGui::SFML::Update/Render in
+    // RenderMenuSystem) may forward events here. Feeding events into ImGui's queue while
+    // no NewFrame() is being called lets them pile up and get replayed onto menu widgets
+    // the next time a menu opens - which looks like widgets changing on their own.
+    ImGui::SFML::ProcessEvent( m_window, *event );
     if ( dispatch_common_window_event( *event ) ) continue;
     if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
@@ -347,6 +352,9 @@ void SceneInputRouter::paused_scene_state_handler()
   using namespace sf::Keyboard;
   while ( const std::optional event = m_window.pollEvent() )
   {
+    // See comment in settings_scene_state_handler: only scenes that pump an ImGui frame
+    // should forward events into ImGui's queue.
+    ImGui::SFML::ProcessEvent( m_window, *event );
     if ( dispatch_common_window_event( *event ) ) continue;
     if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
@@ -403,7 +411,6 @@ void SceneInputRouter::process_move_keys()
 
 bool SceneInputRouter::dispatch_common_window_event( const sf::Event &event )
 {
-  ImGui::SFML::ProcessEvent( m_window, event );
   if ( event.is<sf::Event::Closed>() )
   {
     m_window.close();
