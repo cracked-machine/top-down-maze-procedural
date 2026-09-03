@@ -272,9 +272,9 @@ void RenderGameSystem::render_zorder_queue( RenderOverlaySystem &render_overlay_
 
       if ( reg().any_of<Cmp::Armed>( entity ) ) { render_armed_indicator( reg().get<Cmp::Armed>( entity ), pos_cmp ); }
     }
-    else if ( reg().all_of<ShaderSpriteOwner>( entity ) )
+    else if ( reg().all_of<Cmp::Shader::SpriteOwner>( entity ) )
     {
-      auto &shader_sprite_owner = reg().get<ShaderSpriteOwner>( entity );
+      auto &shader_sprite_owner = reg().get<Cmp::Shader::SpriteOwner>( entity );
       if ( not shader_sprite_owner.sprite ) continue;
       shader_sprite_owner.sprite->update( reg() );
       if ( not Utils::scene_setting<Cmp::SceneSettings::Shaders>( reg() ).enabled ) continue;
@@ -349,7 +349,7 @@ void RenderGameSystem::refresh_z_order_queue()
 
   // add the wrapper types for all particle and shader sprites so they can be rendered with the other entities
   add_visible_entity_to_z_order_queue<Cmp::Particle::SpriteOwner>( m_zorder_queue_, view_bounds );
-  add_visible_entity_to_z_order_queue<ShaderSpriteOwner>( m_zorder_queue_, view_bounds );
+  add_visible_entity_to_z_order_queue<Cmp::Shader::SpriteOwner>( m_zorder_queue_, view_bounds );
 
   // add other components as normal
   add_visible_entity_to_z_order_queue<Cmp::Position>( m_zorder_queue_, view_bounds );

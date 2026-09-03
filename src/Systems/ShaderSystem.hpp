@@ -1,26 +1,12 @@
 #ifndef SRC_SYSTEMS_SHADERSYSTEM_HPP__
 #define SRC_SYSTEMS_SHADERSYSTEM_HPP__
 
+#include <Components/Shader/SpriteOwner.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Shaders/IShaderSprite.hpp>
 #include <Systems/BaseSystem.hpp>
 namespace Game::Sys
 {
-
-//! @brief  This wraps IShaderSprite so it can be emplaced/retrieved with the Entt registry as a single type.
-//!         ShaderSystem::find can retrieve the wrapped IShaderSprite via the specified `tag`
-struct ShaderSpriteOwner
-{
-  //! @brief The owned shader sprite implementation.
-  std::unique_ptr<Sprites::IShaderSprite> sprite;
-
-  //! @brief Construct a new Shader Sprite Owner object
-  //! @param sprite
-  explicit ShaderSpriteOwner( std::unique_ptr<Sprites::IShaderSprite> sprite )
-      : sprite( std::move( sprite ) )
-  {
-  }
-};
 
 //! @brief Core system for adding and updating IShaderSprite objects
 class ShaderSystem : public BaseSystem
@@ -38,7 +24,7 @@ public:
   //! @param z_order
   void add( std::unique_ptr<Sprites::IShaderSprite> shader, Cmp::ZOrderValue z_order )
   {
-    add_to_registry( ShaderSpriteOwner( std::move( shader ) ), z_order );
+    add_to_registry( Cmp::Shader::SpriteOwner( std::move( shader ) ), z_order );
   }
 
   //! @brief Calls IShaderSprite::update() function within all added ShaderSpriteBase<T>
@@ -60,7 +46,7 @@ private:
   //! @param owner
   //! @param zorder
   //! @return std::vector<entt::entity>
-  std::vector<entt::entity> add_to_registry( ShaderSpriteOwner owner, Cmp::ZOrderValue zorder );
+  std::vector<entt::entity> add_to_registry( Cmp::Shader::SpriteOwner owner, Cmp::ZOrderValue zorder );
 };
 
 } // namespace Game::Sys

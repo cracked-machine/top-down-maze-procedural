@@ -9,12 +9,12 @@ ShaderSystem::ShaderSystem( entt::registry &reg, sf::RenderWindow &window, Sprit
 {
 }
 
-std::vector<entt::entity> ShaderSystem::add_to_registry( ShaderSpriteOwner owner, Cmp::ZOrderValue zorder )
+std::vector<entt::entity> ShaderSystem::add_to_registry( Cmp::Shader::SpriteOwner owner, Cmp::ZOrderValue zorder )
 {
   std::vector<entt::entity> entt_list;
 
   auto entt = reg().create();
-  reg().emplace<ShaderSpriteOwner>( entt, std::move( owner ) );
+  reg().emplace<Cmp::Shader::SpriteOwner>( entt, std::move( owner ) );
   reg().emplace<Cmp::ZOrderValue>( entt, zorder );
   entt_list.push_back( entt );
   SPDLOG_INFO( "Created ShaderSprite {}", static_cast<uint32_t>( entt ) );
@@ -24,7 +24,7 @@ std::vector<entt::entity> ShaderSystem::add_to_registry( ShaderSpriteOwner owner
 
 void ShaderSystem::update()
 {
-  for ( auto [entt, owner] : reg().view<ShaderSpriteOwner>().each() )
+  for ( auto [entt, owner] : reg().view<Cmp::Shader::SpriteOwner>().each() )
   {
     owner.sprite->update( reg() );
   }
@@ -32,7 +32,7 @@ void ShaderSystem::update()
 
 [[nodiscard]] Sprites::IShaderSprite *ShaderSystem::find( entt::registry &reg, const std::string &tag )
 {
-  for ( auto [entt, owner] : reg.view<ShaderSpriteOwner>().each() )
+  for ( auto [entt, owner] : reg.view<Cmp::Shader::SpriteOwner>().each() )
   {
     if ( owner.sprite->get_tag() == tag ) return owner.sprite.get();
   }

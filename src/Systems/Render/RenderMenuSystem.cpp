@@ -99,7 +99,7 @@ void RenderMenuSystem::render_title()
     auto display_size = sf::Vector2f( Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() ) );
 
     // shaders
-    auto shader_view = reg().view<ShaderSpriteOwner>();
+    auto shader_view = reg().view<Cmp::Shader::SpriteOwner>();
     for ( auto [entt, shader] : shader_view.each() )
     {
       if ( not shader.sprite ) continue;
@@ -319,7 +319,7 @@ void RenderMenuSystem::render_settings_widgets( sf::Time dt, sf::FloatRect title
     // (Engine.cpp) doesn't carry over - it has to be re-applied here.
     Game::Utils::apply_imgui_theme();
 
-    auto shader_view = reg().view<ShaderSpriteOwner>();
+    auto shader_view = reg().view<Cmp::Shader::SpriteOwner>();
     for ( auto [entt, shader] : shader_view.each() )
     {
       if ( not shader.sprite ) continue;
