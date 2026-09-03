@@ -41,7 +41,7 @@ void NightStaticShader::update( entt::registry &reg )
   std::vector<sf::Glsl::Vec4> torch_colors;
 
   // add the radius for each flame particle sprite so the shader can render a circle of light
-  for ( auto [candle_entt, particle_cmp] : reg.view<Sys::ParticleSpriteOwner>().each() )
+  for ( auto [candle_entt, particle_cmp] : reg.view<Cmp::Particle::SpriteOwner>().each() )
   {
     auto ps_tag = particle_cmp.sprite->get_tag();
     if ( not ps_tag.contains( "particle.flame" ) and not ps_tag.contains( "particle.active" ) ) continue;

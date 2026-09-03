@@ -600,7 +600,7 @@ void ActionSystem::update_burning_worlditems( sf::Time dt )
 
       // don't create a duplicate particle sprite if this plant already has a flame
       bool already_has_flame = false;
-      for ( auto [ps_owner_entt, ps_owner_cmp, ps_owner_uuid] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+      for ( auto [ps_owner_entt, ps_owner_cmp, ps_owner_uuid] : reg().view<Cmp::Particle::SpriteOwner, Cmp::UUID>().each() )
       {
         if ( ps_owner_uuid == plant_uuid )
         {
@@ -639,7 +639,7 @@ void ActionSystem::update_burning_worlditems( sf::Time dt )
       // all done
       m_sound_bank.get_effect( "burning" ).stop();
       reg().remove<Cmp::Plant::BurningTimeAccumulator>( plant_entt );
-      for ( auto [ps_owner_entt, ps_owner_cmp, ps_owner_uuid] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+      for ( auto [ps_owner_entt, ps_owner_cmp, ps_owner_uuid] : reg().view<Cmp::Particle::SpriteOwner, Cmp::UUID>().each() )
       {
         if ( ps_owner_uuid != plant_uuid ) continue;
 

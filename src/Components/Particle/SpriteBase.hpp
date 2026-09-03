@@ -130,7 +130,7 @@ private:
 // IParticleSprite — particle sprite container contract
 // ============================================================
 
-//! @brief Non-template abstract base — allows ParticleSpriteOwner and find() to work without knowing TParticle
+//! @brief Non-template abstract base — allows SpriteOwner and find() to work without knowing TParticle
 class IParticleSprite : public sf::Drawable, public sf::Transformable
 {
 public:

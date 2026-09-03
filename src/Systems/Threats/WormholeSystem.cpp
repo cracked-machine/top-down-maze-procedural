@@ -320,7 +320,7 @@ void WormholeSystem::check_player_wormhole_collision()
     // respawn the wormhole now all entities have teleported
     SPDLOG_INFO( "Teleportation complete. Jump candidates: {}", jump_view.size() );
     despawn_wormhole();
-    for ( auto [ps_entt, ps_cmp, ps_uuid_cmp] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+    for ( auto [ps_entt, ps_cmp, ps_uuid_cmp] : reg().view<Cmp::Particle::SpriteOwner, Cmp::UUID>().each() )
     {
       if ( ps_cmp.sprite->get_tag() == "graveyard.wormhole.particles" ) reg().destroy( ps_entt );
     }

@@ -480,7 +480,7 @@ void SceneInputRouter::enqueue( Events::SceneManagerEvent::Type type )
 
 void SceneInputRouter::toggle_particle_test( bool enable )
 {
-  for ( auto [entt, owner] : reg().view<ParticleSpriteOwner>().each() )
+  for ( auto [entt, owner] : reg().view<Cmp::Particle::SpriteOwner>().each() )
   {
     if ( enable )
     {

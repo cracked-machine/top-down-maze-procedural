@@ -21,22 +21,22 @@ ParticleSystem::ParticleSystem( entt::registry &reg, sf::RenderWindow &window, S
 {
 }
 
-void ParticleSystem::add_to_registry( Cmp::UUID &uuid_cmp, ParticleSpriteOwner owner, Cmp::ZOrderValue zorder )
+void ParticleSystem::add_to_registry( Cmp::UUID &uuid_cmp, Cmp::Particle::SpriteOwner owner, Cmp::ZOrderValue zorder )
 {
 
   auto entt = reg().create();
-  reg().emplace_or_replace<ParticleSpriteOwner>( entt, std::move( owner ) );
+  reg().emplace_or_replace<Cmp::Particle::SpriteOwner>( entt, std::move( owner ) );
   reg().emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
   reg().emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
   SPDLOG_DEBUG( "Created ParticleSprite {}", static_cast<uint32_t>( entt ) );
 }
 
-std::vector<entt::entity> ParticleSystem::add_to_registry( ParticleSpriteOwner owner, Cmp::ZOrderValue zorder )
+std::vector<entt::entity> ParticleSystem::add_to_registry( Cmp::Particle::SpriteOwner owner, Cmp::ZOrderValue zorder )
 {
   std::vector<entt::entity> entt_list;
 
   auto entt = reg().create();
-  reg().emplace_or_replace<ParticleSpriteOwner>( entt, std::move( owner ) );
+  reg().emplace_or_replace<Cmp::Particle::SpriteOwner>( entt, std::move( owner ) );
   reg().emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
   entt_list.push_back( entt );
   SPDLOG_DEBUG( "Created ParticleSprite {}", static_cast<uint32_t>( entt ) );
@@ -47,7 +47,7 @@ std::vector<entt::entity> ParticleSystem::add_to_registry( ParticleSpriteOwner o
 void ParticleSystem::update( sf::Time dt )
 {
   // update the ParticleSprite position for Candle items in the world
-  for ( auto [ps_entt, ps_owner, ps_uuid_cmp] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+  for ( auto [ps_entt, ps_owner, ps_uuid_cmp] : reg().view<Cmp::Particle::SpriteOwner, Cmp::UUID>().each() )
   {
     for ( auto [candle_entt, candle_cmp, candle_pos_cmp, candle_uuid_cmp] : reg().view<Cmp::WorldItem, Cmp::Position, Cmp::UUID>().each() )
     {
@@ -59,7 +59,7 @@ void ParticleSystem::update( sf::Time dt )
 
   // update all particlesprite simulations
   const auto &world_view = Sys::RenderSystem::get_world_view();
-  for ( auto [entt, owner] : reg().view<ParticleSpriteOwner>().each() )
+  for ( auto [entt, owner] : reg().view<Cmp::Particle::SpriteOwner>().each() )
   {
     if ( not owner.sprite->is_active() ) continue;
 
@@ -76,7 +76,7 @@ void ParticleSystem::update( sf::Time dt )
 void ParticleSystem::check_collsion( const sf::FloatRect &target, const std::vector<std::string> &excl_ps_tag_list )
 {
   if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), target ) ) return;
-  for ( auto [entt, ps_cmp] : reg().view<ParticleSpriteOwner>().each() )
+  for ( auto [entt, ps_cmp] : reg().view<Cmp::Particle::SpriteOwner>().each() )
   {
     bool excluded = std::ranges::any_of( excl_ps_tag_list, [&ps_cmp]( const std::string &tag ) { return ps_cmp.sprite->get_tag() == tag; } );
     if ( excluded ) continue;
@@ -92,7 +92,7 @@ void ParticleSystem::check_collsion( const sf::FloatRect &target, const std::vec
 [[nodiscard]] std::vector<std::reference_wrapper<Cmp::Particle::IParticleSprite>> ParticleSystem::find( entt::registry &reg, const std::string &tag )
 {
   std::vector<std::reference_wrapper<Cmp::Particle::IParticleSprite>> particle_sprites;
-  for ( auto [entt, owner] : reg.view<ParticleSpriteOwner>().each() )
+  for ( auto [entt, owner] : reg.view<Cmp::Particle::SpriteOwner>().each() )
   {
     if ( owner.sprite->get_tag() == tag ) particle_sprites.emplace_back( *owner.sprite );
   }

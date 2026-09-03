@@ -193,7 +193,7 @@ void remove_player_extra_life( entt::registry &reg )
     reg.destroy( flash_entt );
   }
 
-  for ( auto [ps_entt, ps_cmp] : reg.view<Sys::ParticleSpriteOwner>().each() )
+  for ( auto [ps_entt, ps_cmp] : reg.view<Cmp::Particle::SpriteOwner>().each() )
   {
     if ( ps_cmp.sprite->get_tag() == "crypt.altar.particle.active" ) reg.destroy( ps_entt );
   }

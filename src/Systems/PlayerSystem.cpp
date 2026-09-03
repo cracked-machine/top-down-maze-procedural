@@ -286,7 +286,7 @@ void PlayerSystem::move_obstacle( const sf::FloatRect &target_position )
           }
           else
           {
-            for ( auto [ps_entt, ps_cmp, ps_uuid_cmp] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+            for ( auto [ps_entt, ps_cmp, ps_uuid_cmp] : reg().view<Cmp::Particle::SpriteOwner, Cmp::UUID>().each() )
             {
               if ( ps_cmp.sprite->get_tag() == "ruin.rune.particle.active" and ps_uuid_cmp == rune_uuid_cmp ) reg().destroy( ps_entt );
             }
@@ -570,7 +570,7 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
       for ( auto [altar_entt, altar_cmp, altar_uuid_cmp] : reg().view<Cmp::Altar::MultiBlock, Cmp::UUID>().each() )
       {
         if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), altar_cmp ) ) continue;
-        for ( auto [particle_entt, particle_cmp, particle_uuid_cmp] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+        for ( auto [particle_entt, particle_cmp, particle_uuid_cmp] : reg().view<Cmp::Particle::SpriteOwner, Cmp::UUID>().each() )
         {
           if ( altar_uuid_cmp != particle_uuid_cmp ) continue;
 
@@ -586,7 +586,7 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
       for ( auto [plant_entt, plant_cmp, plant_burn_cmp, plant_uuid_cmp] : burning_plant_view.each() )
       {
         if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), plant_cmp ) ) continue;
-        for ( auto [particle_entt, particle_cmp, particle_uuid_cmp] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+        for ( auto [particle_entt, particle_cmp, particle_uuid_cmp] : reg().view<Cmp::Particle::SpriteOwner, Cmp::UUID>().each() )
         {
           if ( plant_uuid_cmp != particle_uuid_cmp ) continue;
 
@@ -693,7 +693,7 @@ void PlayerSystem::create_healing_particles()
 
     // Add player healing particle sprite if player is near fountain and doesn't already have PS already, otherwise delete any existing PS.
     std::vector<entt::entity> player_healing_ps_owner_list;
-    for ( auto [ps_entt, ps_cmp, ps_uuid_cmp] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+    for ( auto [ps_entt, ps_cmp, ps_uuid_cmp] : reg().view<Cmp::Particle::SpriteOwner, Cmp::UUID>().each() )
     {
       if ( ps_uuid_cmp != fountain_uuid_cmp ) continue;
       if ( ps_cmp.sprite->get_tag() == "player.healing.particle.active" ) player_healing_ps_owner_list.push_back( ps_entt );

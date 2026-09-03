@@ -486,7 +486,7 @@ void RenderOverlaySystem::render_ui_zorder_list( std::vector<ZOrder> &zorder_que
         name = sprite_anim_cmp->m_sprite_type;
       }
 
-      auto *particle_sprite_owner = reg().try_get<ParticleSpriteOwner>( zorder_entry.e );
+      auto *particle_sprite_owner = reg().try_get<Cmp::Particle::SpriteOwner>( zorder_entry.e );
       if ( particle_sprite_owner )
       {
         if ( exclusions.find( particle_sprite_owner->sprite->get_tag() ) != exclusions.end() ) { continue; }

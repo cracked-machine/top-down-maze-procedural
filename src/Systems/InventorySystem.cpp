@@ -207,7 +207,7 @@ void InventorySystem::drop_inventory_item( sf::Vector2f pos, entt::entity invent
   if ( uuid_cmp )
   {
 
-    for ( auto [ps_entt, ps_owner, ps_uuid_cmp] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+    for ( auto [ps_entt, ps_owner, ps_uuid_cmp] : reg().view<Cmp::Particle::SpriteOwner, Cmp::UUID>().each() )
     {
       if ( ps_uuid_cmp == *uuid_cmp )
       {
@@ -249,7 +249,7 @@ void InventorySystem::pickup_world_item( entt::registry &reg, entt::entity world
   auto *uuid_cmp = reg.try_get<Cmp::UUID>( world_item_entt );
   if ( uuid_cmp )
   {
-    for ( auto [ps_entt, ps_owner, ps_uuid_cmp] : reg.view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+    for ( auto [ps_entt, ps_owner, ps_uuid_cmp] : reg.view<Cmp::Particle::SpriteOwner, Cmp::UUID>().each() )
     {
       if ( ps_uuid_cmp == *uuid_cmp )
       {

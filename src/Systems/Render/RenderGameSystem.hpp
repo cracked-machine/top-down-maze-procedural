@@ -176,7 +176,7 @@ private:
       {
         if ( not Utils::is_visible_in_view( view_bounds, component ) ) continue;
       }
-      if constexpr ( std::is_same_v<Sys::ParticleSpriteOwner, Component> )
+      if constexpr ( std::is_same_v<Cmp::Particle::SpriteOwner, Component> )
       {
         if ( component.sprite && component.sprite->get_view_type() == Cmp::Particle::ViewType::WORLD &&
              not Utils::is_visible_in_view( view_bounds, { component.sprite->get_emitter_position(), Constants::kGridSizePxF } ) )

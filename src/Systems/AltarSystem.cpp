@@ -186,7 +186,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
           reg().patch<Cmp::Altar::MultiBlock>( altar_entity, [&]( Cmp::Altar::MultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 5 ); } );
           for ( auto [altar_entt, altar_cmp, altar_uuid_cmp] : reg().view<Cmp::Altar::MultiBlock, Cmp::UUID>().each() )
           {
-            for ( auto [particle_entt, particle_cmp, particle_uuid_cmp] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+            for ( auto [particle_entt, particle_cmp, particle_uuid_cmp] : reg().view<Cmp::Particle::SpriteOwner, Cmp::UUID>().each() )
             {
               if ( altar_uuid_cmp != particle_uuid_cmp ) continue;
               if ( not particle_cmp.sprite->get_tag().contains( "candle" ) ) continue;

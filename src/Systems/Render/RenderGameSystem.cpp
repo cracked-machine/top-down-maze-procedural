@@ -212,7 +212,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
     }
 
     render_overlay_sys.end_debug_overlay();
-    for ( auto [ps_owner_entt, ps_owner_cmp] : reg().view<Sys::ParticleSpriteOwner>().each() )
+    for ( auto [ps_owner_entt, ps_owner_cmp] : reg().view<Cmp::Particle::SpriteOwner>().each() )
     {
       auto emitter_pos = ps_owner_cmp.sprite->get_emitter_position();
       auto dot = sf::CircleShape( 1 );
@@ -294,9 +294,9 @@ void RenderGameSystem::render_zorder_queue( RenderOverlaySystem &render_overlay_
       }
       else { draw_world( *shader_sprite_owner.sprite ); }
     }
-    else if ( reg().all_of<ParticleSpriteOwner>( entity ) )
+    else if ( reg().all_of<Cmp::Particle::SpriteOwner>( entity ) )
     {
-      auto &particle_sprite_owner = reg().get<ParticleSpriteOwner>( entity );
+      auto &particle_sprite_owner = reg().get<Cmp::Particle::SpriteOwner>( entity );
 
       if ( particle_sprite_owner.sprite->get_view_type() == Cmp::Particle::ViewType::WORLD )
       {
@@ -348,7 +348,7 @@ void RenderGameSystem::refresh_z_order_queue()
   add_visible_entity_to_z_order_queue<Sprites::Containers::VertexFloor>( m_zorder_queue_, view_bounds );
 
   // add the wrapper types for all particle and shader sprites so they can be rendered with the other entities
-  add_visible_entity_to_z_order_queue<ParticleSpriteOwner>( m_zorder_queue_, view_bounds );
+  add_visible_entity_to_z_order_queue<Cmp::Particle::SpriteOwner>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<ShaderSpriteOwner>( m_zorder_queue_, view_bounds );
 
   // add other components as normal
