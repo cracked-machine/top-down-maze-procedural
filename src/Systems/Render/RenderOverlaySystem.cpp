@@ -138,6 +138,8 @@ void RenderOverlaySystem::render_ui_meters( sf::Time dt )
     SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw icon overlay" );
     return;
   }
+  sf::RectangleShape innermeter;
+  sf::RectangleShape outermeter;
   for ( const auto &meter : m_main_ui_data->m_meters )
   {
     float meter_value = 0;
@@ -192,12 +194,12 @@ void RenderOverlaySystem::render_ui_meters( sf::Time dt )
 
     if ( not should_render ) { continue; }
 
-    auto innermeter = sf::RectangleShape( { ( ( meter.rect.size.x / 100 ) * meter_value ), meter.rect.size.y } );
+    innermeter.setSize( { ( ( meter.rect.size.x / 100 ) * meter_value ), meter.rect.size.y } );
     innermeter.setPosition( meter.rect.position );
     innermeter.setFillColor( meter_inner_color );
     draw_screen( innermeter );
 
-    auto outermeter = sf::RectangleShape( meter.rect.size );
+    outermeter.setSize( meter.rect.size );
     outermeter.setPosition( meter.rect.position );
     outermeter.setFillColor( sf::Color::Transparent );
     outermeter.setOutlineColor( meter_outer_color );
@@ -214,9 +216,11 @@ void RenderOverlaySystem::render_ui_texts()
     return;
   }
 
+  sf::Text text( m_font, "", 1 );
   for ( const auto &ui_text : m_main_ui_data->m_texts )
   {
-    sf::Text text( m_font, ui_text.value, ui_text.font_size );
+    text.setString( ui_text.value );
+    text.setCharacterSize( ui_text.font_size );
     text.setPosition( ui_text.rect.position );
     text.setFillColor( sf::Color::White );
     text.setOutlineColor( sf::Color::Black );
@@ -232,6 +236,7 @@ void RenderOverlaySystem::render_ui_labels( sf::Time dt )
     SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw value overlay" );
     return;
   }
+  sf::Text text( m_font, "", 1 );
   for ( const auto &ui_label : m_main_ui_data->m_labels )
   {
     std::string text_str;
@@ -244,8 +249,7 @@ void RenderOverlaySystem::render_ui_labels( sf::Time dt )
       if ( inventory_sprite_type == "" ) { text_str = ""; }
       else { text_str = m_sprite_factory.get_spritesheet_by_type( inventory_sprite_type ).get_display_name(); }
     }
-
-    sf::Text text( m_font, "", ui_label.font_size );
+    text.setCharacterSize( ui_label.font_size );
     text.setString( text_str );
     if ( ui_label.align == "center" )
     {
@@ -409,7 +413,7 @@ void RenderOverlaySystem::render_ui_misc_stats()
   {
     if ( ui_label.name != "entity_stats" ) { continue; }
 
-    DebugTextColumn draw_line{ *this, ui_label.rect.position, 18, 22.f };
+    DebugTextColumn draw_line{ .self = *this, .origin = ui_label.rect.position, .font_size = 18, .line_height = 22.f };
 
     draw_line( "--- Stats ---", sf::Color::Yellow );
 

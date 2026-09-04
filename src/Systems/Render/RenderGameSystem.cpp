@@ -24,14 +24,18 @@
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/Inventory/WearLevel.hpp>
 #include <Components/LastDirection.hpp>
+#include <Components/Moveable.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
+#include <Components/Npc/Npc.hpp>
 #include <Components/Npc/Shockwave.hpp>
+#include <Components/ObstacleCap.hpp>
 #include <Components/Persistent/ArmedBlinkFreq.hpp>
 #include <Components/Persistent/CameraSmoothSpeed.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/BlastRadius.hpp>
 #include <Components/Player/CadaverCount.hpp>
+#include <Components/Player/Character.hpp>
 #include <Components/Player/Curse.hpp>
 #include <Components/Player/NoPath.hpp>
 #include <Components/Player/Wealth.hpp>
@@ -47,6 +51,7 @@
 #include <Components/SelectedPosition.hpp>
 #include <Components/Spring/HealingSpringBuildingMultiBlock.hpp>
 #include <Components/Wall.hpp>
+#include <Components/Weapons/Arrow.hpp>
 #include <Components/Wormhole/MultiBlock.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
@@ -71,6 +76,7 @@
 #include <Utils/Maths.hpp>
 #include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>
+#include <Utils/Profiling.hpp>
 #include <Utils/Utils.hpp>
 
 #include <SFML/Graphics/Color.hpp>
@@ -98,7 +104,8 @@ RenderGameSystem::RenderGameSystem( entt::registry &reg, sf::RenderWindow &windo
 
 RenderGameSystem::~RenderGameSystem() = default;
 
-void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_overlay_sys, PathFinding::SpatialHashGridSharedPtr npc_navmesh )
+void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_overlay_sys, PathFinding::SpatialHashGridSharedPtr npc_navmesh,
+                                    PathFinding::SpatialHashGridSharedPtr render_position_grid )
 {
   using namespace Sprites;
 
@@ -106,13 +113,16 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
 
   // make sure the local view is centered on the player mid-point and not at their top-left corner
   // (otherwise this makes views, shaders, etc look off-center)
-  update_camera( dt );
+  PROFILED( update_camera( dt ) );
 
   // re-populate the z-order queue with the latest entity/component data
-  refresh_z_order_queue();
+  PROFILED( refresh_z_order_queue( render_position_grid ) );
 
   const bool show_debug_stats = Utils::scene_setting<Cmp::SceneSettings::ShowDebugStats>( reg() ).enabled;
-  bool debug_tick = show_debug_stats and ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval );
+
+  m_debug_update_timer += dt;
+  static const sf::Time kDebugUpdateTimeout{ sf::milliseconds( 100 ) };
+  bool debug_tick = show_debug_stats and ( m_debug_update_timer > kDebugUpdateTimeout );
 
   // A post-process shader (e.g. FearDistortionShader, see Factory::Shader::add_fear_distortion)
   // samples everything drawn so far rather than blending its own texture onto the scene, so this
@@ -139,16 +149,16 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   else { m_window.clear(); }
 
   // render the zorder queue, anything after this is treated as an "overlay" to the main render pipeline
-  render_zorder_queue( render_overlay_sys, distortion_active );
+  PROFILED( render_zorder_queue( render_overlay_sys, distortion_active ) );
 
-  render_shockwaves();
-  render_arrow_compass();
+  PROFILED( render_shockwaves() );
+  PROFILED( render_arrow_compass() );
 
-  render_lightning_strike();
-  render_obstacle_cracks();
+  PROFILED( render_lightning_strike() );
+  PROFILED( render_obstacle_cracks() );
 
-  render_overlay_sys.render_shop_inventory_overlay();
-  render_overlay_sys.render_grimoire_inventory_overlay();
+  PROFILED( render_overlay_sys.render_shop_inventory_overlay() );
+  PROFILED( render_overlay_sys.render_grimoire_inventory_overlay() );
 
   // lava pit outline
   render_overlay_sys.render_square_for_floatrect_cmp<Cmp::Crypt::RoomLavaPit>( sf::Color( 16, 16, 16 ), 0.5f );
@@ -174,13 +184,13 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   }
 
   // render normal game UI
-  render_overlay_sys.render_ui_outlines();
-  render_overlay_sys.render_ui_icons();
-  render_overlay_sys.render_ui_inventory_icon();
-  render_overlay_sys.render_ui_meters( dt );
-  render_overlay_sys.render_ui_labels( dt );
-  render_overlay_sys.render_ui_texts();
-  render_overlay_sys.render_level_depth();
+  PROFILED( render_overlay_sys.render_ui_outlines() );
+  PROFILED( render_overlay_sys.render_ui_icons() );
+  PROFILED( render_overlay_sys.render_ui_inventory_icon() );
+  PROFILED( render_overlay_sys.render_ui_meters( dt ) );
+  PROFILED( render_overlay_sys.render_ui_labels( dt ) );
+  PROFILED( render_overlay_sys.render_ui_texts() );
+  PROFILED( render_overlay_sys.render_level_depth() );
 
   auto display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
   render_overlay_sys.render_crypt_maze_timer( { static_cast<float>( display_size.x ) / 2.f, 0.f }, 100 );
@@ -201,27 +211,27 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   {
     render_overlay_sys.begin_debug_overlay( m_window.getSize() );
 
-    render_overlay_sys.render_ui_misc_stats();
-    render_overlay_sys.render_ui_zorder_list( m_zorder_queue_ );
-    render_overlay_sys.render_ui_npc_list();
-    render_overlay_sys.render_ui_entity_inspect();
-    for ( auto [selected_entt, selected_cmp, pos_cmp] : reg().view<Cmp::SelectedPosition, Cmp::Position>().each() )
-    {
-      if ( not Utils::is_visible_in_view( get_screen_view(), pos_cmp ) ) continue;
-      render_overlay_sys.render_square( pos_cmp.position, pos_cmp.size, sf::Color::Yellow );
-    }
+    // render_overlay_sys.render_ui_misc_stats();
+    // render_overlay_sys.render_ui_zorder_list( m_zorder_queue_ );
+    // render_overlay_sys.render_ui_npc_list();
+    // render_overlay_sys.render_ui_entity_inspect();
+    // for ( auto [selected_entt, selected_cmp, pos_cmp] : reg().view<Cmp::SelectedPosition, Cmp::Position>().each() )
+    // {
+    //   if ( not Utils::is_visible_in_view( get_screen_view(), pos_cmp ) ) continue;
+    //   render_overlay_sys.render_square( pos_cmp.position, pos_cmp.size, sf::Color::Yellow );
+    // }
 
     render_overlay_sys.end_debug_overlay();
-    for ( auto [ps_owner_entt, ps_owner_cmp] : reg().view<Cmp::Particle::SpriteOwner>().each() )
-    {
-      auto emitter_pos = ps_owner_cmp.sprite->get_emitter_position();
-      auto dot = sf::CircleShape( 1 );
-      dot.setPosition( emitter_pos );
-      dot.setFillColor( sf::Color::Cyan );
-      dot.setOutlineColor( sf::Color::Cyan );
-      draw_world( dot );
-    }
-    m_debug_update_timer.restart();
+    // for ( auto [ps_owner_entt, ps_owner_cmp] : reg().view<Cmp::Particle::SpriteOwner>().each() )
+    // {
+    //   auto emitter_pos = ps_owner_cmp.sprite->get_emitter_position();
+    //   auto dot = sf::CircleShape( 1 );
+    //   dot.setPosition( emitter_pos );
+    //   dot.setFillColor( sf::Color::Cyan );
+    //   dot.setOutlineColor( sf::Color::Cyan );
+    //   draw_world( dot );
+    // }
+    m_debug_update_timer = sf::Time::Zero;
   }
 
   if ( show_debug_stats ) render_overlay_sys.draw_debug_overlay( m_window );
@@ -331,30 +341,31 @@ void RenderGameSystem::render_zorder_queue( RenderOverlaySystem &render_overlay_
   }
 }
 
-void RenderGameSystem::refresh_z_order_queue()
+void RenderGameSystem::refresh_z_order_queue( PathFinding::SpatialHashGridSharedPtr render_position_grid )
 {
+  m_render_position_grid_ = render_position_grid;
   m_zorder_queue_.clear();
   sf::FloatRect view_bounds = Utils::calculate_view_bounds( s_world_view );
 
   // prevent pop-in/pop-outs when multiblock entities are near the edge of the view
-  add_visible_entity_to_z_order_queue<Cmp::Altar::MultiBlock>( m_zorder_queue_, view_bounds );
-  add_visible_entity_to_z_order_queue<Cmp::Crypt::BuildingMultiBlock>( m_zorder_queue_, view_bounds );
-  add_visible_entity_to_z_order_queue<Cmp::Grave::MultiBlock>( m_zorder_queue_, view_bounds );
-  add_visible_entity_to_z_order_queue<Cmp::HealingSpringBuildingMultiBlock>( m_zorder_queue_, view_bounds );
-  add_visible_entity_to_z_order_queue<Cmp::Crypt::InteriorMultiBlock>( m_zorder_queue_, view_bounds );
-  add_visible_entity_to_z_order_queue<Cmp::Ruin::BuildingMultiBlock>( m_zorder_queue_, view_bounds );
+  PROFILED( add_visible_entity_to_z_order_queue<Cmp::Altar::MultiBlock>( m_zorder_queue_, view_bounds ) );
+  PROFILED( add_visible_entity_to_z_order_queue<Cmp::Crypt::BuildingMultiBlock>( m_zorder_queue_, view_bounds ) );
+  PROFILED( add_visible_entity_to_z_order_queue<Cmp::Grave::MultiBlock>( m_zorder_queue_, view_bounds ) );
+  PROFILED( add_visible_entity_to_z_order_queue<Cmp::HealingSpringBuildingMultiBlock>( m_zorder_queue_, view_bounds ) );
+  PROFILED( add_visible_entity_to_z_order_queue<Cmp::Crypt::InteriorMultiBlock>( m_zorder_queue_, view_bounds ) );
+  PROFILED( add_visible_entity_to_z_order_queue<Cmp::Ruin::BuildingMultiBlock>( m_zorder_queue_, view_bounds ) );
 
   // add any floor tile sets
-  add_visible_entity_to_z_order_queue<Sprites::Containers::VertexFloor>( m_zorder_queue_, view_bounds );
+  PROFILED( add_visible_entity_to_z_order_queue<Sprites::Containers::VertexFloor>( m_zorder_queue_, view_bounds ) );
 
   // add the wrapper types for all particle and shader sprites so they can be rendered with the other entities
-  add_visible_entity_to_z_order_queue<Cmp::Particle::SpriteOwner>( m_zorder_queue_, view_bounds );
-  add_visible_entity_to_z_order_queue<Cmp::Shader::SpriteOwner>( m_zorder_queue_, view_bounds );
+  PROFILED( add_visible_entity_to_z_order_queue<Cmp::Particle::SpriteOwner>( m_zorder_queue_, view_bounds ) );
+  PROFILED( add_visible_entity_to_z_order_queue<Cmp::Shader::SpriteOwner>( m_zorder_queue_, view_bounds ) );
 
   // add other components as normal
-  add_visible_entity_to_z_order_queue<Cmp::Position>( m_zorder_queue_, view_bounds );
+  PROFILED( add_visible_entity_to_z_order_queue<Cmp::Position>( m_zorder_queue_, view_bounds ) );
 
-  std::ranges::sort( m_zorder_queue_, []( const ZOrder &a, const ZOrder &b ) { return a.z < b.z; } );
+  PROFILED( std::ranges::sort( m_zorder_queue_, []( const ZOrder &a, const ZOrder &b ) { return a.z < b.z; } ) );
 }
 
 void RenderGameSystem::init_world_view()
@@ -403,6 +414,7 @@ void RenderGameSystem::update_camera( sf::Time deltaTime )
 
 void RenderGameSystem::render_shockwaves()
 {
+  const auto view_bounds = Utils::calculate_view_bounds( RenderSystem::get_world_view() );
   for ( auto [npc_sh_entt, npc_sw_cmp] : reg().view<Cmp::Npc::Shockwave>().each() )
   {
     for ( const auto &segment : npc_sw_cmp.sprite.get_visible_segments() )
@@ -410,7 +422,7 @@ void RenderGameSystem::render_shockwaves()
       sf::FloatRect segment_bounds = segment.get_bounds( npc_sw_cmp.sprite.get_position(), npc_sw_cmp.sprite.get_radius(),
                                                          npc_sw_cmp.sprite.get_outline_thickness() );
 
-      if ( Utils::is_visible_in_view( RenderSystem::get_world_view(), segment_bounds ) )
+      if ( Utils::is_visible_in_view( view_bounds, segment_bounds ) )
       {
         segment.draw( active_render_target(), sf::RenderStates::Default, npc_sw_cmp.sprite.get_position(), npc_sw_cmp.sprite.get_radius(),
                       npc_sw_cmp.sprite.get_outline_thickness(), npc_sw_cmp.sprite.get_outline_color(), npc_sw_cmp.sprite.get_points_per_segment() );

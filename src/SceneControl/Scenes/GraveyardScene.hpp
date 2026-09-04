@@ -83,6 +83,22 @@ private:
 
   //! @brief spatial map for reserving positions during procedural generation
   PathFinding::SpatialHashGridSharedPtr m_reserved_sm;
+
+  //! @brief Spatial index of static (never moved after creation) renderable entities, queried by
+  //! RenderGameSystem::refresh_z_order_queue() instead of a full-registry scan. First built after level
+  //! generation finishes in on_init(), then periodically rebuilt from scratch in do_update() (see
+  //! m_render_position_grid_rebuild_clock) so runtime-created static entities - dropped items,
+  //! replanted trees, placed bombs, footstep decals - eventually get indexed too, without needing
+  //! precise insert()/remove() calls threaded through every system that can create/destroy one.
+  PathFinding::SpatialHashGridSharedPtr m_render_position_sm;
+
+  //! @brief Rate-limits m_render_position_sm rebuilds; see its doc comment.
+  sf::Clock m_render_position_grid_rebuild_clock;
+
+  //! @brief How often m_render_position_sm is rebuilt from scratch. Trades off staleness (a newly
+  //! created static entity won't render until the next rebuild) against cost (a full registry scan) -
+  //! short enough that the delay isn't noticeable, long enough to stay cheap amortized per frame.
+  static constexpr sf::Time kRenderPositionGridRebuildInterval{ sf::seconds( 0.25f ) };
 };
 
 } // namespace Game::Scene

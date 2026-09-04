@@ -99,7 +99,7 @@ std::optional<sf::Vector2f> normalized( sf::Vector2f v );
 //! @brief Replaces SFML Vector2::angle.
 //! @param v
 //! @return std::optional<sf::Angle> Zero vector returns std::nullopt instead of using assert
-[[nodiscard]] inline std::optional<sf::Angle> angle( sf::Vector2f v );
+[[nodiscard]] std::optional<sf::Angle> angle( sf::Vector2f v );
 
 //! @brief Create a thick line rect object
 //! @example `m_window.draw( Utils::Maths::thick_line_rect( source_pos, corner, color, thickness ) );`

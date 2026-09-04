@@ -12,7 +12,6 @@
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>
-#include <Utils/Profiling.hpp>
 
 #include <SFML/System/Time.hpp>
 #include <spdlog/spdlog.h>
@@ -23,52 +22,45 @@ namespace Game::Sys
 
 void AnimSystem::update( sf::Time dt )
 {
-  ZoneScopedN( "AnimSystem::update" );
-  {
-    ZoneScopedN( "AnimSystem::update - view<Cmp::AnimData, Cmp::Position>" );
-    auto anim_view = reg().view<Cmp::AnimData, Cmp::Position>( entt::exclude<Cmp::Npc::NPC> );
-    for ( auto [anim_entt, anim_cmp, pos_cmp] : anim_view.each() )
-    {
-      if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), pos_cmp ) ) continue;
-      // don't accumulate dt if the player is not moving - fixes initial rapid framerate bug
-      if ( anim_cmp.m_sprite_type.contains( "sprite.player" ) and ( Utils::Player::get_direction( reg() ) == sf::Vector2f( 0, 0 ) ) ) continue;
-      if ( anim_cmp.m_enabled )
-      {
-        const auto &ms = m_sprite_factory.get_spritesheet_by_type( anim_cmp.m_sprite_type );
-        PROFILED( update_sequence_frame( anim_cmp, dt, ms, sf::seconds( anim_cmp.get_framerate() ) ) );
 
-        // disable oneshot animations at the end of their sequence
-        if ( anim_cmp.m_anim_type == Cmp::AnimType::LOOP ) continue;
-        if ( anim_cmp.m_current_frame == ms.get_sprites_per_sequence() - 1 )
-        {
-          SPDLOG_DEBUG( "Deactivating animation: {}", static_cast<int>( anim_entt ) );
-          anim_cmp.m_enabled = false;
-          if ( anim_cmp.m_anim_type == Cmp::AnimType::ONESHOTRESET ) { anim_cmp.m_current_frame = anim_cmp.m_base_frame; }
-        }
+  auto anim_view = reg().view<Cmp::AnimData, Cmp::Position>( entt::exclude<Cmp::Npc::NPC> );
+  for ( auto [anim_entt, anim_cmp, pos_cmp] : anim_view.each() )
+  {
+    if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), pos_cmp ) ) continue;
+    // don't accumulate dt if the player is not moving - fixes initial rapid framerate bug
+    if ( anim_cmp.m_sprite_type.contains( "sprite.player" ) and ( Utils::Player::get_direction( reg() ) == sf::Vector2f( 0, 0 ) ) ) continue;
+    if ( anim_cmp.m_enabled )
+    {
+      const auto &ms = m_sprite_factory.get_spritesheet_by_type( anim_cmp.m_sprite_type );
+      update_sequence_frame( anim_cmp, dt, ms, sf::seconds( anim_cmp.get_framerate() ) );
+
+      // disable oneshot animations at the end of their sequence
+      if ( anim_cmp.m_anim_type == Cmp::AnimType::LOOP ) continue;
+      if ( anim_cmp.m_current_frame == ms.get_sprites_per_sequence() - 1 )
+      {
+        SPDLOG_DEBUG( "Deactivating animation: {}", static_cast<int>( anim_entt ) );
+        anim_cmp.m_enabled = false;
+        if ( anim_cmp.m_anim_type == Cmp::AnimType::ONESHOTRESET ) { anim_cmp.m_current_frame = anim_cmp.m_base_frame; }
       }
     }
   }
 
   // NPC Movement: only update animation for NPC that are actively pathfinding
+  auto pathfinding_npc_view = reg().view<Cmp::Npc::NPC, Cmp::Direction, Cmp::AnimData, Cmp::Position>();
+  for ( auto entity : pathfinding_npc_view )
   {
-    ZoneScopedN( "AnimSystem::update - view<Cmp::Npc::NPC, Cmp::Direction, Cmp::AnimData, Cmp::Position>" );
-    auto pathfinding_npc_view = reg().view<Cmp::Npc::NPC, Cmp::Direction, Cmp::AnimData, Cmp::Position>();
-    for ( auto entity : pathfinding_npc_view )
-    {
-      auto [direction_cmp, anim_cmp, pos_cmp] = pathfinding_npc_view.get<Cmp::Direction, Cmp::AnimData, Cmp::Position>( entity );
-      if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), pos_cmp ) ) continue;
-      if ( direction_cmp == sf::Vector2f( 0.f, 0.f ) ) continue;
+    auto [direction_cmp, anim_cmp, pos_cmp] = pathfinding_npc_view.get<Cmp::Direction, Cmp::AnimData, Cmp::Position>( entity );
+    if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), pos_cmp ) ) continue;
+    if ( direction_cmp == sf::Vector2f( 0.f, 0.f ) ) continue;
 
-      SPDLOG_DEBUG( "NPC {} framerate is {}", anim_cmp.m_sprite_type, anim_cmp.get_framerate() );
-      const auto &npc_walk_sequence = m_sprite_factory.get_spritesheet_by_type( anim_cmp.m_sprite_type );
-      PROFILED( update_sequence_frame( anim_cmp, dt, npc_walk_sequence, sf::seconds( anim_cmp.get_framerate() ) ) );
-    }
+    SPDLOG_DEBUG( "NPC {} framerate is {}", anim_cmp.m_sprite_type, anim_cmp.get_framerate() );
+    const auto &npc_walk_sequence = m_sprite_factory.get_spritesheet_by_type( anim_cmp.m_sprite_type );
+    update_sequence_frame( anim_cmp, dt, npc_walk_sequence, sf::seconds( anim_cmp.get_framerate() ) );
   }
 }
 
 void AnimSystem::update_sequence_frame( Cmp::AnimData &anim, sf::Time globalDeltaTime, const Sprites::SpriteSheet &ms, sf::Time frame_rate )
 {
-  ZoneScopedN( "AnimSystem::update_sequence_frame" );
   anim.m_elapsed_time += globalDeltaTime;
 
   if ( anim.m_elapsed_time >= frame_rate )

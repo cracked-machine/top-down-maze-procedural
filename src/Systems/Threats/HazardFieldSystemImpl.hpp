@@ -181,12 +181,13 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
   auto hazard_view = reg().template view<HazardType, Cmp::Position>();
   auto player_view = reg().template view<Cmp::Player::Character, Cmp::PlayerStats, Cmp::Player::Mortality, Cmp::Position>();
   const auto &player_position = Utils::Player::get_position( reg() );
+  const auto view_bounds = Utils::calculate_view_bounds( RenderSystem::get_world_view() );
 
   for ( auto [pc_entt, player_cmp, player_stats_cmp, player_mort_cmp, player_pos_cmp] : player_view.each() )
   {
     // optimization
     // if ( player_mort_cmp.state != Cmp::Player::Mortality::State::ALIVE ) return;
-    if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), player_pos_cmp ) ) continue;
+    if ( not Utils::is_visible_in_view( view_bounds, player_pos_cmp ) ) continue;
 
     // dont spam death events if the player is already dead
     if ( player_mort_cmp.state == Cmp::Player::Mortality::State::DEAD ) continue;
@@ -233,11 +234,12 @@ void HazardFieldSystem<HazardType>::check_npc_hazard_field_collision()
 {
   auto hazard_view = reg().template view<HazardType, Cmp::Position>();
   auto npc_view = reg().template view<Cmp::Npc::NPC, Cmp::Position>();
+  const auto view_bounds = Utils::calculate_view_bounds( RenderSystem::get_world_view() );
 
   for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : npc_view.each() )
   {
     // optimization
-    if ( !Utils::is_visible_in_view( RenderSystem::get_world_view(), npc_pos_cmp ) ) continue;
+    if ( !Utils::is_visible_in_view( view_bounds, npc_pos_cmp ) ) continue;
 
     for ( auto [hazard_entt, hazard_cmp, hazard_pos_cmp] : hazard_view.each() )
     {

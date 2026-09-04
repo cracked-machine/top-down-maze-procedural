@@ -3,6 +3,7 @@
 
 #include <Utils/Constants.hpp>
 
+#include <SFML/Graphics/Rect.hpp>
 #include <entt/entt.hpp>
 #include <unordered_map>
 #include <vector>
@@ -62,6 +63,15 @@ public:
   //! @return std::vector<entt::entity>
   std::vector<entt::entity> neighbours( const Cmp::Position &pos, QueryCompass offset = QueryCompass::BOTH ) const;
 
+  //! @brief Get every entity whose bucket overlaps the axis-aligned rectangle `bounds` (world/pixel
+  //! coordinates), flattening every matching bucket into one vector. Unlike neighbours(), which is
+  //! anchored to a single position and covers at most a 3x3 cell block, this covers however many
+  //! cells `bounds` actually spans - suited to a camera/view-bounds query rather than a
+  //! single-entity proximity query.
+  //! @param bounds World-space rectangle to query.
+  //! @return Entities in every bucket the rectangle's cell-range overlaps, in no particular order.
+  std::vector<entt::entity> query_rect( const sf::FloatRect &bounds ) const;
+
   //! @brief Get the number of occupied buckets in the grid.
   //! @return The bucket count.
   size_t size() { return m_grid.size(); }
@@ -77,9 +87,9 @@ private:
   std::unordered_map<long long, std::vector<entt::entity>> m_grid;
 
   //! @brief Convert pixel coords into cell coords
-  //! @param pos
+  //! @param pos Anything position-like: Cmp::Position derives from sf::FloatRect, so it binds here too.
   //! @return std::pair<int, int>
-  std::pair<int, int> cell( const Cmp::Position &pos ) const;
+  std::pair<int, int> cell( const sf::FloatRect &pos ) const;
 
   //! @brief Creates a bijective encoding of two x/y inputs into one output
   //! @param x

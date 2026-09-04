@@ -114,10 +114,11 @@ void NpcSystem::check_npc_container_collision()
 
   auto player_pos = Utils::Player::get_position( reg() );
   auto npccontainer_collision_view = reg().view<Cmp::Npc::Container, Cmp::Position>();
+  const auto view_bounds = Utils::calculate_view_bounds( RenderSystem::get_world_view() );
 
   for ( auto [npccontainer_entt, npccontainer_cmp, npccontainer_pos_cmp] : npccontainer_collision_view.each() )
   {
-    if ( !Utils::is_visible_in_view( RenderSystem::get_world_view(), npccontainer_pos_cmp ) ) continue;
+    if ( !Utils::is_visible_in_view( view_bounds, npccontainer_pos_cmp ) ) continue;
 
     auto &npc_activate_scale = Sys::PersistSystem::get<Cmp::Persist::NpcActivateScale>( reg() );
     // we just create a temporary RectBounds here instead of a component because we only need it
@@ -343,13 +344,14 @@ void NpcSystem::check_once_collision()
   auto &player_dmg_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( reg() );
   auto &player_pos = Utils::Player::get_position( reg() );
   auto &player_mort = Utils::Player::get_mortality( reg() );
+  const auto view_bounds = Utils::calculate_view_bounds( RenderSystem::get_world_view() );
 
   for ( auto [player_entity, player_cmp] : player_collision_view.each() )
   {
     if ( player_mort.state != Cmp::Player::Mortality::State::ALIVE ) return;
     for ( auto [npc_entity, npc_cmp, npc_pos_cmp, npc_dir_cmp] : npc_collision_view.each() )
     {
-      if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), npc_pos_cmp ) ) continue;
+      if ( not Utils::is_visible_in_view( view_bounds, npc_pos_cmp ) ) continue;
 
       // relaxed bounds to allow player to sneak past during lerp transition
       auto npc_pos_cmp_bounds_current = Cmp::RectBounds::scaled( npc_pos_cmp.position, npc_pos_cmp.size, 0.1f );
@@ -403,11 +405,12 @@ void NpcSystem::check_timed_collision( sf::Time dt )
 
   auto &player_pos = Utils::Player::get_position( reg() );
   auto &player_mort = Utils::Player::get_mortality( reg() );
+  const auto view_bounds = Utils::calculate_view_bounds( RenderSystem::get_world_view() );
 
   if ( player_mort.state != Cmp::Player::Mortality::State::ALIVE ) return;
   for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_collision_view.each() )
   {
-    if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), npc_pos_cmp ) ) continue;
+    if ( not Utils::is_visible_in_view( view_bounds, npc_pos_cmp ) ) continue;
     auto &npc_collision_action = npc_cmp.actions.at( std::type_index( typeid( Cmp::CollisionAction ) ) );
 
     auto &[npc_action, npc_action_timer] = npc_collision_action;

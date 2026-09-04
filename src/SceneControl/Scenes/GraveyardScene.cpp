@@ -164,6 +164,11 @@ void GraveyardScene::on_init()
   m_ghost_navmesh = Factory::Pathfinding::create_ghost_navmesh( m_reg );
   m_player_navmesh = Factory::Pathfinding::create_player_navmesh( m_reg );
   m_open_navmesh = Factory::Pathfinding::create_open_navmesh( m_reg );
+
+  // spatial index for RenderGameSystem's Cmp::Position z-order pass - kept up to date by a periodic
+  // rebuild in do_update() rather than precise per-mutation sync, see kRenderPositionGridRebuildInterval
+  m_render_position_sm = Factory::Pathfinding::create_render_position_grid( m_reg );
+
   reinit_navmesh();
 
   // create floor background
@@ -257,6 +262,16 @@ void GraveyardScene::do_update( sf::Time dt )
 {
   ZoneScoped;
 
+  // keep m_render_position_sm up to date with static entities created/destroyed since it was last
+  // built - see its doc comment for why this is a periodic rebuild rather than precise sync.
+  // Repopulates the existing grid object in place (never reassigns m_render_position_sm) so systems
+  // like InventorySystem that hold a weak_ptr to it from a one-time init() call don't go stale.
+  if ( m_render_position_grid_rebuild_clock.getElapsedTime() >= kRenderPositionGridRebuildInterval )
+  {
+    PROFILED( Factory::Pathfinding::populate_render_position_grid( m_reg, *m_render_position_sm ) );
+    m_render_position_grid_rebuild_clock.restart();
+  }
+
   PROFILED( m_sys.find<Sys::Store::Type::AnimSystem>().update( dt ) );
 
   {
@@ -305,7 +320,7 @@ void GraveyardScene::do_update( sf::Time dt )
   PROFILED( m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt ) );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
-  PROFILED( m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_generic_npc_navmesh ) );
+  PROFILED( m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_generic_npc_navmesh, m_render_position_sm ) );
 }
 
 void GraveyardScene::reinit_navmesh()

@@ -47,6 +47,7 @@ void LootSystem::check_loot_collision()
   };
 
   std::vector<LootEffect> loot_effects;
+  const auto view_bounds = Utils::calculate_view_bounds( RenderSystem::get_world_view() );
 
   for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : reg().view<Cmp::Player::Character, Cmp::Position>().each() )
   {
@@ -54,7 +55,7 @@ void LootSystem::check_loot_collision()
     auto player_hitbox = Cmp::RectBounds::scaled( pc_pos_cmp.position, pc_pos_cmp.size, 0.5f );
     for ( auto [loot_entt, loot_cmp, loot_pos_cmp, loot_sprite_anim] : reg().view<Cmp::Loot, Cmp::Position, Cmp::AnimData>().each() )
     {
-      if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), loot_pos_cmp ) ) continue;
+      if ( not Utils::is_visible_in_view( view_bounds, loot_pos_cmp ) ) continue;
 
       if ( pc_pos_cmp.findIntersection( loot_pos_cmp ) )
       {

@@ -84,7 +84,27 @@ std::vector<entt::entity> SpatialHashGrid::neighbours( const Cmp::Position &pos,
   return result;
 }
 
-std::pair<int, int> SpatialHashGrid::cell( const Cmp::Position &pos ) const
+std::vector<entt::entity> SpatialHashGrid::query_rect( const sf::FloatRect &bounds ) const
+{
+  std::vector<entt::entity> result;
+
+  const auto [min_cx, min_cy] = cell( bounds );
+  const auto [max_cx, max_cy] = cell( sf::FloatRect( bounds.position + bounds.size, { 0.f, 0.f } ) );
+
+  for ( int cx = min_cx; cx <= max_cx; ++cx )
+  {
+    for ( int cy = min_cy; cy <= max_cy; ++cy )
+    {
+      auto it = m_grid.find( encode( cx, cy ) );
+      if ( it == m_grid.end() ) continue;
+      result.insert( result.end(), it->second.begin(), it->second.end() );
+    }
+  }
+
+  return result;
+}
+
+std::pair<int, int> SpatialHashGrid::cell( const sf::FloatRect &pos ) const
 {
   return { static_cast<int>( std::floor( pos.position.x / m_cell_size ) ), static_cast<int>( std::floor( pos.position.y / m_cell_size ) ) };
 }

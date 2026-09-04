@@ -1,6 +1,8 @@
 #ifndef SRC_UTILS_OPTIMIZATIONS_HPP__
 #define SRC_UTILS_OPTIMIZATIONS_HPP__
 
+#include <Utils/Profiling.hpp>
+
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/View.hpp>
 
@@ -25,6 +27,7 @@ constexpr inline sf::FloatRect calculate_view_bounds( const sf::View &view )
 //! @return true if the position is visible within the view bounds; false otherwise.
 constexpr inline bool is_visible_in_view( const sf::FloatRect &viewbounds, const sf::FloatRect &position )
 {
+  ZoneScopedN( "Utils::is_visible_in_view( const sf::FloatRect &viewbounds, const sf::FloatRect &position )" );
   return viewbounds.findIntersection( position ).has_value();
 }
 
@@ -34,6 +37,7 @@ constexpr inline bool is_visible_in_view( const sf::FloatRect &viewbounds, const
 //! @return true if the position's hitbox intersects with the view bounds
 constexpr inline bool is_visible_in_view( const sf::View &view, const sf::FloatRect &position )
 {
+  ZoneScopedN( "Utils::is_visible_in_view( const sf::View &view, const sf::FloatRect &position )" );
   auto viewBounds = calculate_view_bounds( view );
   return viewBounds.findIntersection( position ).has_value();
 }

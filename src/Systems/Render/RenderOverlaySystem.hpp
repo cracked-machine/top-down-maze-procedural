@@ -197,9 +197,10 @@ public:
   template <typename Component>
   void render_square_for_vector2f_cmp( sf::Color square_color = sf::Color::Red, float square_thickness = 1.f )
   {
+    const auto view_bounds = Utils::calculate_view_bounds( RenderSystem::get_world_view() );
     for ( auto [entity, requested_cmp] : reg().view<Component>().each() )
     {
-      if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), sf::FloatRect( requested_cmp, Constants::kGridSizePxF ) ) ) continue;
+      if ( not Utils::is_visible_in_view( view_bounds, sf::FloatRect( requested_cmp, Constants::kGridSizePxF ) ) ) continue;
       sf::RectangleShape rectangle;
       rectangle.setSize( Constants::kGridSizePxF );
       rectangle.setPosition( requested_cmp );
@@ -217,9 +218,10 @@ public:
   template <typename Component>
   void render_square_for_floatrect_cmp( sf::Color square_color = sf::Color::Red, float square_thickness = 1.f )
   {
+    const auto view_bounds = Utils::calculate_view_bounds( RenderSystem::get_world_view() );
     for ( auto [entity, requested_cmp] : reg().view<Component>().each() )
     {
-      if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), requested_cmp ) ) continue;
+      if ( not Utils::is_visible_in_view( view_bounds, requested_cmp ) ) continue;
       sf::RectangleShape rectangle;
       rectangle.setSize( requested_cmp.size );
       rectangle.setPosition( requested_cmp.position );
@@ -296,9 +298,10 @@ public:
   //! @param outlines
   void render_outlines( const std::vector<Render::UiData::Outline> &outlines )
   {
+    sf::RectangleShape rect;
     for ( const auto &outline : outlines )
     {
-      auto rect = sf::RectangleShape( outline.rect.size );
+      rect.setSize( outline.rect.size );
       rect.setPosition( outline.rect.position );
       rect.setFillColor( outline.fill_color );
       rect.setOutlineColor( outline.line_color );

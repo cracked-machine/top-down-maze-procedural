@@ -90,7 +90,7 @@ std::optional<sf::Vector2f> normalized( sf::Vector2f v )
   return v / len;
 }
 
-[[nodiscard]] inline std::optional<sf::Angle> angle( sf::Vector2f v )
+[[nodiscard]] std::optional<sf::Angle> angle( sf::Vector2f v )
 {
   if ( v.x == 0.f && v.y == 0.f ) return std::nullopt;
   return v.angle();

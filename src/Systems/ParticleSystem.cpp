@@ -47,12 +47,14 @@ std::vector<entt::entity> ParticleSystem::add_to_registry( Cmp::Particle::Sprite
 
 void ParticleSystem::update( sf::Time dt )
 {
-  // update the ParticleSprite position for Candle items in the world
-  for ( auto [ps_entt, ps_owner, ps_uuid_cmp] : reg().view<Cmp::Particle::SpriteOwner, Cmp::UUID>().each() )
+  // update the ParticleSprite position for Candle items in the world. Filter down to candle
+  // world items first (there are only ever a handful) rather than re-scanning every world item
+  // (every plant and dropped loot item on the level) for every particle sprite below.
+  for ( auto [candle_entt, candle_cmp, candle_pos_cmp, candle_uuid_cmp] : reg().view<Cmp::WorldItem, Cmp::Position, Cmp::UUID>().each() )
   {
-    for ( auto [candle_entt, candle_cmp, candle_pos_cmp, candle_uuid_cmp] : reg().view<Cmp::WorldItem, Cmp::Position, Cmp::UUID>().each() )
+    if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
+    for ( auto [ps_entt, ps_owner, ps_uuid_cmp] : reg().view<Cmp::Particle::SpriteOwner, Cmp::UUID>().each() )
     {
-      if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
       if ( ps_uuid_cmp != candle_uuid_cmp ) continue;
       ps_owner.sprite->set_emitter_position( { candle_pos_cmp.getCenter().x, candle_pos_cmp.getCenter().y - Cmp::Particle::Flame::kVerticalOffset } );
     }
@@ -77,25 +79,29 @@ void ParticleSystem::update( sf::Time dt )
 void ParticleSystem::check_collsion( const std::vector<std::string> &excl_ps_tag_list )
 {
   const auto &world_view = Sys::RenderSystem::get_world_view();
+
+  // Gather visible, not-currently-selected obstacle positions once rather than
+  // re-filtering the whole BlockParticle view for every particle sprite below.
+  std::vector<sf::FloatRect> visible_obstacles;
+  for ( auto [ob_entt, pos_cmp] : reg().view<Cmp::Particle::BlockParticle, Cmp::Position>().each() )
+  {
+    // If this is the obstacle being currently dug then skip particle collision detection
+    if ( reg().any_of<Cmp::SelectedPosition>( ob_entt ) ) continue;
+    if ( not Utils::is_visible_in_view( world_view, pos_cmp ) ) continue;
+    visible_obstacles.push_back( pos_cmp );
+  }
+  if ( visible_obstacles.empty() ) return;
+
   for ( auto [entt, ps_cmp] : reg().view<Cmp::Particle::SpriteOwner>().each() )
   {
+    if ( not ps_cmp.sprite->is_active() ) continue;
     if ( not Utils::is_visible_in_view( world_view, ps_cmp.sprite->get_bounds() ) ) continue;
 
-    for ( auto [ob_entt, pos_cmp] : reg().view<Cmp::Particle::BlockParticle, Cmp::Position>().each() )
-    {
-      // If this is the obstacle being currently dug then skip particle collision detection
-      if ( not Utils::is_visible_in_view( world_view, pos_cmp ) ) continue;
-      if ( reg().any_of<Cmp::SelectedPosition>( ob_entt ) ) continue;
+    bool excluded = std::ranges::any_of( excl_ps_tag_list, [&ps_cmp]( const std::string &tag ) { return ps_cmp.sprite->get_tag() == tag; } );
+    if ( excluded ) continue;
 
-      bool excluded = std::ranges::any_of( excl_ps_tag_list, [&ps_cmp]( const std::string &tag ) { return ps_cmp.sprite->get_tag() == tag; } );
-      if ( excluded ) continue;
-
-      if ( ps_cmp.sprite->is_active() )
-      {
-        SPDLOG_DEBUG( "Simulating" );
-        ps_cmp.sprite->check_particle_collision( pos_cmp );
-      }
-    }
+    SPDLOG_DEBUG( "Simulating" );
+    for ( const auto &pos_cmp : visible_obstacles ) { ps_cmp.sprite->check_particle_collision( pos_cmp ); }
   }
 }
 
