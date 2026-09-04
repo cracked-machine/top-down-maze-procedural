@@ -35,7 +35,7 @@ void LevelCompleteScene::on_exit()
 
 void LevelCompleteScene::do_update( sf::Time dt )
 {
-  m_sound_bank.get_effect( "footsteps" ).stop();
+  m_sound_bank.get_effect( "footstep" ).stop();
 
   auto &wealth = Utils::Player::get_wealth( m_reg );
   auto &cadaver_count = Utils::Player::get_cadaver_count( m_reg );

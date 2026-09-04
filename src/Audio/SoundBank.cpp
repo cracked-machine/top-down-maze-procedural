@@ -27,7 +27,8 @@ void SoundBank::init()
   sounds.emplace( "shotgun_fire", EffectsData{ "res/audio/shotgun_fire.mp3" } );
   sounds.emplace( "rattling_bones", EffectsData{ "res/audio/rattling_bones.mp3" } );
 
-  sounds.emplace( "footsteps", EffectsData{ "res/audio/footsteps.wav" } );
+  sounds.emplace( "footstep_left", EffectsData{ "res/audio/footstep_right.mp3" } );
+  sounds.emplace( "footstep_right", EffectsData{ "res/audio/footstep_right.mp3" } );
   sounds.emplace( "bomb_fuse", EffectsData{ "res/audio/fuse.wav" } );
   sounds.emplace( "bomb_detonate", EffectsData{ "res/audio/detonate.wav" } );
   sounds.emplace( "drop_loot", EffectsData{ "res/audio/drop_loot.wav" } );

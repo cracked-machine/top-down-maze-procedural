@@ -30,7 +30,7 @@ void GameOverScene::on_exit()
 
 void GameOverScene::do_update( [[maybe_unused]] sf::Time dt )
 {
-  m_sound_bank.get_effect( "footsteps" ).stop();
+  m_sound_bank.get_effect( "footstep" ).stop();
 
   auto &render_menu_sys = m_sys.find<Sys::Store::Type::RenderMenuSystem>();
   render_menu_sys.render_defeat_screen();

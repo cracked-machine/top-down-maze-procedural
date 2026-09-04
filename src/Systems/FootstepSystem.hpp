@@ -3,6 +3,7 @@
 
 #include <Components/FootStepTimer.hpp>
 #include <SFML/System/Clock.hpp>
+#include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include <Components/Direction.hpp>
@@ -27,8 +28,7 @@ public:
   }
 
   //! @brief Which footstep sound effect (if any) should accompany the spawned footstep sprites.
-  enum class FootStepSfx
-  {
+  enum class FootStepSfx {
     //! @brief No footstep sound effect.
     NONE,
     //! @brief Gravel/outdoor footstep sound effect.
@@ -39,7 +39,7 @@ public:
 
   //! @brief Update all FootstepAlpha based on their FootstepTimer, remove any entities with FootstepAlpha
   //! @param footstep_sfx
-  void update( FootStepSfx footstep_sfx = FootStepSfx::GRAVEL );
+  void update( sf::Time dt, FootStepSfx footstep_type = FootStepSfx::GRAVEL );
 
   //! @brief event handlers for pausing footstep clocks
   void on_pause() override;
@@ -52,6 +52,10 @@ public:
 private:
   //! @brief Rate-limit adding the footstep sprites
   sf::Clock update_clock;
+
+  sf::Time m_footstep_sfx_accumulator{ sf::Time::Zero };
+
+  bool m_alternate_footsteps{ false };
 
   //! @brief Create an entity with components: Position, Direction, FootstepTimer, FootstepAlpha
   //! @param pos

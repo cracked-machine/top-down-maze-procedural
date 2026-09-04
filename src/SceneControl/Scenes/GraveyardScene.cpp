@@ -272,7 +272,7 @@ void GraveyardScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::WatchmanSystem>().update( dt );
   m_sys.find<Sys::Store::Type::WormholeSystem>().check_player_wormhole_collision();
   m_sys.find<Sys::Store::Type::ActionSystem>().update( dt );
-  m_sys.find<Sys::Store::Type::FootstepSystem>().update();
+  m_sys.find<Sys::Store::Type::FootstepSystem>().update( dt );
 
   m_sys.find<Sys::Store::Type::CryptSystem>().update_exit_zorder();
   if ( m_scene_exit_cooldown.getElapsedTime() >= m_scene_exit_cooldown_time )

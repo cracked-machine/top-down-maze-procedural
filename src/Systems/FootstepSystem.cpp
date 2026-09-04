@@ -7,6 +7,7 @@
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Persistent/PlayerFootstepAddDelay.hpp>
 #include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
+#include <Components/Persistent/PlayerMovementSpeed.hpp>
 #include <Components/Player/Character.hpp>
 #include <Components/SceneSettings/Footsteps.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -50,7 +51,7 @@ std::optional<FootstepVariant> footstep_variant_for( const sf::Vector2f &dir )
 namespace Game::Sys
 {
 
-void FootstepSystem::update( FootStepSfx footstep_sfx )
+void FootstepSystem::update( sf::Time dt, FootStepSfx footstep_type )
 {
 
   // add new footstep for player
@@ -76,7 +77,15 @@ void FootstepSystem::update( FootStepSfx footstep_sfx )
     }
   }
 
-  Utils::Player::get_direction( reg() ) == sf::Vector2f( 0.f, 0.f ) ? stop_footsteps_sound() : play_footsteps_sound( footstep_sfx );
+  m_footstep_sfx_accumulator += dt;
+  auto player_movement_speed = Sys::PersistSystem::get<Cmp::Persist::PlayerMovementSpeed>( reg() );
+  float speed = player_movement_speed.get_value() * Utils::Player::get_speed_penalty( reg() );
+  const float step = speed * dt.asSeconds();
+  if ( m_footstep_sfx_accumulator > sf::seconds( 1 / step ) )
+  {
+    if ( Utils::Player::get_direction( reg() ) != sf::Vector2f( 0.f, 0.f ) ) play_footsteps_sound( footstep_type );
+    m_footstep_sfx_accumulator = sf::Time::Zero;
+  }
 }
 
 void FootstepSystem::on_pause()
@@ -146,15 +155,21 @@ void FootstepSystem::add_footstep( const Cmp::Position &pos, const Cmp::Directio
 
 void FootstepSystem::play_footsteps_sound( FootStepSfx type )
 {
+
+  auto play = [this]( const std::string &sfx_name )
+  {
+    if ( m_sound_bank.get_effect( sfx_name ).getStatus() == sf::Sound::Status::Playing ) return;
+    m_alternate_footsteps = not m_alternate_footsteps;
+    m_sound_bank.get_effect( sfx_name ).play();
+  };
+
   switch ( type )
   {
     case FootStepSfx::NONE:
       break;
     case FootStepSfx::GRAVEL: {
-      // Restarting prematurely creates a stutter effect, so check first
-      auto &footsteps = m_sound_bank.get_effect( "footsteps" );
-      if ( footsteps.getStatus() == sf::Sound::Status::Playing ) return;
-      footsteps.play();
+      play( "footstep_left" );
+
       break;
     }
     case FootStepSfx::FLOORBOARDS: {
@@ -166,7 +181,8 @@ void FootstepSystem::play_footsteps_sound( FootStepSfx type )
 void FootstepSystem::stop_footsteps_sound()
 {
   // add more footstep sfx here when needed
-  m_sound_bank.get_effect( "footsteps" ).stop();
+  m_sound_bank.get_effect( "footstep_left" ).stop();
+  m_sound_bank.get_effect( "footstep_right" ).stop();
 }
 
 } // namespace Game::Sys
