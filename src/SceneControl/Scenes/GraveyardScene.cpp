@@ -316,7 +316,7 @@ void GraveyardScene::do_update( sf::Time dt )
   PROFILED( m_sys.find<Sys::Store::Type::ArrowSystem>().update( dt ) );
   PROFILED( m_sys.find<Sys::Store::Type::InventorySystem>().update( dt ) );
 
-  PROFILED( m_sys.find<Sys::Store::Type::ParticleSystem>().check_collsion() );
+  PROFILED( m_sys.find<Sys::Store::Type::ParticleSystem>().check_collsion( { "graveyard.plant.particle.flame" } ) );
   PROFILED( m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt ) );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
