@@ -147,8 +147,8 @@ target_precompile_headers(TheShadesBelow PRIVATE
     <spdlog/spdlog.h>
 )
 
-target_link_libraries(${TARGET} PRIVATE 
-    SFML::Graphics 
+target_link_libraries(${TARGET} PRIVATE
+    SFML::Graphics
     SFML::Audio
     spdlog::spdlog
     EnTT
@@ -156,6 +156,7 @@ target_link_libraries(${TARGET} PRIVATE
     ImGui-SFML::ImGui-SFML
     nlohmann_json::nlohmann_json
     stdc++exp
+    TracyClient
 )
 target_include_directories(${TARGET} SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/src

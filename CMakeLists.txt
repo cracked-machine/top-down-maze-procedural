@@ -55,16 +55,31 @@ FetchContent_Declare(json-nlohmann
   GIT_SHALLOW ON EXCLUDE_FROM_ALL SYSTEM
 )
 
+# Tracy profiler client. Fetched unconditionally (like the other deps above) so
+# `#include <tracy/Tracy.hpp>` always resolves, but TRACY_ENABLE gates whether its
+# macros compile to real instrumentation or no-ops - flip -DENABLE_TRACY=ON to profile.
+# TRACY_ON_DEMAND defers any profiling work/allocation until a Tracy profiler GUI
+# actually connects, so an un-profiled run has near-zero overhead even when enabled.
+option(ENABLE_TRACY "Build with Tracy profiler instrumentation" OFF)
+set(TRACY_ENABLE ${ENABLE_TRACY} CACHE BOOL "" FORCE)
+set(TRACY_ON_DEMAND ON CACHE BOOL "" FORCE)
+FetchContent_Declare(tracy
+    GIT_REPOSITORY https://github.com/wolfpld/tracy.git
+    GIT_TAG v0.11.1
+    GIT_SHALLOW ON EXCLUDE_FROM_ALL SYSTEM
+)
+
 set(IMGUI_DIR ${FETCHCONTENT_BASE_DIR}/imgui-src)
 option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" OFF)
 option(IMGUI_SFML_IMGUI_DEMO "Build imgui_demo.cpp" ON)
 FetchContent_MakeAvailable(
-    SFML 
+    SFML
     SPDLog
     EnTT
     ImGUI
     imgui-sfml
     json-nlohmann
+    tracy
 )
 
 # ThirdParty Lib warning Supression:

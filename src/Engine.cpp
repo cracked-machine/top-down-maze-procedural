@@ -19,6 +19,7 @@
 #include <Utils/ImGuiTheme.hpp>
 #include <Utils/Utils.hpp>
 #include <imgui-SFML.h>
+#include <tracy/Tracy.hpp>
 
 #include <memory>
 #include <sstream>
@@ -95,6 +96,10 @@ bool Engine::run()
           m_window->setView( sf::View( visibleArea ) );
         }
       }
+
+      // marks the end of one presented frame for Tracy's frame-time graph; no-op unless
+      // built with -DENABLE_TRACY=ON and a Tracy profiler is connected
+      FrameMark;
     } /// MAIN LOOP ENDS
 
   } catch ( const std::exception &e )

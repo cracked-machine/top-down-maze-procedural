@@ -8,6 +8,7 @@ cmake -S . -B $BUILD_DIR -G Ninja \
     -DCMAKE_BUILD_TYPE=$BUILD \
     -DTARGET_TRIPLET=$ARCH \
     -DCMAKE_TOOLCHAIN_FILE=scripts/cmake-$ARCH.cmake \
+    -DENABLE_TRACY=ON \
     -DCMAKE_INSTALL_PREFIX=$BUILD_DIR/bin
 
 cmake --build $BUILD_DIR --parallel $(nproc)

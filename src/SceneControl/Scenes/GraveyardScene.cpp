@@ -79,8 +79,10 @@
 #include <Utils/Constants.hpp>
 #include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>
+#include <Utils/Profiling.hpp>
 
 #include <cmath>
+
 namespace Game::Scene
 {
 
@@ -253,52 +255,57 @@ void GraveyardScene::on_exit()
 
 void GraveyardScene::do_update( sf::Time dt )
 {
-  m_sys.find<Sys::Store::Type::AnimSystem>().update( dt );
+  ZoneScoped;
 
-  if ( auto pos = m_sys.find<Sys::Store::Type::SinkHoleHazardSystem>().update(); pos != sf::Vector2f{ 0, 0 } )
+  PROFILED( m_sys.find<Sys::Store::Type::AnimSystem>().update( dt ) );
+
   {
-    for ( auto [floor_entt, floortiles] : m_reg.view<Sprites::Containers::VertexFloor>().each() )
+    ZoneScopedN( "SinkHoleHazardSystem::update" );
+    if ( auto pos = m_sys.find<Sys::Store::Type::SinkHoleHazardSystem>().update(); pos != sf::Vector2f{ 0, 0 } )
     {
-      floortiles.remove( pos );
+      for ( auto [floor_entt, floortiles] : m_reg.view<Sprites::Containers::VertexFloor>().each() )
+      {
+        floortiles.remove( pos );
+      }
     }
   }
 
-  m_sys.find<Sys::Store::Type::CorruptionHazardSystem>().update();
-  m_sys.find<Sys::Store::Type::BombSystem>().update();
-  m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision();
-  m_sys.find<Sys::Store::Type::NpcSystem>().update( dt );
-  m_sys.find<Sys::Store::Type::WispSystem>().update( dt );
-  m_sys.find<Sys::Store::Type::WispSystem>().spawn_wisp();
-  m_sys.find<Sys::Store::Type::WatchmanSystem>().update( dt );
-  m_sys.find<Sys::Store::Type::WormholeSystem>().check_player_wormhole_collision();
-  m_sys.find<Sys::Store::Type::ActionSystem>().update( dt );
-  m_sys.find<Sys::Store::Type::FootstepSystem>().update( dt );
+  PROFILED( m_sys.find<Sys::Store::Type::CorruptionHazardSystem>().update() );
+  PROFILED( m_sys.find<Sys::Store::Type::BombSystem>().update() );
+  PROFILED( m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision() );
+  PROFILED( m_sys.find<Sys::Store::Type::NpcSystem>().update( dt ) );
+  PROFILED( m_sys.find<Sys::Store::Type::WispSystem>().update( dt ) );
+  PROFILED( m_sys.find<Sys::Store::Type::WispSystem>().spawn_wisp() );
+  PROFILED( m_sys.find<Sys::Store::Type::WatchmanSystem>().update( dt ) );
+  PROFILED( m_sys.find<Sys::Store::Type::WormholeSystem>().check_player_wormhole_collision() );
+  PROFILED( m_sys.find<Sys::Store::Type::ActionSystem>().update( dt ) );
+  PROFILED( m_sys.find<Sys::Store::Type::FootstepSystem>().update( dt ) );
 
-  m_sys.find<Sys::Store::Type::CryptSystem>().update_exit_zorder();
+  PROFILED( m_sys.find<Sys::Store::Type::CryptSystem>().update_exit_zorder() );
   if ( m_scene_exit_cooldown.getElapsedTime() >= m_scene_exit_cooldown_time )
   {
-    m_sys.find<Sys::Store::Type::CryptSystem>().check_entrance_collision();
+    PROFILED( m_sys.find<Sys::Store::Type::CryptSystem>().check_entrance_collision() );
   }
 
-  m_sys.find<Sys::Store::Type::CryptSystem>().unlock_crypt_door();
-  m_sys.find<Sys::Store::Type::AltarSystem>().update();
-  m_sys.find<Sys::Store::Type::HealingSpringSystem>().update_building_zorder();
-  m_sys.find<Sys::Store::Type::HealingSpringSystem>().check_entrance_collision();
-  m_sys.find<Sys::Store::Type::RuinSystem>().update_exit_zorder();
-  m_sys.find<Sys::Store::Type::RuinSystem>().check_entrance_collision();
-  m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
-  m_sys.find<Sys::Store::Type::LightningSystem>().update( dt );
-  m_sys.find<Sys::Store::Type::GrimoireSystem>().update( dt );
-  m_sys.find<Sys::Store::Type::ExitSystem>().update_exit_zorder();
-  m_sys.find<Sys::Store::Type::ExitSystem>().check_exit_collision();
-  m_sys.find<Sys::Store::Type::ArrowSystem>().update( dt );
-  m_sys.find<Sys::Store::Type::InventorySystem>().update( dt );
+  PROFILED( m_sys.find<Sys::Store::Type::CryptSystem>().unlock_crypt_door() );
+  PROFILED( m_sys.find<Sys::Store::Type::AltarSystem>().update() );
+  PROFILED( m_sys.find<Sys::Store::Type::HealingSpringSystem>().update_building_zorder() );
+  PROFILED( m_sys.find<Sys::Store::Type::HealingSpringSystem>().check_entrance_collision() );
+  PROFILED( m_sys.find<Sys::Store::Type::RuinSystem>().update_exit_zorder() );
+  PROFILED( m_sys.find<Sys::Store::Type::RuinSystem>().check_entrance_collision() );
+  PROFILED( m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt ) );
+  PROFILED( m_sys.find<Sys::Store::Type::LightningSystem>().update( dt ) );
+  PROFILED( m_sys.find<Sys::Store::Type::GrimoireSystem>().update( dt ) );
+  PROFILED( m_sys.find<Sys::Store::Type::ExitSystem>().update_exit_zorder() );
+  PROFILED( m_sys.find<Sys::Store::Type::ExitSystem>().check_exit_collision() );
+  PROFILED( m_sys.find<Sys::Store::Type::ArrowSystem>().update( dt ) );
+  PROFILED( m_sys.find<Sys::Store::Type::InventorySystem>().update( dt ) );
 
-  m_sys.find<Sys::Store::Type::ParticleSystem>().check_collsion();
-  m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );
+  PROFILED( m_sys.find<Sys::Store::Type::ParticleSystem>().check_collsion() );
+  PROFILED( m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt ) );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
-  m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_generic_npc_navmesh );
+  PROFILED( m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_generic_npc_navmesh ) );
 }
 
 void GraveyardScene::reinit_navmesh()
