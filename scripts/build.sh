@@ -1,11 +1,11 @@
 #!/bin/bash
-BUILD="$1"
+CONFIG="$1"
 ARCH="$2"
-BUILD_DIR="build-$2"
+BUILD_DIR="build-$2-$1"
 
 cmake -S . -B $BUILD_DIR -G Ninja \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
-    -DCMAKE_BUILD_TYPE=$BUILD \
+    -DCMAKE_BUILD_TYPE=$CONFIG \
     -DTARGET_TRIPLET=$ARCH \
     -DCMAKE_TOOLCHAIN_FILE=scripts/cmake-$ARCH.cmake \
     -DENABLE_TRACY=ON \
