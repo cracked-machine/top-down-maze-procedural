@@ -13,7 +13,7 @@ namespace Game::Sys::ProcGen
 {
 
 void CellAutomataSystem::iterate( uint16_t iterations, uint8_t birth_threshold, uint8_t survival_threshold, LevelGenerator::SceneType scene_type,
-                                  PathFinding::SpatialHashGrid &levelgen_spatialgrid, PathFinding::SpatialHashGridSharedPtr reserved_navmesh )
+                                  PathFinding::SpatialHashGrid &levelgen_spatialgrid, PathFinding::SpatialHashGrid reserved_sm )
 {
 
   sf::Clock iteration_timer;
@@ -37,24 +37,24 @@ void CellAutomataSystem::iterate( uint16_t iterations, uint8_t birth_threshold, 
       {
         if ( scene_type == LevelGenerator::SceneType::GRAVEYARD_EXTERIOR )
         {
-          if ( reserved_navmesh->at( pos_cmp ).empty() )
+          if ( reserved_sm.at( pos_cmp ).empty() )
           {
             // Bypass add_obstacle to avoid its O(n) reserved-position scan in this hot loop;
             // reserved_grid.at() above is already the correct O(1) guard.
             // reg().emplace_or_replace<Cmp::Obstacle>( pos_entt );
             // reg().emplace_or_replace<Cmp::Npc::NoPathFinding>( pos_entt );
             Factory::Obstacle::add_obstacle( reg(), pos_entt );
-            reserved_navmesh->insert( pos_entt, pos_cmp );
+            reserved_sm.insert( pos_entt, pos_cmp );
           }
         }
         else if ( scene_type == LevelGenerator::SceneType::RUIN_INTERIOR )
         {
-          if ( reserved_navmesh->at( pos_cmp ).empty() )
+          if ( reserved_sm.at( pos_cmp ).empty() )
           {
             // reg().emplace_or_replace<Cmp::Obstacle>( pos_entt );
             // reg().emplace_or_replace<Cmp::Npc::NoPathFinding>( pos_entt );
             Factory::Obstacle::add_obstacle( reg(), pos_entt );
-            reserved_navmesh->insert( pos_entt, pos_cmp );
+            reserved_sm.insert( pos_entt, pos_cmp );
           }
           reg().emplace_or_replace<Cmp::Moveable>( pos_entt );
         }
@@ -65,7 +65,7 @@ void CellAutomataSystem::iterate( uint16_t iterations, uint8_t birth_threshold, 
         if ( not reg().any_of<Cmp::Player::Character>( pos_entt ) )
         {
           Factory::Obstacle::remove_obstacle( reg(), pos_entt );
-          reserved_navmesh->remove( pos_entt, pos_cmp );
+          reserved_sm.remove( pos_entt, pos_cmp );
         }
       }
     }

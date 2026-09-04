@@ -89,9 +89,6 @@ private:
 
   //! @brief How the player is currently entering the scene; set via set_entry_mode() before the scene is switched to
   EntryMode m_entry_mode;
-
-  //! @brief spatial map for reserving positions during procedural generation
-  PathFinding::SpatialHashGridSharedPtr m_reserved_sm;
 };
 
 } // namespace Game::Scene

@@ -39,30 +39,4 @@ void destroy_loot_container( entt::registry &registry, entt::entity loot_contain
 
 void destroy_loot_drop( entt::registry &registry, entt::entity loot_entity ) { registry.destroy( loot_entity ); }
 
-std::vector<entt::entity> gen_loot_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size,
-                                               PathFinding::SpatialHashGridSharedPtr reserved_navmesh )
-{
-  std::vector<entt::entity> assigned_entts;
-
-  auto num_loot_containers = map_grid_size.x * map_grid_size.y / 120; // one loot container per N grid squares
-
-  for ( std::size_t i = 0; i < num_loot_containers; ++i )
-  {
-    auto [random_entity, random_origin_position] = Utils::Rnd::get_random_position(
-        reg, {}, Utils::Rnd::ExcludePack<Cmp::Player::Character, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
-
-    if ( reserved_navmesh->at( random_origin_position ).empty() )
-    {
-      float zorder = sprite_factory.get_sprite_size_by_type( "sprite.graveyard.pots" ).y;
-
-      Cmp::RandomInt pot_picker( 0, 2 );
-      Factory::Loot::create_loot_container( reg, random_entity, random_origin_position, "sprite.graveyard.pots", pot_picker.gen(), zorder );
-      assigned_entts.push_back( random_entity );
-      reserved_navmesh->insert( random_entity, random_origin_position );
-    }
-  }
-
-  return assigned_entts;
-}
-
 } // namespace Game::Factory::Loot

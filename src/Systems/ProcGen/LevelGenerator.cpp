@@ -44,9 +44,11 @@
 #include <Components/ZOrderValue.hpp>
 #include <Events/CreateItemEvent.hpp>
 #include <Factory/CryptFactory.hpp>
+#include <Factory/LootFactory.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
+#include <Factory/PathfindingFactory.hpp>
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/RuinFactory.hpp>
@@ -80,16 +82,19 @@ LevelGenerator::LevelGenerator( entt::registry &reg, sf::RenderWindow &window, S
     : BaseSystem( reg, window, sprite_factory, sound_bank ),
       m_obstacle_sm( std::make_unique<PathFinding::SpatialHashGrid>() ),
       m_void_sm( std::make_unique<PathFinding::SpatialHashGrid>() ),
-      m_non_obstacle_sm( std::make_unique<PathFinding::SpatialHashGrid>() )
+      m_non_obstacle_sm( std::make_unique<PathFinding::SpatialHashGrid>() ),
+      m_reserved_sm( std::make_shared<PathFinding::SpatialHashGrid>() )
 {
 }
 
 PathFinding::SpatialHashGrid &LevelGenerator::get_obstacle_sm() { return *m_obstacle_sm; }
 PathFinding::SpatialHashGrid &LevelGenerator::get_void_sm() { return *m_void_sm; }
 PathFinding::SpatialHashGrid &LevelGenerator::get_non_obstacle_sm() { return *m_non_obstacle_sm; }
+PathFinding::SpatialHashGrid &LevelGenerator::get_reserved_sm() { return *m_reserved_sm; }
 
-void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data, const PathFinding::SpatialHashGridSharedPtr &reserved_sm )
+void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
 {
+
   auto [map_size_grid, map_size_pixel] = scene_data.map_size();
   auto w = map_size_grid.x;
 
@@ -104,7 +109,7 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data, 
     {
       // get the relative index using the offset from the json data
       auto entt = Factory::Wall::add_wall_entity( reg(), new_pos, wall_ms, tile - scene_data.wall_tileset().first_gid );
-      reserved_sm->insert( entt, Cmp::Position( new_pos, Constants::kGridSizePxF ) );
+      m_reserved_sm->insert( entt, Cmp::Position( new_pos, Constants::kGridSizePxF ) );
     }
   }
 
@@ -125,17 +130,17 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data, 
     {
       auto entity = Factory::Obstacle::create_world_pos( reg(), new_pos );
       Factory::Player::add_spawn_area( reg(), entity, m_sprite_factory, new_pos.y - 16.0f );
-      reserved_sm->insert( entity, Cmp::Position( new_pos, Constants::kGridSizePxF ) );
+      m_reserved_sm->insert( entity, Cmp::Position( new_pos, Constants::kGridSizePxF ) );
     }
     else if ( tile == scene_data.exit_tile_id() )
     {
       auto entt = Factory::Crypt::create_crypt_exit( reg(), new_pos );
-      reserved_sm->insert( entt, Cmp::Position( new_pos, Constants::kGridSizePxF ) );
+      m_reserved_sm->insert( entt, Cmp::Position( new_pos, Constants::kGridSizePxF ) );
     }
     else if ( tile == scene_data.reserved_tile_id() )
     {
       auto entt = Factory::Wall::add_reservedposition( reg(), new_pos );
-      reserved_sm->insert( entt, Cmp::Position( new_pos, Constants::kGridSizePxF ) );
+      m_reserved_sm->insert( entt, Cmp::Position( new_pos, Constants::kGridSizePxF ) );
     }
   }
 
@@ -194,9 +199,9 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data, 
     if ( auto it = kMultiblockFactories.find( ms_type ); it != kMultiblockFactories.end() )
     {
       auto mb_entt = it->second( reg(), pos, ms );
-      reserved_sm->insert( mb_entt, Cmp::Position( pos, Constants::kGridSizePxF ) );
+      m_reserved_sm->insert( mb_entt, Cmp::Position( pos, Constants::kGridSizePxF ) );
     }
-    else if ( ms_type.contains( "item.plant" ) ) { gen_plant( ms_type, pos, reserved_sm ); }
+    else if ( ms_type.contains( "item.plant" ) ) { gen_plant( ms_type, pos ); }
     else if ( ms_type.contains( "item." ) )
     {
       // prevent infinite respawns in the RuinSceneUpperFloor
@@ -214,13 +219,12 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data, 
   }
 }
 
-void LevelGenerator::try_place_obstacle( entt::entity entity, const Cmp::Position &pos_cmp, float init_chance,
-                                         const PathFinding::SpatialHashGridSharedPtr &reserved_sm, bool pass_navmesh_to_factory )
+void LevelGenerator::try_place_obstacle( entt::entity entity, const Cmp::Position &pos_cmp, float init_chance, bool pass_navmesh_to_factory )
 {
   if ( Cmp::RandomFloat{ 0.f, 1.f }.gen() >= init_chance ) return;
 
   bool placed;
-  if ( pass_navmesh_to_factory ) { placed = Factory::Obstacle::add_obstacle( reg(), entity, reserved_sm ); }
+  if ( pass_navmesh_to_factory ) { placed = Factory::Obstacle::add_obstacle( reg(), entity, m_reserved_sm ); }
   else
   {
     Factory::Obstacle::add_obstacle( reg(), entity );
@@ -230,16 +234,16 @@ void LevelGenerator::try_place_obstacle( entt::entity entity, const Cmp::Positio
   if ( placed )
   {
     m_obstacle_sm->insert( entity, pos_cmp );
-    reserved_sm->insert( entity, pos_cmp );
+    m_reserved_sm->insert( entity, pos_cmp );
   }
 }
 
-void LevelGenerator::add_graveyard_exterior_obstacles( float init_chance, const PathFinding::SpatialHashGridSharedPtr &reserved_sm )
+void LevelGenerator::add_graveyard_exterior_obstacles( float init_chance )
 {
   auto position_view = reg().view<Cmp::Position>( entt::exclude<Cmp::Player::Character, Cmp::ReservedPosition> );
   for ( auto [entity, pos_cmp] : position_view.each() )
   {
-    try_place_obstacle( entity, pos_cmp, init_chance, reserved_sm, /*pass_navmesh_to_factory=*/true );
+    try_place_obstacle( entity, pos_cmp, init_chance, /*pass_navmesh_to_factory=*/true );
   }
 }
 
@@ -276,12 +280,12 @@ void LevelGenerator::decorate_graveyard_exterior_obstacles()
       /*cap_y_offset=*/1.f, /*moveable=*/false );
 }
 
-void LevelGenerator::add_ruin_interior_obstacles( float init_chance, const PathFinding::SpatialHashGridSharedPtr &reserved_sm )
+void LevelGenerator::add_ruin_interior_obstacles( float init_chance )
 {
   auto position_view = reg().view<Cmp::Position>( entt::exclude<Cmp::Player::Character, Cmp::ReservedPosition, Cmp::Exit> );
   for ( auto [entity, pos_cmp] : position_view.each() )
   {
-    if ( reserved_sm->at( pos_cmp ).empty() ) { try_place_obstacle( entity, pos_cmp, init_chance, reserved_sm, /*pass_navmesh_to_factory=*/false ); }
+    if ( m_reserved_sm->at( pos_cmp ).empty() ) { try_place_obstacle( entity, pos_cmp, init_chance, /*pass_navmesh_to_factory=*/false ); }
   }
 }
 
@@ -338,7 +342,7 @@ void LevelGenerator::add_lowerfloor_cobwebs( int num_cobwebs, sf::FloatRect scen
   }
 }
 
-void LevelGenerator::gen_graveyard_exterior_multiblocks( const PathFinding::SpatialHashGridSharedPtr &reserved_sm )
+void LevelGenerator::gen_graveyard_exterior_multiblocks()
 {
   auto grave_num_multiplier = Sys::PersistSystem::get<Cmp::Persist::GraveNumMultiplier>( reg() );
   auto max_num_altars = Sys::PersistSystem::get<Cmp::Persist::MaxNumAltars>( reg() );
@@ -374,32 +378,30 @@ void LevelGenerator::gen_graveyard_exterior_multiblocks( const PathFinding::Spat
       {
         auto [mb_entt, _] = Factory::Multiblock::add_multiblock_with_segments<Cmp::Grave::MultiBlock, Cmp::Grave::Segment>( reg(), pos->position,
                                                                                                                             spritesheet, index );
-        reserved_sm->insert( mb_entt, pos.value() );
+        m_reserved_sm->insert( mb_entt, pos.value() );
       }
     }
   }
 
   // ALTARS
   const auto &altar_spritesheet = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.altar.inactive" );
-  spawn_multiblocks<Cmp::Altar::MultiBlock, Cmp::Altar::Segment>( static_cast<std::size_t>( max_num_altars.get_value() ), altar_spritesheet,
-                                                                  reserved_sm );
+  spawn_multiblocks<Cmp::Altar::MultiBlock, Cmp::Altar::Segment>( static_cast<std::size_t>( max_num_altars.get_value() ), altar_spritesheet );
 
   // CRYPTS - note: we use keys from altars to open crypts so the number should be equal
   const auto &crypt_spritesheet = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.crypt.closed" );
   spawn_multiblocks<Cmp::Crypt::BuildingMultiBlock, Cmp::Crypt::BuildingSegment>( static_cast<std::size_t>( max_num_crypts.get_value() ),
-                                                                                  crypt_spritesheet, reserved_sm, /*log=*/true );
+                                                                                  crypt_spritesheet, /*log=*/true );
 
   const auto &healingspring_spritesheet = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.building.healingspring" );
   spawn_multiblocks<Cmp::HealingSpringBuildingMultiBlock, Cmp::HealingSpringBuildingSegment>( max_number_healing_springs, healingspring_spritesheet,
-                                                                                              reserved_sm, /*log=*/true );
+                                                                                              /*log=*/true );
 
   const auto &ruin_spritesheet = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.ruin" );
-  spawn_multiblocks<Cmp::Ruin::BuildingMultiBlock, Cmp::Ruin::BuildingSegment>( max_number_ruins, ruin_spritesheet, reserved_sm, /*log=*/true );
+  spawn_multiblocks<Cmp::Ruin::BuildingMultiBlock, Cmp::Ruin::BuildingSegment>( max_number_ruins, ruin_spritesheet, /*log=*/true );
 }
 
 template <typename MULTIBLOCK, typename MBSEGMENT>
-void LevelGenerator::spawn_multiblocks( std::size_t count, const Sprites::SpriteSheet &ss, const PathFinding::SpatialHashGridSharedPtr &reserved_sm,
-                                        bool log )
+void LevelGenerator::spawn_multiblocks( std::size_t count, const Sprites::SpriteSheet &ss, bool log )
 {
   for ( std::size_t i = 0; i < count; ++i )
   {
@@ -411,7 +413,7 @@ void LevelGenerator::spawn_multiblocks( std::size_t count, const Sprites::Sprite
     }
 
     auto [mb_entt, _] = Factory::Multiblock::add_multiblock_with_segments<MULTIBLOCK, MBSEGMENT>( reg(), random_origin_position.position, ss );
-    reserved_sm->insert( mb_entt, random_origin_position );
+    m_reserved_sm->insert( mb_entt, random_origin_position );
     if ( log ) { SPDLOG_INFO( "Added {} to {},{}", ss.get_sprite_type(), random_origin_position.position.x, random_origin_position.position.y ); }
   }
 }
@@ -461,7 +463,7 @@ std::pair<entt::entity, Cmp::Position> LevelGenerator::find_spawn_location( cons
   return { entt::null, Cmp::Position{ { 0.f, 0.f }, { 0.f, 0.f } } };
 }
 
-bool LevelGenerator::gen_plant( const std::string &plant_type, sf::Vector2f pos, const PathFinding::SpatialHashGridSharedPtr &reserved_sm )
+bool LevelGenerator::gen_plant( const std::string &plant_type, sf::Vector2f pos )
 {
   const auto &plant_ss = m_sprite_factory.get_spritesheet_by_type( "sprite." + plant_type );
 
@@ -476,7 +478,7 @@ bool LevelGenerator::gen_plant( const std::string &plant_type, sf::Vector2f pos,
     {
       sf::Vector2f pos_offset( static_cast<float>( gx ) * Constants::kGridSizePxF.x, static_cast<float>( gy ) * Constants::kGridSizePxF.y );
       Cmp::Position cell_pos( pos + pos_offset, Constants::kGridSizePxF );
-      if ( Utils::get_world_pos_entt( reg(), cell_pos ) == entt::null || not reserved_sm->at( cell_pos ).empty() )
+      if ( Utils::get_world_pos_entt( reg(), cell_pos ) == entt::null || not m_reserved_sm->at( cell_pos ).empty() )
       {
         footprint_clear = false;
         break;
@@ -500,7 +502,7 @@ bool LevelGenerator::gen_plant( const std::string &plant_type, sf::Vector2f pos,
     {
       for ( auto [seg_entt, seg_cmp, seg_pos, seg_uuid] : reg().view<Cmp::PlantSegment, Cmp::Position, Cmp::UUID>().each() )
       {
-        if ( seg_uuid == *mb_uuid ) reserved_sm->insert( seg_entt, seg_pos );
+        if ( seg_uuid == *mb_uuid ) m_reserved_sm->insert( seg_entt, seg_pos );
       }
     }
     return true;
@@ -508,7 +510,61 @@ bool LevelGenerator::gen_plant( const std::string &plant_type, sf::Vector2f pos,
   return false;
 }
 
-std::vector<entt::entity> LevelGenerator::gen_random_plants( sf::Vector2u map_grid_size, const PathFinding::SpatialHashGridSharedPtr &reserved_sm )
+std::vector<entt::entity> LevelGenerator::gen_loot_containers( Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size )
+{
+  std::vector<entt::entity> assigned_entts;
+
+  auto num_loot_containers = map_grid_size.x * map_grid_size.y / 120; // one loot container per N grid squares
+
+  for ( std::size_t i = 0; i < num_loot_containers; ++i )
+  {
+    auto [random_entity, random_origin_position] = Utils::Rnd::get_random_position(
+        reg(), {}, Utils::Rnd::ExcludePack<Cmp::Player::Character, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
+
+    if ( m_reserved_sm->at( random_origin_position ).empty() )
+    {
+      float zorder = sprite_factory.get_sprite_size_by_type( "sprite.graveyard.pots" ).y;
+
+      Cmp::RandomInt pot_picker( 0, 2 );
+      Factory::Loot::create_loot_container( reg(), random_entity, random_origin_position, "sprite.graveyard.pots", pot_picker.gen(), zorder );
+      assigned_entts.push_back( random_entity );
+      m_reserved_sm->insert( random_entity, random_origin_position );
+    }
+  }
+
+  return assigned_entts;
+}
+
+std::vector<entt::entity> LevelGenerator::gen_npc_containers( Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size )
+{
+  std::vector<entt::entity> assigned_entts;
+
+  auto num_npc_containers = map_grid_size.x * map_grid_size.y / 120; // one NPC container per N grid squares
+
+  for ( std::size_t i = 0; i < num_npc_containers; ++i )
+  {
+    auto [random_entity, random_origin_position] = Utils::Rnd::get_random_position(
+        reg(), {}, Utils::Rnd::ExcludePack<Cmp::Player::Character, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
+
+    if ( m_reserved_sm->at( random_origin_position ).empty() )
+    {
+      // pick a random loot container type and texture index
+      // clang-format off
+      auto [npc_type, rand_npc_tex_idx] =
+        sprite_factory.get_random_type_and_texture_index( {
+          "sprite.graveyard.bones"
+        } );
+      // clang-format on
+
+      Factory::Npc::create_npc_container( reg(), random_entity, random_origin_position, npc_type, rand_npc_tex_idx, 0.f );
+      assigned_entts.push_back( random_entity );
+      m_reserved_sm->insert( random_entity, random_origin_position );
+    }
+  }
+  return assigned_entts;
+}
+
+std::vector<entt::entity> LevelGenerator::gen_random_plants( sf::Vector2u map_grid_size )
 {
   std::vector<entt::entity> assigned_entts;
 
@@ -524,16 +580,17 @@ std::vector<entt::entity> LevelGenerator::gen_random_plants( sf::Vector2u map_gr
         reg(), {}, Utils::Rnd::ExcludePack<Cmp::Player::Character, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
 
     auto chosen_plant_item_type = plant_item_type_list.at( Cmp::RandomInt( 0, static_cast<int>( plant_item_type_list.size() - 1 ) ).gen() );
-    if ( gen_plant( chosen_plant_item_type, random_pos.position, reserved_sm ) ) { assigned_entts.push_back( random_entity ); }
+    if ( gen_plant( chosen_plant_item_type, random_pos.position ) ) { assigned_entts.push_back( random_entity ); }
   }
   return assigned_entts;
 }
 
-void LevelGenerator::reset()
+void LevelGenerator::init()
 {
   m_obstacle_sm->clear();
   m_void_sm->clear();
   m_non_obstacle_sm->clear();
+  m_reserved_sm = Factory::Pathfinding::create_reserved_navmesh( m_reg );
 }
 
 } // namespace Game::Sys::ProcGen

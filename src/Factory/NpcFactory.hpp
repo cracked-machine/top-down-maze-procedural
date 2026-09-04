@@ -68,15 +68,6 @@ void remove_npc_death_anim( entt::registry &registry, entt::entity entity );
 //! @return true if a shockwave entity was created.
 bool create_shockwave( entt::registry &registry, entt::entity npc_entt );
 
-//! @brief Scatter NPC spawn containers across the map at random unreserved positions.
-//! @param reg
-//! @param sprite_factory Used to pick a random container sprite type/index.
-//! @param map_grid_size Map size in grid cells; determines how many containers to place.
-//! @param reserved_navmesh Positions already reserved are skipped.
-//! @return The entities that were assigned NPC containers.
-std::vector<entt::entity> gen_npc_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size,
-                                              PathFinding::SpatialHashGridSharedPtr reserved_navmesh );
-
 } // namespace Game::Factory::Npc
 
 #endif // SRC_FACTORY_NPCFACTORY_HPP__

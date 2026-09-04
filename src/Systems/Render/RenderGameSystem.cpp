@@ -120,10 +120,6 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
 
   const bool show_debug_stats = Utils::scene_setting<Cmp::SceneSettings::ShowDebugStats>( reg() ).enabled;
 
-  m_debug_update_timer += dt;
-  static const sf::Time kDebugUpdateTimeout{ sf::milliseconds( 100 ) };
-  bool debug_tick = show_debug_stats and ( m_debug_update_timer > kDebugUpdateTimeout );
-
   // A post-process shader (e.g. FearDistortionShader, see Factory::Shader::add_fear_distortion)
   // samples everything drawn so far rather than blending its own texture onto the scene, so this
   // frame's drawing has to start out redirected into its render texture instead of the window —
@@ -207,30 +203,33 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   }
 
   // limit the update frequency to prevent FPS drops
+  m_debug_update_timer += dt;
+  static const sf::Time kDebugUpdateTimeout{ sf::milliseconds( 1000 ) };
+  bool debug_tick = show_debug_stats and ( m_debug_update_timer > kDebugUpdateTimeout );
   if ( debug_tick )
   {
     render_overlay_sys.begin_debug_overlay( m_window.getSize() );
 
-    // render_overlay_sys.render_ui_misc_stats();
-    // render_overlay_sys.render_ui_zorder_list( m_zorder_queue_ );
-    // render_overlay_sys.render_ui_npc_list();
-    // render_overlay_sys.render_ui_entity_inspect();
-    // for ( auto [selected_entt, selected_cmp, pos_cmp] : reg().view<Cmp::SelectedPosition, Cmp::Position>().each() )
-    // {
-    //   if ( not Utils::is_visible_in_view( get_screen_view(), pos_cmp ) ) continue;
-    //   render_overlay_sys.render_square( pos_cmp.position, pos_cmp.size, sf::Color::Yellow );
-    // }
+    render_overlay_sys.render_ui_misc_stats();
+    render_overlay_sys.render_ui_zorder_list( m_zorder_queue_ );
+    render_overlay_sys.render_ui_npc_list();
+    render_overlay_sys.render_ui_entity_inspect();
+    for ( auto [selected_entt, selected_cmp, pos_cmp] : reg().view<Cmp::SelectedPosition, Cmp::Position>().each() )
+    {
+      if ( not Utils::is_visible_in_view( get_screen_view(), pos_cmp ) ) continue;
+      render_overlay_sys.render_square( pos_cmp.position, pos_cmp.size, sf::Color::Yellow );
+    }
 
     render_overlay_sys.end_debug_overlay();
-    // for ( auto [ps_owner_entt, ps_owner_cmp] : reg().view<Cmp::Particle::SpriteOwner>().each() )
-    // {
-    //   auto emitter_pos = ps_owner_cmp.sprite->get_emitter_position();
-    //   auto dot = sf::CircleShape( 1 );
-    //   dot.setPosition( emitter_pos );
-    //   dot.setFillColor( sf::Color::Cyan );
-    //   dot.setOutlineColor( sf::Color::Cyan );
-    //   draw_world( dot );
-    // }
+    for ( auto [ps_owner_entt, ps_owner_cmp] : reg().view<Cmp::Particle::SpriteOwner>().each() )
+    {
+      auto emitter_pos = ps_owner_cmp.sprite->get_emitter_position();
+      auto dot = sf::CircleShape( 1 );
+      dot.setPosition( emitter_pos );
+      dot.setFillColor( sf::Color::Cyan );
+      dot.setOutlineColor( sf::Color::Cyan );
+      draw_world( dot );
+    }
     m_debug_update_timer = sf::Time::Zero;
   }
 

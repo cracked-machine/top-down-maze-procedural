@@ -110,15 +110,6 @@ inline entt::entity create_loot_drop( entt::registry &registry, Cmp::AnimData &&
 //! @param loot_entity
 void destroy_loot_drop( entt::registry &registry, entt::entity loot_entity );
 
-//! @brief Scatter loot containers across the map at random unreserved positions.
-//! @param reg
-//! @param sprite_factory Used to pick sprite size/random sprite index for each container.
-//! @param map_grid_size Map size in grid cells; determines how many containers to place.
-//! @param reserved_navmesh Positions already reserved are skipped.
-//! @return The entities that were assigned loot containers.
-std::vector<entt::entity> gen_loot_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size,
-                                               PathFinding::SpatialHashGridSharedPtr reserved_navmesh );
-
 } // namespace Game::Factory::Loot
 
 #endif // SRC_FACTORY_LOOTFACTORY_HPP__

@@ -81,9 +81,6 @@ private:
 
   //! @brief Whether the shop inventory overlay is currently open
   bool m_overlay_open{ false };
-
-  //! @brief spatial map for reserving positions during procedural generation
-  PathFinding::SpatialHashGridSharedPtr m_reserved_sm;
 };
 
 } // namespace Game::Scene

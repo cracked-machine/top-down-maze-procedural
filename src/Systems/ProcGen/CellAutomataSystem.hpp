@@ -41,7 +41,7 @@ public:
   //! @param levelgen_spatialgrid Spatial grid of level-gen obstacles to read/update
   //! @param reserved_navmesh Positions excluded from the automata pass (e.g. spawn/reserved areas)
   void iterate( uint16_t iterations, uint8_t birth_threshold, uint8_t survival_threshold, LevelGenerator::SceneType scene_type,
-                PathFinding::SpatialHashGrid &levelgen_spatialgrid, PathFinding::SpatialHashGridSharedPtr reserved_navmesh );
+                PathFinding::SpatialHashGrid &levelgen_spatialgrid, PathFinding::SpatialHashGrid reserved_sm );
 };
 
 } // namespace Game::Sys::ProcGen

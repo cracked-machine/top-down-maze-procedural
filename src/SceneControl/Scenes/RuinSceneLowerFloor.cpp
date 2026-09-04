@@ -87,14 +87,13 @@ void RuinSceneLowerFloor::on_init()
 
   // generate the empty game area
   auto &level_gen = m_sys.find<SystemStoreType::LevelGenerator>();
-  level_gen.reset();
-  m_reserved_sm = Factory::Pathfinding::create_reserved_navmesh( m_reg );
-  level_gen.build_scene_from_data( *m_scene_data, m_reserved_sm );
+  level_gen.init();
+  level_gen.build_scene_from_data( *m_scene_data );
   level_gen.add_ruin_rune_markers();
-  auto max_cobwebs = Sys::PersistSystem::get<Cmp::Persist::RuinMaxCobwebs>( m_reg );
-  level_gen.add_lowerfloor_cobwebs( max_cobwebs.get_value(), sf::FloatRect( { 0.f, 0.f }, map_size_pixel ) );
-  auto init_chance = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenInitChance>( m_reg );
-  level_gen.add_ruin_interior_obstacles( init_chance.get_value(), m_reserved_sm );
+  auto max_cobwebs = Sys::PersistSystem::get<Cmp::Persist::RuinMaxCobwebs>( m_reg ).get_value();
+  level_gen.add_lowerfloor_cobwebs( max_cobwebs, sf::FloatRect( { 0.f, 0.f }, map_size_pixel ) );
+  auto init_chance = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenInitChance>( m_reg ).get_value();
+  level_gen.add_ruin_interior_obstacles( init_chance );
 
   auto max_iterations = Sys::PersistSystem::get<Cmp::Persist::RuinProcGenMaxIterations>( m_reg );
   auto &dla_sys = m_sys.find<Sys::Store::Type::DiffusionLtdAggrSystem>();

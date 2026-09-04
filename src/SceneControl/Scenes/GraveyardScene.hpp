@@ -81,9 +81,6 @@ private:
   //! @brief Re-wires the freshly (re)created navmeshes into the systems that depend on them
   void reinit_navmesh();
 
-  //! @brief spatial map for reserving positions during procedural generation
-  PathFinding::SpatialHashGridSharedPtr m_reserved_sm;
-
   //! @brief Spatial index of static (never moved after creation) renderable entities, queried by
   //! RenderGameSystem::refresh_z_order_queue() instead of a full-registry scan. First built after level
   //! generation finishes in on_init(), then periodically rebuilt from scratch in do_update() (see

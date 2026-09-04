@@ -67,9 +67,8 @@ void ShopScene::on_init()
   sf::Vector2f player_start_position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
   auto player_start_area = Cmp::RectBounds::scaled( player_start_position, Constants::kGridSizePxF, 1.f, Cmp::RectBounds::ScaleAxis::XY );
   auto &random_level_sys = m_sys.find<Sys::Store::Type::LevelGenerator>();
-  random_level_sys.reset();
-  m_reserved_sm = Factory::Pathfinding::create_reserved_navmesh( m_reg );
-  random_level_sys.build_scene_from_data( *m_scene_data, m_reserved_sm );
+  random_level_sys.init();
+  random_level_sys.build_scene_from_data( *m_scene_data );
 
   m_floormap.create( random_level_sys.get_void_sm(), m_scene_data );
   auto floor_entity = m_reg.create();

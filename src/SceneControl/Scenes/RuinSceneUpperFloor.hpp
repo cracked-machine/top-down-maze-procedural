@@ -66,9 +66,6 @@ private:
 
   //! @brief Factory used to create sprites for entities spawned in this scene
   Sprites::SpriteFactory &m_sprite_factory;
-
-  //! @brief spatial map for reserving positions during procedural generation
-  PathFinding::SpatialHashGridSharedPtr m_reserved_sm;
 };
 
 } // namespace Game::Scene
