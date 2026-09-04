@@ -5,6 +5,7 @@
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/ObstacleCap.hpp>
+#include <Components/Particle/BlockParticle.hpp>
 #include <Components/Player/Character.hpp>
 #include <Components/Player/NoPath.hpp>
 #include <Components/ReservedPosition.hpp>
@@ -48,6 +49,7 @@ bool add_obstacle( entt::registry &reg, entt::entity entity, const PathFinding::
   if ( reg.all_of<Cmp::DestroyedObstacle>( entity ) ) { reg.remove<Cmp::DestroyedObstacle>( entity ); }
   reg.emplace_or_replace<Cmp::Obstacle>( entity );
   reg.emplace_or_replace<Cmp::Npc::NoPathFinding>( entity );
+  reg.emplace_or_replace<Cmp::Particle::BlockParticle>( entity );
   return true;
 }
 
@@ -72,7 +74,11 @@ void decorate_obstacle( entt::registry &reg, entt::entity entity, Cmp::Position 
   if ( reg.all_of<Cmp::DestroyedObstacle>( entity ) ) { reg.remove<Cmp::DestroyedObstacle>( entity ); }
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
 
-  if ( blocking ) { reg.emplace_or_replace<Cmp::Player::NoPath>( entity ); }
+  if ( blocking )
+  {
+    reg.emplace_or_replace<Cmp::Player::NoPath>( entity );
+    reg.emplace_or_replace<Cmp::Particle::BlockParticle>( entity );
+  }
   reg.emplace_or_replace<Cmp::AbsoluteAlpha>( entity, 255 );
   reg.emplace_or_replace<Cmp::Armable>( entity );
   // clang-format off
@@ -99,6 +105,7 @@ void remove_obstacle( entt::registry &reg, entt::entity search_entt, DeleteExtra
   reg.remove<Cmp::ZOrderValue>( search_entt );
   reg.remove<Cmp::Npc::NoPathFinding>( search_entt );
   reg.remove<Cmp::Player::NoPath>( search_entt );
+  reg.remove<Cmp::Particle::BlockParticle>( search_entt );
   reg.remove<Cmp::AbsoluteAlpha>( search_entt );
   reg.remove<Cmp::AnimData>( search_entt );
   reg.remove<Cmp::UUID>( search_entt );
@@ -132,6 +139,7 @@ void remove_obstacle( entt::registry &reg, entt::entity search_entt, DeleteExtra
   reg.remove<Cmp::ZOrderValue>( search_entt );
   reg.remove<Cmp::Npc::NoPathFinding>( search_entt );
   reg.remove<Cmp::Player::NoPath>( search_entt );
+  reg.remove<Cmp::Particle::BlockParticle>( search_entt );
   reg.remove<Cmp::AbsoluteAlpha>( search_entt );
   reg.remove<Cmp::AnimData>( search_entt );
   reg.remove<Cmp::UUID>( search_entt );

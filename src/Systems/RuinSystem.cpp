@@ -4,6 +4,7 @@
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/ShadowHand.hpp>
+#include <Components/Particle/BlockParticle.hpp>
 #include <Components/Persistent/RuinMaxSpiders.hpp>
 #include <Components/Player/Character.hpp>
 #include <Components/Player/Curse.hpp>
@@ -154,11 +155,13 @@ void RuinSystem::check_puzzle_status()
       gate_zorder_cmp.setZOrder( -1000.f );
       reg().remove<Cmp::Npc::NoPathFinding>( gate_entt );
       reg().remove<Cmp::Player::NoPath>( gate_entt );
+      reg().remove<Cmp::Particle::BlockParticle>( gate_entt );
     }
     for ( auto [gate_entt, gate_cmp] : reg().view<Cmp::Ruin::GateSegment>().each() )
     {
       reg().remove<Cmp::Npc::NoPathFinding>( gate_entt );
       reg().remove<Cmp::Player::NoPath>( gate_entt );
+      reg().remove<Cmp::Particle::BlockParticle>( gate_entt );
     }
 
     auto &sfx = m_sound_bank.get_effect( "secret" );
@@ -174,11 +177,13 @@ void RuinSystem::check_puzzle_status()
       gate_zorder_cmp.setZOrder( gate_sprite_sheet.get_zorder( 0 ) );
       reg().emplace_or_replace<Cmp::Npc::NoPathFinding>( gate_entt );
       reg().emplace_or_replace<Cmp::Player::NoPath>( gate_entt );
+      reg().emplace_or_replace<Cmp::Particle::BlockParticle>( gate_entt );
     }
     for ( auto [gate_entt, gate_cmp] : reg().view<Cmp::Ruin::GateSegment>().each() )
     {
       reg().emplace_or_replace<Cmp::Npc::NoPathFinding>( gate_entt );
       reg().emplace_or_replace<Cmp::Player::NoPath>( gate_entt );
+      reg().emplace_or_replace<Cmp::Particle::BlockParticle>( gate_entt );
     }
     m_puzzle_solved = false;
   }

@@ -48,7 +48,7 @@ PathFinding::SpatialHashGridSharedPtr create_player_navmesh( entt::registry &reg
   // Index only the blocking obstacles so is_valid_move can do a spatial lookup
   // instead of scanning every NoPath entity in the scene.
   PathFinding::SpatialHashGridSharedPtr player_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
-  for ( auto [pos_entt, nopath_cmp, pos_cmp] : reg.view<Cmp::Player::NoPath, Cmp::Position>().each() )
+  for ( auto [pos_entt, pos_cmp] : reg.view<Cmp::Player::NoPath, Cmp::Position>().each() )
   {
     player_navmesh->insert( pos_entt, pos_cmp );
   }

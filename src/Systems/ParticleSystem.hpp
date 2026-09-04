@@ -1,8 +1,8 @@
 #ifndef SRC_SYSTEMS_PARTICLESYSTEM_HPP__
 #define SRC_SYSTEMS_PARTICLESYSTEM_HPP__
 
-#include <Components/Particle/SpriteOwner.hpp>
 #include <Components/Particle/SpriteBase.hpp>
+#include <Components/Particle/SpriteOwner.hpp>
 #include <Components/UUID.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/ParticleEvents.hpp>
@@ -70,7 +70,7 @@ public:
   //! @brief Check if a particle sprite collides with the given AABB target
   //! @param target The AABB target to collision detect with each particle
   //! @param excl_ps_tag_list List of particle sprite tags to exclude from the collision checks
-  void check_collsion( const sf::FloatRect &target, const std::vector<std::string> &excl_ps_tag_list = {} );
+  void check_collsion( const std::vector<std::string> &excl_ps_tag_list = {} );
 
   //! @brief Find a SpriteOwner by tag and return a pointer to SpriteBase<IParticle>, or nullptr if not found
   //! @param reg

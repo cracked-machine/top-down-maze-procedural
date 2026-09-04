@@ -1,6 +1,8 @@
+#include <Components/SelectedPosition.hpp>
 #include <algorithm>
 
 #include <Components/Inventory/WorldItem.hpp>
+#include <Components/Particle/BlockParticle.hpp>
 #include <Components/Particle/Flame.hpp>
 #include <Components/Position.hpp>
 #include <Components/UUID.hpp>
@@ -8,7 +10,6 @@
 #include <Systems/BaseSystem.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
-#include <Utils/Constants.hpp>
 #include <Utils/Optimizations.hpp>
 
 #include <entt/entity/fwd.hpp>
@@ -64,7 +65,7 @@ void ParticleSystem::update( sf::Time dt )
     if ( not owner.sprite->is_active() ) continue;
 
     if ( owner.sprite->get_view_type() == Cmp::Particle::ViewType::WORLD &&
-         not Utils::is_visible_in_view( world_view, { owner.sprite->get_emitter_position(), Constants::kGridSizePxF } ) )
+         not Utils::is_visible_in_view( world_view, owner.sprite->get_bounds() ) )
       continue;
 
     owner.sprite->simulate( dt );
@@ -73,18 +74,27 @@ void ParticleSystem::update( sf::Time dt )
   }
 }
 
-void ParticleSystem::check_collsion( const sf::FloatRect &target, const std::vector<std::string> &excl_ps_tag_list )
+void ParticleSystem::check_collsion( const std::vector<std::string> &excl_ps_tag_list )
 {
-  if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), target ) ) return;
+  const auto &world_view = Sys::RenderSystem::get_world_view();
   for ( auto [entt, ps_cmp] : reg().view<Cmp::Particle::SpriteOwner>().each() )
   {
-    bool excluded = std::ranges::any_of( excl_ps_tag_list, [&ps_cmp]( const std::string &tag ) { return ps_cmp.sprite->get_tag() == tag; } );
-    if ( excluded ) continue;
+    if ( not Utils::is_visible_in_view( world_view, ps_cmp.sprite->get_bounds() ) ) continue;
 
-    if ( ps_cmp.sprite->is_active() )
+    for ( auto [ob_entt, pos_cmp] : reg().view<Cmp::Particle::BlockParticle, Cmp::Position>().each() )
     {
-      SPDLOG_DEBUG( "Simulating" );
-      ps_cmp.sprite->check_particle_collision( target );
+      // If this is the obstacle being currently dug then skip particle collision detection
+      if ( not Utils::is_visible_in_view( world_view, pos_cmp ) ) continue;
+      if ( reg().any_of<Cmp::SelectedPosition>( ob_entt ) ) continue;
+
+      bool excluded = std::ranges::any_of( excl_ps_tag_list, [&ps_cmp]( const std::string &tag ) { return ps_cmp.sprite->get_tag() == tag; } );
+      if ( excluded ) continue;
+
+      if ( ps_cmp.sprite->is_active() )
+      {
+        SPDLOG_DEBUG( "Simulating" );
+        ps_cmp.sprite->check_particle_collision( pos_cmp );
+      }
     }
   }
 }

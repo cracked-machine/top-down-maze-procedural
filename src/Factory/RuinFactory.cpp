@@ -4,6 +4,7 @@
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/ShadowHand.hpp>
 #include <Components/Obstacle.hpp>
+#include <Components/Particle/BlockParticle.hpp>
 #include <Components/Player/NoPath.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
@@ -47,6 +48,7 @@ void create_bookcase( entt::registry &reg, sf::Vector2f spawn_position, const Sp
       reg.emplace_or_replace<Cmp::Ruin::Bookcase>( existing_entt );
       reg.emplace_or_replace<Cmp::Npc::NoPathFinding>( existing_entt );
       reg.emplace_or_replace<Cmp::Player::NoPath>( existing_entt );
+      reg.emplace_or_replace<Cmp::Particle::BlockParticle>( existing_entt );
       break;
     }
   }

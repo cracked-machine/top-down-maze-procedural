@@ -150,7 +150,7 @@ void InventorySystem::drop_inventory_item( sf::Vector2f pos, entt::entity invent
       if ( auto player_navmesh = m_player_navmesh.lock() )
       {
         player_navmesh->clear();
-        for ( auto [entt, nopath_cmp, pos_cmp] : reg().view<Cmp::Player::NoPath, Cmp::Position>().each() )
+        for ( auto [entt, pos_cmp] : reg().view<Cmp::Player::NoPath, Cmp::Position>().each() )
         {
           player_navmesh->insert( entt, pos_cmp );
         }

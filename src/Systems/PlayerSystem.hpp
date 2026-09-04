@@ -148,13 +148,15 @@ private:
   //! @return true if movement should be allowed, false if still being resisted
   bool resolve_hazard_pushback( const Cmp::RectBounds &search_bounds );
 
-  //! @brief Checking if Cmp::Player::NoPath should be activated.
-  //! @param dt
-  void update_player_no_path_cmp( sf::Time dt );
-
   //! @brief Various ways in which the player can die. Starts the death animation loop.
   //! @param ev
   void on_player_mortality_event( Game::Events::PlayerMortalityEvent ev );
+
+  //! @brief Promotes any Cmp::Player::PendingNoPath entity (e.g. a plant replanted directly under the
+  //! player) to a real Cmp::Player::NoPath + Cmp::Particle::BlockParticle once the player is no longer
+  //! standing on it, and inserts it into m_player_navmesh - nothing else does, since it was never
+  //! indexed while pending.
+  void promote_pending_no_path();
 
   //! @brief Use this to send events to the scene manager
   entt::dispatcher &m_scenemanager_event_dispatcher;
@@ -164,9 +166,6 @@ private:
 
   //! @brief Global fear stat increase timer when player is standing in darkness.
   sf::Time m_darkness_fear_clock;
-
-  //! @brief Cooldown for checking if Cmp::Player::NoPath should be activated.
-  sf::Time m_plantcheck_accumulator;
 
   //! @brief Weak pointer to the pathfinding navmesh.
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;

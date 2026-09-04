@@ -16,6 +16,7 @@
 #include <Components/FootStepTimer.hpp>
 #include <Components/Hazard/CollisionResist.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
+#include <Components/Particle/BlockParticle.hpp>
 #include <Components/Persistent/HazardPushbackResist.hpp>
 #include <Components/Player/Character.hpp>
 #include <Components/Player/NoPath.hpp>
@@ -85,6 +86,7 @@ entt::entity create_crypt_chest( entt::registry &reg, sf::Vector2f pos, Sprites:
   // clang-format on
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
   reg.emplace_or_replace<Cmp::Player::NoPath>( entt );
+  reg.emplace_or_replace<Cmp::Particle::BlockParticle>( entt );
   return entt;
 }
 
@@ -96,6 +98,7 @@ void destroy_crypt_chest( entt::registry &reg, entt::entity entt )
   if ( reg.all_of<Cmp::AnimData>( entt ) ) reg.remove<Cmp::AnimData>( entt );
   if ( reg.all_of<Cmp::ZOrderValue>( entt ) ) reg.remove<Cmp::ZOrderValue>( entt );
   if ( reg.all_of<Cmp::Player::NoPath>( entt ) ) { reg.remove<Cmp::Player::NoPath>( entt ); }
+  if ( reg.all_of<Cmp::Particle::BlockParticle>( entt ) ) { reg.remove<Cmp::Particle::BlockParticle>( entt ); }
   if ( reg.valid( entt ) ) { reg.destroy( entt ); }
 }
 

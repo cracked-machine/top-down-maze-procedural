@@ -206,9 +206,8 @@ void WatchmanSystem::update_gunfire( sf::Time dt )
 
 bool WatchmanSystem::has_line_of_sight( sf::Vector2f from, sf::Vector2f to )
 {
-  for ( auto [blocker_entt, nopath_cmp, blocker_pos_cmp] : reg().view<Cmp::Player::NoPath, Cmp::Position>().each() )
+  for ( auto [blocker_entt, blocker_pos_cmp] : reg().view<Cmp::Player::NoPath, Cmp::Position>().each() )
   {
-    if ( not nopath_cmp.active ) continue;
     if ( Utils::Maths::segment_intersects_rect( from, to, blocker_pos_cmp ) ) return false;
   }
   return true;

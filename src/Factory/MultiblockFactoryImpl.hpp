@@ -5,10 +5,13 @@
 // MultiblockFactory*.cpp translation units that explicitly instantiate these
 // templates - never by consumers of MultiblockFactory.hpp - so that editing a
 // function body only forces a handful of instantiation files to recompile.
+#include <Components/Altar/Segment.hpp>
 #include <Components/Grave/PlantSegment.hpp>
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/Npc/Npc.hpp>
+#include <Components/Particle/BlockParticle.hpp>
 #include <Components/Player/Character.hpp>
+#include <Components/Player/PendingNoPath.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Sprites/SpriteSheet.hpp>
@@ -96,13 +99,25 @@ void update_segments( entt::registry &reg, const Sprites::SpriteSheet &ss, [[may
     if ( new_solid_mask )
     {
       reg.emplace_or_replace<Cmp::Npc::NoPathFinding>( entity );
-      reg.emplace_or_replace<Cmp::Player::NoPath>( entity );
-      if constexpr ( std::is_same_v<MBSEGMENT, Cmp::PlantSegment> ) { reg.emplace_or_replace<Cmp::Player::NoPath>( entity, false ); }
+      if constexpr ( std::is_same_v<MBSEGMENT, Cmp::PlantSegment> )
+      {
+        // A plant can be replanted directly under the player - defer real blocking until they step
+        // off, otherwise it traps them immediately. See PlayerSystem::promote_pending_no_path.
+        reg.emplace_or_replace<Cmp::Player::PendingNoPath>( entity );
+      }
+      else
+      {
+        reg.emplace_or_replace<Cmp::Player::NoPath>( entity );
+        // Altar segments are handled specially by AltarSystem and shouldn't also block particles.
+        if constexpr ( not std::is_same_v<MBSEGMENT, Cmp::Altar::Segment> ) { reg.emplace_or_replace<Cmp::Particle::BlockParticle>( entity ); }
+      }
     }
     else
     {
       reg.remove<Cmp::Npc::NoPathFinding>( entity );
       reg.remove<Cmp::Player::NoPath>( entity );
+      reg.remove<Cmp::Player::PendingNoPath>( entity );
+      reg.remove<Cmp::Particle::BlockParticle>( entity );
     }
   }
 }

@@ -294,13 +294,7 @@ void GraveyardScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::ArrowSystem>().update( dt );
   m_sys.find<Sys::Store::Type::InventorySystem>().update( dt );
 
-  for ( auto [ob_entt, ob_cmp, pos_cmp] : m_reg.view<Cmp::Obstacle, Cmp::Position>().each() )
-  {
-    // If this is the obstacle being currently dug then skip particle collision detection
-    if ( m_reg.any_of<Cmp::SelectedPosition>( ob_entt ) ) continue;
-    m_sys.find<Sys::Store::Type::ParticleSystem>().check_collsion( pos_cmp );
-  }
-
+  m_sys.find<Sys::Store::Type::ParticleSystem>().check_collsion();
   m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();

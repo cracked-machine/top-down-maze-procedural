@@ -2,6 +2,7 @@
 #include <Components/Armed.hpp>
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
+#include <Components/Particle/BlockParticle.hpp>
 #include <Components/Persistent/ArmedBlockColourBorder.hpp>
 #include <Components/Persistent/ArmedBlockColourFill.hpp>
 #include <Components/Persistent/ArmedOffDelay.hpp>
@@ -74,6 +75,7 @@ void add_detonated( entt::registry &reg, entt::entity armed_entity, Cmp::Positio
 {
   reg.remove<Cmp::Npc::NoPathFinding>( armed_entity );
   reg.remove<Cmp::Player::NoPath>( armed_entity );
+  reg.remove<Cmp::Particle::BlockParticle>( armed_entity );
   reg.emplace_or_replace<Cmp::AnimData>( armed_entity, Cmp::AnimData::Config{ .sprite_type = "sprite.graveyard.detonated" } );
   reg.emplace_or_replace<Cmp::ZOrderValue>( armed_entity, armed_pos_cmp.position.y - 256.f );
   reg.emplace_or_replace<Cmp::DestroyedObstacle>( armed_entity );

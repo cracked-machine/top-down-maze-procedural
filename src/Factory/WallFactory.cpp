@@ -2,6 +2,7 @@
 #include <Components/NoMoveDest.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
+#include <Components/Particle/BlockParticle.hpp>
 #include <Components/Player/Character.hpp>
 #include <Components/Player/NoPath.hpp>
 #include <Components/Position.hpp>
@@ -55,6 +56,7 @@ void add_solid_player( entt::registry &reg, sf::FloatRect rect )
     {
       reg.emplace_or_replace<Cmp::ReservedPosition>( entt );
       reg.emplace_or_replace<Cmp::Player::NoPath>( entt );
+      reg.emplace_or_replace<Cmp::Particle::BlockParticle>( entt );
     }
   }
 }

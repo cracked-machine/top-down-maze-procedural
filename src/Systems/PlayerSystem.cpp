@@ -27,6 +27,7 @@
 #include <Components/Npc/Wisp.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/ObstacleCap.hpp>
+#include <Components/Particle/BlockParticle.hpp>
 #include <Components/Particle/SpriteBase.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
@@ -40,6 +41,7 @@
 #include <Components/Player/Mortality.hpp>
 #include <Components/Player/MovementSuppressCooldown.hpp>
 #include <Components/Player/NoPath.hpp>
+#include <Components/Player/PendingNoPath.hpp>
 #include <Components/Player/PostDeathTimeout.hpp>
 #include <Components/Player/TorchRadius.hpp>
 #include <Components/Position.hpp>
@@ -111,7 +113,7 @@ PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprit
 
 void PlayerSystem::update( sf::Time dt )
 {
-  update_player_no_path_cmp( dt );
+  promote_pending_no_path();
 
   // cache position so we can update player in spatial grid after changes.
   auto old_player_pos = Utils::Player::get_position( reg() );
@@ -760,8 +762,7 @@ bool PlayerSystem::is_valid_move( const sf::FloatRect &target_position )
     Cmp::Position target_pos( target_position.position, target_position.size );
     for ( auto candidate_entt : navmesh->neighbours( target_pos, PathFinding::QueryCompass::BOTH ) )
     {
-      auto *nopath_cmp = reg().try_get<Cmp::Player::NoPath>( candidate_entt );
-      if ( not nopath_cmp || not nopath_cmp->active ) continue;
+      if ( not reg().all_of<Cmp::Player::NoPath>( candidate_entt ) ) continue;
       auto *pos_cmp = reg().try_get<Cmp::Position>( candidate_entt );
       if ( not pos_cmp ) continue;
       if ( search_bounds.findIntersection( *pos_cmp ) ) return false;
@@ -769,8 +770,10 @@ bool PlayerSystem::is_valid_move( const sf::FloatRect &target_position )
   }
   else
   {
-    auto is_active = []( const Cmp::Player::NoPath &playernopath ) { return playernopath.active; };
-    if ( Utils::Collision::check_cmp<Cmp::Player::NoPath>( reg(), search_bounds, is_active ) ) return false;
+    for ( auto [candidate_entt, candidate_pos] : reg().view<Cmp::Player::NoPath, Cmp::Position>().each() )
+    {
+      if ( search_bounds.findIntersection( candidate_pos ) ) return false;
+    }
   }
 
   // update_player_position() calls is_valid_move() for both axes every frame, even the axis with
@@ -811,26 +814,20 @@ bool PlayerSystem::resolve_hazard_pushback( const Cmp::RectBounds &search_bounds
   return m_hazard_pushback_clock.getElapsedTime().asSeconds() >= resist_cmp.resist_seconds;
 }
 
-void PlayerSystem::update_player_no_path_cmp( sf::Time dt )
+void PlayerSystem::promote_pending_no_path()
 {
-  // NoPath lives on the plant segment entities (see update_segments), not the
-  // PlantMultiBlock entity. Run this before the dig-cooldown early-return, otherwise
-  // reactivation stalls in the cooldown window right after digging/replanting.
-  static constexpr float kPlantCheckIntervalHz = 2.0f;
-  m_plantcheck_accumulator += dt;
-  if ( m_plantcheck_accumulator.asSeconds() >= 1.f / kPlantCheckIntervalHz )
+  auto player_pos = Utils::Player::get_position( reg() );
+  for ( auto [seg_entt, seg_pos_cmp] : reg().view<Cmp::Player::PendingNoPath, Cmp::Position>().each() )
   {
-    // check if plant player path blocking should be activated
-    auto player_pos = Utils::Player::get_position( reg() );
-    for ( auto [seg_entt, seg_cmp, playernopath_cmp, seg_pos_cmp] : reg().view<Cmp::PlantSegment, Cmp::Player::NoPath, Cmp::Position>().each() )
-    {
-      if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), seg_pos_cmp ) ) continue;
+    if ( player_pos.findIntersection( seg_pos_cmp ) ) continue; // still standing on it
 
-      // enable inactive pathblocking on the segment once the player has moved off its bbox
-      if ( playernopath_cmp.active ) continue;
-      if ( not player_pos.findIntersection( seg_pos_cmp ) ) { playernopath_cmp.active = true; }
-    }
-    m_plantcheck_accumulator = sf::Time::Zero;
+    reg().remove<Cmp::Player::PendingNoPath>( seg_entt );
+    reg().emplace_or_replace<Cmp::Player::NoPath>( seg_entt );
+    reg().emplace_or_replace<Cmp::Particle::BlockParticle>( seg_entt );
+
+    // This entity was never indexed while pending (create_player_navmesh only sees entities that
+    // already have Cmp::Player::NoPath), so insert it now rather than waiting for a rebuild.
+    if ( auto player_navmesh = m_player_navmesh.lock() ) { player_navmesh->insert( seg_entt, seg_pos_cmp ); }
   }
 }
 

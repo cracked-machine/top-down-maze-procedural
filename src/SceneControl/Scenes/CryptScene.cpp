@@ -1,16 +1,13 @@
 #include <Audio/SoundBank.hpp>
-#include <Components/Altar/Segment.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Inventory/FlashUIHealth.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Inventory/WorldItem.hpp>
-#include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Particle/Flame.hpp>
 #include <Components/Persistent/CryptShuffleTimeout.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/Character.hpp>
 #include <Components/Player/KeysCount.hpp>
-#include <Components/Player/NoPath.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/SceneSettings/CurrentScene.hpp>
 #include <Components/SceneSettings/Footsteps.hpp>
@@ -163,13 +160,7 @@ void CryptScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
   m_sys.find<Sys::Store::Type::PassageSystem>().update( dt );
 
-  // Block shockwave particles from travelling through any entity that has Cmp::Player::NoPath component
-  // Don't use Cmp::Npc::NoPathFinding because it blocks over lavapits.
-  for ( auto [ob_entt, ob_cmp, pos_cmp] : m_reg.view<Cmp::Player::NoPath, Cmp::Position>().each() )
-  {
-    if ( m_reg.any_of<Cmp::Altar::Segment>( ob_entt ) ) continue;
-    m_sys.find<Sys::Store::Type::ParticleSystem>().check_collsion( pos_cmp );
-  }
+  m_sys.find<Sys::Store::Type::ParticleSystem>().check_collsion();
   m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();

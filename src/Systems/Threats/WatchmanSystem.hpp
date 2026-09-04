@@ -47,7 +47,7 @@ private:
   //! inside that Watchman's searchlight cone.
   void update_gunfire( sf::Time dt );
 
-  //! @brief Test whether any active Cmp::Player::NoPath blocker (obstacles, walls, and every
+  //! @brief Test whether any Cmp::Player::NoPath blocker (obstacles, walls, and every
   //! solid multiblock segment — altars, graves, crypts, ruins, plants) crosses the line between
   //! `from` and `to`, so the searchlight can't see/catch the player through cover.
   bool has_line_of_sight( sf::Vector2f from, sf::Vector2f to );

@@ -2,6 +2,7 @@
 #define SRC_COMPONENTS_PARTICLE_SPRITEBASE_HPP__
 
 #include <Components/Particle/Concepts.hpp>
+#include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <random>
@@ -183,6 +184,20 @@ public:
   virtual void set_scale( float scale ) = 0;
 
   virtual void set_particle_size_range( std::uniform_real_distribution<float> size_dist ) = 0;
+
+  //! @brief Get the sprite's maximum bounding size (width/height), i.e. the full extent a particle
+  //! could reach from the emitter given the sprite's configured max speed, lifetime and particle size.
+  //! @note Cached — recomputed only when speed/lifetime/particle-size change, not from live particle
+  //!       positions, so it's cheap enough to call every frame (e.g. for view-culling checks).
+  //! @return sf::Vector2f The bounding width/height, centred on the emitter position.
+  virtual sf::Vector2f get_size() const = 0;
+
+  //! @brief Convenience getter combining get_size() with the emitter position: a rect centred on the
+  //! emitter, sized to the sprite's maximum extent. See get_size() for what "size" means here.
+  //! @note Cached alongside get_size() — recomputed on emitter/speed/lifetime/particle-size changes,
+  //!       not iterated from live particle positions, so it's cheap enough to call every frame.
+  //! @return sf::FloatRect The cached bounding rect.
+  virtual sf::FloatRect get_bounds() const = 0;
 };
 
 //! @brief Defines the particle sprite base class template. This renders a list of TParticle vertices.
@@ -412,6 +427,7 @@ public:
     {
       p.set_speed( m_cached_speed_range );
     }
+    update_cached_size();
   }
 
   void set_speed( float speed ) override
@@ -421,6 +437,7 @@ public:
     {
       p.set_speed( m_cached_speed_range );
     }
+    update_cached_size();
   }
 
   void set_angle( std::uniform_real_distribution<float> angle_dist ) override
@@ -486,6 +503,7 @@ public:
     {
       p.set_emitter_position( emitter_position );
     }
+    update_cached_bounds();
   }
 
   sf::Vector2f get_emitter_position() override { return m_emitter_position; }
@@ -501,6 +519,7 @@ public:
     {
       p.set_lifetime( lifetime_dist );
     }
+    update_cached_size();
   }
   void set_lifetime_ms( sf::Time lifetime ) override
   {
@@ -511,6 +530,7 @@ public:
     {
       p.set_lifetime( m_cached_lifetime_range );
     }
+    update_cached_size();
   }
 
   void set_view_type( ViewType v ) override { m_view_type = v; };
@@ -525,9 +545,16 @@ public:
     {
       p.set_size( m_particle_size_range( rng ) );
     }
+    update_cached_size();
   }
 
   void set_scale( float scale ) override { m_scale = scale; }
+
+  //! @brief See IParticleSprite::get_size().
+  sf::Vector2f get_size() const override { return m_cached_size; }
+
+  //! @brief See IParticleSprite::get_bounds().
+  sf::FloatRect get_bounds() const override { return m_cached_bounds; }
 
 protected:
   //! @brief Default translation function is a noop. See set_view_transform()
@@ -573,6 +600,26 @@ private:
   std::uniform_int_distribution<int> m_cached_lifetime_range{ 0, 1 };
 
   std::uniform_real_distribution<float> m_particle_size_range{ 0, 1 };
+
+  //! @brief Recomputes m_cached_size from the sprite's configured max speed, max lifetime and max
+  //! particle size — the farthest a particle could travel from the emitter before expiring. Called
+  //! whenever one of those parameters changes, so get_size() itself stays O(1).
+  void update_cached_size()
+  {
+    const float radius = ( m_cached_speed_range.max() * m_max_lifetime.asSeconds() ) + m_particle_size_range.max();
+    m_cached_size = sf::Vector2f( radius * 2.f, radius * 2.f );
+    update_cached_bounds();
+  }
+
+  //! @brief Recomputes m_cached_bounds from m_cached_size and m_emitter_position. Called whenever
+  //! either changes, so get_bounds() itself stays O(1).
+  void update_cached_bounds() { m_cached_bounds = sf::FloatRect( m_emitter_position - m_cached_size / 2.f, m_cached_size ); }
+
+  //! @brief Cached bounding width/height, see get_size() / update_cached_size().
+  sf::Vector2f m_cached_size{ 0.f, 0.f };
+
+  //! @brief Cached bounding rect centred on the emitter, see get_bounds() / update_cached_bounds().
+  sf::FloatRect m_cached_bounds;
 
   //! @brief convenience identifier for searching the registry
   std::string m_tag;
