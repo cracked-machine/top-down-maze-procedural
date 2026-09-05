@@ -78,8 +78,9 @@ private:
 
   //! @brief Whether the grimoire overlay UI is currently open
   bool m_grimoire_overlay_open{ false };
+
   //! @brief Re-wires the freshly (re)created navmeshes into the systems that depend on them
-  void reinit_navmesh();
+  void reinit_system_spatial_maps();
 
   //! @brief Spatial index of static (never moved after creation) renderable entities, queried by
   //! RenderGameSystem::refresh_z_order_queue() instead of a full-registry scan. First built after level

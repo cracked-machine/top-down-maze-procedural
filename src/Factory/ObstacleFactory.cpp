@@ -39,12 +39,12 @@ entt::entity create_void_pos( entt::registry &registry, const Cmp::Position &pos
   return entity;
 }
 
-bool add_obstacle( entt::registry &reg, entt::entity entity, const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh )
+bool add_obstacle( entt::registry &reg, entt::entity entity, const PathFinding::SpatialHashGrid *reserved_sm )
 {
   auto *pos_cmp = reg.try_get<Cmp::Position>( entity );
   if ( not pos_cmp ) return false;
 
-  if ( reserved_navmesh && not reserved_navmesh->at( *pos_cmp ).empty() ) return false;
+  if ( ( reserved_sm != nullptr ) && not reserved_sm->at( *pos_cmp ).empty() ) return false;
 
   if ( reg.all_of<Cmp::DestroyedObstacle>( entity ) ) { reg.remove<Cmp::DestroyedObstacle>( entity ); }
   reg.emplace_or_replace<Cmp::Obstacle>( entity );

@@ -90,9 +90,8 @@ void GraveyardScene::on_init()
 {
   SPDLOG_INFO( "Init {}", get_name() );
 
-  auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
-  m_persistent_sys.initialize_component_registry();
-  m_persistent_sys.load_state();
+  m_sys.find<Sys::Store::Type::PersistSystem>().initialize_component_registry();
+  m_sys.find<Sys::Store::Type::PersistSystem>().load_state();
 
   auto scene_settings_entt = m_reg.create();
   m_reg.emplace_or_replace<Cmp::SceneSettings::CurrentScene>( scene_settings_entt, Cmp::SceneSettings::SceneId::GRAVEYARD );
@@ -114,24 +113,14 @@ void GraveyardScene::on_init()
   // player start position
   auto [_, player_start_pos_px] = m_scene_data->get_player_start_position();
   Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, player_start_pos_px );
-  auto player_start_position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
-  auto player_start_area = Cmp::RectBounds::scaled( player_start_position, Constants::kGridSizePxF, 5.f, Cmp::RectBounds::ScaleAxis::XY );
 
   // create the player, optionally increment the level counter
-  auto player_view = m_reg.view<Cmp::Player::Character>();
-  if ( player_view.size() == 0 ) { Factory::Player::create_player( m_reg ); }
-  else
-  {
-    auto &level_depth_cmp = Utils::Player::get_level_depth( m_reg );
-    level_depth_cmp.increment_count( 1 );
-    level_depth_cmp.display_timer.restart();
-  }
+  if ( m_reg.view<Cmp::Player::Character>().size() == 0 ) { Factory::Player::create_player( m_reg ); }
+  else { Utils::Player::get_level_depth( m_reg ).increment_count( 1 ); }
 
   auto [map_size_grid, map_size_pixel] = m_scene_data->map_size();
-  SPDLOG_INFO( "m_scene_map_data {},{} {},{}", map_size_grid.x, map_size_grid.y, map_size_pixel.x, map_size_pixel.y );
 
   Factory::Shader::add_water( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
-  // Factory::Shader::add_mist( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
   Factory::Shader::add_night_static( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
   Factory::Shader::add_fear_distortion( m_sys.find<Sys::Store::Type::ShaderSystem>(),
                                         Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( m_reg ) );
@@ -150,11 +139,7 @@ void GraveyardScene::on_init()
   level_gen.add_graveyard_exterior_obstacles( init_chance.get_value() );
 
   auto &cellauto_parser = m_sys.find<Sys::Store::Type::CellAutomataSystem>();
-  auto max_iterations = Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenMaxIterations>( m_reg );
-  auto birth_threshold = Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenBirthThreshold>( m_reg );
-  auto survival_threshold = Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenSurvivalThreshold>( m_reg );
-  cellauto_parser.iterate( max_iterations.get_value(), birth_threshold.get_value(), survival_threshold.get_value(),
-                           Sys::ProcGen::LevelGenerator::SceneType::GRAVEYARD_EXTERIOR, level_gen.get_obstacle_sm(), level_gen.get_reserved_sm() );
+  cellauto_parser.iterate( level_gen.get_obstacle_sm(), level_gen.get_reserved_sm() );
 
   level_gen.decorate_graveyard_exterior_obstacles();
 
@@ -168,7 +153,7 @@ void GraveyardScene::on_init()
   // rebuild in do_update() rather than precise per-mutation sync, see kRenderPositionGridRebuildInterval
   m_render_position_sm = Factory::Pathfinding::create_render_position_grid( m_reg );
 
-  reinit_navmesh();
+  reinit_system_spatial_maps();
 
   // create floor background
   Sprites::Containers::VertexFloor floortiles;
@@ -199,7 +184,7 @@ void GraveyardScene::on_init()
 void GraveyardScene::on_enter()
 {
   SPDLOG_INFO( "Entering {}", get_name() );
-  reinit_navmesh();
+  reinit_system_spatial_maps();
 
   auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
   m_persistent_sys.initialize_component_registry();
@@ -322,7 +307,7 @@ void GraveyardScene::do_update( sf::Time dt )
   PROFILED( m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_generic_npc_navmesh, m_render_position_sm ) );
 }
 
-void GraveyardScene::reinit_navmesh()
+void GraveyardScene::reinit_system_spatial_maps()
 {
   m_sys.find<Sys::Store::Type::NpcSystem>().init( m_generic_npc_navmesh, m_open_navmesh, m_ghost_navmesh );
   m_sys.find<Sys::Store::Type::WispSystem>().init( m_open_navmesh );

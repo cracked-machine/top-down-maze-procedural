@@ -1,10 +1,14 @@
 #include <Components/Moveable.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
+#include <Components/Persistent/GraveyardProcGenBirthThreshold.hpp>
+#include <Components/Persistent/GraveyardProcGenMaxIterations.hpp>
+#include <Components/Persistent/GraveyardProcGenSurvivalThreshold.hpp>
 #include <Components/Player/Character.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
+#include <Systems/PersistSystem.hpp>
 #include <Systems/ProcGen/CellAutomataSystem.hpp>
 
 #include <spdlog/spdlog.h>
@@ -12,9 +16,11 @@
 namespace Game::Sys::ProcGen
 {
 
-void CellAutomataSystem::iterate( uint16_t iterations, uint8_t birth_threshold, uint8_t survival_threshold, LevelGenerator::SceneType scene_type,
-                                  PathFinding::SpatialHashGrid &levelgen_spatialgrid, PathFinding::SpatialHashGrid reserved_sm )
+void CellAutomataSystem::iterate( PathFinding::SpatialHashGrid &levelgen_spatialgrid, PathFinding::SpatialHashGrid reserved_sm )
 {
+  auto iterations = Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenMaxIterations>( m_reg ).get_value();
+  auto birth_threshold = Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenBirthThreshold>( m_reg ).get_value();
+  auto survival_threshold = Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenSurvivalThreshold>( m_reg ).get_value();
 
   sf::Clock iteration_timer;
   for ( unsigned int i = 0; i < iterations; i++ )
@@ -35,28 +41,14 @@ void CellAutomataSystem::iterate( uint16_t iterations, uint8_t birth_threshold, 
 
       if ( should_be_alive )
       {
-        if ( scene_type == LevelGenerator::SceneType::GRAVEYARD_EXTERIOR )
+        if ( reserved_sm.at( pos_cmp ).empty() )
         {
-          if ( reserved_sm.at( pos_cmp ).empty() )
-          {
-            // Bypass add_obstacle to avoid its O(n) reserved-position scan in this hot loop;
-            // reserved_grid.at() above is already the correct O(1) guard.
-            // reg().emplace_or_replace<Cmp::Obstacle>( pos_entt );
-            // reg().emplace_or_replace<Cmp::Npc::NoPathFinding>( pos_entt );
-            Factory::Obstacle::add_obstacle( reg(), pos_entt );
-            reserved_sm.insert( pos_entt, pos_cmp );
-          }
-        }
-        else if ( scene_type == LevelGenerator::SceneType::RUIN_INTERIOR )
-        {
-          if ( reserved_sm.at( pos_cmp ).empty() )
-          {
-            // reg().emplace_or_replace<Cmp::Obstacle>( pos_entt );
-            // reg().emplace_or_replace<Cmp::Npc::NoPathFinding>( pos_entt );
-            Factory::Obstacle::add_obstacle( reg(), pos_entt );
-            reserved_sm.insert( pos_entt, pos_cmp );
-          }
-          reg().emplace_or_replace<Cmp::Moveable>( pos_entt );
+          // Bypass add_obstacle to avoid its O(n) reserved-position scan in this hot loop;
+          // reserved_grid.at() above is already the correct O(1) guard.
+          // reg().emplace_or_replace<Cmp::Obstacle>( pos_entt );
+          // reg().emplace_or_replace<Cmp::Npc::NoPathFinding>( pos_entt );
+          Factory::Obstacle::add_obstacle( reg(), pos_entt );
+          reserved_sm.insert( pos_entt, pos_cmp );
         }
       }
       else

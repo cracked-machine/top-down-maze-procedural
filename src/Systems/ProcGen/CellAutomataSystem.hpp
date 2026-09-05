@@ -34,14 +34,9 @@ public:
 
   //! @brief Run the cellular-automata birth/survival rule over every non-reserved position for the given
   //!        number of iterations, adding or removing obstacles depending on live-neighbour counts.
-  //! @param iterations Number of passes to run over the grid.
-  //! @param birth_threshold Minimum alive-neighbour count for a dead cell to become an obstacle.
-  //! @param survival_threshold Minimum alive-neighbour count for an already-alive cell to remain an obstacle.
-  //! @param scene_type Determines which obstacle/pathfinding behaviour to apply (e.g. graveyard vs ruin).
   //! @param levelgen_spatialgrid Spatial grid of level-gen obstacles to read/update
   //! @param reserved_navmesh Positions excluded from the automata pass (e.g. spawn/reserved areas)
-  void iterate( uint16_t iterations, uint8_t birth_threshold, uint8_t survival_threshold, LevelGenerator::SceneType scene_type,
-                PathFinding::SpatialHashGrid &levelgen_spatialgrid, PathFinding::SpatialHashGrid reserved_sm );
+  void iterate( PathFinding::SpatialHashGrid &levelgen_spatialgrid, PathFinding::SpatialHashGrid reserved_sm );
 };
 
 } // namespace Game::Sys::ProcGen

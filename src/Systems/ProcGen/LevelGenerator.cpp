@@ -83,7 +83,7 @@ LevelGenerator::LevelGenerator( entt::registry &reg, sf::RenderWindow &window, S
       m_obstacle_sm( std::make_unique<PathFinding::SpatialHashGrid>() ),
       m_void_sm( std::make_unique<PathFinding::SpatialHashGrid>() ),
       m_non_obstacle_sm( std::make_unique<PathFinding::SpatialHashGrid>() ),
-      m_reserved_sm( std::make_shared<PathFinding::SpatialHashGrid>() )
+      m_reserved_sm( std::make_unique<PathFinding::SpatialHashGrid>() )
 {
 }
 
@@ -224,7 +224,7 @@ void LevelGenerator::try_place_obstacle( entt::entity entity, const Cmp::Positio
   if ( Cmp::RandomFloat{ 0.f, 1.f }.gen() >= init_chance ) return;
 
   bool placed;
-  if ( pass_navmesh_to_factory ) { placed = Factory::Obstacle::add_obstacle( reg(), entity, m_reserved_sm ); }
+  if ( pass_navmesh_to_factory ) { placed = Factory::Obstacle::add_obstacle( reg(), entity, m_reserved_sm.get() ); }
   else
   {
     Factory::Obstacle::add_obstacle( reg(), entity );
@@ -590,7 +590,12 @@ void LevelGenerator::init()
   m_obstacle_sm->clear();
   m_void_sm->clear();
   m_non_obstacle_sm->clear();
-  m_reserved_sm = Factory::Pathfinding::create_reserved_navmesh( m_reg );
+
+  m_reserved_sm = std::make_unique<PathFinding::SpatialHashGrid>();
+  for ( auto [pos_entt, reserved_cmp, pos_cmp] : reg().view<Cmp::ReservedPosition, Cmp::Position>().each() )
+  {
+    m_reserved_sm->insert( pos_entt, pos_cmp );
+  }
 }
 
 } // namespace Game::Sys::ProcGen

@@ -35,11 +35,6 @@ PathFinding::SpatialHashGridSharedPtr create_player_navmesh( entt::registry &reg
 //! @return The new navmesh.
 PathFinding::SpatialHashGridSharedPtr create_open_navmesh( entt::registry &reg );
 
-//! @brief Build a navmesh containing only positions tagged Cmp::ReservedPosition.
-//! @param reg
-//! @return The new navmesh.
-PathFinding::SpatialHashGridSharedPtr create_reserved_navmesh( entt::registry &reg );
-
 //! @brief Clears and repopulates an existing grid in place with every entity eligible for
 //! RenderGameSystem::add_visible_entity_to_z_order_queue()'s Cmp::Position fast path - see
 //! create_render_position_grid()'s docs for exactly which entities and why.

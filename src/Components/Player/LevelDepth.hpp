@@ -18,7 +18,11 @@ public:
   }
   //! @brief Increase the level depth.
   //! @param count amount to add to the current depth
-  void increment_count( unsigned int count ) { m_level += count; }
+  void increment_count( unsigned int count )
+  {
+    m_level += count;
+    display_timer.restart();
+  }
   //! @brief Decrease the level depth, clamped at zero.
   //! @param count amount to subtract from the current depth
   void decrement_count( unsigned int count )

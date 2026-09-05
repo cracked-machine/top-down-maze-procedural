@@ -80,17 +80,6 @@ PathFinding::SpatialHashGridSharedPtr create_open_navmesh( entt::registry &reg )
   return open_navmesh;
 }
 
-PathFinding::SpatialHashGridSharedPtr create_reserved_navmesh( entt::registry &reg )
-{
-  // create a navmesh for uninhibited pathfinding
-  PathFinding::SpatialHashGridSharedPtr reserved_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
-  for ( auto [pos_entt, reserved_cmp, pos_cmp] : reg.view<Cmp::ReservedPosition, Cmp::Position>().each() )
-  {
-    reserved_navmesh->insert( pos_entt, pos_cmp );
-  }
-  return reserved_navmesh;
-}
-
 void populate_render_position_grid( entt::registry &reg, PathFinding::SpatialHashGrid &render_position_grid )
 {
   render_position_grid.clear();

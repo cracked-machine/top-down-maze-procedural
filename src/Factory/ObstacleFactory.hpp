@@ -4,6 +4,7 @@
 #include <Components/Position.hpp>
 #include <Components/UUID.hpp>
 #include <PathFinding/SmartPointers.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #include <entt/fwd.hpp>
 #include <unordered_map>
@@ -32,7 +33,7 @@ entt::entity create_void_pos( entt::registry &registry, const Cmp::Position &pos
 //! @param entity
 //! @param reserved_navmesh If provided, skips placement when the position is already reserved (O(1) check).
 //! @return true if the obstacle was placed, false if blocked by the reserved navmesh.
-bool add_obstacle( entt::registry &registry, entt::entity entity, const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh = nullptr );
+bool add_obstacle( entt::registry &registry, entt::entity entity, const PathFinding::SpatialHashGrid *reserved_sm = nullptr );
 
 //! @brief Mark the entity as the "cap" sprite paired with an Obstacle entity (tied together via Cmp::UUID)
 //! @param registry
@@ -51,8 +52,7 @@ void decorate_obstacle( entt::registry &registry, entt::entity entity, Cmp::Posi
                         std::size_t sprite_tile_idx, float zorder = 0, bool blocking = true );
 
 //! @brief Whether remove_obstacle() should also destroy the matching cap entity (tied by UUID).
-enum class DeleteExtras : bool
-{
+enum class DeleteExtras : bool {
   //! @brief Do not delete the matching cap entity.
   No = false,
   //! @brief Also delete the matching cap entity.

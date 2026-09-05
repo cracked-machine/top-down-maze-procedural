@@ -28,14 +28,6 @@ namespace Game::Sys::ProcGen
 class LevelGenerator : public BaseSystem
 {
 public:
-  //! @brief Used by level gen / cell automata
-  enum class SceneType {
-    //! @brief The outdoor graveyard scene
-    GRAVEYARD_EXTERIOR,
-    //! @brief The indoor ruin scene
-    RUIN_INTERIOR
-  };
-
   //! @brief Construct a new Level Generator object
   LevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
@@ -157,7 +149,7 @@ private:
   PathFinding::SpatialHashGridUniquePtr m_non_obstacle_sm;
 
   //! @brief spatial map for reserving positions during procedural generation
-  PathFinding::SpatialHashGridSharedPtr m_reserved_sm;
+  PathFinding::SpatialHashGridUniquePtr m_reserved_sm;
 };
 
 } // namespace Game::Sys::ProcGen
