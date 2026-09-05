@@ -270,6 +270,9 @@ public:
   //! these panels can otherwise update every frame at a real cost to frame time.
   struct DebugTextColumn
   {
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members) - DebugTextColumn is a short-lived,
+    // per-panel-call local (never stored, copy-assigned, or passed around), so the usual dangling-reference
+    // risk this check guards against doesn't apply here.
     //! @brief The overlay system used to draw each text line.
     RenderOverlaySystem &self;
 
