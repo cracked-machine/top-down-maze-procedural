@@ -87,6 +87,9 @@ struct AnimData
   //! @return float Framerate in seconds per frame.
   float get_framerate() { return m_framerate; }
 
+  //! @brief Set the seconds between frame changes.
+  void set_framerate( float framerate ) { m_framerate = framerate; }
+
 private:
   //! @brief Seconds between frame changes.
   float m_framerate;

@@ -53,6 +53,7 @@
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerFootstepAddDelay.hpp>
 #include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
+#include <Components/Persistent/PlayerFootstepSfxStrideLength.hpp>
 #include <Components/Persistent/PlayerLerpInterruptThreshold.hpp>
 #include <Components/Persistent/PlayerMovementSpeed.hpp>
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
@@ -165,6 +166,7 @@ void PersistSystem::initialize_component_registry()
   add_component<Cmp::Persist::PlayerDiagonalLerpSpeedModifier>();
   add_component<Cmp::Persist::PlayerFootstepAddDelay>();
   add_component<Cmp::Persist::PlayerFootstepFadeDelay>();
+  add_component<Cmp::Persist::PlayerFootstepSfxStrideLength>();
   add_component<Cmp::Persist::PlayerLerpInterruptThreshold>();
   add_component<Cmp::Persist::PlayerMovementSpeed>();
   add_component<Cmp::Persist::PlayerShortcutLerpSpeedModifier>();

@@ -39,7 +39,7 @@ public:
 
   //! @brief Update all FootstepAlpha based on their FootstepTimer, remove any entities with FootstepAlpha
   //! @param footstep_sfx
-  void update( sf::Time dt, FootStepSfx footstep_type = FootStepSfx::GRAVEL );
+  void update( FootStepSfx footstep_type = FootStepSfx::GRAVEL );
 
   //! @brief event handlers for pausing footstep clocks
   void on_pause() override;
@@ -53,7 +53,8 @@ private:
   //! @brief Rate-limit adding the footstep sprites
   sf::Clock update_clock;
 
-  sf::Time m_footstep_sfx_accumulator{ sf::Time::Zero };
+  //! @brief Distance (px) the player has covered since the last footstep sound, so cadence scales with speed.
+  float m_footstep_sfx_distance{ 0.f };
 
   bool m_alternate_footsteps{ false };
 

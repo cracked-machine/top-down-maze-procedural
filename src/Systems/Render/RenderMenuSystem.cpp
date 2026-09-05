@@ -53,6 +53,7 @@
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerFootstepAddDelay.hpp>
 #include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
+#include <Components/Persistent/PlayerFootstepSfxStrideLength.hpp>
 #include <Components/Persistent/PlayerLerpInterruptThreshold.hpp>
 #include <Components/Persistent/PlayerMovementSpeed.hpp>
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
@@ -203,6 +204,7 @@ void RenderMenuSystem::render_settings_widgets( sf::Time dt, sf::FloatRect title
     Sys::PersistSystem::get<Cmp::Persist::PlayerDiagonalLerpSpeedModifier>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::PlayerFootstepAddDelay>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::PlayerFootstepFadeDelay>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::PlayerFootstepSfxStrideLength>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::PlayerShortcutLerpSpeedModifier>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( reg() ).render_widget();

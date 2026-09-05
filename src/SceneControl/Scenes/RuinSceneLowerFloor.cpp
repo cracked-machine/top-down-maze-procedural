@@ -192,6 +192,7 @@ void RuinSceneLowerFloor::on_exit()
   SPDLOG_INFO( "Exiting {}", get_name() );
   m_sound_bank.get_music( "ruin_creaking_rope" ).stop();
   m_sound_bank.get_music( "ruin_music" ).stop();
+  m_sys.find<Sys::Store::Type::FootstepSystem>().stop_footsteps_sound();
 
   m_reg.clear();
 
@@ -204,7 +205,7 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
   using namespace Sys;
   m_sys.find<Store::Type::AnimSystem>().update( dt );
   m_sys.find<Store::Type::NpcSystem>().update( dt );
-  m_sys.find<Sys::Store::Type::FootstepSystem>().update( dt, Sys::FootstepSystem::FootStepSfx::NONE );
+  m_sys.find<Sys::Store::Type::FootstepSystem>().update( Sys::FootstepSystem::FootStepSfx::GRAVEL );
   m_sys.find<Store::Type::LootSystem>().check_loot_collision();
   m_sys.find<Store::Type::RuinSystem>().check_floor_access_collision( Cmp::Ruin::FloorAccess::Direction::TO_UPPER );
   m_sys.find<Store::Type::RuinSystem>().check_movement_slowdowns();

@@ -933,6 +933,7 @@ void CryptSystem::check_lava_pit_collision()
   {
     if ( not player_hitbox.findIntersection( lava_cell_cmp ) ) continue;
     Utils::Crypt::reset_crypt_shuffle_timer( reg() );
+
     get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::Player::Mortality::State::IGNITED, lava_cell_cmp ) );
   }
 }

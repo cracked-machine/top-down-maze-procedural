@@ -7,8 +7,9 @@
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Persistent/PlayerFootstepAddDelay.hpp>
 #include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
-#include <Components/Persistent/PlayerMovementSpeed.hpp>
+#include <Components/Persistent/PlayerFootstepSfxStrideLength.hpp>
 #include <Components/Player/Character.hpp>
+#include <Components/Player/MovementDelta.hpp>
 #include <Components/SceneSettings/Footsteps.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Sprites/SpriteSheet.hpp>
@@ -51,7 +52,7 @@ std::optional<FootstepVariant> footstep_variant_for( const sf::Vector2f &dir )
 namespace Game::Sys
 {
 
-void FootstepSystem::update( sf::Time dt, FootStepSfx footstep_type )
+void FootstepSystem::update( FootStepSfx footstep_type )
 {
 
   // add new footstep for player
@@ -77,14 +78,16 @@ void FootstepSystem::update( sf::Time dt, FootStepSfx footstep_type )
     }
   }
 
-  m_footstep_sfx_accumulator += dt;
-  auto player_movement_speed = Sys::PersistSystem::get<Cmp::Persist::PlayerMovementSpeed>( reg() );
-  float speed = player_movement_speed.get_value() * Utils::Player::get_speed_penalty( reg() );
-  const float step = speed * dt.asSeconds();
-  if ( m_footstep_sfx_accumulator > sf::seconds( 1 / step ) )
+  // Distance the player must cover between footstep sounds; tying the trigger to
+  // distance rather than time makes the cadence scale with actual movement speed automatically,
+  // including any active Cmp::Player::SpeedPenalty and being blocked by collision.
+  const float footstep_sfx_stride_length = Sys::PersistSystem::get<Cmp::Persist::PlayerFootstepSfxStrideLength>( reg() ).get_value();
+  auto &movement_delta = reg().get<Cmp::Player::MovementDelta>( Utils::Player::get_entity( reg() ) );
+  m_footstep_sfx_distance += movement_delta.m_distance;
+  if ( m_footstep_sfx_distance >= footstep_sfx_stride_length )
   {
-    if ( Utils::Player::get_direction( reg() ) != sf::Vector2f( 0.f, 0.f ) ) play_footsteps_sound( footstep_type );
-    m_footstep_sfx_accumulator = sf::Time::Zero;
+    play_footsteps_sound( footstep_type );
+    m_footstep_sfx_distance -= footstep_sfx_stride_length;
   }
 }
 
@@ -168,7 +171,7 @@ void FootstepSystem::play_footsteps_sound( FootStepSfx type )
     case FootStepSfx::NONE:
       break;
     case FootStepSfx::GRAVEL: {
-      play( "footstep_left" );
+      play( "footstep" );
 
       break;
     }
@@ -181,8 +184,7 @@ void FootstepSystem::play_footsteps_sound( FootStepSfx type )
 void FootstepSystem::stop_footsteps_sound()
 {
   // add more footstep sfx here when needed
-  m_sound_bank.get_effect( "footstep_left" ).stop();
-  m_sound_bank.get_effect( "footstep_right" ).stop();
+  m_sound_bank.get_effect( "footstep" ).stop();
 }
 
 } // namespace Game::Sys

@@ -24,6 +24,7 @@
 #include <Components/Player/LastGraveyardPosition.hpp>
 #include <Components/Player/LevelDepth.hpp>
 #include <Components/Player/Mortality.hpp>
+#include <Components/Player/MovementDelta.hpp>
 #include <Components/Player/TorchRadius.hpp>
 #include <Components/Player/Wealth.hpp>
 #include <Components/Position.hpp>
@@ -73,6 +74,7 @@ void create_player( entt::registry &reg )
 
   reg.emplace_or_replace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
   reg.emplace_or_replace<Cmp::LastDirection>( entity, sf::Vector2f{ 0, 0 } );
+  reg.emplace_or_replace<Cmp::Player::MovementDelta>( entity );
 
   // clang-format off
   reg.emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 

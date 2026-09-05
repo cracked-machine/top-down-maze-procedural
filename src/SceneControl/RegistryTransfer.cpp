@@ -14,9 +14,9 @@
 #include <Components/FootStepTimer.hpp>
 #include <Components/Inventory/Explosive.hpp>
 #include <Components/Inventory/Grimoire.hpp>
-#include <Components/Inventory/WearLevel.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
+#include <Components/Inventory/WearLevel.hpp>
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/LastDirection.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
@@ -29,9 +29,10 @@
 #include <Components/Player/LastGraveyardPosition.hpp>
 #include <Components/Player/LevelDepth.hpp>
 #include <Components/Player/Mortality.hpp>
+#include <Components/Player/MovementDelta.hpp>
 #include <Components/Player/RuinLocation.hpp>
-#include <Components/Player/Wealth.hpp>
 #include <Components/Player/TorchRadius.hpp>
+#include <Components/Player/Wealth.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/ObjectiveType.hpp>
 #include <Components/Stats/PlayerStats.hpp>
@@ -219,6 +220,7 @@ void RegistryTransfer::init_missing_cmp_storages( entt::registry &registry )
   registry.storage<Cmp::AbsoluteRotation>();
   registry.storage<Cmp::Direction>();
   registry.storage<Cmp::LastDirection>();
+  registry.storage<Cmp::Player::MovementDelta>();
   registry.storage<Cmp::Position>();
   registry.storage<Cmp::ReservedPosition>();
   registry.storage<Cmp::Player::Character>();

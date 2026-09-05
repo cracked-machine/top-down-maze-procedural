@@ -30,6 +30,7 @@
 #include <Components/Particle/BlockParticle.hpp>
 #include <Components/Particle/SpriteBase.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
+#include <Components/Persistent/PlayerAnimFramerate.hpp>
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerMovementSpeed.hpp>
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
@@ -39,6 +40,7 @@
 #include <Components/Plant/BurningTimeAccumulator.hpp>
 #include <Components/Player/Character.hpp>
 #include <Components/Player/Mortality.hpp>
+#include <Components/Player/MovementDelta.hpp>
 #include <Components/Player/MovementSuppressCooldown.hpp>
 #include <Components/Player/NoPath.hpp>
 #include <Components/Player/PendingNoPath.hpp>
@@ -340,6 +342,9 @@ void PlayerSystem::check_player_can_pull( sf::Time dt )
 
 void PlayerSystem::update_player_position( sf::Time dt )
 {
+  auto &movement_delta = reg().get<Cmp::Player::MovementDelta>( Utils::Player::get_entity( reg() ) );
+  movement_delta.m_distance = 0.f;
+
   if ( movement_suppressed() ) return;
 
   Cmp::Position &player_pos = Utils::Player::get_position( reg() );
@@ -419,7 +424,11 @@ void PlayerSystem::update_player_position( sf::Time dt )
     if ( not is_valid_move( resolved_target ) ) can_move = false;
   }
 
-  if ( can_move ) { player_pos.position += resolved_dir_vector; }
+  if ( can_move )
+  {
+    player_pos.position += resolved_dir_vector;
+    movement_delta.m_distance = std::hypot( resolved_dir_vector.x, resolved_dir_vector.y );
+  }
 }
 
 void PlayerSystem::update_player_animation()
@@ -429,12 +438,19 @@ void PlayerSystem::update_player_animation()
 
   const Cmp::Direction direction_cmp = Utils::Player::get_direction( reg() );
   Cmp::AnimData &anim_cmp = Utils::Player::get_sprite_anim( reg() );
+  const auto &movement_delta = reg().get<Cmp::Player::MovementDelta>( Utils::Player::get_entity( reg() ) );
+
+  const float base_framerate = Sys::PersistSystem::get<Cmp::Persist::PlayerAnimFramerate>( reg() ).get_value();
+  const float speed_penalty = Utils::Player::get_speed_penalty( reg() );
+  anim_cmp.set_framerate( speed_penalty > 0.f ? base_framerate / speed_penalty : base_framerate );
 
   // update the animation state based on movement direction
   if ( direction_cmp == sf::Vector2f( 0.0f, 0.0f ) ) { anim_cmp.m_enabled = false; }
   else
   {
-    anim_cmp.m_enabled = true;
+    // Held direction but no real displacement this frame (see PlayerSystem::update_player_position)
+    // means collision blocked the move - freeze the walk-cycle instead of animating in place.
+    anim_cmp.m_enabled = movement_delta.m_distance > 0.f;
     if ( direction_cmp.x == 1 ) { anim_cmp.m_sprite_type = "sprite.player.walk.east"; }
     else if ( direction_cmp.x == -1 ) { anim_cmp.m_sprite_type = "sprite.player.walk.west"; }
     else if ( direction_cmp.y == -1 ) { anim_cmp.m_sprite_type = "sprite.player.walk.north"; }
@@ -836,6 +852,7 @@ void PlayerSystem::on_player_mortality_event( Game::Events::PlayerMortalityEvent
 
   auto common_death_throes = [&]()
   {
+    reg().get<Cmp::Player::MovementDelta>( Utils::Player::get_entity( reg() ) ).m_distance = 0; // stop footstep sfx
     reg().emplace_or_replace<Cmp::Player::PostDeathTimeout>( Utils::Player::get_entity( reg() ) );
     reg().emplace_or_replace<Cmp::NoRender>( Utils::Player::get_entity( reg() ) );
     Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ -100 }, {}, {}, {}, {}, {}, {} } );
