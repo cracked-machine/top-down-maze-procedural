@@ -323,9 +323,6 @@ private:
   //! @brief event handlers for resuming system clocks
   void on_resume() override {}
 
-  //! @brief Rate-limit the debug UI overlay frame updates; counts up
-  sf::Time m_debug_update_timer{ sf::Time::Zero };
-
   //! @brief Time component of the sine wave for the compass arrow bouncing movement
   sf::Clock m_compass_osc_clock;
 

@@ -14,6 +14,9 @@
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/System/Vector2.hpp>
 
+#include <string>
+#include <unordered_map>
+
 // clang-format off
 namespace Game::PathFinding { class SpatialHashGrid; enum class QueryCompass; } 
 namespace Game::Cmp { class ZOrderValue; }
@@ -262,10 +265,17 @@ public:
   }
 
   //! @brief Draw a column of debug text lines, top to bottom, at a fixed origin, advancing by `line_height` after each call.
+  //! Backed by a per-`cache_key` pool of persistent sf::Text objects (see m_debug_text_cache) so that, across frames, each
+  //! line reuses the same sf::Text instead of being reconstructed (and having its outline re-generated) from scratch -
+  //! these panels can otherwise update every frame at a real cost to frame time.
   struct DebugTextColumn
   {
     //! @brief The overlay system used to draw each text line.
     RenderOverlaySystem &self;
+
+    //! @brief Identifies this column's slot in self.m_debug_text_cache. Stable across frames for a given panel (e.g.
+    //! "npc_list") so the same sf::Text objects are reused call after call.
+    std::string cache_key;
 
     //! @brief Screen position of the first line in the column.
     sf::Vector2f origin;
@@ -279,18 +289,34 @@ public:
     //! @brief Running vertical offset from `origin`, advanced by `line_height` after each call.
     float y_offset{ 0.f };
 
+    //! @brief Index into this column's cache pool of the next line to draw, advanced after each call.
+    std::size_t line_index{ 0 };
+
     //! @brief Draw one line of text at the current column offset, then advance the offset by `line_height`.
     //! @param str The text to draw.
     //! @param color Fill colour of the text.
     void operator()( const std::string &str, sf::Color color = sf::Color::White )
     {
-      sf::Text text( self.m_font, str, font_size );
+      auto &pool = self.m_debug_text_cache[cache_key];
+      if ( line_index >= pool.size() )
+      {
+        // Outline colour/thickness are the same for every line ever drawn through this struct, so they only need
+        // setting once per pooled sf::Text - re-applying them every frame is what forces SFML to regenerate the
+        // outline geometry for every visible line, every frame.
+        sf::Text text( self.m_font, str, font_size );
+        text.setOutlineColor( sf::Color::Black );
+        text.setOutlineThickness( 1.f );
+        pool.push_back( std::move( text ) );
+      }
+
+      sf::Text &text = pool[line_index];
+      text.setString( str );
       text.setFillColor( color );
-      text.setOutlineColor( sf::Color::Black );
-      text.setOutlineThickness( 1.f );
       text.setPosition( { origin.x, origin.y + y_offset } );
       self.draw_screen( text );
+
       y_offset += line_height;
+      ++line_index;
     }
   };
 
@@ -328,6 +354,11 @@ private:
 
   //! @brief tracks the npc pathfinding navmesh i.e. where the NPC cannot move to
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
+
+  //! @brief Per-panel pool of persistent sf::Text objects backing DebugTextColumn, keyed by DebugTextColumn::cache_key.
+  //! Keeps line count from one frame able to shrink/grow freely - unused trailing entries from a previous, longer frame
+  //! are simply left undrawn rather than erased.
+  std::unordered_map<std::string, std::vector<sf::Text>> m_debug_text_cache;
 
   //! @brief Used to flash the UI wealth text
   sf::Time m_flash_wealth_ui_interval;

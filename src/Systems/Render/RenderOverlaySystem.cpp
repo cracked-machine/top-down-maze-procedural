@@ -396,7 +396,7 @@ void RenderOverlaySystem::render_grimoire_inventory_overlay()
   rect.setOutlineThickness( 2.f );
   draw_screen( rect );
 
-  DebugTextColumn draw_line{ *this, rect_position, 18, 22.f };
+  DebugTextColumn draw_line{ *this, "grimoire", rect_position, 18, 22.f };
 
   // Draw all UI outlines
   for ( const auto &[item, is_enabled] : grimoire_cmp.contents )
@@ -413,7 +413,7 @@ void RenderOverlaySystem::render_ui_misc_stats()
   {
     if ( ui_label.name != "entity_stats" ) { continue; }
 
-    DebugTextColumn draw_line{ .self = *this, .origin = ui_label.rect.position, .font_size = 18, .line_height = 22.f };
+    DebugTextColumn draw_line{ .self = *this, .cache_key = "entity_stats", .origin = ui_label.rect.position, .font_size = 18, .line_height = 22.f };
 
     draw_line( "--- Stats ---", sf::Color::Yellow );
 
@@ -474,7 +474,7 @@ void RenderOverlaySystem::render_ui_zorder_list( std::vector<ZOrder> &zorder_que
   {
     if ( ui_label.name != "zorder_list" ) { continue; }
 
-    DebugTextColumn draw_line{ *this, ui_label.rect.position, 18, 22.f };
+    DebugTextColumn draw_line{ .self = *this, .cache_key = "zorder_list", .origin = ui_label.rect.position, .font_size = 18, .line_height = 22.f };
 
     draw_line( "--- Z Order List ---", sf::Color::Yellow );
 
@@ -519,7 +519,7 @@ void RenderOverlaySystem::render_ui_npc_list()
   {
     if ( ui_label.name != "npc_list" ) { continue; }
 
-    DebugTextColumn draw_line{ *this, ui_label.rect.position, 18, 22.f };
+    DebugTextColumn draw_line{ .self = *this, .cache_key = "npc_list", .origin = ui_label.rect.position, .font_size = 18, .line_height = 22.f };
 
     draw_line( "--- NPCs ---", sf::Color::Yellow );
 
@@ -650,7 +650,7 @@ void RenderOverlaySystem::render_ui_entity_inspect()
   {
     if ( ui_label.name != "inspect_list" ) { continue; }
 
-    DebugTextColumn draw_line{ *this, ui_label.rect.position, 18, 22.f };
+    DebugTextColumn draw_line{ .self = *this, .cache_key = "inspect_list", .origin = ui_label.rect.position, .font_size = 18, .line_height = 22.f };
 
     auto position_view = reg().view<Cmp::Position>();
     for ( auto [entity, pos_cmp] : position_view.each() )

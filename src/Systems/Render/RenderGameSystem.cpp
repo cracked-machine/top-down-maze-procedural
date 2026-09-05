@@ -91,6 +91,7 @@
 #include <memory>
 #include <optional>
 #include <ranges>
+#include <tracy/Tracy.hpp>
 
 namespace Game::Sys
 {
@@ -194,33 +195,27 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   // these debug shapes are only drawn within the current view to prevent FPS drops
   if ( show_debug_stats )
   {
+    ZoneScopedN( "RenderDebugUI" );
+
     render_overlay_sys.render_square_for_floatrect_cmp<Cmp::Crypt::RoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
     render_overlay_sys.render_square_for_floatrect_cmp<Cmp::Crypt::RoomOpen>( sf::Color::Green, 1.f );
     render_overlay_sys.render_square_for_floatrect_cmp<Cmp::Crypt::RoomStart>( sf::Color::Blue, 1.f );
     render_overlay_sys.render_square_for_floatrect_cmp<Cmp::Crypt::RoomEnd>( sf::Color::Yellow, 1.f );
     render_overlay_sys.render_square_for_floatrect_cmp<Cmp::Crypt::RoomClosed>( sf::Color::Red, 1.f );
     render_overlay_sys.render_square_for_vector2f_cmp<Cmp::Crypt::PassageBlock>( sf::Color::Black, 1.f );
-  }
 
-  // limit the update frequency to prevent FPS drops
-  m_debug_update_timer += dt;
-  static const sf::Time kDebugUpdateTimeout{ sf::milliseconds( 1000 ) };
-  bool debug_tick = show_debug_stats and ( m_debug_update_timer > kDebugUpdateTimeout );
-  if ( debug_tick )
-  {
-    render_overlay_sys.begin_debug_overlay( m_window.getSize() );
-
-    render_overlay_sys.render_ui_misc_stats();
-    render_overlay_sys.render_ui_zorder_list( m_zorder_queue_ );
-    render_overlay_sys.render_ui_npc_list();
-    render_overlay_sys.render_ui_entity_inspect();
+    PROFILED( render_overlay_sys.begin_debug_overlay( m_window.getSize() ) );
+    PROFILED( render_overlay_sys.render_ui_misc_stats() );
+    PROFILED( render_overlay_sys.render_ui_zorder_list( m_zorder_queue_ ) );
+    PROFILED( render_overlay_sys.render_ui_npc_list() );
+    PROFILED( render_overlay_sys.render_ui_entity_inspect() );
     for ( auto [selected_entt, selected_cmp, pos_cmp] : reg().view<Cmp::SelectedPosition, Cmp::Position>().each() )
     {
       if ( not Utils::is_visible_in_view( get_screen_view(), pos_cmp ) ) continue;
-      render_overlay_sys.render_square( pos_cmp.position, pos_cmp.size, sf::Color::Yellow );
+      PROFILED( render_overlay_sys.render_square( pos_cmp.position, pos_cmp.size, sf::Color::Yellow ) );
     }
 
-    render_overlay_sys.end_debug_overlay();
+    PROFILED( render_overlay_sys.end_debug_overlay() );
     for ( auto [ps_owner_entt, ps_owner_cmp] : reg().view<Cmp::Particle::SpriteOwner>().each() )
     {
       auto emitter_pos = ps_owner_cmp.sprite->get_emitter_position();
@@ -230,7 +225,6 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
       dot.setOutlineColor( sf::Color::Cyan );
       draw_world( dot );
     }
-    m_debug_update_timer = sf::Time::Zero;
   }
 
   if ( show_debug_stats ) render_overlay_sys.draw_debug_overlay( m_window );
