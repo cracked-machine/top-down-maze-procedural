@@ -30,6 +30,12 @@ public:
   //! @brief Destroy the Scene object
   virtual ~Scene() = default;
 
+  // Prevent move/copy of a scene object; Use a unique ptr.
+  Scene( const Scene &other ) = delete;
+  Scene &operator=( const Scene & ) = delete;
+  Scene( Scene &&other ) = delete;
+  Scene &operator=( Scene && ) = delete;
+
   //! @brief Public API for updating the scene
   //! @param dt The time elapsed since the last update
   void update( sf::Time dt ) override
@@ -58,7 +64,7 @@ protected:
   bool m_just_spawned{ true };
 
 private:
-  //! @brief The dispatcher for routing scene-specific events to SceneInputRouter.
+  //! @brief Non-owning ref to the dispatcher for routing scene-specific input events (keyboard/mouse) to SceneInputRouter.
   entt::dispatcher &m_nav_event_dispatcher;
 };
 

@@ -38,6 +38,12 @@ public:
   explicit SceneManager( sf::RenderWindow &w, Audio::SoundBank &sound_bank, Sys::Store &system_store, entt::dispatcher &nav_event_dispatcher,
                          entt::dispatcher &scenemanager_event_dispatcher, Sprites::SpriteFactory &sprite_factory );
 
+  // Prevent copy/move of SceneManager object. Use unique ptr.
+  SceneManager( const SceneManager &other ) = delete;
+  SceneManager &operator=( const SceneManager & ) = delete;
+  SceneManager( SceneManager &&other ) = delete;
+  SceneManager &operator=( SceneManager && ) = delete;
+
   //! @brief Update the current scene
   //! @param dt The time elapsed since the last update
   void update( sf::Time dt );
@@ -91,7 +97,7 @@ private:
     sf::Text loading_text( font, "Loading", 48 );
     loading_text.setFillColor( sf::Color::White );
     // use fallback resolution for loading screen position since we dont have registry access at this point
-    loading_text.setPosition( { Constants::kFallbackDisplaySize.x / 2.f - 50.f, Constants::kFallbackDisplaySize.y / 2.f + 100.f } );
+    loading_text.setPosition( { ( Constants::kFallbackDisplaySize.x / 2.f ) - 50.f, ( Constants::kFallbackDisplaySize.y / 2.f ) + 100.f } );
 
     sf::Clock clock;
     const float text_update_interval = 1.f; // 1 second between dot updates

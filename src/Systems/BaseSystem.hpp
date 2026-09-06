@@ -54,7 +54,7 @@ public:
   //! @note Use this to get temporary access to the dispatcher to register event handlers.
   static entt::dispatcher &get_systems_event_queue()
   {
-    if ( !m_systems_event_queue ) { m_systems_event_queue = std::make_unique<entt::dispatcher>(); }
+    if ( not m_systems_event_queue ) { m_systems_event_queue = std::make_unique<entt::dispatcher>(); }
     return *m_systems_event_queue;
   }
 
