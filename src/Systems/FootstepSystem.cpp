@@ -10,6 +10,7 @@
 #include <Components/Persistent/PlayerFootstepSfxStrideLength.hpp>
 #include <Components/Player/Character.hpp>
 #include <Components/Player/MovementDelta.hpp>
+#include <Components/Random.hpp>
 #include <Components/SceneSettings/Footsteps.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Sprites/SpriteSheet.hpp>
@@ -163,7 +164,10 @@ void FootstepSystem::play_footsteps_sound( FootStepSfx type )
   {
     if ( m_sound_bank.get_effect( sfx_name ).getStatus() == sf::Sound::Status::Playing ) return;
     m_alternate_footsteps = not m_alternate_footsteps;
-    m_sound_bank.get_effect( sfx_name ).play();
+    auto &sfx = m_sound_bank.get_effect( sfx_name );
+    // add some variance to the steps to make it sound more natural
+    sfx.setVolume( Cmp::RandomFloat( 50.f, 100.f ).gen() );
+    sfx.play();
   };
 
   switch ( type )

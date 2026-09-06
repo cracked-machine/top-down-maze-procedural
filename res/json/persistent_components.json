@@ -422,9 +422,9 @@
   },
   "PlayerFootstepSfxStrideLength": {
     "type": "float",
-    "value": 32.0,
+    "value": 15.0,
     "min_value": 4.0,
-    "max_value": 128.0,
+    "max_value": 64.0,
     "detail": "Player Footstep Sfx Stride Length",
     "format": "%.1f px"
   },
