@@ -262,7 +262,7 @@ void GraveyardScene::do_update( sf::Time dt )
   PROFILED( m_sys.find<Sys::Store::Type::AnimSystem>().update( dt ) );
   {
     ZoneScopedN( "SinkHoleHazardSystem::update" );
-    if ( auto pos = m_sys.find<Sys::Store::Type::SinkHoleHazardSystem>().update(); pos != sf::Vector2f{ 0, 0 } )
+    if ( auto pos = m_sys.find<Sys::Store::Type::SinkHoleHazardSystem>().update( dt ); pos != sf::Vector2f{ 0, 0 } )
     {
       for ( auto [floor_entt, floortiles] : m_reg.view<Sprites::Containers::VertexFloor>().each() )
       {
@@ -271,7 +271,7 @@ void GraveyardScene::do_update( sf::Time dt )
     }
   }
 
-  PROFILED( m_sys.find<Sys::Store::Type::CorruptionHazardSystem>().update() );
+  PROFILED( m_sys.find<Sys::Store::Type::CorruptionHazardSystem>().update( dt ) );
   PROFILED( m_sys.find<Sys::Store::Type::BombSystem>().update() );
   PROFILED( m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision() );
   PROFILED( m_sys.find<Sys::Store::Type::NpcSystem>().update( dt ) );

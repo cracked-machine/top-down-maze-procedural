@@ -57,7 +57,7 @@ public:
 
   //! @brief Spread the hazard field, then check for player and NPC collisions with it.
   //! @return The position of any newly added hazard cell, or an empty vector if none was added.
-  sf::Vector2f update();
+  sf::Vector2f update( sf::Time dt );
 
   //! @brief Spawn the initial hazard cell for this hazard type at a random valid obstacle position, if one does not already exist.
   //! @return The position of the newly spawned hazard cell, or an empty vector if one already exists or no valid position was found.
@@ -92,7 +92,9 @@ private:
 
   //! @brief Time period for updating hazard fields.
   //!
-  const sf::Time m_update_period{ sf::seconds( 5.0f ) }; // seconds between adding new hazard fields
+  sf::Time m_update_period{ sf::seconds( 5.0f ) }; // seconds between adding new hazard fields
+
+  sf::Time m_dmg_timer{ sf::Time::Zero };
 };
 
 } // namespace Game::Sys

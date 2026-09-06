@@ -20,6 +20,7 @@
 #include <Events/ResumeClocksEvent.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
+#include <SFML/System/Time.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Threats/HazardFieldSystem.hpp>
@@ -42,13 +43,19 @@ HazardFieldSystem<HazardType>::HazardFieldSystem( entt::registry &reg, sf::Rende
 
 //! @copydoc HazardFieldSystem::update()
 template <ValidHazard HazardType>
-sf::Vector2f HazardFieldSystem<HazardType>::update()
+sf::Vector2f HazardFieldSystem<HazardType>::update( sf::Time dt )
 {
   sf::Vector2f add_hazard_cell;
   add_hazard_cell = update_hazard_field();
   check_npc_hazard_field_collision();
 
-  if ( Utils::scene_setting<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled ) { check_player_hazard_field_collision(); }
+  m_dmg_timer += dt;
+  static sf::Time dmg_timeout = sf::seconds( 0.2f );
+  if ( m_dmg_timer > dmg_timeout )
+  {
+    if ( Utils::scene_setting<Cmp::SceneSettings::CollisionDetection>( reg() ).enabled ) { check_player_hazard_field_collision(); }
+    m_dmg_timer = sf::Time::Zero;
+  }
 
   return add_hazard_cell;
 }
@@ -216,7 +223,7 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
           reg().template emplace_or_replace<Cmp::Player::Footstep>( Utils::Player::get_entity( m_reg ), Cmp::Player::Footstep::Type::MUD );
           auto corruption_dmg = Sys::PersistSystem::get<Cmp::Persist::CorruptionDamage>( reg() ).get_value();
           player_stats_cmp.apply_modifiers( { Cmp::Stats::Health{ -corruption_dmg }, {}, {}, {}, {}, {}, {}, {} } );
-          SPDLOG_INFO( "Applying corruption damage {}", corruption_dmg );
+          SPDLOG_DEBUG( "Applying corruption damage {}", corruption_dmg );
           // trigger death animation
           if ( player_stats_cmp.health() <= 0 )
           {
