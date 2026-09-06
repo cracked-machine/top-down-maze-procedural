@@ -4,6 +4,7 @@
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AnimData.hpp>
 #include <Components/Player/ExtraLife.hpp>
+#include <Components/Player/FootstepType.hpp>
 #include <Components/Stats/PlayerStats.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <Sprites/SpriteMetaType.hpp>
@@ -188,6 +189,8 @@ Cmp::TorchRadius &get_torch_radius( entt::registry &reg );
 //! @return Cmp::PlayerStats& Reference to the player's stats.
 //! @throws std::runtime_error if no entity has both Cmp::Player::Character and Cmp::PlayerStats.
 Cmp::PlayerStats &get_player_stats( entt::registry &reg );
+
+Cmp::Player::Footstep &get_footstep_type( entt::registry &reg );
 
 //! @brief Get the player's global bomb-flash clock, used to time the screen flash effect for bomb detonations.
 //! @param reg reference to the entt registry

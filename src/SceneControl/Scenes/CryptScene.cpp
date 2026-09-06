@@ -132,6 +132,9 @@ void CryptScene::on_enter()
   // prevent the player from wandering off before the scene has loaded
   auto &player_dir = Utils::Player::get_direction( m_reg );
   player_dir = Cmp::Direction{ { 0.f, 0.f } };
+
+  // Set the default footstep SFX for this scene
+  m_reg.emplace_or_replace<Cmp::Player::Footstep>( Utils::Player::get_entity( m_reg ), Cmp::Player::Footstep::Type::STONE );
 }
 
 void CryptScene::on_exit()

@@ -109,6 +109,9 @@ void HealingSpringScene::on_enter()
 
   // no blink/cooldown in the healing spring is required
   m_sys.find<Sys::Store::Type::PlayerSystem>().force_expire_damage_cooldown();
+
+  // Set the default footstep SFX for this scene
+  m_reg.emplace_or_replace<Cmp::Player::Footstep>( Utils::Player::get_entity( m_reg ), Cmp::Player::Footstep::Type::STONE );
 }
 
 void HealingSpringScene::on_exit()

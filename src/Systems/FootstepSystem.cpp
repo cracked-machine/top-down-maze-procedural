@@ -9,6 +9,7 @@
 #include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
 #include <Components/Persistent/PlayerFootstepSfxStrideLength.hpp>
 #include <Components/Player/Character.hpp>
+#include <Components/Player/FootstepType.hpp>
 #include <Components/Player/MovementDelta.hpp>
 #include <Components/Random.hpp>
 #include <Components/SceneSettings/Footsteps.hpp>
@@ -53,7 +54,7 @@ std::optional<FootstepVariant> footstep_variant_for( const sf::Vector2f &dir )
 namespace Game::Sys
 {
 
-void FootstepSystem::update( FootStepSfx footstep_type )
+void FootstepSystem::update()
 {
 
   // add new footstep for player
@@ -87,7 +88,7 @@ void FootstepSystem::update( FootStepSfx footstep_type )
   m_footstep_sfx_distance += movement_delta.m_distance;
   if ( m_footstep_sfx_distance >= footstep_sfx_stride_length )
   {
-    play_footsteps_sound( footstep_type );
+    play_footsteps_sound();
     m_footstep_sfx_distance -= footstep_sfx_stride_length;
   }
 }
@@ -157,7 +158,7 @@ void FootstepSystem::add_footstep( const Cmp::Position &pos, const Cmp::Directio
   }
 }
 
-void FootstepSystem::play_footsteps_sound( FootStepSfx type )
+void FootstepSystem::play_footsteps_sound()
 {
 
   auto play = [this]( const std::string &sfx_name )
@@ -170,25 +171,36 @@ void FootstepSystem::play_footsteps_sound( FootStepSfx type )
     sfx.play();
   };
 
-  switch ( type )
-  {
-    case FootStepSfx::NONE:
-      break;
-    case FootStepSfx::GRAVEL: {
-      play( "footstep" );
+  auto &footstep_type = Utils::Player::get_footstep_type( reg() );
 
+  switch ( footstep_type.m_type )
+  {
+    case Cmp::Player::Footstep::Type::NONE:
+      break;
+    case Cmp::Player::Footstep::Type::GRASS: {
+      play( "footstep_grass" );
       break;
     }
-    case FootStepSfx::FLOORBOARDS: {
+    case Cmp::Player::Footstep::Type::WOODFLOOR: {
+      play( "footstep_woodfloor" );
       break;
     }
+    case Cmp::Player::Footstep::Type::MUD:
+      play( "footstep_mud" );
+      break;
+    case Cmp::Player::Footstep::Type::STONE:
+      play( "footstep_stone" );
+      break;
   }
 }
 
 void FootstepSystem::stop_footsteps_sound()
 {
   // add more footstep sfx here when needed
-  m_sound_bank.get_effect( "footstep" ).stop();
+  m_sound_bank.get_effect( "footstep_grass" ).stop();
+  m_sound_bank.get_effect( "footstep_woodfloor" ).stop();
+  m_sound_bank.get_effect( "footstep_mud" ).stop();
+  m_sound_bank.get_effect( "footstep_stone" ).stop();
 }
 
 } // namespace Game::Sys

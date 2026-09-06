@@ -185,6 +185,9 @@ void RuinSceneLowerFloor::on_enter()
 
   // re-initialise the spatial grid weak_ptr for when we return from upper floor scene
   reinit_navmesh();
+
+  // Set the default footstep SFX for this scene
+  m_reg.emplace_or_replace<Cmp::Player::Footstep>( Utils::Player::get_entity( m_reg ), Cmp::Player::Footstep::Type::STONE );
 }
 
 void RuinSceneLowerFloor::on_exit()
@@ -205,7 +208,7 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
   using namespace Sys;
   m_sys.find<Store::Type::AnimSystem>().update( dt );
   m_sys.find<Store::Type::NpcSystem>().update( dt );
-  m_sys.find<Sys::Store::Type::FootstepSystem>().update( Sys::FootstepSystem::FootStepSfx::GRAVEL );
+  m_sys.find<Sys::Store::Type::FootstepSystem>().update();
   m_sys.find<Store::Type::LootSystem>().check_loot_collision();
   m_sys.find<Store::Type::RuinSystem>().check_floor_access_collision( Cmp::Ruin::FloorAccess::Direction::TO_UPPER );
   m_sys.find<Store::Type::RuinSystem>().check_movement_slowdowns();

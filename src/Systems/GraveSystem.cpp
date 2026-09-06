@@ -1,10 +1,4 @@
 
-#include <Components/Player/DiggingCooldown.hpp>
-#include <Components/Stats/SpawnAction.hpp>
-#include <Events/CreateItemEvent.hpp>
-#include <Systems/Stores/ItemStore.hpp>
-#include <typeindex>
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 #include <Audio/SoundBank.hpp>
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AnimData.hpp>
@@ -15,11 +9,14 @@
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <Components/Player/Character.hpp>
+#include <Components/Player/DiggingCooldown.hpp>
 #include <Components/Player/KeysCount.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SelectedPosition.hpp>
+#include <Components/Stats/SpawnAction.hpp>
+#include <Events/CreateItemEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Factory/BombFactory.hpp>
 #include <Factory/LootFactory.hpp>
@@ -31,6 +28,7 @@
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Systems/Stores/ItemStore.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
@@ -89,7 +87,7 @@ bool GraveSystem::is_dig_on_cooldown()
 {
   auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( reg() ).get_value();
   auto *dig_cooldown = reg().try_get<Cmp::Player::DiggingCooldown>( Utils::Player::get_entity( reg() ) );
-  return dig_cooldown and dig_cooldown->getElapsedTime() < sf::seconds( digging_cooldown_amount );
+  return ( dig_cooldown != nullptr ) and dig_cooldown->getElapsedTime() < sf::seconds( digging_cooldown_amount );
 }
 
 void GraveSystem::clear_stale_grave_selections()

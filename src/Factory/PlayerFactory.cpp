@@ -20,6 +20,7 @@
 #include <Components/Player/Character.hpp>
 #include <Components/Player/Curse.hpp>
 #include <Components/Player/ExtraLife.hpp>
+#include <Components/Player/FootstepType.hpp>
 #include <Components/Player/KeysCount.hpp>
 #include <Components/Player/LastGraveyardPosition.hpp>
 #include <Components/Player/LevelDepth.hpp>
@@ -75,6 +76,7 @@ void create_player( entt::registry &reg )
   reg.emplace_or_replace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
   reg.emplace_or_replace<Cmp::LastDirection>( entity, sf::Vector2f{ 0, 0 } );
   reg.emplace_or_replace<Cmp::Player::MovementDelta>( entity );
+  reg.emplace_or_replace<Cmp::Player::Footstep>( entity, Cmp::Player::Footstep::Type::GRASS );
 
   // clang-format off
   reg.emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 

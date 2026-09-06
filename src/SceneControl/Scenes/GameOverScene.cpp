@@ -23,14 +23,13 @@ void GameOverScene::on_enter()
 void GameOverScene::on_exit()
 {
   SPDLOG_INFO( "Exiting {}", get_name() );
-  m_reg.clear();
-
   m_sys.find<Sys::Store::Type::FootstepSystem>().stop_footsteps_sound();
+  m_reg.clear();
 }
 
 void GameOverScene::do_update( [[maybe_unused]] sf::Time dt )
 {
-  m_sound_bank.get_effect( "footstep" ).stop();
+  m_sys.find<Sys::Store::Type::FootstepSystem>().stop_footsteps_sound();
 
   auto &render_menu_sys = m_sys.find<Sys::Store::Type::RenderMenuSystem>();
   render_menu_sys.render_defeat_screen();

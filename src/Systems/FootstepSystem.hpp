@@ -27,19 +27,9 @@ public:
   {
   }
 
-  //! @brief Which footstep sound effect (if any) should accompany the spawned footstep sprites.
-  enum class FootStepSfx {
-    //! @brief No footstep sound effect.
-    NONE,
-    //! @brief Gravel/outdoor footstep sound effect.
-    GRAVEL,
-    //! @brief Wooden floorboard footstep sound effect.
-    FLOORBOARDS
-  };
-
   //! @brief Update all FootstepAlpha based on their FootstepTimer, remove any entities with FootstepAlpha
   //! @param footstep_sfx
-  void update( FootStepSfx footstep_type = FootStepSfx::GRAVEL );
+  void update();
 
   //! @brief event handlers for pausing footstep clocks
   void on_pause() override;
@@ -63,9 +53,8 @@ private:
   //! @param dir
   void add_footstep( const Cmp::Position &pos, const Cmp::Direction &dir );
 
-  //! @brief Play the looping footstep sound matching `type`, if not already playing.
-  //! @param type
-  void play_footsteps_sound( FootStepSfx type );
+  //! @brief Play the current Cmp::Player::FootStep sfx
+  void play_footsteps_sound();
 };
 
 } // namespace Game::Sys

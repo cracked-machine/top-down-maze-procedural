@@ -223,6 +223,9 @@ void GraveyardScene::on_enter()
   Factory::Particle::add_flame_for_player_inventory_slot( m_reg );
 
   m_scene_exit_cooldown.restart();
+
+  // Set the default footstep SFX for this scene
+  m_reg.emplace_or_replace<Cmp::Player::Footstep>( Utils::Player::get_entity( m_reg ), Cmp::Player::Footstep::Type::GRASS );
 }
 
 void GraveyardScene::on_exit()
@@ -257,7 +260,6 @@ void GraveyardScene::do_update( sf::Time dt )
   }
 
   PROFILED( m_sys.find<Sys::Store::Type::AnimSystem>().update( dt ) );
-
   {
     ZoneScopedN( "SinkHoleHazardSystem::update" );
     if ( auto pos = m_sys.find<Sys::Store::Type::SinkHoleHazardSystem>().update(); pos != sf::Vector2f{ 0, 0 } )

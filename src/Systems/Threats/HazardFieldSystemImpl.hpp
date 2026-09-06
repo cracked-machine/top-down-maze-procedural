@@ -212,7 +212,8 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
         // normal size hitbox for corruption for full area
         if ( hazard_pos_cmp.findIntersection( player_pos_cmp ) )
         {
-
+          // Set the default footstep SFX for this scene
+          reg().template emplace_or_replace<Cmp::Player::Footstep>( Utils::Player::get_entity( m_reg ), Cmp::Player::Footstep::Type::MUD );
           auto corruption_dmg = Sys::PersistSystem::get<Cmp::Persist::CorruptionDamage>( reg() ).get_value();
           player_stats_cmp.apply_modifiers( { Cmp::Stats::Health{ -corruption_dmg }, {}, {}, {}, {}, {}, {}, {} } );
           SPDLOG_INFO( "Applying corruption damage {}", corruption_dmg );
@@ -223,6 +224,9 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
           }
           return;
         }
+
+        // Set the default footstep SFX for this scene
+        reg().template emplace_or_replace<Cmp::Player::Footstep>( Utils::Player::get_entity( m_reg ), Cmp::Player::Footstep::Type::GRASS );
       }
     }
   }

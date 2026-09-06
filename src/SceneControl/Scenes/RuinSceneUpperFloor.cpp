@@ -3,6 +3,7 @@
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/Curse.hpp>
+#include <Components/Player/FootstepType.hpp>
 #include <Components/Player/RuinLocation.hpp>
 #include <Components/Ruin/HexagramMultiBlock.hpp>
 #include <Components/Ruin/HexagramSegment.hpp>
@@ -143,6 +144,9 @@ void RuinSceneUpperFloor::on_enter()
   m_reg.emplace_or_replace<Cmp::Player::RuinLocation>( player_entt, Cmp::Player::RuinLocation::Floor::UPPER );
 
   m_sys.find<Sys::Store::Type::RuinSystem>().reset_floor_access_cooldown();
+
+  // Set the default footstep SFX for this scene
+  m_reg.emplace_or_replace<Cmp::Player::Footstep>( Utils::Player::get_entity( m_reg ), Cmp::Player::Footstep::Type::WOODFLOOR );
 }
 
 void RuinSceneUpperFloor::on_exit()
@@ -158,7 +162,7 @@ void RuinSceneUpperFloor::do_update( sf::Time dt )
   using namespace Sys;
   m_sys.find<Store::Type::AnimSystem>().update( dt );
   m_sys.find<Store::Type::NpcSystem>().update( dt );
-  m_sys.find<Sys::Store::Type::FootstepSystem>().update( Sys::FootstepSystem::FootStepSfx::NONE );
+  m_sys.find<Sys::Store::Type::FootstepSystem>().update();
   m_sys.find<Store::Type::LootSystem>().check_loot_collision();
   m_sys.find<Store::Type::RuinSystem>().check_floor_access_collision( Cmp::Ruin::FloorAccess::Direction::TO_LOWER );
   m_sys.find<Store::Type::RuinSystem>().check_movement_slowdowns();

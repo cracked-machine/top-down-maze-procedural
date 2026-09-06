@@ -11,6 +11,7 @@
 #include <Components/Player/Character.hpp>
 #include <Components/Player/Curse.hpp>
 #include <Components/Player/ExtraLife.hpp>
+#include <Components/Player/FootstepType.hpp>
 #include <Components/Player/LastGraveyardPosition.hpp>
 #include <Components/Player/LevelDepth.hpp>
 #include <Components/Player/Mortality.hpp>
@@ -303,6 +304,14 @@ Cmp::PlayerStats &get_player_stats( entt::registry &reg )
     if ( reg.all_of<Cmp::Player::Character>( entity ) ) { return cmp; }
   }
   throw std::runtime_error( "Player entt has no component: Cmp::PlayerStats" );
+}
+
+Cmp::Player::Footstep &get_footstep_type( entt::registry &reg )
+{
+  auto player_entt = get_entity( reg );
+  auto *footstep_cmp = reg.try_get<Cmp::Player::Footstep>( player_entt );
+  if ( not footstep_cmp ) throw std::runtime_error( "Player has no Cmp::Player::Footstep component." );
+  return *footstep_cmp;
 }
 
 sf::Clock &get_global_bomb_flash_clk( entt::registry &reg )
