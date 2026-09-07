@@ -637,10 +637,10 @@ void PassageSystem::fill_all_passages()
 
     if ( m_passage_block_grid.at( pos_cmp ).empty() ) continue;
 
-    auto uuid = Cmp::UUID::generate();
-
     Factory::Obstacle::add_obstacle( reg(), pos_entt );
     Factory::Obstacle::decorate_obstacle( reg(), pos_entt, pos_cmp, ss_main, 0, pos_cmp.y() + ss_main.get_zorder( 0 ) );
+
+    auto uuid = Cmp::UUID::generate();
     reg().emplace_or_replace<Cmp::UUID>( pos_entt, uuid );
 
     auto cap_entt = reg().create();
@@ -671,11 +671,23 @@ void PassageSystem::tidy_passage_blocks( bool include_closed_rooms )
   for ( auto [pblock_entt, pblock_cmp] : reg().view<Cmp::Crypt::PassageBlock>().each() )
   {
     auto pblock_cmp_rect = sf::FloatRect( pblock_cmp, Constants::kGridSizePxF );
+    // Captured by value before any removal — reg().remove() below can invalidate the pblock_cmp
+    // reference (swap-and-pop within the component pool), so the grid position must be read first.
+    auto pblock_position = Cmp::Position( pblock_cmp, Constants::kGridSizePxF );
+
+    // Removing the PassageBlock component alone leaves the tile marked as a passage in
+    // m_passage_block_grid — that stale entry then gets walled in by fill_all_passages() and can
+    // squish the player standing on what is actually room floor. Keep the grid in sync.
+    auto untrack = [&]()
+    {
+      reg().remove<Cmp::Crypt::PassageBlock>( pblock_entt );
+      m_passage_block_grid.remove( pblock_entt, pblock_position );
+    };
 
     // open rooms
     for ( auto [open_room_entt, open_room_cmp] : reg().view<Cmp::Crypt::RoomOpen>().each() )
     {
-      if ( pblock_cmp_rect.findIntersection( open_room_cmp ) ) reg().remove<Cmp::Crypt::PassageBlock>( pblock_entt );
+      if ( pblock_cmp_rect.findIntersection( open_room_cmp ) ) untrack();
     }
 
     // closed rooms - this can interfere with passage creation so normal usescases don't need it
@@ -683,20 +695,20 @@ void PassageSystem::tidy_passage_blocks( bool include_closed_rooms )
     {
       for ( auto [closed_room_entt, closed_room_cmp] : reg().view<Cmp::Crypt::RoomClosed>().each() )
       {
-        if ( pblock_cmp_rect.findIntersection( closed_room_cmp ) ) reg().remove<Cmp::Crypt::PassageBlock>( pblock_entt );
+        if ( pblock_cmp_rect.findIntersection( closed_room_cmp ) ) untrack();
       }
     }
 
     // start rooms
     for ( auto [start_room_entt, start_room_cmp] : reg().view<Cmp::Crypt::RoomStart>().each() )
     {
-      if ( pblock_cmp_rect.findIntersection( start_room_cmp ) ) reg().remove<Cmp::Crypt::PassageBlock>( pblock_entt );
+      if ( pblock_cmp_rect.findIntersection( start_room_cmp ) ) untrack();
     }
 
     // end rooms
     for ( auto [end_room_entt, end_room_cmp] : reg().view<Cmp::Crypt::RoomEnd>().each() )
     {
-      if ( pblock_cmp_rect.findIntersection( end_room_cmp ) ) reg().remove<Cmp::Crypt::PassageBlock>( pblock_entt );
+      if ( pblock_cmp_rect.findIntersection( end_room_cmp ) ) untrack();
     }
   }
 }
