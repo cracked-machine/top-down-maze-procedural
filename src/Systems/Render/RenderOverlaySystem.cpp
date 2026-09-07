@@ -47,7 +47,6 @@
 #include <Components/Player/Wealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/BuildingMultiBlock.hpp>
 #include <Components/Ruin/BuildingSegment.hpp>
 #include <Components/Ruin/Cobweb.hpp>
@@ -667,7 +666,10 @@ void RenderOverlaySystem::render_ui_entity_inspect()
         draw_line( " " + cmp->m_sprite_type + " [" + sprite_idx + "]" );
       }
       if ( reg().all_of<Cmp::VoidPosition>( entity ) ) draw_line( "  Void", sf::Color::White );
-      if ( reg().all_of<Cmp::ReservedPosition>( entity ) ) draw_line( "  ReservedPosition", sf::Color::Red );
+      if ( auto reserved_navmesh = m_reserved_navmesh.lock(); reserved_navmesh && not reserved_navmesh->at( pos_cmp ).empty() )
+      {
+        draw_line( "  Reserved", sf::Color::Red );
+      }
       if ( reg().all_of<Cmp::Npc::NoPathFinding>( entity ) ) draw_line( "  NpcNoPathFinding", sf::Color::Red );
       if ( reg().all_of<Cmp::Player::NoPath>( entity ) ) draw_line( " NoPath", sf::Color::Red );
       if ( reg().all_of<Cmp::Moveable>( entity ) ) draw_line( " Moveable", sf::Color::Green );

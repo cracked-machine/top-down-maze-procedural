@@ -47,11 +47,13 @@ public:
   //! @brief init the weak pointer for the pathfinding navmesh
   //! @param npc_navmesh
   void init( const PathFinding::SpatialHashGridSharedPtr &npc_navmesh, const PathFinding::SpatialHashGridSharedPtr &player_navmesh,
-             const PathFinding::SpatialHashGridSharedPtr &ghost_navmesh = nullptr )
+             const PathFinding::SpatialHashGridSharedPtr &ghost_navmesh = nullptr,
+             const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh = nullptr )
   {
     m_npc_navmesh = npc_navmesh;
     m_player_navmesh = player_navmesh;
     m_ghost_navmesh = ghost_navmesh;
+    m_reserved_navmesh = reserved_navmesh;
   }
 
   //! @brief Arm a bomb centered on the player's current position (used for grave bombs).
@@ -97,6 +99,9 @@ private:
 
   //! @brief Weak pointer to the player pathfinding navmesh, updated when obstacles are destroyed by explosions.
   PathFinding::SpatialHashGridWeakPtr m_player_navmesh;
+
+  //! @brief Positions occupied by entities that procgen/algorithmic code must not modify.
+  PathFinding::SpatialHashGridWeakPtr m_reserved_navmesh;
 };
 
 } // namespace Game::Sys

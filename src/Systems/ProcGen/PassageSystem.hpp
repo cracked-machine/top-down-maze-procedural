@@ -35,6 +35,10 @@ public:
   //! @param crypt_scene_data Weak-owning pointer to the crypt scene's deserialized scene data
   void init_scene_data( const Scene::SceneMapSharedPtr &crypt_scene_data ) { m_crypt_scene_data = crypt_scene_data; }
 
+  //! @brief init the weak pointer for the reserved-positions grid, ahead of passage carving.
+  //! @param reserved_navmesh Positions excluded from passage carving/decoration.
+  void init_reserved_navmesh( const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh ) { m_reserved_navmesh = reserved_navmesh; }
+
   //! @brief init the weak pointer for the spatial grid
   //! @param npc_navmesh Spatial grid used for NPC pathfinding
   void init_nav_mesh( const PathFinding::SpatialHashGridSharedPtr &npc_navmesh );
@@ -130,6 +134,9 @@ private:
 
   //! @brief Used for NPC pathfinding
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
+
+  //! @brief Positions occupied by entities that procgen/algorithmic code must not modify.
+  PathFinding::SpatialHashGridWeakPtr m_reserved_navmesh;
 
   //! @brief Holds data about the Crypt scene levelgen and static multiblock objects
   Scene::SceneMapWeakPtr m_crypt_scene_data;

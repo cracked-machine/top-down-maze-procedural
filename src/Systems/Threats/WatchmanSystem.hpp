@@ -3,6 +3,7 @@
 
 #include <Components/Position.hpp>
 #include <Components/UUID.hpp>
+#include <PathFinding/SmartPointers.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <SFML/System/Time.hpp>
@@ -21,6 +22,10 @@ public:
   //! @param sprite_factory
   //! @param sound_bank
   WatchmanSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+
+  //! @brief init the weak pointer for the reserved-positions grid.
+  //! @param reserved_navmesh
+  void init( const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh ) { m_reserved_navmesh = reserved_navmesh; }
 
   //! @brief Rate-limit and trigger Watchman NPC spawning in the graveyard scene
   //! @param dt Delta time since last update call
@@ -66,6 +71,9 @@ private:
 
   //! @brief Kill any Skeleton NPC touched by an active gunfire particle
   void check_gunfire_npc_collision();
+
+  //! @brief Positions occupied by entities that procgen/algorithmic code must not modify.
+  PathFinding::SpatialHashGridWeakPtr m_reserved_navmesh;
 };
 
 } // namespace Game::Sys

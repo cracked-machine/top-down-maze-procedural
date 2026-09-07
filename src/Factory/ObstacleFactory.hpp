@@ -48,8 +48,9 @@ void add_obstacle_cap( entt::registry &registry, entt::entity entity );
 //! @param sprite_tile_idx
 //! @param zorder
 //! @param blocking
+//! @param reserved_sm If provided, skips decoration when the position is already reserved (O(1) check).
 void decorate_obstacle( entt::registry &registry, entt::entity entity, Cmp::Position pos_cmp, const Sprites::SpriteSheet &ms,
-                        std::size_t sprite_tile_idx, float zorder = 0, bool blocking = true );
+                        std::size_t sprite_tile_idx, float zorder = 0, bool blocking = true, const PathFinding::SpatialHashGrid *reserved_sm = nullptr );
 
 //! @brief Whether remove_obstacle() should also destroy the matching cap entity (tied by UUID).
 enum class DeleteExtras : bool {
@@ -63,7 +64,9 @@ enum class DeleteExtras : bool {
 //! @param registry
 //! @param obstacle_entity
 //! @param delete_extras Delete any extra obstacles entitys found (doesn't delete the search_entt)
-void remove_obstacle( entt::registry &reg, entt::entity search_entt, DeleteExtras delete_extras = DeleteExtras::No );
+//! @param reserved_navmesh If provided and delete_extras is Yes, un-reserves the destroyed cap entity's position.
+void remove_obstacle( entt::registry &reg, entt::entity search_entt, DeleteExtras delete_extras = DeleteExtras::No,
+                      const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh = nullptr );
 
 //! @brief Map of obstacle UUID to its cap entity, built ahead of time for O(1) lookup during removal.
 using UUIDEntityMap = std::unordered_map<Cmp::UUID, entt::entity>;
@@ -73,7 +76,9 @@ using UUIDEntityMap = std::unordered_map<Cmp::UUID, entt::entity>;
 //! @param search_entt
 //! @param delete_extras Delete any extra obstacle entities found (doesn't delete `search_entt`).
 //! @param uuid_map Map of UUID to cap entity, built ahead of time to avoid a full registry scan per call.
-void remove_obstacle( entt::registry &reg, entt::entity search_entt, DeleteExtras delete_extras, const UUIDEntityMap &uuid_map );
+//! @param reserved_navmesh If provided and delete_extras is Yes, un-reserves the destroyed cap entity's position.
+void remove_obstacle( entt::registry &reg, entt::entity search_entt, DeleteExtras delete_extras, const UUIDEntityMap &uuid_map,
+                      const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh = nullptr );
 
 } // namespace Game::Factory::Obstacle
 

@@ -28,6 +28,7 @@
 #include <Factory/RuinFactory.hpp>
 #include <Factory/ShaderFactory.hpp>
 #include <Factory/WallFactory.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <SceneControl/Scenes/RuinSceneLowerFloor.hpp>
 #include <Systems/ActionSystem.hpp>
@@ -35,6 +36,7 @@
 #include <Systems/CryptSystem.hpp>
 #include <Systems/FootstepSystem.hpp>
 #include <Systems/HealingSpringSystem.hpp>
+#include <Systems/ItemSystem.hpp>
 #include <Systems/LootSystem.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -85,9 +87,13 @@ void RuinSceneLowerFloor::on_init()
 
   Factory::Shader::add_night_static( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
 
+  // Positions reserved from procgen/algorithmic changes. Must exist before generation starts.
+  m_reserved_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
+  m_sys.find<SystemStoreType::ItemSystem>().init( m_reserved_navmesh );
+
   // generate the empty game area
   auto &level_gen = m_sys.find<SystemStoreType::LevelGenerator>();
-  level_gen.init();
+  level_gen.init( m_reserved_navmesh );
   level_gen.build_scene_from_data( *m_scene_data );
   level_gen.add_ruin_rune_markers();
   auto max_cobwebs = Sys::PersistSystem::get<Cmp::Persist::RuinMaxCobwebs>( m_reg ).get_value();
@@ -243,7 +249,8 @@ void RuinSceneLowerFloor::reinit_navmesh()
 {
   m_sys.find<Sys::Store::Type::NpcSystem>().init( m_generic_npc_navmesh, m_open_navmesh );
   m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_generic_npc_navmesh, m_player_navmesh, m_open_navmesh );
-  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_generic_npc_navmesh );
+  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_generic_npc_navmesh, m_reserved_navmesh );
+  m_sys.find<Sys::Store::Type::RuinSystem>().init( m_generic_npc_navmesh, m_reserved_navmesh );
 }
 
 entt::registry &RuinSceneLowerFloor::registry() { return m_reg; }

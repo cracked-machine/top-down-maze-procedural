@@ -21,7 +21,6 @@
 #include <Components/Player/Mortality.hpp>
 #include <Components/Player/NoPath.hpp>
 #include <Components/Position.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/Stats/ProjectileAction.hpp>
 #include <Components/UUID.hpp>
@@ -224,9 +223,11 @@ void WatchmanSystem::spawn_watchman()
   if ( watchman_npc_count < Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanSpawnMax>( reg() ).get_value() and
        Utils::Player::get_player_stats( reg() ).infamy() >= Sys::PersistSystem::get<Cmp::Persist::NpcWatchmanSpawnInfamy>( reg() ).get_value() )
   {
-    auto [rnd_entt, rnd_pos_cmp] = Utils::Rnd::get_random_position(
-        reg(), {}, Utils::Rnd::ExcludePack<Cmp::Player::Character, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
-    Factory::Npc::create_npc( reg(), rnd_entt, "npc.nightwatchman" );
+    auto reserved_navmesh = m_reserved_navmesh.lock();
+    auto [rnd_entt, rnd_pos_cmp] =
+        Utils::Rnd::get_random_position( reg(), {}, Utils::Rnd::ExcludePack<Cmp::Player::Character, Cmp::Obstacle>{}, 0 );
+    if ( reserved_navmesh && not reserved_navmesh->at( rnd_pos_cmp ).empty() ) return;
+    Factory::Npc::create_npc( reg(), rnd_entt, "npc.nightwatchman", reserved_navmesh );
     SPDLOG_INFO( "Spawned Watchman at {},{}", rnd_pos_cmp.x(), rnd_pos_cmp.y() );
   }
 }

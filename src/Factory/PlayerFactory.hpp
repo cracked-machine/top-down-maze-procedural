@@ -4,6 +4,7 @@
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Factory/SpriteFactory.hpp>
+#include <PathFinding/SmartPointers.hpp>
 #include <entt/entity/fwd.hpp>
 #include <entt/fwd.hpp>
 
@@ -12,7 +13,8 @@ namespace Game::Factory::Player
 
 //! @brief Create the player entity at its start position, with default stats and a starting pickaxe.
 //! @param registry
-void create_player( entt::registry &registry );
+//! @param reserved_navmesh If provided, reserves the player's position.
+void create_player( entt::registry &registry, const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh = nullptr );
 
 //! @brief Reserve and decorate the player spawn area sprite, without blocking NPC pathfinding into it.
 //! @param registry

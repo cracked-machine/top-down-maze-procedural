@@ -15,6 +15,7 @@
 #include <Factory/ParticleFactory.hpp>
 #include <Factory/PathfindingFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <SceneControl/Events/ProcessShopSceneInputEvent.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <SceneControl/Scenes/ShopScene.hpp>
@@ -22,6 +23,7 @@
 #include <Systems/CryptSystem.hpp>
 #include <Systems/FootstepSystem.hpp>
 #include <Systems/HealingSpringSystem.hpp>
+#include <Systems/ItemSystem.hpp>
 #include <Systems/LootSystem.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -66,8 +68,12 @@ void ShopScene::on_init()
   // create the empty game area
   sf::Vector2f player_start_position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
   auto player_start_area = Cmp::RectBounds::scaled( player_start_position, Constants::kGridSizePxF, 1.f, Cmp::RectBounds::ScaleAxis::XY );
+  // Positions reserved from procgen/algorithmic changes. Must exist before generation starts.
+  m_reserved_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
+  m_sys.find<Sys::Store::Type::ItemSystem>().init( m_reserved_navmesh );
+
   auto &random_level_sys = m_sys.find<Sys::Store::Type::LevelGenerator>();
-  random_level_sys.init();
+  random_level_sys.init( m_reserved_navmesh );
   random_level_sys.build_scene_from_data( *m_scene_data );
 
   m_floormap.create( random_level_sys.get_void_sm(), m_scene_data );
@@ -174,7 +180,7 @@ void ShopScene::reinit_navmesh()
 {
   m_sys.find<Sys::Store::Type::NpcSystem>().init( m_generic_npc_navmesh, m_open_navmesh );
   m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_generic_npc_navmesh, m_player_navmesh, m_open_navmesh );
-  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_generic_npc_navmesh );
+  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_generic_npc_navmesh, m_reserved_navmesh );
 }
 
 entt::registry &ShopScene::registry() { return m_reg; }

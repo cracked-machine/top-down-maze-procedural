@@ -44,7 +44,12 @@ public:
 
   //! @brief init the weak pointer for the spatial grid
   //! @param pathfinding_navmesh
-  void init( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh ) { m_pathfinding_navmesh = pathfinding_navmesh; }
+  //! @param reserved_navmesh
+  void init( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh, const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh = nullptr )
+  {
+    m_pathfinding_navmesh = pathfinding_navmesh;
+    m_reserved_navmesh = reserved_navmesh;
+  }
 
   //! @brief Check for player collision with the ruin entrance
   void check_entrance_collision();
@@ -149,6 +154,9 @@ private:
 
   //! @brief Weak pointer to the pathfinding navmesh.
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
+
+  //! @brief Positions occupied by entities that procgen/algorithmic code must not modify.
+  PathFinding::SpatialHashGridWeakPtr m_reserved_navmesh;
 
   //! @brief Accumulated time since the shadow hand's collision action effects were last applied.
   sf::Time m_shadowhand_action_effects_time;

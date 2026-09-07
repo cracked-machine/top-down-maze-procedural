@@ -35,7 +35,9 @@ public:
   ~LevelGenerator() = default;
 
   //! @brief Call this to make sure the level data is reset before regenerating a new scene
-  void init();
+  //! @param reserved_navmesh Scene-owned grid of positions reserved from procgen/algorithmic changes,
+  //!        populated incrementally as this generation pass places entities.
+  void init( const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh );
 
   //! @brief Generate game area using data from the SceneData object.
   //! @param scene_data The deserialized scene data to build the game area from
@@ -112,7 +114,7 @@ public:
   PathFinding::SpatialHashGrid &get_non_obstacle_sm();
 
   //! @brief Get the reserved sm object
-  //! @return PathFinding::SpatialHashGridSharedPtr
+  //! @return PathFinding::SpatialHashGrid&
   PathFinding::SpatialHashGrid &get_reserved_sm();
 
   //! @brief event handlers for pausing system clocks
@@ -148,8 +150,9 @@ private:
   //! @brief Spatial map for decorative, non-obstacle entities placed during level gen (e.g. runes, cobwebs).
   PathFinding::SpatialHashGridUniquePtr m_non_obstacle_sm;
 
-  //! @brief spatial map for reserving positions during procedural generation
-  PathFinding::SpatialHashGridUniquePtr m_reserved_sm;
+  //! @brief Scene-owned spatial map for reserving positions during procedural generation, shared
+  //!        with gameplay Systems for the lifetime of the scene.
+  PathFinding::SpatialHashGridSharedPtr m_reserved_sm;
 };
 
 } // namespace Game::Sys::ProcGen

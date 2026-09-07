@@ -6,10 +6,10 @@
 #include <Components/Player/Character.hpp>
 #include <Components/Player/NoPath.hpp>
 #include <Components/Position.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/WallFactory.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Utils/Constants.hpp>
 
@@ -23,7 +23,6 @@ entt::entity add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, cons
   auto entity = reg.create();
   reg.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSizePxF );
   reg.emplace_or_replace<Cmp::Wall>( entity );
-  reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
   // clang-format off
   reg.emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 
       .sprite_type = ms.get_sprite_type(), 
@@ -42,46 +41,49 @@ entt::entity add_reservedposition( entt::registry &reg, const sf::Vector2f &pos 
 {
   auto entity = reg.create();
   reg.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSizePxF );
-  reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
   return entity;
 }
 
-void add_solid_player( entt::registry &reg, sf::FloatRect rect )
+void add_solid_player( entt::registry &reg, sf::FloatRect rect, PathFinding::SpatialHashGrid &reserved_sm )
 {
-  // Mark any existing world position entities overlapping this rect as reserved.
+  // Mark any existing world position entities substantially covered by this rect as reserved -
+  // checking the tile's center (rather than any overlap at all) avoids a thin boundary-shaping
+  // solid object that merely grazes a tile's edge from reserving an otherwise-walkable tile.
   // Don't mark player position as Cmp::Player::NoPath or they won't be able to move!
   for ( auto [entt, pos_cmp] : reg.view<Cmp::Position>( entt::exclude<Cmp::Player::Character> ).each() )
   {
-    if ( pos_cmp.findIntersection( rect ) )
+    if ( rect.contains( pos_cmp.getCenter() ) )
     {
-      reg.emplace_or_replace<Cmp::ReservedPosition>( entt );
+      reserved_sm.insert( entt, pos_cmp );
       reg.emplace_or_replace<Cmp::Player::NoPath>( entt );
       reg.emplace_or_replace<Cmp::Particle::BlockParticle>( entt );
     }
   }
 }
 
-void add_solid_npc( entt::registry &reg, sf::FloatRect rect )
+void add_solid_npc( entt::registry &reg, sf::FloatRect rect, PathFinding::SpatialHashGrid &reserved_sm )
 {
-  // Mark any existing world position entities overlapping this rect as reserved
+  // Mark any existing world position entities substantially covered by this rect as reserved -
+  // see add_solid_player() for why center-containment is used instead of any-overlap.
   for ( auto [entt, pos_cmp] : reg.view<Cmp::Position>().each() )
   {
-    if ( pos_cmp.findIntersection( rect ) )
+    if ( rect.contains( pos_cmp.getCenter() ) )
     {
-      reg.emplace_or_replace<Cmp::ReservedPosition>( entt );
+      reserved_sm.insert( entt, pos_cmp );
       reg.emplace_or_replace<Cmp::Npc::NoPathFinding>( entt );
     }
   }
 }
 
-void add_no_move_dest( entt::registry &reg, sf::FloatRect rect )
+void add_no_move_dest( entt::registry &reg, sf::FloatRect rect, PathFinding::SpatialHashGrid &reserved_sm )
 {
-  // Mark any existing world position entities overlapping this rect as reserved
+  // Mark any existing world position entities substantially covered by this rect as reserved -
+  // see add_solid_player() for why center-containment is used instead of any-overlap.
   for ( auto [entt, pos_cmp] : reg.view<Cmp::Position>().each() )
   {
-    if ( pos_cmp.findIntersection( rect ) )
+    if ( rect.contains( pos_cmp.getCenter() ) )
     {
-      reg.emplace_or_replace<Cmp::ReservedPosition>( entt );
+      reserved_sm.insert( entt, pos_cmp );
       reg.emplace_or_replace<Cmp::NoMoveDest>( entt );
     }
   }

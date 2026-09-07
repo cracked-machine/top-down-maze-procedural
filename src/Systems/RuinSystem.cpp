@@ -14,7 +14,6 @@
 #include <Components/Player/SpeedPenalty.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/Bookcase.hpp>
 #include <Components/Ruin/BuildingMultiBlock.hpp>
 #include <Components/Ruin/BuildingSegment.hpp>
@@ -282,11 +281,12 @@ void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
   SPDLOG_INFO( "gen_lowerfloor_obstacles" );
   using namespace std::views;
 
+  auto reserved_navmesh = m_reserved_navmesh.lock();
   auto has_collision = [&]( Cmp::RectBounds pos )
   {
     if ( Utils::Collision::check_cmp<Cmp::Ruin::Bookcase>( reg(), pos ) ) { return true; }
     if ( Utils::Collision::check_cmp<Cmp::Npc::NoPathFinding>( reg(), pos ) ) { return true; }
-    if ( Utils::Collision::check_cmp<Cmp::ReservedPosition>( reg(), pos ) ) { return true; }
+    if ( reserved_navmesh && not reserved_navmesh->query_rect( pos.getBounds() ).empty() ) { return true; }
 
     // ensure bookcase is inside scene
     if ( not Cmp::RectBounds::scaled( pos.position(), pos.size(), 1.5f ).findIntersection( scene_dimensions ) ) { return true; }
@@ -524,11 +524,12 @@ void RuinSystem::reset_player_curse()
 
 void RuinSystem::create_spiders( sf::FloatRect scene_boundary )
 {
+  auto reserved_navmesh = m_reserved_navmesh.lock();
   auto has_collision = [&]( const Cmp::RectBounds &pos )
   {
     if ( Utils::Collision::check_cmp<Cmp::Npc::NoPathFinding>( reg(), pos ) ) { return true; }
     if ( Utils::Collision::check_cmp<Cmp::Ruin::StairsSegment>( reg(), pos ) ) { return true; }
-    if ( Utils::Collision::check_cmp<Cmp::ReservedPosition>( reg(), pos ) ) { return true; }
+    if ( reserved_navmesh && not reserved_navmesh->query_rect( pos.getBounds() ).empty() ) { return true; }
 
     // ensure spider is inside scene
     if ( not Cmp::RectBounds::scaled( pos.position(), pos.size(), 1.5f ).findIntersection( scene_boundary ) ) { return true; }

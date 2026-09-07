@@ -8,7 +8,6 @@
 #include <Components/Player/NoPath.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/Bookcase.hpp>
 #include <Components/Ruin/Cobweb.hpp>
 #include <Components/Ruin/RuneMarking.hpp>
@@ -17,6 +16,7 @@
 #include <Factory/NpcFactory.hpp>
 #include <Factory/RuinFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <Systems/Stores/NpcStore.hpp>
 #include <Utils/Collision.hpp>
 #include <Utils/Constants.hpp>
@@ -55,18 +55,19 @@ void create_bookcase( entt::registry &reg, sf::Vector2f spawn_position, const Sp
 }
 
 void create_cobweb( entt::registry &reg, entt::entity selected_entt, sf::Vector2f spawn_position, const Sprites::SpriteSheet &cobweb_ms,
-                    size_t sprite_idx )
+                    size_t sprite_idx, PathFinding::SpatialHashGrid &reserved_sm )
 {
   // auto cobweb_entt = reg.create();
-  reg.emplace_or_replace<Cmp::Position>( selected_entt, spawn_position, cobweb_ms.get_sprite_size() );
+  Cmp::Position new_pos( spawn_position, cobweb_ms.get_sprite_size() );
+  reg.emplace_or_replace<Cmp::Position>( selected_entt, new_pos );
   // clang-format off
-  reg.emplace_or_replace<Cmp::AnimData>( selected_entt, Cmp::AnimData::Config{ 
-        .sprite_type = cobweb_ms.get_sprite_type(), 
+  reg.emplace_or_replace<Cmp::AnimData>( selected_entt, Cmp::AnimData::Config{
+        .sprite_type = cobweb_ms.get_sprite_type(),
         .frame_index_offset = sprite_idx,
         .enabled = true
   });
   // clang-format on
-  reg.emplace_or_replace<Cmp::ReservedPosition>( selected_entt );
+  reserved_sm.insert( selected_entt, new_pos );
   reg.emplace_or_replace<Cmp::ZOrderValue>( selected_entt, spawn_position.y );
   reg.emplace_or_replace<Cmp::Ruin::Cobweb>( selected_entt, 100 );
 }
@@ -97,11 +98,11 @@ void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, con
   }
 }
 
-entt::entity create_rune_marker( entt::registry &reg, Cmp::Position pos, float zorder, size_t sprite_idx )
+entt::entity create_rune_marker( entt::registry &reg, Cmp::Position pos, float zorder, size_t sprite_idx, PathFinding::SpatialHashGrid &reserved_sm )
 {
   auto rune_entt = reg.create();
-  reg.emplace_or_replace<Cmp::ReservedPosition>( rune_entt );
   reg.emplace_or_replace<Cmp::Position>( rune_entt, pos );
+  reserved_sm.insert( rune_entt, pos );
   reg.emplace_or_replace<Cmp::UUID>( rune_entt, Cmp::UUID::generate() );
 
   reg.emplace_or_replace<Cmp::ZOrderValue>( rune_entt, zorder );

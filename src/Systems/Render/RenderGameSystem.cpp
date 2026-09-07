@@ -42,7 +42,6 @@
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/BuildingMultiBlock.hpp>
 #include <Components/SceneSettings/Shaders.hpp>
 #include <Components/SceneSettings/ShowDebugStats.hpp>

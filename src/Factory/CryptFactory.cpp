@@ -22,7 +22,6 @@
 #include <Components/Player/NoPath.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Factory/MultiblockFactory.hpp>
@@ -46,7 +45,6 @@ entt::entity create_crypt_exit( entt::registry &reg, sf::Vector2f spawn_pos_px )
   reg.emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ .sprite_type = "sprite.crypt.exit" } );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, spawn_pos_px.y );
   reg.emplace_or_replace<Cmp::Npc::NoPathFinding>( entity );
-  reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
   reg.emplace_or_replace<Cmp::Exit>( entity );
   return entity;
 }

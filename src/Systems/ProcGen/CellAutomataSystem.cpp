@@ -5,7 +5,6 @@
 #include <Components/Persistent/GraveyardProcGenMaxIterations.hpp>
 #include <Components/Persistent/GraveyardProcGenSurvivalThreshold.hpp>
 #include <Components/Player/Character.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -27,15 +26,22 @@ void CellAutomataSystem::iterate( PathFinding::SpatialHashGrid &levelgen_spatial
   {
 
     SPDLOG_DEBUG( "NAVMESH: {}", levelgen_spatialgrid.size() );
-    for ( auto [pos_entt, pos_cmp] : reg().view<Cmp::Position>( entt::exclude<Cmp::ReservedPosition> ).each() )
+    for ( auto [pos_entt, pos_cmp] : reg().view<Cmp::Position>().each() )
     {
-      std::vector<entt::entity> neighbour_list = levelgen_spatialgrid.neighbours( pos_cmp );
-      SPDLOG_DEBUG( "#{} at {},{} has {} nieghbours", static_cast<uint32_t>( pos_entt ), pos_cmp.x(), pos_cmp.y(), neighbour_list.size() );
-
       // 1. If the cell is dead and has at least birth-threshold alive neighbors, it becomes alive.
       // 2. If the cell is alive and has at least survival-threshold alive neighbors, it stays alive.
       // 3. Otherwise, the cell is dead.
       const bool is_alive = reg().any_of<Cmp::Obstacle>( pos_entt );
+
+      // Positions reserved before this pass started (walls, structures, spawn, etc.) that are not
+      // themselves obstacles are permanently off-limits - skip them entirely. Positions that became
+      // obstacles during this same proc-gen pass are also inserted into reserved_sm (see below), but
+      // must stay eligible for survival/death checks like any other obstacle, so only skip when not
+      // already alive.
+      if ( not is_alive && not reserved_sm.at( pos_cmp ).empty() ) continue;
+
+      std::vector<entt::entity> neighbour_list = levelgen_spatialgrid.neighbours( pos_cmp );
+      SPDLOG_DEBUG( "#{} at {},{} has {} nieghbours", static_cast<uint32_t>( pos_entt ), pos_cmp.x(), pos_cmp.y(), neighbour_list.size() );
       const bool should_be_alive = ( not is_alive && neighbour_list.size() >= birth_threshold ) ||
                                    ( is_alive && neighbour_list.size() >= survival_threshold );
 

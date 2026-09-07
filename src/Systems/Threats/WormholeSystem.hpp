@@ -25,7 +25,12 @@ public:
 
   //! @brief init the weak pointer for the pathfinding navmesh
   //! @param npc_navmesh
-  void init( const PathFinding::SpatialHashGridSharedPtr &npc_navmesh ) { m_npc_navmesh = npc_navmesh; }
+  //! @param reserved_navmesh
+  void init( const PathFinding::SpatialHashGridSharedPtr &npc_navmesh, const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh = nullptr )
+  {
+    m_npc_navmesh = npc_navmesh;
+    m_reserved_navmesh = reserved_navmesh;
+  }
 
   //! @brief event handlers for pausing system clocks
   void on_pause() override;
@@ -65,6 +70,9 @@ public:
 private:
   //! @brief Used for teleported entities to be re-inserted into the pathfinding navmesh.
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
+
+  //! @brief Positions occupied by entities that procgen/algorithmic code must not modify.
+  PathFinding::SpatialHashGridWeakPtr m_reserved_navmesh;
 };
 
 } // namespace Game::Sys

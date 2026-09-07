@@ -83,7 +83,12 @@ public:
 
   //! @brief init the weak pointer for the pathfinding navmesh
   //! @param spatial_grid_ptr
-  void init( const PathFinding::SpatialHashGridSharedPtr &spatial_grid_ptr ) { m_npc_navmesh = spatial_grid_ptr; }
+  //! @param reserved_navmesh
+  void init( const PathFinding::SpatialHashGridSharedPtr &spatial_grid_ptr, const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh = nullptr )
+  {
+    m_npc_navmesh = spatial_grid_ptr;
+    m_reserved_navmesh = reserved_navmesh;
+  }
 
   //! @brief Render the main UI's outline rectangles (e.g. panel borders).
   void render_ui_outlines();
@@ -357,6 +362,9 @@ private:
 
   //! @brief tracks the npc pathfinding navmesh i.e. where the NPC cannot move to
   PathFinding::SpatialHashGridWeakPtr m_npc_navmesh;
+
+  //! @brief Positions occupied by entities that procgen/algorithmic code must not modify.
+  PathFinding::SpatialHashGridWeakPtr m_reserved_navmesh;
 
   //! @brief Per-panel pool of persistent sf::Text objects backing DebugTextColumn, keyed by DebugTextColumn::cache_key.
   //! Keeps line count from one frame able to shrink/grow freely - unused trailing entries from a previous, longer frame

@@ -34,13 +34,14 @@
 #include <Components/Player/RuinLocation.hpp>
 #include <Components/Player/TorchRadius.hpp>
 #include <Components/Player/Wealth.hpp>
-#include <Components/ReservedPosition.hpp>
+#include <Components/Position.hpp>
 #include <Components/Ruin/ObjectiveType.hpp>
 #include <Components/Stats/PlayerStats.hpp>
 
 #include <Components/UUID.hpp>
 #include <Components/VoidPosition.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <SceneControl/RegistryTransfer.hpp>
 
 #include <spdlog/spdlog.h>
@@ -111,18 +112,29 @@ RegistryTransfer::RegCopy RegistryTransfer::copy_reg( IScene &scene, Scene::RegC
   // Copy other entities (for ALL mode only)
   if ( copy_mode == RegCopyMode::ALL )
   {
+    auto reserved_navmesh = scene.get_reserved_navmesh();
     for ( auto entity : source_registry.storage<entt::entity>() )
     {
       // Skip player entity (already copied above)
       if ( source_registry.any_of<Cmp::Player::Character>( entity ) ) { continue; }
 
       // Skip transfer on deny list components
-      if ( source_registry.any_of<Cmp::ReservedPosition, Cmp::Obstacle, Cmp::Armable, Cmp::Npc::NoPathFinding, Cmp::FootStepTimer, Cmp::FootStepAlpha,
-                                  Cmp::Crypt::RoomOpen, Cmp::Crypt::RoomClosed, Cmp::Crypt::RoomStart, Cmp::Crypt::RoomEnd, Cmp::Crypt::PassageBlock,
-                                  Cmp::Crypt::Lever, Cmp::Crypt::ObjectiveMultiBlock, Cmp::VoidPosition>( entity ) )
+      if ( source_registry.any_of<Cmp::Obstacle, Cmp::Armable, Cmp::Npc::NoPathFinding, Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Crypt::RoomOpen,
+                                  Cmp::Crypt::RoomClosed, Cmp::Crypt::RoomStart, Cmp::Crypt::RoomEnd, Cmp::Crypt::PassageBlock, Cmp::Crypt::Lever,
+                                  Cmp::Crypt::ObjectiveMultiBlock, Cmp::VoidPosition>( entity ) )
       {
         skipped_cmp++;
         continue;
+      }
+
+      // Skip transfer of positions reserved from algorithmic changes (structural world entities)
+      if ( reserved_navmesh )
+      {
+        if ( auto *pos_cmp = source_registry.try_get<Cmp::Position>( entity ); pos_cmp && not reserved_navmesh->at( *pos_cmp ).empty() )
+        {
+          skipped_cmp++;
+          continue;
+        }
       }
 
       auto new_entity = registry_copy->create();
@@ -223,7 +235,6 @@ void RegistryTransfer::init_missing_cmp_storages( entt::registry &registry )
   registry.storage<Cmp::LastDirection>();
   registry.storage<Cmp::Player::MovementDelta>();
   registry.storage<Cmp::Position>();
-  registry.storage<Cmp::ReservedPosition>();
   registry.storage<Cmp::Player::Character>();
   registry.storage<Cmp::Player::LevelDepth>();
   registry.storage<Cmp::PlayerStats>();

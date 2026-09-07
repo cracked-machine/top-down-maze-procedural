@@ -22,7 +22,6 @@
 #include <Components/Persistent/NpcShockwaveFreq.hpp>
 #include <Components/Persistent/NpcShockwaveResolution.hpp>
 #include <Components/Player/Character.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <Components/Stats/DestroyAction.hpp>
 #include <Components/Stats/SpawnAction.hpp>
 #include <Components/UUID.hpp>
@@ -50,7 +49,6 @@ namespace Game::Factory::Npc
 void create_npc_container( entt::registry &reg, entt::entity entt, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
                            std::size_t sprite_tile_idx, float zorder )
 {
-  reg.emplace_or_replace<Cmp::ReservedPosition>( entt );
   reg.emplace_or_replace<Cmp::Armable>( entt );
   reg.emplace_or_replace<Cmp::Npc::Container>( entt );
   // clang-format off
@@ -63,9 +61,13 @@ void create_npc_container( entt::registry &reg, entt::entity entt, Cmp::Position
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, pos_cmp.position.y - zorder );
 }
 
-void destroy_npc_container( entt::registry &registry, entt::entity npc_container_entity )
+void destroy_npc_container( entt::registry &registry, entt::entity npc_container_entity,
+                            const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh )
 {
-  registry.remove<Cmp::ReservedPosition>( npc_container_entity );
+  if ( reserved_navmesh )
+  {
+    if ( auto *pos_cmp = registry.try_get<Cmp::Position>( npc_container_entity ) ) reserved_navmesh->remove( npc_container_entity, *pos_cmp );
+  }
   registry.remove<Cmp::Armed>( npc_container_entity );
   registry.remove<Cmp::Npc::Container>( npc_container_entity );
   registry.remove<Cmp::AnimData>( npc_container_entity );
@@ -103,7 +105,8 @@ bool create_shockwave( entt::registry &registry, entt::entity npc_entt )
   return false;
 }
 
-entt::entity create_npc( entt::registry &reg, entt::entity position_entity, const std::string &npc_type )
+entt::entity create_npc( entt::registry &reg, entt::entity position_entity, const std::string &npc_type,
+                         const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh )
 {
 
   auto *pos_cmp = reg.try_get<Cmp::Position>( position_entity );
@@ -150,13 +153,13 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
         new_pos_entity,
         Cmp::Npc::WatchmanSearchlight{ .sweep_phase = sweep_phase_rng.gen(),
                                        .idle_direction = Utils::Cardinal( static_cast<Utils::Cardinal::Value>( idle_direction_rng.gen() ) ) } );
-    Factory::Npc::destroy_npc_container( reg, position_entity );
+    Factory::Npc::destroy_npc_container( reg, position_entity, reserved_navmesh );
   }
   else if ( npc_type == "npc.skeleton" )
   {
     reg.emplace_or_replace<Cmp::Npc::Skeleton>( new_pos_entity );
     reg.emplace_or_replace<Cmp::Npc::LerpSpeed>( new_pos_entity, npc_cmp.m_lerp_speed );
-    Factory::Npc::destroy_npc_container( reg, position_entity );
+    Factory::Npc::destroy_npc_container( reg, position_entity, reserved_navmesh );
   }
   else if ( npc_type == "npc.priest" )
   {

@@ -13,7 +13,6 @@
 #include <Components/Player/KeysCount.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <Components/SelectedPosition.hpp>
 #include <Components/Stats/SpawnAction.hpp>
 #include <Events/CreateItemEvent.hpp>

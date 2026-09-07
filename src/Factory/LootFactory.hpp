@@ -7,6 +7,7 @@
 #include <Components/Position.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/Factory.hpp>
+#include <PathFinding/SmartPointers.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Systems/BaseSystem.hpp>
 
@@ -34,7 +35,9 @@ void create_loot_container( entt::registry &registry, entt::entity entt, Cmp::Po
 //! @brief Remove the components added by create_loot_container(), without destroying the entity.
 //! @param registry
 //! @param loot_entity
-void destroy_loot_container( entt::registry &registry, entt::entity loot_entity );
+//! @param reserved_navmesh If provided, un-reserves the container's position.
+void destroy_loot_container( entt::registry &registry, entt::entity loot_entity,
+                             const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh = nullptr );
 
 namespace detail
 {
@@ -73,11 +76,12 @@ bool has_any_spatial_excluded_at_pos( entt::registry &registry, const Cmp::Posit
 //! @param loot_anim_cmp The sprite animation for the loot.
 //! @param search The area in which to search for a suitable position.
 //! @param zorder_offset Offset added to position.y for z-ordering.
+//! @param reserved_sm If provided, skips positions already reserved (O(1) check).
 //! @return The newly created loot entity, or entt::null if no suitable location was found.
 template <typename... Include, typename... Exclude, typename... SpatialExclude>
 inline entt::entity create_loot_drop( entt::registry &registry, Cmp::AnimData &&loot_anim_cmp, sf::FloatRect search, IncludePack<Include...>,
                                       ExcludePack<Exclude...>, ExcludePack<SpatialExclude...> spatial_exclude = ExcludePack<>{},
-                                      float zorder_offset = -8.f )
+                                      float zorder_offset = -8.f, const PathFinding::SpatialHashGrid *reserved_sm = nullptr )
 {
   auto pos_view = registry.view<Cmp::Position, Include...>( entt::exclude<Exclude...> );
 
@@ -90,6 +94,9 @@ inline entt::entity create_loot_drop( entt::registry &registry, Cmp::AnimData &&
 
     // Skip positions occupied by spatially excluded entities
     if ( detail::has_any_spatial_excluded_at_pos( registry, pos_cmp, spatial_exclude ) ) continue;
+
+    // Skip positions reserved from algorithmic changes
+    if ( ( reserved_sm != nullptr ) && not reserved_sm->at( pos_cmp ).empty() ) continue;
 
     auto new_loot_entity = registry.create();
     registry.emplace<Cmp::Position>( new_loot_entity, pos_cmp.position, pos_cmp.size );

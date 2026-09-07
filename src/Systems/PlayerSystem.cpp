@@ -49,7 +49,6 @@
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/Cobweb.hpp>
 #include <Components/Ruin/RuneMarking.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>

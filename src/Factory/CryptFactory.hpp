@@ -6,7 +6,6 @@
 #include <Components/Crypt/RoomOpen.hpp>
 #include <Components/Crypt/RoomStart.hpp>
 #include <Components/Position.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <Components/Wall.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>

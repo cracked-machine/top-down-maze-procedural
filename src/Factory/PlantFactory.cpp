@@ -9,7 +9,6 @@
 #include <Components/Player/Character.hpp>
 #include <Components/Player/NoPath.hpp>
 #include <Components/Position.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <Components/UUID.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/PlantFactory.hpp>
@@ -24,7 +23,7 @@ namespace Game::Factory::Plant
 {
 
 void remove_plant_mb( entt::registry &reg, entt::entity plant_entt, const PathFinding::SpatialHashGridSharedPtr &npc_navmesh,
-                      const PathFinding::SpatialHashGridSharedPtr &player_navmesh )
+                      const PathFinding::SpatialHashGridSharedPtr &player_navmesh, const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh )
 {
   auto *plant_mb_cmp = reg.try_get<Cmp::PlantMultiBlock>( plant_entt );
   auto *plant_uuid_cmp = reg.try_get<Cmp::UUID>( plant_entt );
@@ -54,16 +53,15 @@ void remove_plant_mb( entt::registry &reg, entt::entity plant_entt, const PathFi
   // Un-reserve the world tiles this plant claimed in create_multiblock_segments, otherwise
   // replanting here silently skips segment creation. Match tiles against the destroyed
   // segments' positions so reservations held by neighbouring structures are untouched.
-  for ( auto [tile_entt, tile_pos_cmp, tile_reserved_cmp] : reg.view<Cmp::Position, Cmp::ReservedPosition>().each() )
+  if ( reserved_navmesh )
   {
     for ( const auto &seg_pos : segment_positions )
     {
-      if ( tile_pos_cmp.findIntersection( seg_pos ) )
+      for ( auto tile_entt : reserved_navmesh->at( seg_pos ) )
       {
-        reg.remove<Cmp::ReservedPosition>( tile_entt );
+        reserved_navmesh->remove( tile_entt, seg_pos );
         // the tile is walkable again for NPCs, unless it blocks in its own right (e.g. an obstacle)
-        if ( npc_navmesh && not reg.any_of<Cmp::Npc::NoPathFinding>( tile_entt ) ) { npc_navmesh->insert( tile_entt, tile_pos_cmp ); }
-        break;
+        if ( npc_navmesh && not reg.any_of<Cmp::Npc::NoPathFinding>( tile_entt ) ) { npc_navmesh->insert( tile_entt, seg_pos ); }
       }
     }
   }

@@ -2,6 +2,7 @@
 #define SRC_SYSTEMS_ITEMSYSTEM_HPP__
 
 #include <Events/CreateItemEvent.hpp>
+#include <PathFinding/SmartPointers.hpp>
 #include <Systems/BaseSystem.hpp>
 
 namespace Game::Cmp
@@ -26,6 +27,10 @@ public:
 
   //! @brief Destroy the Item System object
   ~ItemSystem() {}
+
+  //! @brief init the weak pointer for the reserved-positions grid.
+  //! @param reserved_navmesh
+  void init( const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh ) { m_reserved_navmesh = reserved_navmesh; }
 
   //! @brief Event handler that forwards to create_world_item().
   //! @param ev
@@ -55,6 +60,10 @@ public:
   void on_pause() override {}
   //! @brief event handlers for resuming system clocks
   void on_resume() override {}
+
+private:
+  //! @brief Positions occupied by entities that procgen/algorithmic code must not modify.
+  PathFinding::SpatialHashGridWeakPtr m_reserved_navmesh;
 };
 
 } // namespace Game::Sys

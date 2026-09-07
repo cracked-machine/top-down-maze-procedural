@@ -11,10 +11,16 @@ class SpriteSheet;
 class SpriteFactory;
 } // namespace Game::Sprites
 
+namespace Game::PathFinding
+{
+class SpatialHashGrid;
+}
+
 namespace Game::Factory::Wall
 {
 
-//! @brief Create a wall entity: reserved, sprite-decorated, and blocking pathfinding.
+//! @brief Create a wall entity: sprite-decorated and blocking pathfinding. The caller is
+//! responsible for reserving the entity's position (it is not reserved here).
 //! @param reg
 //! @param pos
 //! @param ms
@@ -22,7 +28,8 @@ namespace Game::Factory::Wall
 //! @return entt::entity
 entt::entity add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, const Sprites::SpriteSheet &ms, std::size_t sprite_index );
 
-//! @brief Create a bare reserved-position entity, without any sprite or wall component.
+//! @brief Create a bare position entity, without any sprite or wall component. The caller is
+//! responsible for reserving the entity's position (it is not reserved here).
 //! @param reg
 //! @param pos
 entt::entity add_reservedposition( entt::registry &reg, const sf::Vector2f &pos );
@@ -30,17 +37,20 @@ entt::entity add_reservedposition( entt::registry &reg, const sf::Vector2f &pos 
 //! @brief Mark every existing world position entity overlapping `rect` as reserved and blocking player movement.
 //! @param reg
 //! @param rect
-void add_solid_player( entt::registry &reg, sf::FloatRect rect );
+//! @param reserved_sm Reserves each matching entity's position.
+void add_solid_player( entt::registry &reg, sf::FloatRect rect, PathFinding::SpatialHashGrid &reserved_sm );
 
 //! @brief Mark every existing world position entity overlapping `rect` as reserved and blocking NPC pathfinding.
 //! @param reg
 //! @param rect
-void add_solid_npc( entt::registry &reg, sf::FloatRect rect );
+//! @param reserved_sm Reserves each matching entity's position.
+void add_solid_npc( entt::registry &reg, sf::FloatRect rect, PathFinding::SpatialHashGrid &reserved_sm );
 
 //! @brief Mark every existing world position entity overlapping `rect` as reserved and an invalid movement destination.
 //! @param reg
 //! @param rect
-void add_no_move_dest( entt::registry &reg, sf::FloatRect rect );
+//! @param reserved_sm Reserves each matching entity's position.
+void add_no_move_dest( entt::registry &reg, sf::FloatRect rect, PathFinding::SpatialHashGrid &reserved_sm );
 } // namespace Game::Factory::Wall
 
 #endif // SRC_FACTORY_WALLFACTORY_HPP__

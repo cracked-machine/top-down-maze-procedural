@@ -21,7 +21,6 @@
 #include <Components/Player/Wealth.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <Components/Stats/SacrificeAction.hpp>
 #include <Components/UUID.hpp>
 #include <Components/ZOrderValue.hpp>

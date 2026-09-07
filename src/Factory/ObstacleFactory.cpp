@@ -8,7 +8,6 @@
 #include <Components/Particle/BlockParticle.hpp>
 #include <Components/Player/Character.hpp>
 #include <Components/Player/NoPath.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <Components/UUID.hpp>
 #include <Components/VoidPosition.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -56,7 +55,7 @@ bool add_obstacle( entt::registry &reg, entt::entity entity, const PathFinding::
 void add_obstacle_cap( entt::registry &reg, entt::entity entity ) { reg.emplace_or_replace<Cmp::ObstacleCap>( entity ); }
 
 void decorate_obstacle( entt::registry &reg, entt::entity entity, Cmp::Position pos_cmp, const Sprites::SpriteSheet &ms, std::size_t sprite_tile_idx,
-                        float zorder, bool blocking )
+                        float zorder, bool blocking, const PathFinding::SpatialHashGrid *reserved_sm )
 {
   if ( sprite_tile_idx > ms.get_sprite_count() - 1 )
   {
@@ -70,7 +69,8 @@ void decorate_obstacle( entt::registry &reg, entt::entity entity, Cmp::Position 
   else if ( ms.get_zorder( sprite_tile_idx ) != 0 ) { zorder_cmp.setZOrder( ms.get_zorder( sprite_tile_idx ) ); }
   else { zorder_cmp.setZOrder( pos_cmp.position.y ); }
 
-  if ( reg.any_of<Cmp::Player::Character, Cmp::ReservedPosition>( entity ) ) { return; }
+  if ( reg.any_of<Cmp::Player::Character>( entity ) ) { return; }
+  if ( ( reserved_sm != nullptr ) && not reserved_sm->at( pos_cmp ).empty() ) { return; }
   if ( reg.all_of<Cmp::DestroyedObstacle>( entity ) ) { reg.remove<Cmp::DestroyedObstacle>( entity ); }
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
 
@@ -93,7 +93,8 @@ void decorate_obstacle( entt::registry &reg, entt::entity entity, Cmp::Position 
   SPDLOG_DEBUG( "Added obstacle {} at [{},{}] Z: {}", ms.get_display_name(), pos_cmp.x(), pos_cmp.y(), zorder_cmp.getZOrder() );
 }
 
-void remove_obstacle( entt::registry &reg, entt::entity search_entt, DeleteExtras delete_extras )
+void remove_obstacle( entt::registry &reg, entt::entity search_entt, DeleteExtras delete_extras,
+                      const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh )
 {
   if ( not reg.valid( search_entt ) ) return;
 
@@ -123,11 +124,20 @@ void remove_obstacle( entt::registry &reg, entt::entity search_entt, DeleteExtra
   {
     if ( cap_uuid_cmp != search_uuid_cmp ) continue;
     SPDLOG_DEBUG( "Removing matching obstacle {} - {}", static_cast<uint32_t>( cap_entt ), search_uuid_cmp.str() );
-    if ( delete_extras == DeleteExtras::Yes ) reg.destroy( cap_entt );
+    if ( delete_extras == DeleteExtras::Yes )
+    {
+      // capture position before destroy - registry::destroy can invalidate component references via swap-and-pop
+      if ( reserved_navmesh )
+      {
+        if ( auto *cap_pos_cmp = reg.try_get<Cmp::Position>( cap_entt ) ) reserved_navmesh->remove( cap_entt, *cap_pos_cmp );
+      }
+      reg.destroy( cap_entt );
+    }
   }
 }
 
-void remove_obstacle( entt::registry &reg, entt::entity search_entt, DeleteExtras delete_extras, const UUIDEntityMap &uuid_map )
+void remove_obstacle( entt::registry &reg, entt::entity search_entt, DeleteExtras delete_extras, const UUIDEntityMap &uuid_map,
+                      const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh )
 {
   if ( not reg.valid( search_entt ) ) return;
 
@@ -152,6 +162,10 @@ void remove_obstacle( entt::registry &reg, entt::entity search_entt, DeleteExtra
   if ( it != uuid_map.end() && reg.valid( it->second ) )
   {
     SPDLOG_DEBUG( "Removing matching cap entity {} - {}", static_cast<uint32_t>( it->second ), search_uuid_cmp.str() );
+    if ( reserved_navmesh )
+    {
+      if ( auto *cap_pos_cmp = reg.try_get<Cmp::Position>( it->second ) ) reserved_navmesh->remove( it->second, *cap_pos_cmp );
+    }
     reg.destroy( it->second );
     return;
   }
@@ -161,6 +175,10 @@ void remove_obstacle( entt::registry &reg, entt::entity search_entt, DeleteExtra
   {
     if ( cap_uuid_cmp != search_uuid_cmp ) continue;
     SPDLOG_DEBUG( "Removing cap entity (fallback scan) {} - {}", static_cast<uint32_t>( cap_entt ), search_uuid_cmp.str() );
+    if ( reserved_navmesh )
+    {
+      if ( auto *cap_pos_cmp = reg.try_get<Cmp::Position>( cap_entt ) ) reserved_navmesh->remove( cap_entt, *cap_pos_cmp );
+    }
     reg.destroy( cap_entt );
     break;
   }

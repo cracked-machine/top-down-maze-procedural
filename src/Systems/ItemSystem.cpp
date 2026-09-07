@@ -6,10 +6,10 @@
 #include <Components/Inventory/WearLevel.hpp>
 #include <Components/Npc/NoPathFinding.hpp>
 #include <Components/Position.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <Components/UUID.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/CreateItemEvent.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <Systems/ItemSystem.hpp>
 #include <Systems/Stores/ItemStore.hpp>
 
@@ -39,8 +39,9 @@ void ItemSystem::create_world_item( Cmp::Position pos, const std::string &item, 
   }
 
   auto world_item_entt = reg().create();
-  reg().emplace_or_replace<Cmp::Position>( world_item_entt, pos.position, pos.size );
-  reg().emplace_or_replace<Cmp::ReservedPosition>( world_item_entt );
+  Cmp::Position world_item_pos( pos.position, pos.size );
+  reg().emplace_or_replace<Cmp::Position>( world_item_entt, world_item_pos );
+  if ( auto reserved_navmesh = m_reserved_navmesh.lock() ) reserved_navmesh->insert( world_item_entt, world_item_pos );
   // clang-format off
   reg().emplace_or_replace<Cmp::AnimData>( world_item_entt, Cmp::AnimData::Config{ 
         .sprite_type =  Sys::ItemStore::instance().get_item( item ).sprite_type, 
@@ -78,8 +79,9 @@ void ItemSystem::create_seeing_stone( Cmp::Position pos, const std::string &item
 
   // Now create the entity with the valid target
   auto world_carry_item_entt = reg().create();
-  reg().emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
-  reg().emplace_or_replace<Cmp::ReservedPosition>( world_carry_item_entt );
+  Cmp::Position world_carry_item_pos( pos.position, pos.size );
+  reg().emplace_or_replace<Cmp::Position>( world_carry_item_entt, world_carry_item_pos );
+  if ( auto reserved_navmesh = m_reserved_navmesh.lock() ) reserved_navmesh->insert( world_carry_item_entt, world_carry_item_pos );
   // clang-format off
   reg().emplace_or_replace<Cmp::AnimData>( world_carry_item_entt, Cmp::AnimData::Config{  
         .sprite_type =  Sys::ItemStore::instance().get_item( item ).sprite_type

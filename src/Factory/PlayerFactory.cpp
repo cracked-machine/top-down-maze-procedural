@@ -29,7 +29,6 @@
 #include <Components/Player/TorchRadius.hpp>
 #include <Components/Player/Wealth.hpp>
 #include <Components/Position.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <Components/SpawnArea.hpp>
 #include <Components/Stats/BaseAction.hpp>
 #include <Components/Stats/PlayerStats.hpp>
@@ -40,6 +39,7 @@
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Systems/ParticleSystem.hpp>
@@ -55,7 +55,7 @@
 namespace Game::Factory::Player
 {
 
-void create_player( entt::registry &reg )
+void create_player( entt::registry &reg, const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh )
 {
   SPDLOG_INFO( "Creating player entity" );
   auto entity = reg.create();
@@ -65,10 +65,11 @@ void create_player( entt::registry &reg )
   // So we must recalc start position to the nearest grid position here
   auto start_pos = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( reg );
   start_pos = Utils::snap_to_grid( start_pos );
-  reg.emplace_or_replace<Cmp::Position>( entity, start_pos, Constants::kGridSizePxF );
+  Cmp::Position player_pos( start_pos, Constants::kGridSizePxF );
+  reg.emplace_or_replace<Cmp::Position>( entity, player_pos );
   auto &blast_radius = Sys::PersistSystem::get<Cmp::Persist::BlastRadius>( reg );
   reg.emplace_or_replace<Cmp::Player::Character>( entity );
-  reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
+  if ( reserved_navmesh ) reserved_navmesh->insert( entity, player_pos );
   reg.emplace_or_replace<Cmp::Player::BlastRadius>( entity, blast_radius.get_value() );
   reg.emplace_or_replace<Cmp::PlayerStats>( entity, Cmp::Stats::Health{ 100 }, Cmp::Stats::Fear{ 0 }, Cmp::Stats::Despair{ 0 },
                                             Cmp::Stats::Infamy{ 0 }, Cmp::Stats::Toxicity{ 0 }, Cmp::Stats::Luck{ 50 } );
@@ -103,7 +104,6 @@ entt::entity add_spawn_area( entt::registry &reg, entt::entity entity, Sprites::
 {
   // We need to reserve these positions for the player start area, dont add NpcNoPathFinding.
   // We want NPCs to pathfind player within spawn. We block NPCs from entering spawn directly in NpcSystem::update_pathfinding.
-  reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
   reg.emplace_or_replace<Cmp::SpawnArea>( entity, false );
   auto [_, idx] = sfactory.get_random_type_and_texture_index( { "sprite.graveyard.playerspawn" } );
   // clang-format off

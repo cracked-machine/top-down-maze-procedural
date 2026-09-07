@@ -8,6 +8,7 @@
 #include <Components/Persistent/CorruptionSeed.hpp>
 #include <Components/Persistent/SinkholeSeed.hpp>
 #include <Components/Player/Mortality.hpp>
+#include <PathFinding/SmartPointers.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Utils/Random.hpp>
 
@@ -55,6 +56,10 @@ public:
   //! @param sprite_factory Reference to the sprite factory
   HazardFieldSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
+  //! @brief init the weak pointer for the reserved-positions grid.
+  //! @param reserved_navmesh
+  void init( const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh ) { m_reserved_navmesh = reserved_navmesh; }
+
   //! @brief Spread the hazard field, then check for player and NPC collisions with it.
   //! @return The position of any newly added hazard cell, or an empty vector if none was added.
   sf::Vector2f update( sf::Time dt );
@@ -95,6 +100,9 @@ private:
   sf::Time m_update_period{ sf::seconds( 5.0f ) }; // seconds between adding new hazard fields
 
   sf::Time m_dmg_timer{ sf::Time::Zero };
+
+  //! @brief Positions occupied by entities that procgen/algorithmic code must not modify.
+  PathFinding::SpatialHashGridWeakPtr m_reserved_navmesh;
 };
 
 } // namespace Game::Sys

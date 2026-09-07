@@ -22,7 +22,6 @@
 #include <Components/Player/Mortality.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
@@ -170,9 +169,10 @@ void BombSystem::place_concentric_bomb_pattern( const entt::entity &epicenter_en
   int sequence_counter = 0;
   Factory::Bomb::create_armed( reg(), epicenter_entity, Cmp::Armed::EpiCenter::YES, sequence_counter++, centerTile.y + kZOrderOffset );
 
-  // We dont detonate ReservedPositions so dont arm them in the first place
+  // We dont detonate reserved positions so dont arm them in the first place
   // Also exclude NPCs since they're handled separately and may be missing Position component during death animation
-  auto all_obstacle_view = reg().view<Cmp::Armable, Cmp::Position>( exclude<Cmp::Npc::NPC, Cmp::Exit, Cmp::ReservedPosition> );
+  auto all_obstacle_view = reg().view<Cmp::Armable, Cmp::Position>( exclude<Cmp::Npc::NPC, Cmp::Exit> );
+  auto reserved_navmesh = m_reserved_navmesh.lock();
 
   // For each layer from 1 to BLAST_RADIUS
   for ( int layer = 1; layer <= blast_radius; layer++ )
@@ -183,6 +183,7 @@ void BombSystem::place_concentric_bomb_pattern( const entt::entity &epicenter_en
     for ( auto [destructable_entity, destructable_cmp, destructable_pos] : all_obstacle_view.each() )
     {
       if ( destructable_entity == epicenter_entity || reg().any_of<Cmp::Armed>( destructable_entity ) ) continue;
+      if ( reserved_navmesh && not reserved_navmesh->at( destructable_pos ).empty() ) continue;
 
       sf::Vector2i grid_position = Utils::get_grid_position<int>( reg(), destructable_entity ).value();
       int distance_from_center = Utils::Maths::getChebyshevDistance( grid_position, centerTile );
@@ -235,17 +236,19 @@ void BombSystem::update()
     return;
   }
 
+  auto reserved_navmesh = m_reserved_navmesh.lock();
   auto armed_view = reg().view<Cmp::Armed, Cmp::Position>();
   for ( auto [armed_entt, armed_cmp, armed_pos_cmp] : armed_view.each() )
   {
     if ( armed_cmp.getElapsedFuseTime() < armed_cmp.m_fuse_delay ) continue;
 
     // detonate obstacles - remove all traces of obstacle
-    auto obstacle_view = reg().view<Cmp::Obstacle, Cmp::Position>( exclude<Cmp::ReservedPosition> );
+    auto obstacle_view = reg().view<Cmp::Obstacle, Cmp::Position>();
     for ( auto [obst_entity, obst_cmp, obst_pos_cmp] : obstacle_view.each() )
     {
       if ( not obst_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
-      Factory::Obstacle::remove_obstacle( reg(), obst_entity, Factory::Obstacle::DeleteExtras::Yes );
+      if ( reserved_navmesh && not reserved_navmesh->at( obst_pos_cmp ).empty() ) continue;
+      Factory::Obstacle::remove_obstacle( reg(), obst_entity, Factory::Obstacle::DeleteExtras::Yes, reserved_navmesh );
       pathfinding_navmesh->insert( obst_entity, obst_pos_cmp );
       player_navmesh->insert( obst_entity, obst_pos_cmp );
       if ( auto ghost_navmesh = m_ghost_navmesh.lock() ) { ghost_navmesh->insert( obst_entity, obst_pos_cmp ); }
@@ -259,7 +262,7 @@ void BombSystem::update()
 
       if ( loot_entt != entt::null ) { m_sound_bank.get_effect( "break_pot" ).play(); }
 
-      Factory::Loot::destroy_loot_container( reg(), loot_entt );
+      Factory::Loot::destroy_loot_container( reg(), loot_entt, reserved_navmesh );
     }
 
     // detonate npc containers - these are activated by proximity so just destroy them
@@ -267,7 +270,7 @@ void BombSystem::update()
     for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_container_view.each() )
     {
       if ( not npc_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
-      Factory::Npc::destroy_npc_container( reg(), npc_entity );
+      Factory::Npc::destroy_npc_container( reg(), npc_entity, reserved_navmesh );
     }
 
     // detonate nearby carryitems - cruel but fair
@@ -346,12 +349,13 @@ void BombSystem::update()
         if ( do_drop.gen() == 0 )
         {
           // clang-format off
-          auto dropped_loot_entt = Factory::Loot::create_loot_drop( 
-            reg(), 
-            Cmp::AnimData( Cmp::AnimData::Config{ .sprite_type = sprite_type, .frame_index_offset = sprite_index} ),                                        
-            sf::FloatRect{ npc_pos_cmp.position, npc_pos_cmp.size }, 
+          auto dropped_loot_entt = Factory::Loot::create_loot_drop(
+            reg(),
+            Cmp::AnimData( Cmp::AnimData::Config{ .sprite_type = sprite_type, .frame_index_offset = sprite_index} ),
+            sf::FloatRect{ npc_pos_cmp.position, npc_pos_cmp.size },
             Factory::IncludePack<>{},
-            Factory::ExcludePack<Cmp::Player::Character, Cmp::ReservedPosition>{} );
+            Factory::ExcludePack<Cmp::Player::Character>{}, Factory::ExcludePack<>{},
+            /*zorder_offset=*/-8.f, reserved_navmesh.get() );
           // clang-format on
 
           if ( dropped_loot_entt != entt::null )

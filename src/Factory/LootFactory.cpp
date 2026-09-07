@@ -1,7 +1,7 @@
 #include <Components/Armable.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/Player/Character.hpp>
-#include <Components/ReservedPosition.hpp>
+#include <Components/Position.hpp>
 #include <Factory/LootFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Sprites/SpriteSheet.hpp>
@@ -14,7 +14,6 @@ void create_loot_container( entt::registry &reg, entt::entity entt, Cmp::Positio
                             std::size_t sprite_tile_idx, float zorder )
 {
 
-  reg.emplace_or_replace<Cmp::ReservedPosition>( entt );
   reg.emplace_or_replace<Cmp::Armable>( entt );
   reg.emplace_or_replace<Cmp::LootContainer>( entt );
   // clang-format off
@@ -29,10 +28,14 @@ void create_loot_container( entt::registry &reg, entt::entity entt, Cmp::Positio
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, pos_cmp.position.y - zorder );
 }
 
-void destroy_loot_container( entt::registry &registry, entt::entity loot_container_entity )
+void destroy_loot_container( entt::registry &registry, entt::entity loot_container_entity,
+                             const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh )
 {
   registry.remove<Cmp::LootContainer>( loot_container_entity );
-  registry.remove<Cmp::ReservedPosition>( loot_container_entity );
+  if ( reserved_navmesh )
+  {
+    if ( auto *pos_cmp = registry.try_get<Cmp::Position>( loot_container_entity ) ) reserved_navmesh->remove( loot_container_entity, *pos_cmp );
+  }
   registry.remove<Cmp::AnimData>( loot_container_entity );
   registry.remove<Cmp::ZOrderValue>( loot_container_entity );
 }

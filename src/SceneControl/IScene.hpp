@@ -1,6 +1,8 @@
 #ifndef SRC_SCENECONTROL_ISCENE_HPP__
 #define SRC_SCENECONTROL_ISCENE_HPP__
 
+#include <PathFinding/SmartPointers.hpp>
+
 #include <SFML/System/Time.hpp>
 #include <entt/entity/fwd.hpp>
 #include <entt/signal/dispatcher.hpp>
@@ -30,6 +32,10 @@ public:
   //! @brief Get the registry object owned by the scene
   //! @return entt::registry&
   virtual entt::registry &registry() = 0;
+
+  //! @brief Get the scene's grid of positions reserved from procgen/algorithmic changes.
+  //! @return PathFinding::SpatialHashGridSharedPtr
+  virtual PathFinding::SpatialHashGridSharedPtr get_reserved_navmesh() = 0;
 
 protected:
   //! @brief User-overridable update function

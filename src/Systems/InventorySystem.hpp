@@ -28,10 +28,13 @@ public:
   //! @brief init the weak pointers for the pathfinding navmesh
   //! @param npc_navmesh
   //! @param player_navmesh
-  void init( const PathFinding::SpatialHashGridSharedPtr &npc_navmesh, const PathFinding::SpatialHashGridSharedPtr &player_navmesh )
+  //! @param reserved_navmesh
+  void init( const PathFinding::SpatialHashGridSharedPtr &npc_navmesh, const PathFinding::SpatialHashGridSharedPtr &player_navmesh,
+             const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh = nullptr )
   {
     m_npc_navmesh = npc_navmesh;
     m_player_navmesh = player_navmesh;
+    m_reserved_navmesh = reserved_navmesh;
   }
 
   //! @brief Per-frame update function
@@ -78,6 +81,9 @@ private:
 
   //! @brief All grid positions that block player movement
   PathFinding::SpatialHashGridWeakPtr m_player_navmesh;
+
+  //! @brief Positions occupied by entities that procgen/algorithmic code must not modify.
+  PathFinding::SpatialHashGridWeakPtr m_reserved_navmesh;
 
   //! @brief Prevent player from spamming the drop inventory action.
   sf::Clock m_inventory_cooldown_timer;

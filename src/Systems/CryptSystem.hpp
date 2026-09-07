@@ -55,10 +55,12 @@ public:
 
   //! @brief init the weak pointer for the spatial grid
   //! @param spatial_grid_ptr
-  void init( const PathFinding::SpatialHashGridSharedPtr &npc_navmesh, const PathFinding::SpatialHashGridSharedPtr &player_navmesh )
+  void init( const PathFinding::SpatialHashGridSharedPtr &npc_navmesh, const PathFinding::SpatialHashGridSharedPtr &player_navmesh,
+             const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh = nullptr )
   {
     m_npc_navmesh = npc_navmesh;
     m_player_navmesh = player_navmesh;
+    m_reserved_navmesh = reserved_navmesh;
   }
 
   //! @brief Initial maze setup. Called from Scene::on_enter()
@@ -263,6 +265,9 @@ private:
 
   //! @brief All grid positions that block player movement
   PathFinding::SpatialHashGridWeakPtr m_player_navmesh;
+
+  //! @brief Positions occupied by entities that procgen/algorithmic code must not modify.
+  PathFinding::SpatialHashGridWeakPtr m_reserved_navmesh;
 };
 
 } // namespace Game::Sys

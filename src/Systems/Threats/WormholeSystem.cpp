@@ -17,7 +17,6 @@
 #include <Components/Persistent/WormholeSeed.hpp>
 #include <Components/Player/Character.hpp>
 #include <Components/RectBounds.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <Components/UUID.hpp>
 #include <Components/Wall.hpp>
 #include <Components/Wormhole/Jump.hpp>
@@ -86,8 +85,8 @@ std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsi
   while ( attempts < kMaxAttempts )
   {
     auto [random_entity, random_pos] = Utils::Rnd::get_random_position(
-        reg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{},
-        Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::Player::Character, Cmp::Npc::NPC, Cmp::ReservedPosition>{}, current_seed );
+        reg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{}, Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::Player::Character, Cmp::Npc::NPC>{},
+        current_seed );
 
     const auto &wormhole_ms = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.hazard.wormhole" );
     Cmp::Wormhole::MultiBlock wormhole_block( random_pos.position, wormhole_ms.get_px_size() );
@@ -131,6 +130,12 @@ std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsi
         if ( hazard_pos_cmp.findIntersection( wormhole_block ) ) return false;
       }
 
+      // Return false for positions reserved from algorithmic changes
+      if ( auto reserved_navmesh = m_reserved_navmesh.lock(); reserved_navmesh && not reserved_navmesh->query_rect( wormhole_block ).empty() )
+      {
+        return false;
+      }
+
       return true;
     };
 
@@ -172,14 +177,15 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
   Cmp::Wormhole::MultiBlock wormhole_block( random_pos.position, wormhole_ss.get_px_size() );
 
   auto navmesh = m_npc_navmesh.lock();
+  auto reserved_navmesh = m_reserved_navmesh.lock();
   for ( auto [entity, obstacle_pos] : reg().view<Cmp::Position>().each() )
   {
     if ( obstacle_pos.findIntersection( wormhole_block ) )
     {
       bool was_obstacle = reg().all_of<Cmp::Npc::NoPathFinding>( entity );
       Factory::Obstacle::remove_obstacle( reg(), entity );
-      Factory::Loot::destroy_loot_container( reg(), entity );
-      Factory::Npc::destroy_npc_container( reg(), entity );
+      Factory::Loot::destroy_loot_container( reg(), entity, reserved_navmesh );
+      Factory::Npc::destroy_npc_container( reg(), entity, reserved_navmesh );
       if ( was_obstacle && navmesh ) navmesh->insert( entity, obstacle_pos );
 
       SPDLOG_DEBUG( "Wormhole spawn: Destroying item at ({}, {})", obstacle_pos.position.x, obstacle_pos.position.y );
@@ -297,7 +303,7 @@ void WormholeSystem::check_player_wormhole_collision()
           reg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{}, Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::Player::Character, Cmp::Npc::NPC>{},
           0 );
 
-      Factory::Obstacle::remove_obstacle( reg(), new_spawn_entity, Factory::Obstacle::DeleteExtras::Yes );
+      Factory::Obstacle::remove_obstacle( reg(), new_spawn_entity, Factory::Obstacle::DeleteExtras::Yes, m_reserved_navmesh.lock() );
       if ( auto teleport_navmesh = m_npc_navmesh.lock() ) teleport_navmesh->insert( new_spawn_entity, new_spawn_pos_cmp );
       // clang-format off
       reg().emplace_or_replace<Cmp::AnimData>( new_spawn_entity, Cmp::AnimData::Config{

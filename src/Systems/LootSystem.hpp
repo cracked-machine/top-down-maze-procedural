@@ -3,7 +3,6 @@
 
 #include <Components/LootContainer.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <Systems/BaseSystem.hpp>

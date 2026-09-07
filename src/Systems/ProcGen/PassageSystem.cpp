@@ -12,7 +12,6 @@
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/Mortality.hpp>
 #include <Components/Random.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/SpawnArea.hpp>
 #include <Components/UUID.hpp>
@@ -597,6 +596,7 @@ void PassageSystem::empty_open_passages()
 {
   PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock();
   if ( not pathfinding_navmesh ) return;
+  auto reserved_navmesh = m_reserved_navmesh.lock();
 
   std::vector<std::pair<entt::entity, Cmp::Position>> obstacles_to_remove;
   std::vector<std::pair<entt::entity, Cmp::Position>> chests_to_remove;
@@ -610,7 +610,7 @@ void PassageSystem::empty_open_passages()
 
   for ( auto &[entt, pos_cmp] : obstacles_to_remove )
   {
-    Factory::Obstacle::remove_obstacle( reg(), entt, Factory::Obstacle::DeleteExtras::Yes );
+    Factory::Obstacle::remove_obstacle( reg(), entt, Factory::Obstacle::DeleteExtras::Yes, reserved_navmesh );
     pathfinding_navmesh->insert( entt, pos_cmp );
   }
   for ( auto &[entt, pos_cmp] : chests_to_remove )
@@ -626,6 +626,7 @@ void PassageSystem::fill_all_passages()
   const Sprites::SpriteSheet &ss_main = m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.wall.int.main" );
   const Sprites::SpriteSheet &ss_cap = m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.wall.int.cap" );
   PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_npc_navmesh.lock();
+  auto reserved_navmesh = m_reserved_navmesh.lock();
 
   for ( auto [pos_entt, pos_cmp] : reg().view<Cmp::Position>().each() )
   {
@@ -633,8 +634,13 @@ void PassageSystem::fill_all_passages()
     if ( reg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
     if ( reg().all_of<Cmp::UUID>( pos_entt ) ) continue; // skip cap entities (no Obstacle but already decorated)
     // spawn tiles are authored wider than Cmp::Crypt::RoomStart's bounds - never wall over them
-    if ( reg().any_of<Cmp::SpawnArea, Cmp::ReservedPosition>( pos_entt ) ) continue;
+    if ( reg().any_of<Cmp::SpawnArea>( pos_entt ) ) continue;
 
+    // m_passage_block_grid is the authoritative "this position must become a wall now" signal -
+    // don't also gate on the reserved-positions grid here: an unrelated wall's cap sprite (one
+    // tile above that wall) can land on this exact position and phantom-reserve it, and since
+    // this pass is the only place that ever fills a tracked passage position back in, skipping it
+    // would leave a walkable gap here permanently once m_passage_block_grid is cleared afterward.
     if ( m_passage_block_grid.at( pos_cmp ).empty() ) continue;
 
     Factory::Obstacle::add_obstacle( reg(), pos_entt );
@@ -647,7 +653,7 @@ void PassageSystem::fill_all_passages()
     Cmp::Position cap_position( { pos_cmp.x(), pos_cmp.y() - pos_cmp.size.y }, pos_cmp.size );
     reg().emplace_or_replace<Cmp::Position>( cap_entt, cap_position );
     Factory::Obstacle::decorate_obstacle( reg(), cap_entt, cap_position, ss_cap, 0, pos_cmp.y() + ss_cap.get_zorder( 0 ), false );
-    reg().emplace_or_replace<Cmp::ReservedPosition>( cap_entt );
+    if ( reserved_navmesh ) reserved_navmesh->insert( cap_entt, cap_position );
     reg().emplace_or_replace<Cmp::UUID>( cap_entt, uuid );
     Factory::Obstacle::add_obstacle_cap( reg(), cap_entt );
 

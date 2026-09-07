@@ -34,7 +34,7 @@ namespace detail
 template <typename MULTIBLOCK>
   requires IsMB<MULTIBLOCK>
 void create_multiblock( entt::registry &reg, entt::entity entity, const Cmp::UUID &uuid, Cmp::Position pos, const Sprites::SpriteSheet &ss,
-                        size_t ss_index )
+                        size_t ss_index, PathFinding::SpatialHashGrid *reserved_sm )
 {
   reg.emplace_or_replace<MULTIBLOCK>( entity, pos.position, ss.get_px_size() );
   // clang-format off
@@ -45,7 +45,7 @@ void create_multiblock( entt::registry &reg, entt::entity entity, const Cmp::UUI
   });
   // clang-format on
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, pos.position.y );
-  reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
+  if ( reserved_sm != nullptr ) reserved_sm->insert( entity, pos );
   reg.emplace_or_replace<Cmp::UUID>( entity, uuid );
   reg.emplace_or_replace<Cmp::Position>( entity, pos.position, ss.get_px_size() );
 
@@ -135,7 +135,8 @@ void update_segments( entt::registry &reg, const Sprites::SpriteSheet &ss, [[may
 template <typename MULTIBLOCK, typename MBSEGMENT>
   requires IsMB<MULTIBLOCK> && IsMBSegment<MBSEGMENT>
 std::vector<entt::entity> create_multiblock_segments( entt::registry &reg, entt::entity multiblock_entity, const Cmp::UUID &uuid,
-                                                      Cmp::Position mb_pos_cmp, const Sprites::SpriteSheet &ss )
+                                                      Cmp::Position mb_pos_cmp, const Sprites::SpriteSheet &ss,
+                                                      PathFinding::SpatialHashGrid *reserved_sm )
 {
 
   MULTIBLOCK new_multiblock_bounds = reg.get<MULTIBLOCK>( multiblock_entity );
@@ -147,13 +148,14 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &reg, entt:
   // cache upfront so we dont add mutate the view whilst iterating it.
   // Only accept genuine world tiles (created with Cmp::Armable): a bare Cmp::Position view
   // also matches the player, NPCs and dropped items standing inside the bounds, which would
-  // get segments created at their (possibly off-grid) positions and be tagged ReservedPosition.
+  // get segments created at their (possibly off-grid) positions and be reserved.
   std::vector<entt::entity> world_pos_entt_list;
   for ( auto [pos_entity, pos_cmp] : reg.view<Cmp::Position>().each() )
   {
     if ( not pos_cmp.findIntersection( new_multiblock_bounds ) ) continue;
     if ( not reg.all_of<Cmp::Armable>( pos_entity ) ) continue;
-    if ( reg.any_of<MULTIBLOCK, MBSEGMENT, Cmp::ReservedPosition, Cmp::Player::Character, Cmp::Npc::NPC, Cmp::WorldItem>( pos_entity ) ) continue;
+    if ( reg.any_of<MULTIBLOCK, MBSEGMENT, Cmp::Player::Character, Cmp::Npc::NPC, Cmp::WorldItem>( pos_entity ) ) continue;
+    if ( ( reserved_sm != nullptr ) && not reserved_sm->at( pos_cmp ).empty() ) continue;
     world_pos_entt_list.push_back( pos_entity );
   }
 
@@ -162,7 +164,7 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &reg, entt:
   {
 
     // mark this world entt as reserved to prevent repeat visits
-    reg.emplace_or_replace<Cmp::ReservedPosition>( world_pos_entity );
+    if ( reserved_sm != nullptr ) reserved_sm->insert( world_pos_entity, reg.get<Cmp::Position>( world_pos_entity ) );
 
     // Calculate relative pixel positions within the large obstacle grid
     auto pos_cmp = reg.get<Cmp::Position>( world_pos_entity );
@@ -184,7 +186,7 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &reg, entt:
     reg.emplace_or_replace<Cmp::Armable>( new_segment_entt );
     reg.emplace_or_replace<Cmp::UUID>( new_segment_entt, uuid );
     reg.emplace_or_replace<Cmp::Position>( new_segment_entt, pos_cmp.position, pos_cmp.size );
-    reg.emplace_or_replace<Cmp::ReservedPosition>( new_segment_entt );
+    if ( reserved_sm != nullptr ) reserved_sm->insert( new_segment_entt, pos_cmp );
 
     if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::Crypt::BuildingMultiBlock> )
     {
@@ -226,14 +228,15 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &reg, entt:
 template <typename MULTIBLOCK, typename MBSEGMENT>
   requires IsMB<MULTIBLOCK> && IsMBSegment<MBSEGMENT>
 std::pair<entt::entity, std::vector<entt::entity>> add_multiblock_with_segments( entt::registry &reg, sf::Vector2f position,
-                                                                                 const Sprites::SpriteSheet &ss, size_t ss_index, float zorder )
+                                                                                 const Sprites::SpriteSheet &ss, size_t ss_index, float zorder,
+                                                                                 PathFinding::SpatialHashGrid *reserved_sm )
 {
   auto mb_entt = reg.create();
   Cmp::Position new_pos_cmp( position, ss.get_sprite_size() );
   reg.emplace_or_replace<Cmp::Position>( mb_entt, new_pos_cmp.position, ss.get_sprite_size() );
   auto uuid = Cmp::UUID::generate();
-  Multiblock::detail::create_multiblock<MULTIBLOCK>( reg, mb_entt, uuid, new_pos_cmp, ss, ss_index );
-  auto segment_entt_list = Multiblock::detail::create_multiblock_segments<MULTIBLOCK, MBSEGMENT>( reg, mb_entt, uuid, new_pos_cmp, ss );
+  Multiblock::detail::create_multiblock<MULTIBLOCK>( reg, mb_entt, uuid, new_pos_cmp, ss, ss_index, reserved_sm );
+  auto segment_entt_list = Multiblock::detail::create_multiblock_segments<MULTIBLOCK, MBSEGMENT>( reg, mb_entt, uuid, new_pos_cmp, ss, reserved_sm );
 
   for ( auto [mb_entt, mb_cmp, mb_zorder_cmp] : reg.view<MULTIBLOCK, Cmp::ZOrderValue>().each() )
   {

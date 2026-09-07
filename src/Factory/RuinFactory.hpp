@@ -9,6 +9,7 @@
 // clang-format off
 namespace Game::Sprites { class SpriteSheet; class SpriteFactory; }
 namespace Cmp { class Position; }
+namespace Game::PathFinding { class SpatialHashGrid; }
 // clang-format on
 
 namespace Game::Factory::Ruin
@@ -30,8 +31,9 @@ void create_bookcase( entt::registry &reg, sf::Vector2f spawn_position, const Sp
 //! @param spawn_position
 //! @param cobweb_ms
 //! @param sprite_index
+//! @param reserved_sm Reserves selected_entt's position so procgen doesn't overwrite it.
 void create_cobweb( entt::registry &reg, entt::entity selected_entt, sf::Vector2f spawn_position, const Sprites::SpriteSheet &cobweb_ms,
-                    size_t sprite_idx );
+                    size_t sprite_idx, PathFinding::SpatialHashGrid &reserved_sm );
 
 //! @brief Create a shadow hand entt if none exists
 //! @param reg
@@ -45,8 +47,9 @@ void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, con
 //! @param pos
 //! @param zorder
 //! @param sprite_idx
+//! @param reserved_sm Reserves the new rune marker's position so procgen doesn't overwrite it.
 //! @return The new rune marker entity.
-entt::entity create_rune_marker( entt::registry &reg, Cmp::Position pos, float zorder, size_t sprite_idx );
+entt::entity create_rune_marker( entt::registry &reg, Cmp::Position pos, float zorder, size_t sprite_idx, PathFinding::SpatialHashGrid &reserved_sm );
 
 } // namespace Game::Factory::Ruin
 

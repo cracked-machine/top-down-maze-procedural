@@ -47,6 +47,10 @@ public:
     m_nav_event_dispatcher.enqueue( InputEventType() );
   }
 
+  //! @brief Get the scene's grid of positions reserved from procgen/algorithmic changes.
+  //! @return PathFinding::SpatialHashGridSharedPtr
+  PathFinding::SpatialHashGridSharedPtr get_reserved_navmesh() override { return m_reserved_navmesh; }
+
 protected:
   //! @brief Blocks NPC pathfinding on obstacles, plants, multiblocks, etc...
   PathFinding::SpatialHashGridSharedPtr m_generic_npc_navmesh;
@@ -56,6 +60,8 @@ protected:
   PathFinding::SpatialHashGridSharedPtr m_open_navmesh;
   //! @brief Player navmesh for blocking movement
   PathFinding::SpatialHashGridSharedPtr m_player_navmesh;
+  //! @brief Positions occupied by entities that procgen/algorithmic code must not modify.
+  PathFinding::SpatialHashGridSharedPtr m_reserved_navmesh;
 
   //! @brief Deserialised JSON scene data. See res/scenes
   SceneMapSharedPtr m_scene_data;

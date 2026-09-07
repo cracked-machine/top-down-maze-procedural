@@ -125,7 +125,10 @@ void NpcSystem::check_npc_container_collision()
     // for this one comparison and it already contains the needed scaling logic
     auto npc_activate_bounds = Cmp::RectBounds::scaled( npccontainer_pos_cmp.position, Constants::kGridSizePxF, npc_activate_scale.get_value() );
 
-    if ( player_pos.findIntersection( npc_activate_bounds.getBounds() ) ) { Factory::Npc::create_npc( reg(), npccontainer_entt, "npc.skeleton" ); }
+    if ( player_pos.findIntersection( npc_activate_bounds.getBounds() ) )
+    {
+      Factory::Npc::create_npc( reg(), npccontainer_entt, "npc.skeleton", m_reserved_navmesh.lock() );
+    }
   }
 }
 

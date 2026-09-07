@@ -3,6 +3,7 @@
 
 #include <Events/PlayerActionEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
+#include <PathFinding/SmartPointers.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <SFML/System/Vector2.hpp>
@@ -22,6 +23,10 @@ public:
   //! @param scenemanager_event_dispatcher
   ExitSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
               entt::dispatcher &scenemanager_event_dispatcher );
+
+  //! @brief init the weak pointer for the reserved-positions grid, ahead of exit placement.
+  //! @param reserved_navmesh
+  void init( const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh ) { m_reserved_navmesh = reserved_navmesh; }
 
   //! @brief event handlers for pausing system clocks
   void on_pause() override {}
@@ -49,6 +54,9 @@ private:
   //! @brief  This function is called via event trigger:
   //!         `Events::PlayerActionEvent` from `SceneInputRouter::graveyard_scene_state_handler()`
   void unlock_exit();
+
+  //! @brief Positions occupied by entities that procgen/algorithmic code must not modify.
+  PathFinding::SpatialHashGridWeakPtr m_reserved_navmesh;
 };
 
 } // namespace Game::Sys

@@ -19,7 +19,6 @@
 #include <Components/Player/Character.hpp>
 #include <Components/Player/LastGraveyardPosition.hpp>
 #include <Components/Player/LevelDepth.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/BuildingMultiBlock.hpp>
 #include <Components/SceneSettings/CollisionDetection.hpp>
 #include <Components/SceneSettings/CurrentScene.hpp>
@@ -37,6 +36,7 @@
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/ShaderFactory.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <SceneControl/Scenes/GraveyardScene.hpp>
@@ -55,6 +55,7 @@
 #include <Systems/GrimoireSystem.hpp>
 #include <Systems/HealingSpringSystem.hpp>
 #include <Systems/InventorySystem.hpp>
+#include <Systems/ItemSystem.hpp>
 #include <Systems/LootSystem.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -114,8 +115,15 @@ void GraveyardScene::on_init()
   auto [_, player_start_pos_px] = m_scene_data->get_player_start_position();
   Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, player_start_pos_px );
 
+  // Positions reserved from procgen/algorithmic changes. Must exist before anything below that
+  // creates or queries reserved entities (ItemSystem/ExitSystem are wired up now since their
+  // events/calls can fire mid-generation, before reinit_system_spatial_maps() runs).
+  m_reserved_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
+  m_sys.find<Sys::Store::Type::ItemSystem>().init( m_reserved_navmesh );
+  m_sys.find<Sys::Store::Type::ExitSystem>().init( m_reserved_navmesh );
+
   // create the player, optionally increment the level counter
-  if ( m_reg.view<Cmp::Player::Character>().size() == 0 ) { Factory::Player::create_player( m_reg ); }
+  if ( m_reg.view<Cmp::Player::Character>().size() == 0 ) { Factory::Player::create_player( m_reg, m_reserved_navmesh ); }
   else { Utils::Player::get_level_depth( m_reg ).increment_count( 1 ); }
 
   auto [map_size_grid, map_size_pixel] = m_scene_data->map_size();
@@ -127,7 +135,7 @@ void GraveyardScene::on_init()
 
   // create the level contents
   auto &level_gen = m_sys.find<Sys::Store::Type::LevelGenerator>();
-  level_gen.init();
+  level_gen.init( m_reserved_navmesh );
   level_gen.build_scene_from_data( *m_scene_data );
   m_sys.find<Sys::Store::Type::ExitSystem>().create_exit();
   level_gen.gen_graveyard_exterior_multiblocks();
@@ -311,14 +319,17 @@ void GraveyardScene::do_update( sf::Time dt )
 
 void GraveyardScene::reinit_system_spatial_maps()
 {
-  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_generic_npc_navmesh, m_open_navmesh, m_ghost_navmesh );
+  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_generic_npc_navmesh, m_open_navmesh, m_ghost_navmesh, m_reserved_navmesh );
   m_sys.find<Sys::Store::Type::WispSystem>().init( m_open_navmesh );
-  m_sys.find<Sys::Store::Type::BombSystem>().init( m_generic_npc_navmesh, m_player_navmesh, m_ghost_navmesh );
-  m_sys.find<Sys::Store::Type::ActionSystem>().init( m_generic_npc_navmesh, m_player_navmesh, m_ghost_navmesh );
-  m_sys.find<Sys::Store::Type::InventorySystem>().init( m_generic_npc_navmesh, m_player_navmesh );
+  m_sys.find<Sys::Store::Type::BombSystem>().init( m_generic_npc_navmesh, m_player_navmesh, m_ghost_navmesh, m_reserved_navmesh );
+  m_sys.find<Sys::Store::Type::ActionSystem>().init( m_generic_npc_navmesh, m_player_navmesh, m_ghost_navmesh, m_reserved_navmesh );
+  m_sys.find<Sys::Store::Type::InventorySystem>().init( m_generic_npc_navmesh, m_player_navmesh, m_reserved_navmesh );
   m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_generic_npc_navmesh, m_player_navmesh, m_open_navmesh );
-  m_sys.find<Sys::Store::Type::WormholeSystem>().init( m_generic_npc_navmesh );
-  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_generic_npc_navmesh );
+  m_sys.find<Sys::Store::Type::WormholeSystem>().init( m_generic_npc_navmesh, m_reserved_navmesh );
+  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_generic_npc_navmesh, m_reserved_navmesh );
+  m_sys.find<Sys::Store::Type::WatchmanSystem>().init( m_reserved_navmesh );
+  m_sys.find<Sys::Store::Type::SinkHoleHazardSystem>().init( m_reserved_navmesh );
+  m_sys.find<Sys::Store::Type::CorruptionHazardSystem>().init( m_reserved_navmesh );
 }
 
 entt::registry &GraveyardScene::registry() { return m_reg; }
