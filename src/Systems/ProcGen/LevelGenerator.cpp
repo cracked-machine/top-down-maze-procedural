@@ -152,32 +152,28 @@ void LevelGenerator::build_scene_from_data( const Scene::SceneData &scene_data )
     Factory::Wall::add_no_move_dest( reg(), solid );
   }
 
+  // clang-format off
   // Multiblock layer
   using MultiblockFactoryFn = std::function<entt::entity( entt::registry &, sf::Vector2f, const Sprites::SpriteSheet & )>;
   static const std::unordered_map<std::string, MultiblockFactoryFn> kMultiblockFactories{
       { "sprite.graveyard.healingspring", []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
         { return Factory::Multiblock::add_multiblock_with_segments<Cmp::HealingSpringMultiBlock, Cmp::HealingSpringSegment>( r, p, ss ).first; } },
-      { "sprite.crypt.objective.closed",
-        []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
-        {
-          return Factory::Multiblock::add_multiblock_with_segments<Cmp::Crypt::ObjectiveMultiBlock, Cmp::Crypt::ObjectiveSegment>( r, p, ss ).first;
-        } },
+      { "sprite.crypt.objective.closed",[]( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
+        { return Factory::Multiblock::add_multiblock_with_segments<Cmp::Crypt::ObjectiveMultiBlock, Cmp::Crypt::ObjectiveSegment>( r, p, ss ).first; } },
       { "sprite.crypt.altar.inactive", []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
         { return Factory::Multiblock::add_multiblock_with_segments<Cmp::Altar::MultiBlock, Cmp::Altar::Segment>( r, p, ss ).first; } },
       { "sprite.ruin.stairs.up", []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
         { return Factory::Multiblock::add_multiblock_with_segments<Cmp::Ruin::StairsLowerMultiBlock, Cmp::Ruin::StairsSegment>( r, p, ss ).first; } },
       { "sprite.ruin.stairs.down", []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
         { return Factory::Multiblock::add_multiblock_with_segments<Cmp::Ruin::StairsUpperMultiBlock, Cmp::Ruin::StairsSegment>( r, p, ss ).first; } },
-      { "sprite.ruin.stairs.balustrade",
-        []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
-        {
-          return Factory::Multiblock::add_multiblock_with_segments<Cmp::Ruin::StairsBalustradeMultiBlock, Cmp::Ruin::StairsSegment>( r, p, ss ).first;
-        } },
+      { "sprite.ruin.stairs.balustrade", []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
+        { return Factory::Multiblock::add_multiblock_with_segments<Cmp::Ruin::StairsBalustradeMultiBlock, Cmp::Ruin::StairsSegment>( r, p, ss ).first; } },
       { "sprite.ruin.stairs.gate", []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
         { return Factory::Multiblock::add_multiblock_with_segments<Cmp::Ruin::StairsGateMultiBlock, Cmp::Ruin::GateSegment>( r, p, ss ).first; } },
       { "sprite.ruin.hex", []( entt::registry &r, sf::Vector2f p, const Sprites::SpriteSheet &ss )
         { return Factory::Multiblock::add_multiblock_with_segments<Cmp::Ruin::HexagramMultiBlock, Cmp::Ruin::HexagramSegment>( r, p, ss ).first; } },
   };
+  // clang-format on
 
   for ( const auto &[ms_type, pos] : scene_data.multiblock_objectlayer() )
   {
