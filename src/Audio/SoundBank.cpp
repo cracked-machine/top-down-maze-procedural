@@ -72,7 +72,7 @@ void SoundBank::init()
   sounds.emplace( "crypt_chest_open", EffectsData{ "res/audio/crypt_chest_open.mp3" } );
 
   sounds.emplace( "player_blood_splat", EffectsData{ "res/audio/player_blood_splat.mp3" } );
-  sounds.emplace( "bubbling_lava", EffectsData{ "res/audio/underwater.wav" } );
+  sounds.emplace( "bubbling_lava", EffectsData{ "res/audio/lava.mp3" } );
   sounds.emplace( "spike_trap", EffectsData{ "res/audio/spike_trap.wav" } );
   sounds.emplace( "banging_smashing_sounds", EffectsData{ "res/audio/BangingSmashingSounds.mp3" } );
   sounds.emplace( "witch_scream", EffectsData{ "res/audio/witch_scream.mp3" } );
