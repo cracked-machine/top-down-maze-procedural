@@ -130,8 +130,12 @@ std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsi
         if ( hazard_pos_cmp.findIntersection( wormhole_block ) ) return false;
       }
 
-      // Return false for positions reserved from algorithmic changes
-      if ( auto reserved_navmesh = m_reserved_navmesh.lock(); reserved_navmesh && not reserved_navmesh->query_rect( wormhole_block ).empty() )
+      // Return false for positions reserved from algorithmic changes. Checked against the
+      // candidate's own cell only (matching the pre-refactor Cmp::ReservedPosition exclude
+      // semantics) rather than the whole wormhole footprint - query_rect over the full 3x3
+      // block requires all 9 cells to be simultaneously unreserved, which is far stricter than
+      // before and can make a valid spawn very hard to find on a densely decorated map.
+      if ( auto reserved_navmesh = m_reserved_navmesh.lock(); reserved_navmesh && not reserved_navmesh->at( random_pos ).empty() )
       {
         return false;
       }

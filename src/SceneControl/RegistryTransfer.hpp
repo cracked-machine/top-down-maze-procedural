@@ -120,8 +120,8 @@ public:
           else { SPDLOG_WARN( "No storage found in target reg for cmp: {}", source_storage.type().name() ); }
         }
       }
-      pretty_print( "Removed:", removed_cmps );
-      pretty_print( "Transferred:", transferred_cmps );
+      pretty_print( "Removed", removed_cmps );
+      pretty_print( "Transferred", transferred_cmps );
     }
   }
 

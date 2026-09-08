@@ -156,8 +156,8 @@ RegistryTransfer::RegCopy RegistryTransfer::copy_reg( IScene &scene, Scene::RegC
       }
     }
   }
-  pretty_print( "Copied: ", copied_cmp );
-  pretty_print( "No Storage Found:", no_storage_cmps );
+  pretty_print( "Copied", copied_cmp );
+  pretty_print( "No Storage Found", no_storage_cmps );
 
   return registry_copy;
 }
@@ -221,9 +221,9 @@ void RegistryTransfer::xfer_player_entt( entt::registry &source_registry, entt::
       else { no_storage_cmps.emplace_back( source_storage.type().name() ); }
     }
   }
-  pretty_print( "Removed:", removed_cmps );
-  pretty_print( "Transferred:", transferred_cmps );
-  pretty_print( "No Storage Found:", no_storage_cmps );
+  pretty_print( "Removed", removed_cmps );
+  pretty_print( "Transferred", transferred_cmps );
+  pretty_print( "No Storage Found", no_storage_cmps );
 }
 
 void RegistryTransfer::init_missing_cmp_storages( entt::registry &registry )
@@ -274,7 +274,7 @@ void RegistryTransfer::pretty_print( const std::string &prefix, const std::vecto
     else { ss << comp_name << " "; }
   }
   ss << "]";
-  SPDLOG_INFO( "{}[{}]: {}", prefix, components.size(), ss.str() );
+  SPDLOG_INFO( "{} [{}]: {}", prefix, components.size(), ss.str() );
 }
 
 } // namespace Game::Scene
