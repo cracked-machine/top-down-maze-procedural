@@ -154,7 +154,7 @@ void SceneManager::replace( std::unique_ptr<IScene> new_scene, RegCopyMode mode 
 
   // replace the current scene
   m_scene_stack.print_stack();
-  SPDLOG_INFO( "Replacing {}.", m_scene_stack.current().get_name() );
+  SPDLOG_DEBUG( "Replacing {}.", m_scene_stack.current().get_name() );
   m_scene_stack.pop();
   m_scene_stack.push( std::move( new_scene ) );
   m_scene_stack.print_stack();
@@ -178,7 +178,7 @@ void SceneManager::replace_no_exit( std::unique_ptr<IScene> new_scene, RegCopyMo
 
   // replace the current scene without exiting it
   m_scene_stack.print_stack();
-  SPDLOG_INFO( "Replacing {} (overlay).", m_scene_stack.current().get_name() );
+  SPDLOG_DEBUG( "Replacing {} (overlay).", m_scene_stack.current().get_name() );
   m_scene_stack.pop();
   m_scene_stack.push( std::move( new_scene ) );
   m_scene_stack.print_stack();
@@ -201,47 +201,47 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
   switch ( event.m_type )
   {
     case Events::SceneManagerEvent::Type::START_GAME: {
-      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::START_GAME requested" );
+      SPDLOG_DEBUG( "SceneManager: Events::SceneManagerEvent::Type::START_GAME requested" );
       auto graveyard_scene = std::make_unique<GraveyardScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher, m_sprite_factory );
       push( std::move( graveyard_scene ) );
       break;
     }
     case Events::SceneManagerEvent::Type::ENTER_CRYPT: {
-      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::ENTER_CRYPT requested" );
+      SPDLOG_DEBUG( "SceneManager: Events::SceneManagerEvent::Type::ENTER_CRYPT requested" );
       auto crypt_scene = std::make_unique<CryptScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher, m_sprite_factory );
       push_no_exit( std::move( crypt_scene ), RegCopyMode::ALL );
       break;
     }
     case Events::SceneManagerEvent::Type::EXIT_CRYPT: {
-      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::EXIT_CRYPT requested" );
+      SPDLOG_DEBUG( "SceneManager: Events::SceneManagerEvent::Type::EXIT_CRYPT requested" );
       pop( RegCopyMode::ALL );
       break;
     }
     case Events::SceneManagerEvent::Type::ENTER_SACREDSPRING: {
-      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::ENTER_SACREDSPRING requested" );
+      SPDLOG_DEBUG( "SceneManager: Events::SceneManagerEvent::Type::ENTER_SACREDSPRING requested" );
       auto healing_spring_scene = std::make_unique<HealingSpringScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher, m_sprite_factory );
       push_no_exit( std::move( healing_spring_scene ), RegCopyMode::ALL );
       break;
     }
     case Events::SceneManagerEvent::Type::EXIT_SACREDSPRING: {
-      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::EXIT_SACREDSPRING requested" );
+      SPDLOG_DEBUG( "SceneManager: Events::SceneManagerEvent::Type::EXIT_SACREDSPRING requested" );
       pop( RegCopyMode::ALL );
       break;
     }
     case Events::SceneManagerEvent::Type::ENTER_SHOP: {
-      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::ENTER_SHOP requested" );
+      SPDLOG_DEBUG( "SceneManager: Events::SceneManagerEvent::Type::ENTER_SHOP requested" );
       auto shop_scene = std::make_unique<ShopScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher, m_sprite_factory );
       replace( std::move( shop_scene ), RegCopyMode::ALL );
       break;
     }
     case Events::SceneManagerEvent::Type::EXIT_SHOP: {
-      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::EXIT_SHOP requested" );
+      SPDLOG_DEBUG( "SceneManager: Events::SceneManagerEvent::Type::EXIT_SHOP requested" );
       auto graveyard_scene = std::make_unique<GraveyardScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher, m_sprite_factory );
       replace( std::move( graveyard_scene ), RegCopyMode::ALL );
       break;
     }
     case Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER: {
-      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER requested" );
+      SPDLOG_DEBUG( "SceneManager: Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER requested" );
       auto ruin_scene = std::make_unique<RuinSceneLowerFloor>( m_sound_bank, m_system_store, m_nav_event_dispatcher, m_sprite_factory );
       ruin_scene->set_entry_mode( RuinSceneLowerFloor::EntryMode::FROM_DOOR );
       push_no_exit( std::move( ruin_scene ), RegCopyMode::ALL );
@@ -253,68 +253,68 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
         SPDLOG_WARN( "Already in RuinSceneUpperFloor, ignoring duplicate ENTER_RUIN_UPPER" );
         break;
       }
-      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::ENTER_RUIN_UPPER requested" );
+      SPDLOG_DEBUG( "SceneManager: Events::SceneManagerEvent::Type::ENTER_RUIN_UPPER requested" );
       auto ruin_scene = std::make_unique<RuinSceneUpperFloor>( m_sound_bank, m_system_store, m_nav_event_dispatcher, m_sprite_factory );
       push_no_exit( std::move( ruin_scene ), RegCopyMode::ALL );
       break;
     }
     case Events::SceneManagerEvent::Type::EXIT_RUIN_UPPER: {
-      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::EXIT_RUIN_UPPER requested" );
+      SPDLOG_DEBUG( "SceneManager: Events::SceneManagerEvent::Type::EXIT_RUIN_UPPER requested" );
       static_cast<RuinSceneLowerFloor *>( m_scene_stack.previous() )->set_entry_mode( RuinSceneLowerFloor::EntryMode::FROM_UPPER_FLOOR );
       pop( RegCopyMode::ALL );
       break;
     }
     case Events::SceneManagerEvent::Type::EXIT_RUIN: {
-      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::EXIT_RUIN requested" );
+      SPDLOG_DEBUG( "SceneManager: Events::SceneManagerEvent::Type::EXIT_RUIN requested" );
       pop( RegCopyMode::ALL );
       break;
     }
     case Events::SceneManagerEvent::Type::EXIT_GAME: {
-      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::EXIT_GAME requested" );
+      SPDLOG_DEBUG( "SceneManager: Events::SceneManagerEvent::Type::EXIT_GAME requested" );
       m_window.close();
       break;
     }
     case Events::SceneManagerEvent::Type::SETTINGS_MENU: {
-      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::SETTINGS_MENU requested" );
+      SPDLOG_DEBUG( "SceneManager: Events::SceneManagerEvent::Type::SETTINGS_MENU requested" );
       auto settings_scene = std::make_unique<SettingsMenuScene>( m_system_store, m_nav_event_dispatcher );
       push( std::move( settings_scene ) );
       break;
     }
     case Events::SceneManagerEvent::Type::EXIT_SETTINGS_MENU: {
-      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::EXIT_SETTINGS_MENU requested" );
+      SPDLOG_DEBUG( "SceneManager: Events::SceneManagerEvent::Type::EXIT_SETTINGS_MENU requested" );
       pop();
       break;
     }
     case Events::SceneManagerEvent::Type::QUIT_GAME: {
-      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::QUIT_GAME requested" );
+      SPDLOG_DEBUG( "SceneManager: Events::SceneManagerEvent::Type::QUIT_GAME requested" );
       pop();
       break;
     }
     case Events::SceneManagerEvent::Type::PAUSE_GAME: {
-      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::PAUSE_GAME requested" );
+      SPDLOG_DEBUG( "SceneManager: Events::SceneManagerEvent::Type::PAUSE_GAME requested" );
       auto paused_scene = std::make_unique<PausedMenuScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher );
       push_no_exit( std::move( paused_scene ) );
       break;
     }
     case Events::SceneManagerEvent::Type::RESUME_GAME: {
-      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::RESUME_GAME requested" );
+      SPDLOG_DEBUG( "SceneManager: Events::SceneManagerEvent::Type::RESUME_GAME requested" );
       pop_no_exit();
       break;
     }
     case Events::SceneManagerEvent::Type::GAME_OVER: {
-      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::GAME_OVER requested" );
+      SPDLOG_DEBUG( "SceneManager: Events::SceneManagerEvent::Type::GAME_OVER requested" );
       auto game_over_scene = std::make_unique<GameOverScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher );
       push_no_exit( std::move( game_over_scene ), RegCopyMode::ALL );
       break;
     }
     case Events::SceneManagerEvent::Type::LEVEL_COMPLETE: {
-      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::LEVEL_COMPLETE requested" );
+      SPDLOG_DEBUG( "SceneManager: Events::SceneManagerEvent::Type::LEVEL_COMPLETE requested" );
       auto level_complete_scene = std::make_unique<LevelCompleteScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher );
       replace( std::move( level_complete_scene ), RegCopyMode::ALL );
       break;
     }
     case Events::SceneManagerEvent::Type::RETURN_TO_TITLE: {
-      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::RETURN_TO_TITLE requested" );
+      SPDLOG_DEBUG( "SceneManager: Events::SceneManagerEvent::Type::RETURN_TO_TITLE requested" );
       // assume last scene is always title scene
       while ( m_scene_stack.size() > 1 )
       {
@@ -336,7 +336,7 @@ void SceneManager::inject_current_scene_registry_into_systems()
   for ( auto &sys : m_system_store )
     sys.second->reg( reg ); // pass the unique_ptr by reference
 
-  SPDLOG_INFO( "Injected registry into {} systems for {}", m_system_store.size(), m_scene_stack.current().get_name() );
+  SPDLOG_DEBUG( "Injected registry into {} systems for {}", m_system_store.size(), m_scene_stack.current().get_name() );
 }
 
 } // namespace Game::Scene

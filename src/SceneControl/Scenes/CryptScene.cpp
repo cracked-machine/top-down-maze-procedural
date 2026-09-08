@@ -53,8 +53,8 @@ void CryptScene::on_init()
   m_persistent_sys.load_state();
 
   m_scene_data = std::make_shared<SceneData>( "res/scenes/crypt.json" );
-  SPDLOG_INFO( "get_floor_image: {}", m_scene_data->floor_tileset_image().string() );
-  SPDLOG_INFO( "levelgen_tilelayer size: {}", m_scene_data->levelgen_tilelayer().size() );
+  SPDLOG_DEBUG( "get_floor_image: {}", m_scene_data->floor_tileset_image().string() );
+  SPDLOG_DEBUG( "levelgen_tilelayer size: {}", m_scene_data->levelgen_tilelayer().size() );
 
   auto scene_settings_entt = m_reg.create();
   m_reg.emplace_or_replace<Cmp::SceneSettings::CurrentScene>( scene_settings_entt, Cmp::SceneSettings::SceneId::CRYPT );
@@ -67,7 +67,7 @@ void CryptScene::on_init()
 
   // initialise the persistent player start position from the scene configuration (json) data
   auto [_, player_start_pos_px] = m_scene_data->get_player_start_position();
-  SPDLOG_INFO( "player start position {},{}", player_start_pos_px.x, player_start_pos_px.y );
+  SPDLOG_DEBUG( "player start position {},{}", player_start_pos_px.x, player_start_pos_px.y );
   Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, player_start_pos_px );
 
   auto [map_size_grid, map_size_pixel] = m_scene_data->map_size();
@@ -120,7 +120,7 @@ void CryptScene::on_init()
 void CryptScene::on_enter()
 {
   // Initialize entities specific to the CryptScene
-  SPDLOG_INFO( "Entering {}", get_name() );
+  SPDLOG_DEBUG( "Entering {}", get_name() );
 
   auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
   m_persistent_sys.initialize_component_registry();
@@ -149,7 +149,7 @@ void CryptScene::on_enter()
 void CryptScene::on_exit()
 {
   // Cleanup any resources or entities specific to the CryptScene
-  SPDLOG_INFO( "Exiting {}", get_name() );
+  SPDLOG_DEBUG( "Exiting {}", get_name() );
   Factory::Crypt::destroy_crypt_shuffle_timer( m_reg );
   m_sys.find<Sys::Store::Type::FootstepSystem>().stop_footsteps_sound();
 

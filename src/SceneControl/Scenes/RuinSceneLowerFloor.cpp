@@ -136,7 +136,7 @@ void RuinSceneLowerFloor::on_init()
 
 void RuinSceneLowerFloor::on_enter()
 {
-  SPDLOG_INFO( "Entering {}", get_name() );
+  SPDLOG_DEBUG( "Entering {}", get_name() );
 
   auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
   m_persistent_sys.initialize_component_registry();
@@ -169,20 +169,20 @@ void RuinSceneLowerFloor::on_enter()
     case EntryMode::FROM_DOOR: {
       if ( m_just_spawned )
       {
-        SPDLOG_INFO( "Player entering from door" );
+        SPDLOG_DEBUG( "Player entering from door" );
         player_pos.position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
         m_just_spawned = false;
       }
       break;
     }
     case EntryMode::FROM_UPPER_FLOOR: {
-      SPDLOG_INFO( "Player entering from upper floor" );
+      SPDLOG_DEBUG( "Player entering from upper floor" );
       player_pos.position = Utils::snap_to_grid( player_pos.position );
       m_sys.find<Sys::Store::Type::PlayerSystem>().force_expire_damage_cooldown();
       break;
     }
   }
-  SPDLOG_INFO( "Player entered RuinSceneLowerFloor at position ({}, {})", player_pos.position.x, player_pos.position.y );
+  SPDLOG_DEBUG( "Player entered RuinSceneLowerFloor at position ({}, {})", player_pos.position.x, player_pos.position.y );
 
   auto player_entt = Utils::Player::get_entity( m_reg );
   m_reg.emplace_or_replace<Cmp::Player::RuinLocation>( player_entt, Cmp::Player::RuinLocation::Floor::LOWER );
@@ -198,7 +198,7 @@ void RuinSceneLowerFloor::on_enter()
 
 void RuinSceneLowerFloor::on_exit()
 {
-  SPDLOG_INFO( "Exiting {}", get_name() );
+  SPDLOG_DEBUG( "Exiting {}", get_name() );
   m_sound_bank.get_music( "ruin_creaking_rope" ).stop();
   m_sound_bank.get_music( "ruin_music" ).stop();
   m_sys.find<Sys::Store::Type::FootstepSystem>().stop_footsteps_sound();

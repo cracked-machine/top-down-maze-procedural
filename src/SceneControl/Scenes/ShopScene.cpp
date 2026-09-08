@@ -63,7 +63,7 @@ void ShopScene::on_init()
   // initialise the persistent player start position from the scene configuration (json) data
   auto [_, player_start_pos_px] = m_scene_data->get_player_start_position();
   Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, player_start_pos_px );
-  SPDLOG_INFO( "player_start_pos_px: {},{}", player_start_pos_px.x, player_start_pos_px.y );
+  SPDLOG_DEBUG( "player_start_pos_px: {},{}", player_start_pos_px.x, player_start_pos_px.y );
 
   // create the empty game area
   sf::Vector2f player_start_position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
@@ -96,7 +96,7 @@ void ShopScene::on_init()
 
 void ShopScene::on_enter()
 {
-  SPDLOG_INFO( "Entering {}", get_name() );
+  SPDLOG_DEBUG( "Entering {}", get_name() );
   m_sound_bank.get_music( "graveyard_music" ).stop();
 
   auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
@@ -109,7 +109,7 @@ void ShopScene::on_enter()
   {
     auto &player_pos = Utils::Player::get_position( m_reg );
     player_pos.position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
-    SPDLOG_INFO( "player_start_pos_px: {},{}", player_pos.position.x, player_pos.position.y );
+    SPDLOG_DEBUG( "player_start_pos_px: {},{}", player_pos.position.x, player_pos.position.y );
     m_just_spawned = false;
   }
 
@@ -122,7 +122,7 @@ void ShopScene::on_enter()
 
 void ShopScene::on_exit()
 {
-  SPDLOG_INFO( "Exiting {}", get_name() );
+  SPDLOG_DEBUG( "Exiting {}", get_name() );
   m_reg.clear();
 
   m_sys.find<Sys::Store::Type::FootstepSystem>().stop_footsteps_sound();

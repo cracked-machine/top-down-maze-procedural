@@ -89,7 +89,7 @@ namespace Game::Scene
 
 void GraveyardScene::on_init()
 {
-  SPDLOG_INFO( "Init {}", get_name() );
+  SPDLOG_DEBUG( "Init {}", get_name() );
 
   m_sys.find<Sys::Store::Type::PersistSystem>().initialize_component_registry();
   m_sys.find<Sys::Store::Type::PersistSystem>().load_state();
@@ -191,7 +191,7 @@ void GraveyardScene::on_init()
 
 void GraveyardScene::on_enter()
 {
-  SPDLOG_INFO( "Entering {}", get_name() );
+  SPDLOG_DEBUG( "Entering {}", get_name() );
   reinit_system_spatial_maps();
 
   auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
@@ -238,7 +238,7 @@ void GraveyardScene::on_enter()
 
 void GraveyardScene::on_exit()
 {
-  SPDLOG_INFO( "Exiting {}", get_name() );
+  SPDLOG_DEBUG( "Exiting {}", get_name() );
   m_reg.clear();
   m_sound_bank.get_music( "graveyard_music" ).stop();
   m_sound_bank.get_music( "title_music" ).play();

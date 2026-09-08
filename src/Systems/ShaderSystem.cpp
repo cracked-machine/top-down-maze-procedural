@@ -17,7 +17,7 @@ std::vector<entt::entity> ShaderSystem::add_to_registry( Cmp::Shader::SpriteOwne
   reg().emplace<Cmp::Shader::SpriteOwner>( entt, std::move( owner ) );
   reg().emplace<Cmp::ZOrderValue>( entt, zorder );
   entt_list.push_back( entt );
-  SPDLOG_INFO( "Created ShaderSprite {}", static_cast<uint32_t>( entt ) );
+  SPDLOG_DEBUG( "Created ShaderSprite {}", static_cast<uint32_t>( entt ) );
 
   return entt_list;
 }

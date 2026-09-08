@@ -80,7 +80,7 @@ void VertexFloor::create( const PathFinding::SpatialHashGrid &void_sm, const Sce
 
   auto [map_size_grid, map_size_pixel] = sc->map_size();
 
-  SPDLOG_INFO( "Generating tilemap for {}x{}", map_size_grid.x, map_size_grid.y );
+  SPDLOG_DEBUG( "Generating tilemap for {}x{}", map_size_grid.x, map_size_grid.y );
   for ( unsigned int w = 0; w < map_size_grid.x; w++ )
   {
     for ( unsigned int h = 0; h < map_size_grid.y; h++ )
@@ -120,7 +120,7 @@ void VertexFloor::create( const PathFinding::SpatialHashGrid &void_sm, const Sce
     }
   }
 
-  SPDLOG_INFO( "Created tilemap: {} vertices", m_vertices.getVertexCount() );
+  SPDLOG_DEBUG( "Created tilemap: {} vertices", m_vertices.getVertexCount() );
 }
 
 void VertexFloor::remove( sf::Vector2f pos )

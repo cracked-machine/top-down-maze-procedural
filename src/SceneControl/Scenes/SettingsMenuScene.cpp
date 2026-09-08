@@ -9,18 +9,18 @@
 namespace Game::Scene
 {
 
-void SettingsMenuScene::on_init() { SPDLOG_INFO( "Initializing SettingsMenuScene" ); }
+void SettingsMenuScene::on_init() { SPDLOG_DEBUG( "Initializing SettingsMenuScene" ); }
 
 void SettingsMenuScene::on_enter()
 {
-  SPDLOG_INFO( "Entering  {}", get_name() );
+  SPDLOG_DEBUG( "Entering  {}", get_name() );
   auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
   m_persistent_sys.initialize_component_registry();
   m_persistent_sys.load_state();
 }
 void SettingsMenuScene::on_exit()
 {
-  SPDLOG_INFO( "Exiting  {}", get_name() );
+  SPDLOG_DEBUG( "Exiting  {}", get_name() );
   auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
   m_persistent_sys.save_state();
 }

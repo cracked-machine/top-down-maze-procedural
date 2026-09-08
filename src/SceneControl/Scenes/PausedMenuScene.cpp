@@ -13,11 +13,11 @@
 namespace Game::Scene
 {
 
-void PausedMenuScene::on_init() { SPDLOG_INFO( "Initializing PausedMenuScene" ); }
+void PausedMenuScene::on_init() { SPDLOG_DEBUG( "Initializing PausedMenuScene" ); }
 
 void PausedMenuScene::on_enter()
 {
-  SPDLOG_INFO( "Entering  {}", get_name() );
+  SPDLOG_DEBUG( "Entering  {}", get_name() );
   auto &persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
   persistent_sys.initialize_component_registry();
   persistent_sys.load_state();
@@ -27,7 +27,7 @@ void PausedMenuScene::on_enter()
 
 void PausedMenuScene::on_exit()
 {
-  SPDLOG_INFO( "Exiting {}", get_name() );
+  SPDLOG_DEBUG( "Exiting {}", get_name() );
   auto &persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
 
   // save the state because there are UI controls for volume.

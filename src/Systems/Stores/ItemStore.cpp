@@ -86,9 +86,9 @@ void ItemStore::init_store()
       }
     }
     m_store.emplace( item_key, std::move( worlditem ) );
-    SPDLOG_INFO( "Loaded item: {} ({})", item_key, sprite_mtype );
+    SPDLOG_DEBUG( "Loaded item: {} ({})", item_key, sprite_mtype );
   }
-  SPDLOG_INFO( "Item store loaded with {} items", m_store.size() );
+  SPDLOG_DEBUG( "Item store loaded with {} items", m_store.size() );
 }
 
 } // namespace Game::Sys

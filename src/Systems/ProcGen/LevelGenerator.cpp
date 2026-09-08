@@ -316,16 +316,13 @@ void LevelGenerator::add_ruin_rune_markers()
     float zorder = m_sprite_factory.get_spritesheet_by_type( "sprite.ruin.runemarking.inactive" ).get_zorder( 0 );
     auto rune_entt = Factory::Ruin::create_rune_marker( reg(), rnd_pos, zorder, idx, *m_reserved_sm );
 
-    SPDLOG_INFO( "Added rune to {},{}", rnd_pos.x(), rnd_pos.y() );
+    SPDLOG_DEBUG( "Added rune to {},{}", rnd_pos.x(), rnd_pos.y() );
 
     m_non_obstacle_sm->insert( rune_entt, rnd_pos );
     placed++;
   }
 
-  if ( placed < kRuneMarkerCount )
-  {
-    SPDLOG_ERROR( "Only placed {}/{} rune markers after {} attempts.", placed, kRuneMarkerCount, attempts );
-  }
+  if ( placed < kRuneMarkerCount ) { SPDLOG_ERROR( "Only placed {}/{} rune markers after {} attempts.", placed, kRuneMarkerCount, attempts ); }
 }
 
 void LevelGenerator::add_lowerfloor_cobwebs( int num_cobwebs, sf::FloatRect scene_dimensions )

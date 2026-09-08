@@ -74,7 +74,7 @@ void DLASystem::iterate( sf::FloatRect scene_size, const sf::Vector2f seed_pos, 
         }
         stuck = true;
         ++particle_count;
-        SPDLOG_INFO( "Carved {},{} particle {}/{}", particle.x(), particle.y(), particle_count, particle_limit );
+        SPDLOG_DEBUG( "Carved {},{} particle {}/{}", particle.x(), particle.y(), particle_count, particle_limit );
       }
       else
       {

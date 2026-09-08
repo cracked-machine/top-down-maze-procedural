@@ -45,7 +45,7 @@ void HealingSpringScene::on_init()
   m_persistent_sys.load_state();
 
   m_scene_data = std::make_shared<SceneData>( "res/scenes/well.json" );
-  SPDLOG_INFO( "wall_tilelayer size: {}", m_scene_data->wall_tilelayer().size() );
+  SPDLOG_DEBUG( "wall_tilelayer size: {}", m_scene_data->wall_tilelayer().size() );
 
   auto scene_settings_entt = m_reg.create();
   m_reg.emplace_or_replace<Cmp::SceneSettings::CurrentScene>( scene_settings_entt, Cmp::SceneSettings::SceneId::HEALING_SPRING );
@@ -88,7 +88,7 @@ void HealingSpringScene::on_init()
 
 void HealingSpringScene::on_enter()
 {
-  SPDLOG_INFO( "Entering {}", get_name() );
+  SPDLOG_DEBUG( "Entering {}", get_name() );
   m_sound_bank.get_music( "graveyard_music" ).stop();
   if ( m_sound_bank.get_music( "healing_spring" ).getStatus() != sf::Sound::Status::Playing )
   {
@@ -122,7 +122,7 @@ void HealingSpringScene::on_enter()
 
 void HealingSpringScene::on_exit()
 {
-  SPDLOG_INFO( "Exiting {}", get_name() );
+  SPDLOG_DEBUG( "Exiting {}", get_name() );
   m_sound_bank.get_music( "healing_spring" ).stop();
   m_sys.find<Sys::Store::Type::FootstepSystem>().stop_footsteps_sound();
   m_reg.clear();

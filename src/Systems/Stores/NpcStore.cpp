@@ -110,9 +110,9 @@ void NpcStore::init_store()
       }
     }
     m_store.emplace( item_key, std::move( npc ) );
-    SPDLOG_INFO( "Loaded item: {}", item_key );
+    SPDLOG_DEBUG( "Loaded item: {}", item_key );
   }
-  SPDLOG_INFO( "Item store loaded with {} items", m_store.size() );
+  SPDLOG_DEBUG( "NPC store loaded with {} items", m_store.size() );
 }
 
 } // namespace Game::Sys

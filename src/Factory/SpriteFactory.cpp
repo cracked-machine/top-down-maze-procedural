@@ -42,7 +42,7 @@ void SpriteFactory::init()
     };
 
     // new_ss.set_sprite_type( ms_type );
-    SPDLOG_INFO( "Loaded sprite metadata for type: {}, tiles: {}", new_ss.get_sprite_type(), new_ss.get_sprite_count() );
+    SPDLOG_DEBUG( "Loaded sprite metadata for type: {}, tiles: {}", new_ss.get_sprite_type(), new_ss.get_sprite_count() );
     m_sprite_metadata_map[ms_type] = std::move( new_ss );
   }
 

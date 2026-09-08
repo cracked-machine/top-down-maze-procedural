@@ -48,9 +48,9 @@ void PassageSystem::update( [[maybe_unused]] sf::Time dt )
   if ( m_connect_all_rooms ) { create_cached_passages(); }
 }
 
-void PassageSystem::init_nav_mesh( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh )
+void PassageSystem::init_nav_mesh( const PathFinding::SpatialHashGridSharedPtr &npc_navmesh )
 {
-  m_npc_navmesh = pathfinding_navmesh;
+  m_npc_navmesh = npc_navmesh;
   m_passage_algos.cache_wall_components( reg() );
 }
 
@@ -249,7 +249,7 @@ void PassageSystem::cache_all_room_connections()
   {
     auto new_region = sf::FloatRect( { 0.f, static_cast<float>( idx ) * region_height }, { region_width, region_height } );
     it = ProcGen::PassageCachedRegions<40>::BlockRegion{ .region = new_region, .blocklist = {} };
-    SPDLOG_INFO( "Created cached region {},{} {},{}", new_region.position.x, new_region.position.y, new_region.size.x, new_region.size.y );
+    SPDLOG_DEBUG( "Created cached region {},{} {},{}", new_region.position.x, new_region.position.y, new_region.size.x, new_region.size.y );
   }
 
   // Do this first to guarantee success otherwise player cannot leave.
@@ -418,7 +418,7 @@ void PassageSystem::cache_all_room_connections()
     }
   }
 
-  SPDLOG_INFO( "BlockRegion count {}", m_cached_passage_list.size() );
+  SPDLOG_DEBUG( "BlockRegion count {}", m_cached_passage_list.size() );
 
   // tidyPassageBlocks();
 }
@@ -444,7 +444,7 @@ void PassageSystem::connect_end_room_to_nearest_closed_room()
   auto [map_size_grid, map_size_pixel] = crypt_scene_data->map_size();
   const auto world_area = sf::FloatRect( { 0.f, 0.f }, map_size_pixel );
 
-  SPDLOG_INFO( "connecting end room {} to nearest closed room", static_cast<uint32_t>( end_room_entt ) );
+  SPDLOG_DEBUG( "connecting end room {} to nearest closed room", static_cast<uint32_t>( end_room_entt ) );
 
   // Try only south door as RoomEnd only appears at the top of the game area, stop as soon as one walk succeeds
   const std::array directions = { Cmp::Crypt::CryptPassageDirection::SOUTH };
@@ -489,7 +489,7 @@ void PassageSystem::create_cached_passages()
   }
 
   auto [region, blocklist] = m_cached_passage_list.get( m_region_idx );
-  SPDLOG_INFO( "Spawning region {} with {} blocks", m_region_idx, blocklist.size() );
+  SPDLOG_DEBUG( "Spawning region {} with {} blocks", m_region_idx, blocklist.size() );
   for ( auto &block : blocklist )
   {
     auto entt = reg().create();

@@ -79,6 +79,7 @@ RegistryTransfer::RegCopy RegistryTransfer::copy_reg( IScene &scene, Scene::RegC
 
   [[maybe_unused]] int skipped_cmp = 0;
   std::vector<std::string> copied_cmp;
+  std::vector<std::string> no_storage_cmps;
 
   // Copy player entity (for PLAYER_ONLY and ALL modes)
   if ( copy_mode == RegCopyMode::PLAYER_ONLY || copy_mode == RegCopyMode::ALL )
@@ -150,14 +151,13 @@ RegistryTransfer::RegCopy RegistryTransfer::copy_reg( IScene &scene, Scene::RegC
             SPDLOG_DEBUG( "Copied component: {}", source_storage.type().name() );
             copied_cmp.emplace_back( source_storage.type().name() );
           }
-          else { SPDLOG_WARN( "No storage found in target registry for component: {}", source_storage.type().name() ); }
+          else { no_storage_cmps.emplace_back( source_storage.type().name() ); }
         }
       }
     }
   }
-
-  SPDLOG_DEBUG( "Registry copy completed: {} copied, {} skipped", copied_cmp.size(), skipped_cmp );
-  pretty_print( copied_cmp );
+  pretty_print( "Copied: ", copied_cmp );
+  pretty_print( "No Storage Found:", no_storage_cmps );
 
   return registry_copy;
 }
@@ -196,6 +196,7 @@ void RegistryTransfer::xfer_player_entt( entt::registry &source_registry, entt::
   // Create a copy of an entity component by component (from entt wiki)
   std::vector<std::string> transferred_cmps;
   std::vector<std::string> removed_cmps;
+  std::vector<std::string> no_storage_cmps;
   for ( auto &&curr : source_registry.storage() )
   {
     if ( auto &source_storage = curr.second; source_storage.contains( source_entity ) )
@@ -217,13 +218,12 @@ void RegistryTransfer::xfer_player_entt( entt::registry &source_registry, entt::
 
         SPDLOG_DEBUG( "Successfully transferred component: {}", source_storage.type().name() );
       }
-      else { SPDLOG_DEBUG( "No storage found in target reg for cmp: {}", source_storage.type().name() ); }
+      else { no_storage_cmps.emplace_back( source_storage.type().name() ); }
     }
   }
-  SPDLOG_DEBUG( "Component transfer completed: {} removed", removed_cmps.size() );
-  // pretty_print( removed_cmps );
-  SPDLOG_INFO( "Component transfer completed: {} transferred", transferred_cmps.size() );
-  pretty_print( transferred_cmps );
+  pretty_print( "Removed:", removed_cmps );
+  pretty_print( "Transferred:", transferred_cmps );
+  pretty_print( "No Storage Found:", no_storage_cmps );
 }
 
 void RegistryTransfer::init_missing_cmp_storages( entt::registry &registry )
@@ -260,7 +260,7 @@ void RegistryTransfer::init_missing_cmp_storages( entt::registry &registry )
   // Add other player-related components as needed
 }
 
-void RegistryTransfer::pretty_print( const std::vector<std::string> &components )
+void RegistryTransfer::pretty_print( const std::string &prefix, const std::vector<std::string> &components )
 {
   if ( components.empty() ) return;
 
@@ -274,7 +274,7 @@ void RegistryTransfer::pretty_print( const std::vector<std::string> &components 
     else { ss << comp_name << " "; }
   }
   ss << "]";
-  SPDLOG_INFO( "{}", ss.str() );
+  SPDLOG_INFO( "{}[{}]: {}", prefix, components.size(), ss.str() );
 }
 
 } // namespace Game::Scene

@@ -10,6 +10,7 @@
 #include <Systems/PersistSystem.hpp>
 #include <Systems/ProcGen/CellAutomataSystem.hpp>
 
+#include <ranges>
 #include <spdlog/spdlog.h>
 
 namespace Game::Sys::ProcGen
@@ -20,6 +21,7 @@ void CellAutomataSystem::iterate( PathFinding::SpatialHashGrid &levelgen_spatial
   auto iterations = Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenMaxIterations>( m_reg ).get_value();
   auto birth_threshold = Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenBirthThreshold>( m_reg ).get_value();
   auto survival_threshold = Sys::PersistSystem::get<Cmp::Persist::GraveyardProcGenSurvivalThreshold>( m_reg ).get_value();
+  std::string iteration_timings;
 
   sf::Clock iteration_timer;
   for ( unsigned int i = 0; i < iterations; i++ )
@@ -67,9 +69,10 @@ void CellAutomataSystem::iterate( PathFinding::SpatialHashGrid &levelgen_spatial
         }
       }
     }
-    SPDLOG_INFO( "Iteration #{} took {}ms", i, iteration_timer.restart().asMilliseconds() );
+    iteration_timings += " " + std::to_string( iteration_timer.restart().asMilliseconds() );
   }
-
+  iteration_timings += " ";
+  SPDLOG_INFO( "Iterations (ms): [{}]", iteration_timings );
   SPDLOG_DEBUG( "Total Iterations: {}", iterations );
 }
 

@@ -61,7 +61,7 @@ void WispSystem::spawn_wisp()
   // find a random start position in the game area and create a new npc at that position
   auto [spawn_entt, spawn_pos] = Utils::Rnd::get_random_position( reg(), {}, {} );
   auto npc_entt = Factory::Npc::create_npc( reg(), spawn_entt, "npc.wisp" );
-  SPDLOG_INFO( "Created wisp npc {}", static_cast<uint32_t>( npc_entt ) );
+  SPDLOG_DEBUG( "Created wisp npc {}", static_cast<uint32_t>( npc_entt ) );
 
   // find a random target position in the game area that is distant from the spawn_pos
   static constexpr float kMinTargetDistance = 100.f;

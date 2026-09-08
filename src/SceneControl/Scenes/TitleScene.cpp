@@ -16,22 +16,19 @@ namespace Game::Scene
 void TitleScene::on_init()
 {
 
-  SPDLOG_INFO( "Initializing TitleScene" );
+  SPDLOG_DEBUG( "Initializing TitleScene" );
 
   auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
   m_persistent_sys.initialize_component_registry();
   m_persistent_sys.load_state();
 
-  SPDLOG_INFO( "Initializing TitleScene" );
-
   // We only have access to DisplayResolution once the PersistSystem is initialized.
   Factory::Shader::add_title( m_sys.find<Sys::Store::Type::ShaderSystem>(), Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( m_reg ) );
-  SPDLOG_INFO( "Initializing TitleScene" );
 }
 
 void TitleScene::on_enter()
 {
-  SPDLOG_INFO( "Entering {}", get_name() );
+  SPDLOG_DEBUG( "Entering {}", get_name() );
 
   auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
   m_persistent_sys.initialize_component_registry();
@@ -54,7 +51,7 @@ void TitleScene::on_enter()
 void TitleScene::on_exit()
 {
   // Cleanup if needed
-  SPDLOG_INFO( "Exiting {}", get_name() );
+  SPDLOG_DEBUG( "Exiting {}", get_name() );
 }
 
 void TitleScene::do_update( [[maybe_unused]] sf::Time dt )

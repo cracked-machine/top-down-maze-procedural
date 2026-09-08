@@ -11,10 +11,10 @@
 namespace Game::Scene
 {
 
-void GameOverScene::on_init() { SPDLOG_INFO( "Initializing GameOverScene" ); }
+void GameOverScene::on_init() { SPDLOG_DEBUG( "Initializing GameOverScene" ); }
 void GameOverScene::on_enter()
 {
-  SPDLOG_INFO( "Entering {}", get_name() );
+  SPDLOG_DEBUG( "Entering {}", get_name() );
   auto &persistent_sys = static_cast<Sys::PersistSystem &>( m_sys.find<Sys::Store::Type::PersistSystem>() );
   persistent_sys.initialize_component_registry();
   persistent_sys.load_state();
@@ -22,7 +22,7 @@ void GameOverScene::on_enter()
 }
 void GameOverScene::on_exit()
 {
-  SPDLOG_INFO( "Exiting {}", get_name() );
+  SPDLOG_DEBUG( "Exiting {}", get_name() );
   m_sys.find<Sys::Store::Type::FootstepSystem>().stop_footsteps_sound();
   m_reg.clear();
 }

@@ -57,7 +57,7 @@ namespace Game::Factory::Player
 
 void create_player( entt::registry &reg, const PathFinding::SpatialHashGridSharedPtr &reserved_navmesh )
 {
-  SPDLOG_INFO( "Creating player entity" );
+  SPDLOG_DEBUG( "Creating player entity" );
   auto entity = reg.create();
 
   // start position must be pixel coordinates within the screen resolution (kDisplaySize),

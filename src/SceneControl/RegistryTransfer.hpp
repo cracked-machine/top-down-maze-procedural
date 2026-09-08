@@ -120,10 +120,8 @@ public:
           else { SPDLOG_WARN( "No storage found in target reg for cmp: {}", source_storage.type().name() ); }
         }
       }
-      SPDLOG_DEBUG( "Component transfer completed: {} removed", removed_cmps.size() );
-      pretty_print( removed_cmps );
-      SPDLOG_DEBUG( "Component transfer completed: {} transferred", transferred_cmps.size() );
-      pretty_print( transferred_cmps );
+      pretty_print( "Removed:", removed_cmps );
+      pretty_print( "Transferred:", transferred_cmps );
     }
   }
 
@@ -134,7 +132,7 @@ private:
 
   //! @brief Print python style list of component type names
   //! @param components Vector of component type names
-  void pretty_print( const std::vector<std::string> &components );
+  void pretty_print( const std::string &prefix, const std::vector<std::string> &components );
 };
 
 } // namespace Game::Scene

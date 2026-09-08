@@ -114,7 +114,7 @@ void RuinSceneUpperFloor::on_init()
 
 void RuinSceneUpperFloor::on_enter()
 {
-  SPDLOG_INFO( "Entering {}", get_name() );
+  SPDLOG_DEBUG( "Entering {}", get_name() );
 
   auto [_, inventory_type, _] = Utils::Player::get_inventory( m_reg );
   if ( inventory_type != "item.witchesjar" )
@@ -157,7 +157,7 @@ void RuinSceneUpperFloor::on_enter()
 
 void RuinSceneUpperFloor::on_exit()
 {
-  SPDLOG_INFO( "Exiting {}", get_name() );
+  SPDLOG_DEBUG( "Exiting {}", get_name() );
   m_sound_bank.get_music( "ruin_creaking_rope" ).stop();
   m_sound_bank.get_music( "ruin_music" ).stop();
   m_reg.clear();

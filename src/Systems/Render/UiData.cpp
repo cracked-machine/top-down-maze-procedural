@@ -16,7 +16,7 @@ void UiData::deserialize( const std::filesystem::path &scene_tiledata_path )
   if ( not ui_tilemap_json.contains( "layers" ) ) return;
   for ( const auto &layer : ui_tilemap_json.at( "layers" ) )
   {
-    SPDLOG_INFO( "Found Layers" );
+    SPDLOG_DEBUG( "Found Layers" );
     if ( not layer.contains( "objects" ) ) continue;
     for ( const auto &object : layer.at( "objects" ) )
     {
@@ -30,25 +30,25 @@ void UiData::deserialize( const std::filesystem::path &scene_tiledata_path )
 
       if ( get_string( object, "type" ) == "ui_outline" )
       {
-        SPDLOG_INFO( "Found ui_outline: {}", get_string( object, "name" ) );
+        SPDLOG_DEBUG( "Found ui_outline: {}", get_string( object, "name" ) );
         m_outlines.emplace_back( get_float_rect( object ), get_string( object, "name" ), get_color_property( object, "fill_color" ),
                                  get_color_property( object, "line_color" ), get_int_property( object, "line_thickness" ) );
       }
       if ( get_string( object, "type" ) == "ui_label" )
       {
-        SPDLOG_INFO( "Found ui_label: {}", get_string( object, "name" ) );
+        SPDLOG_DEBUG( "Found ui_label: {}", get_string( object, "name" ) );
         m_labels.emplace_back( get_float_rect( object ), get_string( object, "name" ), get_int_property( object, "font_size" ),
                                get_string_property( object, "align" ) );
       }
       if ( get_string( object, "type" ) == "ui_text" )
       {
-        SPDLOG_INFO( "Found ui_text: {}", get_string( object, "name" ) );
+        SPDLOG_DEBUG( "Found ui_text: {}", get_string( object, "name" ) );
         m_texts.emplace_back( get_float_rect( object ), get_string( object, "name" ), get_string_property( object, "value" ),
                               get_int_property( object, "font_size" ) );
       }
       if ( get_string( object, "type" ) == "ui_meter" )
       {
-        SPDLOG_INFO( "Found ui_meter: {}", get_string( object, "name" ) );
+        SPDLOG_DEBUG( "Found ui_meter: {}", get_string( object, "name" ) );
         m_meters.emplace_back( get_float_rect( object ), get_string( object, "name" ) );
       }
       if ( get_string( object, "type" ) == "ui_icon" )

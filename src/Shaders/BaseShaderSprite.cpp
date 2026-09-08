@@ -36,7 +36,7 @@ void BaseShaderSprite::load_shader_files()
   {
     throw std::runtime_error( "Failed to load shaders: " + m_vert_shader_path.string() + " and " + m_frag_shader_path.string() );
   }
-  SPDLOG_INFO( "Shaders {} loaded successfully", m_vert_shader_path.string() );
+  SPDLOG_DEBUG( "Shaders {} loaded successfully", m_vert_shader_path.string() );
 }
 
 void BaseShaderSprite::set_position( const sf::Vector2f &position ) { m_sprite.setPosition( position ); }
@@ -45,7 +45,7 @@ void BaseShaderSprite::set_texture_view( sf::View view_update ) { m_render_textu
 void BaseShaderSprite::resize_texture( sf::Vector2u new_size )
 {
   [[maybe_unused]] auto result = m_render_texture.resize( new_size );
-  SPDLOG_INFO( "Resized render texture to {}x{}, result: {}", new_size.x, new_size.y, result ? "Success" : "Failed" );
+  SPDLOG_DEBUG( "Resized render texture to {}x{}, result: {}", new_size.x, new_size.y, result ? "Success" : "Failed" );
   m_sprite.setTexture( m_render_texture.getTexture(), true );
   m_sprite.setTextureRect( sf::IntRect( { 0, 0 }, { static_cast<int>( new_size.x ), static_cast<int>( new_size.y ) } ) );
 }
